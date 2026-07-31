@@ -1,0 +1,11 @@
+BRANCH_NAME=$(git symbolic-ref --short HEAD 2>/dev/null)
+case "$BRANCH_NAME" in
+  main|master|develop) ;;
+  feat/*|fix/*|chore/*|docs/*|refactor/*|test/*|style/*|ci/*|perf/*|build/*|revert/*) ;;
+  *)
+    echo "⚠️  Branch name '$BRANCH_NAME' doesn't match convention"
+    echo "   Expected: {type}/description"
+    ;;
+esac
+
+pnpm lint-staged

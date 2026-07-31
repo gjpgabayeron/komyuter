@@ -1,0 +1,12 @@
+node_modules
+dist
+.turbo
+pnpm-lock.yaml
+
+# Root design docs use table/bold formatting that Prettier would mangle
+/OVERVIEW.md
+/TECHSTACK.md
+/SCHEMA.md
+/SUMMARY.md
+/BACKEND.md
+/SCAFFOLD.md
