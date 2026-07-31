@@ -4,6 +4,28 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import globals from "globals";
 import prettier from "eslint-config-prettier";
+import expoFlat from "eslint-config-expo/flat.js";
+
+const webUiFiles = ["apps/web/**/*.{ts,tsx}", "packages/ui/**/*.{ts,tsx}"];
+const mobileFiles = ["apps/mobile/**/*.{ts,tsx,js,jsx,mjs,cjs}"];
+
+const scopeExpo = (configs) =>
+  configs.map((config) => {
+    const { files, ignores, ...rest } = config;
+    if (files) {
+      return {
+        ...rest,
+        files: files.map((pattern) => `apps/mobile/${pattern}`),
+      };
+    }
+    if (ignores) {
+      return {
+        ...rest,
+        ignores: ignores.map((pattern) => `apps/mobile/${pattern}`),
+      };
+    }
+    return { ...rest, files: mobileFiles };
+  });
 
 export default tseslint.config(
   {
@@ -12,13 +34,17 @@ export default tseslint.config(
       "**/dist/**",
       "**/.turbo/**",
       "**/public/**",
+      "apps/mobile/.expo/**",
       "pnpm-lock.yaml",
     ],
   },
   js.configs.recommended,
-  ...tseslint.configs.recommended,
+  ...tseslint.configs.recommended.map((config) => ({
+    ...config,
+    files: webUiFiles,
+  })),
   {
-    files: ["**/*.{ts,tsx}"],
+    files: webUiFiles,
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -35,7 +61,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["apps/web/**/*.{ts,tsx}", "packages/ui/**/*.{ts,tsx}"],
+    files: webUiFiles,
     languageOptions: {
       globals: { ...globals.browser },
     },
@@ -44,6 +70,17 @@ export default tseslint.config(
     files: ["**/*.{js,cjs,mjs}", "**/*.config.ts"],
     languageOptions: {
       globals: { ...globals.node },
+    },
+  },
+  ...scopeExpo(expoFlat),
+  {
+    files: mobileFiles,
+    settings: {
+      "import/resolver": {
+        typescript: {
+          project: ["apps/mobile/tsconfig.json"],
+        },
+      },
     },
   },
   prettier,
