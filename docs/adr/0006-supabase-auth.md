@@ -1,0 +1,5 @@
+# ADR-0006: Authentication via Supabase Auth, single admin role, anonymous commuter app
+
+The docs gave three conflicting auth answers (`@fastify/jwt`, custom `jsonwebtoken+bcrypt`, Supabase Auth). We chose **Supabase Auth** for all authentication, to avoid hand-rolling and verifying a JWT implementation. Admin authenticates (one admin role); the commuter mobile app is anonymous by default with **optional** sign-in. Commuters can use the app with no login; a settings affordance offers sign-in for those who want to contribute.
+
+Consequences: a logged-in commuter's traces are deduplicated per-commuter, so the trust badge can truthfully read "Verified · N commuters" for routes with enough logged-in contributors; anonymous traces count as raw submissions. Favorites/history/personalization are out of core scope but are a polish-time item (not dropped). Admin CRUD endpoints are gated by a Supabase-signed token; commuter endpoints (navigate, routes, stops) remain public. The DIY `jsonwebtoken+bcrypt` stack in `SUMMARY.md` is dropped.
