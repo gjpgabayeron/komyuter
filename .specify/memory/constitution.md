@@ -117,9 +117,12 @@ cannot be validated.
 - Quality gates: `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` MUST pass before
   merge. `.husky/pre-commit` runs lint-staged (eslint + prettier --check, no auto-fix);
   `.husky/commit-msg` enforces conventional commits (`type(scope): description`).
-- TODO(TEST_STRATEGY): no test runner is currently configured (`turbo.json` defines no
-  `test`). Do not invent a `pnpm test` task without amending this constitution; testability
-  (independent, measurable validation per Principle V) remains required regardless.
+- TEST_STRATEGY (amended 2026-07-31): a test runner (**Vitest**) is permitted for workspace
+  apps; each app that defines tests contributes a `test` task to `turbo.json`. Rationale:
+  success criteria SC-001–SC-008 in `specs/001-local-supabase-backend` demand automated
+  verification that manual checks cannot prove on every change (Principle V). Migration note:
+  this PATCH supersedes the earlier standing rule that no test task existed; earlier plans and
+  docs that reference a missing `test` task are historical, not normative.
 - UI work MUST load `PRODUCT.md` and `DESIGN.md` first; DESIGN wins on visual decisions,
   PRODUCT wins on strategic/voice decisions. The visual grammar is "The Route Sign" — flat
   enamel sign-plate surfaces, pure white ground, signboard green-blue plus signal amber,
