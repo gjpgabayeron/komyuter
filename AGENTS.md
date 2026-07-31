@@ -43,3 +43,10 @@
 - **PRODUCT.md** (repo root) and **DESIGN.md** (repo root) hold the product's strategic and visual systems. Load both before any UI work; DESIGN.md wins on visual decisions, PRODUCT.md wins on strategic/voice decisions.
 - Register: **product**. Commuter app + admin dashboard share one world: **The Route Sign** (flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4px corners, no shadows).
 - Surface briefs live in `.impeccable/surfaces/` per app; the first surface (commuter app) brief is at `apps/mobile/.impeccable/surfaces/apps-mobile.md`.
+
+<!-- SPECKIT START -->
+
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+
+<!-- SPECKIT END -->
