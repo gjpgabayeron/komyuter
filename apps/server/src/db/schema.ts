@@ -64,7 +64,10 @@ export const fareConfigs = pgTable(
     base_fare: numeric("base_fare", { precision: 10, scale: 2 })
       .notNull()
       .default("13.00"),
-    base_distance_km: numeric("base_distance_km", { precision: 10, scale: 2 })
+    base_distance_km: numeric("base_distance_km", {
+      precision: 10,
+      scale: 2,
+    })
       .notNull()
       .default("4.00"),
     rate_per_km: numeric("rate_per_km", { precision: 10, scale: 2 })

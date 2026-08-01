@@ -1,4 +1,9 @@
+import { existsSync } from "node:fs";
 import { z } from "zod";
+
+if (!process.env.DATABASE_URL && existsSync(".env")) {
+  process.loadEnvFile(".env");
+}
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),

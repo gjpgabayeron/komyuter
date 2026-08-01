@@ -47,17 +47,6 @@ export const updateRouteSchema = createRouteSchema.partial().extend({
   is_active: z.boolean().optional(),
 });
 
-export const createDirectionSchema = z.object({
-  label: z.string().min(1),
-  base_polyline: geoLineStringSchema,
-  origin_stop_id: z.string().min(1).nullable().optional(),
-  destination_stop_id: z.string().min(1).nullable().optional(),
-});
-
-export const updateDirectionSchema = createDirectionSchema.partial().extend({
-  is_active: z.boolean().optional(),
-});
-
 export const createStopSchema = z.object({
   name: z.string().min(1),
   type: stopTypeSchema,
@@ -66,6 +55,18 @@ export const createStopSchema = z.object({
   is_guaranteed_service: z.boolean().optional(),
   landmark_hint: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
+});
+
+export const createDirectionSchema = z.object({
+  label: z.string().min(1),
+  base_polyline: geoLineStringSchema,
+  origin_stop_id: z.string().min(1).nullable().optional(),
+  destination_stop_id: z.string().min(1).nullable().optional(),
+  stops: z.array(createStopSchema).optional(),
+});
+
+export const updateDirectionSchema = createDirectionSchema.partial().extend({
+  is_active: z.boolean().optional(),
 });
 
 export const updateStopSchema = createStopSchema.partial().extend({
