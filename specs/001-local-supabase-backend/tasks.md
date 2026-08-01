@@ -30,11 +30,11 @@ description: "Task list for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create `apps/server` backend package scaffold: `apps/server/package.json` (name `server`, scripts `dev`/`build`/`typecheck`), `apps/server/tsconfig.json` extending `@repo/typescript-config/base`, and `apps/server/.env.example`
-- [ ] T002 [P] Create `packages/shared` package: `packages/shared/package.json` (name `@komyuter/shared`, types/main → `./src/index.ts`), `packages/shared/tsconfig.json` extending `@repo/typescript-config/base`, and an empty `packages/shared/src/index.ts`
-- [ ] T003 [P] Initialize local Supabase project: run `supabase init` to create `supabase/config.toml` (with `[db.seed]` → `./seed.sql`), create `supabase/migrations/`, and add a `supabase/seed.sql` placeholder
-- [ ] T004 [P] Wire the new packages into the monorepo toolchain: extend root `eslint.config.mjs` with `apps/server/**/*.ts` and `packages/shared/**/*.ts` (TS rules + node globals), and add `tsc --noEmit -p apps/server/tsconfig.json` and `-p packages/shared/tsconfig.json` to the root `package.json` `typecheck` script
-- [ ] T005 Install workspace dependencies: `pnpm --filter server add fastify@5 @fastify/type-provider-zod @fastify/cors zod drizzle-orm pg @supabase/supabase-js` and dev deps `@types/node @types/pg vitest tsx`; `pnpm --filter @komyuter/shared add zod`
+- [x] T001 Create `apps/server` backend package scaffold: `apps/server/package.json` (name `server`, scripts `dev`/`build`/`typecheck`), `apps/server/tsconfig.json` extending `@repo/typescript-config/base`, and `apps/server/.env.example`
+- [x] T002 [P] Create `packages/shared` package: `packages/shared/package.json` (name `@komyuter/shared`, types/main → `./src/index.ts`), `packages/shared/tsconfig.json` extending `@repo/typescript-config/base`, and an empty `packages/shared/src/index.ts`
+- [x] T003 [P] Initialize local Supabase project: run `supabase init` to create `supabase/config.toml` (with `[db.seed]` → `./seed.sql`), create `supabase/migrations/`, and add a `supabase/seed.sql` placeholder
+- [x] T004 [P] Wire the new packages into the monorepo toolchain: extend root `eslint.config.mjs` with `apps/server/**/*.ts` and `packages/shared/**/*.ts` (TS rules + node globals), and add `tsc --noEmit -p apps/server/tsconfig.json` and `-p packages/shared/tsconfig.json` to the root `package.json` `typecheck` script
+- [x] T005 Install workspace dependencies: `pnpm --filter server add fastify@5 @fastify/type-provider-zod @fastify/cors zod drizzle-orm pg @supabase/supabase-js` and dev deps `@types/node @types/pg vitest tsx`; `pnpm --filter @komyuter/shared add zod`
 
 ---
 
@@ -44,18 +44,18 @@ description: "Task list for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Amend `.specify/memory/constitution.md` (PATCH, Engineering Workflow section) to permit a test runner (Vitest) for workspace apps, with stated rationale + migration note; then add `test: "vitest run"` to `apps/server/package.json`, create `apps/server/vitest.config.ts`, and add a `test` task to `turbo.json`
-- [ ] T007 Define shared types in `packages/shared/src/types/domain.ts` (Route, Direction, Stop, Detour, Restriction, FareConfiguration), `packages/shared/src/types/envelope.ts` (`{ success, data | error }` + error codes), and `packages/shared/src/types/export-dataset.ts` per `contracts/export-dataset.schema.json`
-- [ ] T008 [P] Define zod schemas in `packages/shared/src/schemas/` mirroring the shared types (route/direction/stop/detour/restriction/fare-config request bodies, envelope, export dataset) and export them from `packages/shared/src/index.ts`
-- [ ] T009 [P] Create Drizzle schema in `apps/server/src/db/schema.ts`: `routes`, `directions` (base_polyline geometry LineString 4326), `stops` (location geometry Point 4326 + GiST index), `detours`, `restrictions`, `fare_configs`, `admin_users` per `data-model.md`
-- [ ] T010 Generate schema migrations with drizzle-kit and commit the SQL into `supabase/migrations/` (including an initial `create extension if not exists postgis;` migration) so `supabase start` / `supabase db reset` apply them
-- [ ] T011 [P] Create config modules: `apps/server/src/config/env.ts` (parse DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, ADMIN_PASSWORD, PORT), `apps/server/src/config/db.ts` (pg + drizzle client), `apps/server/src/config/supabase.ts` (service-role supabase-js client)
-- [ ] T012 Write `supabase/seed.sql`: create the single admin user in `auth.users` (with `auth.identities`) from env-provided ADMIN_EMAIL/ADMIN_PASSWORD, insert the matching `admin_users` row, and insert one default fare configuration (spec FR-015/FR-016)
-- [ ] T013 [P] Implement geometry guards in `apps/server/src/domain/geometry.ts`: validate GeoJSON Point/LineString, enforce `[longitude, latitude]` order (reject out-of-range pairs), and reject non-geometry payloads (spec FR-005)
-- [ ] T014 [P] Implement spatial helpers in `apps/server/src/db/queries.ts`: wrappers for `ST_GeomFromGeoJSON` (write) and `ST_AsGeoJSON` (read) so every save/load path centralizes the `[lng,lat]` rule
-- [ ] T015 Bootstrap the Fastify app in `apps/server/src/api/app.ts`: register CORS, `@fastify/type-provider-zod`, a response-envelope serializer (`{ success, data | error }`), a central error handler mapping `VALIDATION_ERROR`/`CONFLICT`/`UNAUTHORIZED`/`FORBIDDEN`/`NOT_FOUND`/`INTERNAL`, and create `apps/server/src/index.ts` entrypoint
-- [ ] T016 Implement admin auth guard in `apps/server/src/api/auth.ts`: preHandler that extracts the Bearer token, calls `supabase.auth.getUser(token)`, and checks the `admin_users` table → `401` invalid token / `403` non-admin (spec FR-001)
-- [ ] T017 [P] Unit tests for shared zod schemas and geometry guards in `apps/server/tests/unit/geometry.test.ts` and `apps/server/tests/unit/schemas.test.ts`
+- [x] T006 Amend `.specify/memory/constitution.md` (PATCH, Engineering Workflow section) to permit a test runner (Vitest) for workspace apps, with stated rationale + migration note; then add `test: "vitest run"` to `apps/server/package.json`, create `apps/server/vitest.config.ts`, and add a `test` task to `turbo.json`
+- [x] T007 Define shared types in `packages/shared/src/types/domain.ts` (Route, Direction, Stop, Detour, Restriction, FareConfiguration), `packages/shared/src/types/envelope.ts` (`{ success, data | error }` + error codes), and `packages/shared/src/types/export-dataset.ts` per `contracts/export-dataset.schema.json`
+- [x] T008 [P] Define zod schemas in `packages/shared/src/schemas/` mirroring the shared types (route/direction/stop/detour/restriction/fare-config request bodies, envelope, export dataset) and export them from `packages/shared/src/index.ts`
+- [x] T009 [P] Create Drizzle schema in `apps/server/src/db/schema.ts`: `routes`, `directions` (base_polyline geometry LineString 4326), `stops` (location geometry Point 4326 + GiST index), `detours`, `restrictions`, `fare_configs`, `admin_users` per `data-model.md`
+- [x] T010 Generate schema migrations with drizzle-kit and commit the SQL into `supabase/migrations/` (including an initial `create extension if not exists postgis;` migration) so `supabase start` / `supabase db reset` apply them
+- [x] T011 [P] Create config modules: `apps/server/src/config/env.ts` (parse DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, ADMIN_PASSWORD, PORT), `apps/server/src/config/db.ts` (pg + drizzle client), `apps/server/src/config/supabase.ts` (service-role supabase-js client)
+- [x] T012 Write `supabase/seed.sql`: create the single admin user in `auth.users` (with `auth.identities`) from env-provided ADMIN_EMAIL/ADMIN_PASSWORD, insert the matching `admin_users` row, and insert one default fare configuration (spec FR-015/FR-016)
+- [x] T013 [P] Implement geometry guards in `apps/server/src/domain/geometry.ts`: validate GeoJSON Point/LineString, enforce `[longitude, latitude]` order (reject out-of-range pairs), and reject non-geometry payloads (spec FR-005)
+- [x] T014 [P] Implement spatial helpers in `apps/server/src/db/queries.ts`: wrappers for `ST_GeomFromGeoJSON` (write) and `ST_AsGeoJSON` (read) so every save/load path centralizes the `[lng,lat]` rule
+- [x] T015 Bootstrap the Fastify app in `apps/server/src/api/app.ts`: register CORS, `@fastify/type-provider-zod`, a response-envelope serializer (`{ success, data | error }`), a central error handler mapping `VALIDATION_ERROR`/`CONFLICT`/`UNAUTHORIZED`/`FORBIDDEN`/`NOT_FOUND`/`INTERNAL`, and create `apps/server/src/index.ts` entrypoint
+- [x] T016 Implement admin auth guard in `apps/server/src/api/auth.ts`: preHandler that extracts the Bearer token, calls `supabase.auth.getUser(token)`, and checks the `admin_users` table → `401` invalid token / `403` non-admin (spec FR-001)
+- [x] T017 [P] Unit tests for shared zod schemas and geometry guards in `apps/server/tests/unit/geometry.test.ts` and `apps/server/tests/unit/schemas.test.ts`
 
 **Checkpoint**: Foundation ready - server boots against local Supabase, schema migrated, admin seeded, auth + envelope work, and tests run via `pnpm --filter server test`. User story implementation can now begin.
 

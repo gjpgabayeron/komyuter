@@ -8,6 +8,7 @@ import expoFlat from "eslint-config-expo/flat.js";
 
 const webUiFiles = ["apps/web/**/*.{ts,tsx}", "packages/ui/**/*.{ts,tsx}"];
 const mobileFiles = ["apps/mobile/**/*.{ts,tsx,js,jsx,mjs,cjs}"];
+const serverFiles = ["apps/server/**/*.ts", "packages/shared/**/*.ts"];
 
 const scopeExpo = (configs) =>
   configs.map((config) => {
@@ -41,7 +42,7 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended.map((config) => ({
     ...config,
-    files: webUiFiles,
+    files: [...webUiFiles, ...serverFiles],
   })),
   {
     files: webUiFiles,
@@ -67,7 +68,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["**/*.{js,cjs,mjs}", "**/*.config.ts"],
+    files: ["**/*.{js,cjs,mjs}", "**/*.config.ts", ...serverFiles],
     languageOptions: {
       globals: { ...globals.node },
     },

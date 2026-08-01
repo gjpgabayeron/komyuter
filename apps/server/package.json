@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.1.0",
+    "@fastify/type-provider-zod": "^1.0.0",
+    "@komyuter/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.111.0",
+    "drizzle-orm": "^0.36.4",
+    "fastify": "^5.11.0",
+    "pg": "^8.22.0",
+    "zod": "^4.2.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.20.1",
+    "@types/pg": "^8.20.0",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.1",
+    "typescript": "5.5.4",
+    "vitest": "^2.1.9"
+  }
+}
