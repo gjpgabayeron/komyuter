@@ -7,12 +7,15 @@ import { registerStops } from "./stops";
 import { registerDetours } from "./detours";
 import { registerRestrictions } from "./restrictions";
 import { registerExport } from "./export";
+import { registerStatus } from "./status";
 
 export async function registerAdminRoutes(
   app: AppInstance,
   deps: AppDeps,
 ): Promise<void> {
   const authGuard = createAdminAuthGuard(deps.supabase, deps.db);
+
+  await app.register(registerStatus, deps);
 
   await app.register(
     async (admin) => {
