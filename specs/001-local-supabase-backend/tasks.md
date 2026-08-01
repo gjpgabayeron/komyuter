@@ -71,19 +71,19 @@ description: "Task list for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T018 [P] [US1] Integration tests for auth gating in `apps/server/tests/integration/auth.test.ts` (SC-001): unauthenticated write → 401 no data change; non-admin token → 403; seeded admin → success
-- [ ] T019 [P] [US1] Integration tests for CRUD reflection and validation rejection in `apps/server/tests/integration/crud.test.ts` (SC-002/SC-003): create/edit/deactivate each entity and re-read; referenced-stop deletion → 409; empty stop list, invalid geometry, off-path detour, out-of-range restriction indices → 4xx with data unchanged
+- [x] T018 [P] [US1] Integration tests for auth gating in `apps/server/tests/integration/auth.test.ts` (SC-001): unauthenticated write → 401 no data change; non-admin token → 403; seeded admin → success
+- [x] T019 [P] [US1] Integration tests for CRUD reflection and validation rejection in `apps/server/tests/integration/crud.test.ts` (SC-002/SC-003): create/edit/deactivate each entity and re-read; referenced-stop deletion → 409; empty stop list, invalid geometry, off-path detour, out-of-range restriction indices → 4xx with data unchanged
 
 ### Implementation for User Story 1
 
-- [ ] T020 [P] [US1] Implement route service + endpoints in `apps/server/src/api/routes.ts` (GET/POST /api/admin/routes, GET/PUT/DELETE /api/admin/routes/:routeId) per `contracts/api.md`, with soft-delete semantics
-- [ ] T021 [P] [US1] Implement fare-config service + endpoints in `apps/server/src/api/fare-configs.ts` (CRUD + single `is_default` rule, FR-015)
-- [ ] T022 [US1] Implement direction service + endpoints in `apps/server/src/api/directions.ts` (nested under routes; base_polyline save/load via `src/db/queries.ts`; non-empty stop-list rule; terminal references), per `contracts/api.md`
-- [ ] T023 [US1] Implement stop service + endpoints in `apps/server/src/api/stops.ts` (location Point via spatial helpers, `stop_order` assignment/reorder, delete conflict when referenced as terminal, FR-004/FR-007)
-- [ ] T024 [P] [US1] Implement detour service + endpoints in `apps/server/src/api/detours.ts` (nested under directions; validate `entry`/`exit` lie on the direction's base polyline)
-- [ ] T025 [P] [US1] Implement restriction service + endpoints in `apps/server/src/api/restrictions.ts` (nested under directions; validate `from_coord_index`/`to_coord_index` within the current base polyline)
-- [ ] T026 [US1] Wire per-entity validation into the CRUD handlers so all FR-004 rejections surface as structured `VALIDATION_ERROR`/`CONFLICT` errors through the central error handler in `apps/server/src/api/app.ts`
-- [ ] T027 [US1] Add structured logging for CRUD operations (request id, admin id, entity type/action, outcome) in `apps/server/src/api/app.ts`
+- [x] T020 [P] [US1] Implement route service + endpoints in `apps/server/src/api/routes.ts` (GET/POST /api/admin/routes, GET/PUT/DELETE /api/admin/routes/:routeId) per `contracts/api.md`, with soft-delete semantics
+- [x] T021 [P] [US1] Implement fare-config service + endpoints in `apps/server/src/api/fare-configs.ts` (CRUD + single `is_default` rule, FR-015)
+- [x] T022 [US1] Implement direction service + endpoints in `apps/server/src/api/directions.ts` (nested under routes; base_polyline save/load via `src/db/queries.ts`; non-empty stop-list rule; terminal references), per `contracts/api.md`
+- [x] T023 [US1] Implement stop service + endpoints in `apps/server/src/api/stops.ts` (location Point via spatial helpers, `stop_order` assignment/reorder, delete conflict when referenced as terminal, FR-004/FR-007)
+- [x] T024 [P] [US1] Implement detour service + endpoints in `apps/server/src/api/detours.ts` (nested under directions; validate `entry`/`exit` lie on the direction's base polyline)
+- [x] T025 [P] [US1] Implement restriction service + endpoints in `apps/server/src/api/restrictions.ts` (nested under directions; validate `from_coord_index`/`to_coord_index` within the current base polyline)
+- [x] T026 [US1] Wire per-entity validation into the CRUD handlers so all FR-004 rejections surface as structured `VALIDATION_ERROR`/`CONFLICT` errors through the central error handler in `apps/server/src/api/app.ts`
+- [x] T027 [US1] Add structured logging for CRUD operations (request id, admin id, entity type/action, outcome) in `apps/server/src/api/app.ts`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently.
 
@@ -101,14 +101,14 @@ description: "Task list for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T028 [P] [US2] Unit tests for export assembly in `apps/server/tests/unit/export.test.ts`: fixture routes → correct dataset shape; empty DB → `routes: []`; coordinate-order audit over every stored pair (SC-004)
-- [ ] T029 [P] [US2] Integration tests for the export endpoint in `apps/server/tests/integration/export.test.ts` (SC-005): full dataset contains plotted route; 100% of stop/direction/route references resolve; output validates against `contracts/export-dataset.schema.json`; no arrival-time fields (FR-010)
+- [x] T028 [P] [US2] Unit tests for export assembly in `apps/server/tests/unit/export.test.ts`: fixture routes → correct dataset shape; empty DB → `routes: []`; coordinate-order audit over every stored pair (SC-004)
+- [x] T029 [P] [US2] Integration tests for the export endpoint in `apps/server/tests/integration/export.test.ts` (SC-005): full dataset contains plotted route; 100% of stop/direction/route references resolve; output validates against `contracts/export-dataset.schema.json`; no arrival-time fields (FR-010)
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implement export assembly in `apps/server/src/domain/export.ts`: read all routes/directions/stops/detours/restrictions/fare configs, build the dataset document (schema_version 1.0, `coordinate_order: "lng_lat"`, exported_at, fare_configs, routes) per `contracts/export-dataset.schema.json`
-- [ ] T031 [US2] Implement export endpoint in `apps/server/src/api/export.ts`: admin-gated `GET /api/admin/export/dataset` returning `application/json` with `Content-Disposition: attachment; filename="komyuter-dataset.json"` (spec FR-009, Q3 file export)
-- [ ] T032 [US2] Add a scripted check in `apps/server/tests/` that validates the exported file against `contracts/export-dataset.schema.json` and confirms it parses standalone (mirrors the Collaboratory script read path)
+- [x] T030 [US2] Implement export assembly in `apps/server/src/domain/export.ts`: read all routes/directions/stops/detours/restrictions/fare configs, build the dataset document (schema_version 1.0, `coordinate_order: "lng_lat"`, exported_at, fare_configs, routes) per `contracts/export-dataset.schema.json`
+- [x] T031 [US2] Implement export endpoint in `apps/server/src/api/export.ts`: admin-gated `GET /api/admin/export/dataset` returning `application/json` with `Content-Disposition: attachment; filename="komyuter-dataset.json"` (spec FR-009, Q3 file export)
+- [x] T032 [US2] Add a scripted check in `apps/server/tests/` that validates the exported file against `contracts/export-dataset.schema.json` and confirms it parses standalone (mirrors the Collaboratory script read path)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work; the dataset file is ready for the validation script.
 
@@ -124,14 +124,14 @@ description: "Task list for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T033 [P] [US3] Integration tests for status + persistence in `apps/server/tests/integration/status.test.ts` (SC-006/SC-008, FR-014): status returns ok + correct counts; persisted data is served after a server restart
+- [x] T033 [P] [US3] Integration tests for status + persistence in `apps/server/tests/integration/status.test.ts` (SC-006/SC-008, FR-014): status returns ok + correct counts; persisted data is served after a server restart
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Implement status endpoint in `apps/server/src/api/status.ts`: `GET /api/status` → `{ success, data: { status: "ok", stats: { routes, directions, stops, detours, restrictions, fare_configs, dataset_updated_at } } }` (FR-012)
-- [ ] T035 [US3] Write `apps/server/README.md` setup/run documentation and finalize `apps/server/.env.example`, mirroring `quickstart.md` (supabase start, env copy, install, dev, admin login, CRUD, export)
-- [ ] T036 [US3] Verify restart persistence end-to-end: data survives `supabase stop`/`start` and a server restart; the server serves the dataset from committed storage with no startup data-loading step required (drizzle reads at request time) — reconcile with T033 if gaps surface
-- [ ] T037 [US3] Add a latency check (SC-007): repeat status + export reads 20× locally and assert ≥19 of 20 complete in under 1 second (small script or vitest perf test)
+- [x] T034 [US3] Implement status endpoint in `apps/server/src/api/status.ts`: `GET /api/status` → `{ success, data: { status: "ok", stats: { routes, directions, stops, detours, restrictions, fare_configs, dataset_updated_at } } }` (FR-012)
+- [x] T035 [US3] Write `apps/server/README.md` setup/run documentation and finalize `apps/server/.env.example`, mirroring `quickstart.md` (supabase start, env copy, install, dev, admin login, CRUD, export)
+- [x] T036 [US3] Verify restart persistence end-to-end: data survives `supabase stop`/`start` and a server restart; the server serves the dataset from committed storage with no startup data-loading step required (drizzle reads at request time) — reconcile with T033 if gaps surface
+- [x] T037 [US3] Add a latency check (SC-007): repeat status + export reads 20× locally and assert ≥19 of 20 complete in under 1 second (small script or vitest perf test)
 
 **Checkpoint**: All user stories independently functional; the full flow (local setup → login → plot → export → restart) works for demo.
 
@@ -141,9 +141,9 @@ description: "Task list for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Run `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` repo-wide and fix all violations in `apps/server`, `packages/shared`, `supabase/seed.sql`, and root config
+- [x] T038 [P] Run `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` repo-wide and fix all violations in `apps/server`, `packages/shared`, `supabase/seed.sql`, and root config
 - [ ] T039 [P] Execute every `quickstart.md` validation scenario end-to-end and fix gaps (all 12 scenarios pass)
-- [ ] T040 [P] Update docs: refresh `AGENTS.md` (apps/server + @komyuter/shared conventions, server quality gates) and the root `README.md` if it references the backend
+- [x] T040 [P] Update docs: refresh `AGENTS.md` (apps/server + @komyuter/shared conventions, server quality gates) and the root `README.md` if it references the backend
 - [ ] T041 Commit each logical group with conventional commits (`type(scope): description`) — e.g., `feat(server): add route CRUD`, `chore(constitution): permit vitest test runner` — per commitlint config
 
 ---
