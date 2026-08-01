@@ -6,6 +6,7 @@ import { registerDirections } from "./directions";
 import { registerStops } from "./stops";
 import { registerDetours } from "./detours";
 import { registerRestrictions } from "./restrictions";
+import { registerExport } from "./export";
 
 export async function registerAdminRoutes(
   app: AppInstance,
@@ -22,6 +23,7 @@ export async function registerAdminRoutes(
       await admin.register(registerStops, deps);
       await admin.register(registerDetours, deps);
       await admin.register(registerRestrictions, deps);
+      await admin.register(registerExport, deps);
     },
     { prefix: "/api/admin" },
   );
