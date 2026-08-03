@@ -18,7 +18,7 @@
 
 - `pnpm dev` / `pnpm build` — turbo pipelines across all packages (see `turbo.json`).
 - `pnpm lint` — **single root ESLint 9 flat config** (`eslint.config.mjs`); runs `eslint .` repo-wide. Per-package lint scripts were removed; eslint lives only at root.
-- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/web`, `apps/mobile`, `apps/server`, and `packages/shared`.
+- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/admin`, `apps/mobile`, `apps/server`, and `packages/shared`. (The `apps/web` starter app was removed from the repo in commit `c9bf984`.)
 - `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five root design docs are in `.prettierignore`.
 - **Tests**: `pnpm --filter server test` runs Vitest on `apps/server` (unit + integration). The integration suite requires the local Supabase stack up and `apps/server/.env` present. `turbo.json` has no `test` task — there is no repo-wide `pnpm test`.
 - Hooks: `.husky/pre-commit` runs lint-staged (`eslint` + `prettier --check` on staged files, no auto-fix) and a warn-only branch-name check; `.husky/commit-msg` enforces conventional commits via commitlint (`commitlint.config.cjs`, scopes are warn-level).

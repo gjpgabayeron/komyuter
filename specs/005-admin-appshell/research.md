@@ -81,3 +81,9 @@ Phase 0 output for `specs/005-admin-appshell`. Each unknown from the plan's Tech
 - **Testing**: Per the server TDD convention in `AGENTS.md`, integration tests are written **first** in `apps/server/tests/integration/auth-login.test.ts` (using `tests/integration/helpers.ts` + `buildApp`) covering: valid admin credentials → access token + identity; wrong credentials → 401; valid non-admin user → 403; `/me` with valid/invalid token. Gate: `pnpm --filter server typecheck` and `pnpm --filter server test` (requires local Supabase stack + `apps/server/.env`).
 - **Rationale**: Matches the established `{ success, data | error }` envelope, error codes (`UNAUTHORIZED`/`FORBIDDEN`), and the `buildApp({ db, supabase })` DI pattern already in the codebase (`src/api/app.ts`).
 - **Alternatives considered**: Reusing a Supabase browser client to sign in and only using the backend for `/api/admin/*` (rejected: R4); adding login under the existing `createAdminAuthGuard` (rejected: the guard requires a token, so a login endpoint must be public by definition).
+
+## R13. Linting tooling — oxlint (future migration consideration)
+
+- **Decision (Phase 1)**: Dropped the Vite template's `oxlint` + `.oxlintrc.json` from `apps/admin`; the app is linted by the single root ESLint flat config (`webUiFiles` now includes `apps/admin/**/*.{ts,tsx}`), per the constitution's Engineering Workflow gate.
+- **Deferred consideration**: Revisit **oxlint** as a possible faster lint runner during a future tooling/research pass. If adopted repo-wide it would require a constitution amendment (single root lint config) plus CI/turbo wiring; there is no current need since root ESLint covers the app and the repo's gates are green.
+- **Rationale**: Avoids a second, divergent per-package lint tool while ESLint is the established single gate (constitution Principle III, Engineering Workflow).

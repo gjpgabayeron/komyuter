@@ -6,7 +6,11 @@ import globals from "globals";
 import prettier from "eslint-config-prettier";
 import expoFlat from "eslint-config-expo/flat.js";
 
-const webUiFiles = ["apps/web/**/*.{ts,tsx}", "packages/ui/**/*.{ts,tsx}"];
+const webUiFiles = [
+  "apps/web/**/*.{ts,tsx}",
+  "packages/ui/**/*.{ts,tsx}",
+  "apps/admin/**/*.{ts,tsx}",
+];
 const mobileFiles = ["apps/mobile/**/*.{ts,tsx,js,jsx,mjs,cjs}"];
 const serverFiles = ["apps/server/**/*.ts", "packages/shared/**/*.ts"];
 

@@ -15,17 +15,17 @@
 
 **Purpose**: Bootstrap the `apps/admin` app (currently only `.env` exists) and wire it into the monorepo gates.
 
-- [ ] T001 Bootstrap apps/admin from the Vite react-ts template via CLI (`pnpm create vite@latest apps/admin --template react-ts`), then `pnpm install` — scaffold replaces the empty `apps/admin/`
-- [ ] T002 Add runtime dependencies to `apps/admin/package.json` via `pnpm add` (react@^18.3.0, react-dom, react-router-dom@^6, @tanstack/react-query@^5, axios, @base-ui/react, zustand, lucide-react, sonner, class-variance-authority, clsx, tailwind-merge)
-- [ ] T003 [P] Add dev dependencies to `apps/admin/package.json` via `pnpm add -D` (vite@^5, @vitejs/plugin-react, typescript@5.5.4, tailwindcss@^4, @tailwindcss/vite, vitest, @types/react@^18, @types/react-dom@^18, @types/node)
-- [ ] T004 Configure `apps/admin/vite.config.ts` with the `react()` and `@tailwindcss/vite` plugins
-- [ ] T005 Configure `apps/admin/tsconfig.json` to extend `@repo/typescript-config/vite.json` (`jsx: react-jsx`, `include: ["src"]`)
-- [ ] T006 Run `pnpm dlx shadcn@latest init` inside `apps/admin` (Base UI, new-york, Tailwind v4, aliases `@/components`, `@/lib`) → generates `apps/admin/components.json` (depends T002/T003/T004)
-- [ ] T007 Run `pnpm dlx shadcn@latest add button input label dropdown-menu avatar tooltip separator sonner badge card skeleton` (depends T006)
-- [ ] T008 Create `apps/admin/index.html` (title "Komyuter Admin", `#root` div) and `apps/admin/src/vite-env.d.ts`
-- [ ] T009 [P] Wire repo gates: add `"apps/admin/**/*.{ts,tsx}"` to `webUiFiles` in `eslint.config.mjs`; add `tsc --noEmit -p apps/admin/tsconfig.json` to the root `typecheck` script in `package.json`; add the admin `test` task to `turbo.json`
-- [ ] T010 [P] Add `apps/admin/vitest.config.ts` and a `"test": "vitest run"` script to `apps/admin/package.json`
-- [ ] T011 Create `apps/admin/src/index.css` with Tailwind v4 `@import "tailwindcss"` plus the `@theme` Route Sign tokens from `docs/ADMIN.md` Appendix E (white ground, green-blue primary, amber warning, ≤4px corner tokens)
+- [x] T001 Bootstrap apps/admin from the Vite react-ts template via CLI (`pnpm create vite@latest apps/admin --template react-ts`), then `pnpm install` — scaffold replaces the empty `apps/admin/`
+- [x] T002 Add runtime dependencies to `apps/admin/package.json` via `pnpm add` (react@^18.3.0, react-dom, react-router-dom@^6, @tanstack/react-query@^5, axios, @base-ui/react, zustand, lucide-react, sonner, class-variance-authority, clsx, tailwind-merge)
+- [x] T003 [P] Add dev dependencies to `apps/admin/package.json` via `pnpm add -D` (vite@^5, @vitejs/plugin-react, typescript@5.5.4, tailwindcss@^4, @tailwindcss/vite, vitest, @types/react@^18, @types/react-dom@^18, @types/node)
+- [x] T004 Configure `apps/admin/vite.config.ts` with the `react()` and `@tailwindcss/vite` plugins
+- [x] T005 Configure `apps/admin/tsconfig.json` to extend `@repo/typescript-config/vite.json` (`jsx: react-jsx`, `include: ["src"]`)
+- [x] T006 Run `pnpm dlx shadcn@latest init` inside `apps/admin` (Base UI, new-york, Tailwind v4, aliases `@/components`, `@/lib`) → generates `apps/admin/components.json` (depends T002/T003/T004)
+- [x] T007 Run `pnpm dlx shadcn@latest add button input label dropdown-menu avatar tooltip separator sonner badge card skeleton` (depends T006)
+- [x] T008 Create `apps/admin/index.html` (title "Komyuter Admin", `#root` div) and `apps/admin/src/vite-env.d.ts`
+- [x] T009 [P] Wire repo gates: add `"apps/admin/**/*.{ts,tsx}"` to `webUiFiles` in `eslint.config.mjs`; add `tsc --noEmit -p apps/admin/tsconfig.json` to the root `typecheck` script in `package.json`; add the admin `test` task to `turbo.json`
+- [x] T010 [P] Add `apps/admin/vitest.config.ts` and a `"test": "vitest run"` script to `apps/admin/package.json`
+- [x] T011 Create `apps/admin/src/index.css` with Tailwind v4 `@import "tailwindcss"` plus the `@theme` Route Sign tokens from `docs/ADMIN.md` Appendix E (white ground, green-blue primary, amber warning, ≤4px corner tokens)
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
