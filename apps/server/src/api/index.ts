@@ -1,4 +1,5 @@
 import type { AppDeps, AppInstance } from "./app";
+import { registerAuth } from "./auth-login";
 import { createAdminAuthGuard } from "./auth";
 import { registerRoutes } from "./routes";
 import { registerFareConfigs } from "./fare-configs";
@@ -16,6 +17,7 @@ export async function registerAdminRoutes(
   const authGuard = createAdminAuthGuard(deps.supabase, deps.db);
 
   await app.register(registerStatus, deps);
+  await app.register(registerAuth, deps);
 
   await app.register(
     async (admin) => {

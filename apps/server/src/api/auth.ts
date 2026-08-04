@@ -11,7 +11,7 @@ declare module "fastify" {
   }
 }
 
-function extractBearerToken(request: FastifyRequest): string | null {
+export function extractBearerToken(request: FastifyRequest): string | null {
   const header = request.headers.authorization;
   if (!header) {
     return null;

@@ -52,10 +52,10 @@
 
 **⚠️ CRITICAL**: US1 depends on these endpoints existing. Gates: `pnpm --filter server typecheck` and `pnpm --filter server test` (requires local Supabase stack + `apps/server/.env`).
 
-- [ ] T020 [P] Write server integration tests FIRST for POST /api/auth/login in `apps/server/tests/integration/auth-login.test.ts` (via `tests/integration/helpers.ts` + `buildApp`): valid admin credentials → `access_token` + admin identity; wrong credentials → 401 `UNAUTHORIZED`; signed-in non-admin → 403 `FORBIDDEN`
-- [ ] T021 Implement POST /api/auth/login in `apps/server/src/api/auth-login.ts` — `deps.supabase.auth.signInWithPassword` + `admin_users` check + envelope response; register it PUBLIC (outside the `/api/admin` guard) in `apps/server/src/api/index.ts` (depends T020; `contracts/auth-api.md`, research R4/R12)
-- [ ] T022 [P] Write server integration test FIRST for GET /api/auth/me in `apps/server/tests/integration/auth-login.test.ts`: valid Bearer token → admin identity; missing/invalid token → 401
-- [ ] T023 Implement GET /api/auth/me in `apps/server/src/api/auth-login.ts` — reuse the guard's validation (`supabase.auth.getUser` + `admin_users`) and return `{ id, email }` (depends T022)
+- [x] T020 [P] Write server integration tests FIRST for POST /api/auth/login in `apps/server/tests/integration/auth-login.test.ts` (via `tests/integration/helpers.ts` + `buildApp`): valid admin credentials → `access_token` + admin identity; wrong credentials → 401 `UNAUTHORIZED`; signed-in non-admin → 403 `FORBIDDEN`
+- [x] T021 Implement POST /api/auth/login in `apps/server/src/api/auth-login.ts` — `deps.supabase.auth.signInWithPassword` + `admin_users` check + envelope response; register it PUBLIC (outside the `/api/admin` guard) in `apps/server/src/api/index.ts` (depends T020; `contracts/auth-api.md`, research R4/R12)
+- [x] T022 [P] Write server integration test FIRST for GET /api/auth/me in `apps/server/tests/integration/auth-login.test.ts`: valid Bearer token → admin identity; missing/invalid token → 401
+- [x] T023 Implement GET /api/auth/me in `apps/server/src/api/auth-login.ts` — reuse the guard's validation (`supabase.auth.getUser` + `admin_users`) and return `{ id, email }` (depends T022)
 
 **Checkpoint**: `pnpm --filter server typecheck` and `pnpm --filter server test` green; login/me round-trip verified against the local stack.
 
