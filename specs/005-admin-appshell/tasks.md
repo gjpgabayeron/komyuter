@@ -33,14 +33,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T012 [P] Create `apps/admin/src/lib/utils.ts` with the `cn()` helper (clsx + tailwind-merge)
-- [ ] T013 [P] Create `apps/admin/src/lib/sections.ts` — pure section registry (`id`, `label`, `path`, `icon`) for Overview / Routes / Fares / Export (see `data-model.md` → Application Section)
-- [ ] T014 [P] Create `apps/admin/src/lib/queryClient.ts` — react-query client instance
-- [ ] T015 [P] Create `apps/admin/src/lib/api.ts` — axios instance with `baseURL = import.meta.env.VITE_API_URL`, Bearer token injection, and `{ success, data | error }` envelope handling (see `contracts/ui-shell.md` §1)
-- [ ] T016 Create `apps/admin/src/features/auth/api.ts` — auth API functions over `lib/api.ts`: `login(email, password)` → POST `/api/auth/login`, `me()` → GET `/api/auth/me` (depends T015; `contracts/auth-api.md`)
-- [ ] T017 Create `apps/admin/src/features/auth/auth.tsx` — `AuthProvider`/`useAuth` context: `status` (`loading|unauthenticated|authenticating|authenticated`), stored token, session restore via `me()`, `signIn(email, password)`, `signOut()` (depends T016; session machine in `data-model.md`)
-- [ ] T018 [P] Create `apps/admin/src/components/shared/Toaster.tsx` — sonner toaster mount (depends T007)
-- [ ] T019 [P] Unit tests for the section registry in `apps/admin/src/tests/sections.test.ts` (id uniqueness, path→section mapping)
+- [x] T012 [P] Create `apps/admin/src/lib/utils.ts` with the `cn()` helper (clsx + tailwind-merge)
+- [x] T013 [P] Create `apps/admin/src/lib/sections.ts` — pure section registry (`id`, `label`, `path`, `icon`) for Overview / Routes / Fares / Export (see `data-model.md` → Application Section)
+- [x] T014 [P] Create `apps/admin/src/lib/queryClient.ts` — react-query client instance
+- [x] T015 [P] Create `apps/admin/src/lib/api.ts` — axios instance with `baseURL = import.meta.env.VITE_API_URL`, Bearer token injection, and `{ success, data | error }` envelope handling (see `contracts/ui-shell.md` §1)
+- [x] T016 Create `apps/admin/src/features/auth/api.ts` — auth API functions over `lib/api.ts`: `login(email, password)` → POST `/api/auth/login`, `me()` → GET `/api/auth/me` (depends T015; `contracts/auth-api.md`)
+- [x] T017 Create `apps/admin/src/features/auth/auth.tsx` — `AuthProvider`/`useAuth` context: `status` (`loading|unauthenticated|authenticating|authenticated`), stored token, session restore via `me()`, `signIn(email, password)`, `signOut()` (depends T016; session machine in `data-model.md`)
+- [x] T018 [P] Create `apps/admin/src/components/shared/Toaster.tsx` — sonner toaster mount (depends T007)
+- [x] T019 [P] Unit tests for the section registry in `apps/admin/src/tests/sections.test.ts` (id uniqueness, path→section mapping)
 
 **Checkpoint**: Foundation ready — user story implementation can begin.
 
