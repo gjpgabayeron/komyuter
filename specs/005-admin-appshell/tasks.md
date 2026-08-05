@@ -126,10 +126,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T046 [US4] Create `apps/admin/src/lib/useOnline.ts` — hook over browser `online`/`offline` events (FR-011; research R6)
-- [ ] T047 [US4] Create `apps/admin/src/components/shared/ConnectionBanner.tsx` — visible banner rendered while offline
-- [ ] T048 [US4] Mount `ConnectionBanner` in `apps/admin/src/app/AppShell.tsx` so the view stays mounted beneath it (FR-011)
-- [ ] T049 [US4] Login page: show the banner when offline at initial load and surface an honest error if sign-in is attempted offline (spec Edge Case)
+- [x] T046 [US4] Create `apps/admin/src/lib/useOnline.ts` — hook over browser `online`/`offline` events (FR-011; research R6)
+- [x] T047 [US4] Create `apps/admin/src/components/shared/ConnectionBanner.tsx` — visible banner rendered while offline
+- [x] T048 [US4] Mount `ConnectionBanner` in `apps/admin/src/app/AppShell.tsx` so the view stays mounted beneath it (FR-011)
+- [x] T049 [US4] Login page: show the banner when offline at initial load and surface an honest error if sign-in is attempted offline (spec Edge Case)
 
 **Checkpoint**: All four user stories work independently.
 

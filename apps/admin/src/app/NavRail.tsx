@@ -61,6 +61,7 @@ export function NavRail({ onHoverChange }: NavRailProps) {
     <Sidebar
       collapsible="icon"
       data-sidebar-mode={sidebarMode}
+      className="absolute h-full"
       onMouseEnter={() => {
         if (sidebarMode === "hover") onHoverChange(true);
       }}

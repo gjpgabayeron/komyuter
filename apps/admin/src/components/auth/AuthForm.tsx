@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,7 +69,9 @@ export function AuthForm({ onSubmit }: AuthFormProps) {
     try {
       await onSubmit({ email: email.trim(), password });
     } catch (error) {
-      setErrors({ root: messageForError(error) });
+      const message = messageForError(error);
+      setErrors({ root: message });
+      toast.error(message);
     } finally {
       setSubmitting(false);
     }
