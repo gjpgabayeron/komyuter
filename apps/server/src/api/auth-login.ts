@@ -10,6 +10,11 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+function fullNameOf(user: { user_metadata?: { full_name?: unknown } }): string {
+  const value = user.user_metadata?.full_name;
+  return typeof value === "string" ? value : "";
+}
+
 export async function registerAuth(
   app: AppInstance,
   deps: AppDeps,
@@ -42,7 +47,11 @@ export async function registerAuth(
         success: true,
         data: {
           access_token: sessionData.session.access_token,
-          user: { id: user.id, email: user.email ?? "" },
+          user: {
+            id: user.id,
+            email: user.email ?? "",
+            name: fullNameOf(user),
+          },
         },
       };
     },
@@ -70,7 +79,11 @@ export async function registerAuth(
 
     return {
       success: true,
-      data: { id: data.user.id, email: data.user.email ?? "" },
+      data: {
+        id: data.user.id,
+        email: data.user.email ?? "",
+        name: fullNameOf(data.user),
+      },
     };
   });
 }

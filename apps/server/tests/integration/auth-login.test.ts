@@ -37,6 +37,7 @@ describe("auth login + me (backend auth for the admin shell)", () => {
     expect(typeof body.data.access_token).toBe("string");
     expect(body.data.access_token.length).toBeGreaterThan(0);
     expect(body.data.user.email).toBe(testEnv().ADMIN_EMAIL);
+    expect(body.data.user.name).toBe("Admin Komyuter");
     expect(typeof body.data.user.id).toBe("string");
   });
 
@@ -104,6 +105,7 @@ describe("auth login + me (backend auth for the admin shell)", () => {
     const body = response.json();
     expect(body.success).toBe(true);
     expect(body.data.email).toBe(testEnv().ADMIN_EMAIL);
+    expect(body.data.name).toBe("Admin Komyuter");
     expect(typeof body.data.id).toBe("string");
   });
 

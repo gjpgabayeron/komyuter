@@ -37,7 +37,7 @@ values (
   crypt('komyuter-admin-dev', gen_salt('bf')),
   now(),
   '{"provider":"email","providers":["email"]}',
-  '{}',
+  '{"full_name":"Admin Komyuter"}',
   now(),
   now(),
   '',
