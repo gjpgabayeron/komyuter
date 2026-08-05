@@ -3,6 +3,7 @@ import { api, ApiError, clearStoredToken, setStoredToken } from "@/lib/api";
 export interface AuthUser {
   id: string;
   email: string;
+  name: string;
 }
 
 interface LoginResponse {

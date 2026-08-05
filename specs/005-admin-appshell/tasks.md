@@ -110,10 +110,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] Implement the Header user menu in `apps/admin/src/app/Header.tsx` — avatar + shadcn dropdown-menu with a Sign out action (depends T007/T031)
-- [ ] T043 [US3] Wire `signOut()` in `apps/admin/src/features/auth/auth.tsx` — clear stored token, navigate to `/login`, success toast (FR-009, FR-015)
-- [ ] T044 [US3] Handle sign-out failure when offline in `apps/admin/src/features/auth/auth.tsx` — local token cleared, honest error toast, still returns to login (spec Edge Case)
-- [ ] T045 [US3] Unit tests for the session sign-out/state logic in `apps/admin/src/tests/session.test.ts`
+- [x] T042 [US3] Implement the Header user menu in `apps/admin/src/app/Header.tsx` — shadcn `Avatar` + `DropdownMenu` trigger on the header right; dropdown = `DropdownMenuGroup`-wrapped header (Avatar + full name + email) + `DropdownMenuSeparator` + `Sign Out` item (Base UI group context requirement)
+- [x] T043 [US3] Wire sign-out in the Header handler (navigation lives here because `AuthProvider` wraps `BrowserRouter`, so `auth.tsx` cannot use `useNavigate`): `signOut()` clears the stored token, then `navigate("/login", { replace: true })` + success toast (FR-009, FR-015)
+- [x] T044 [US3] Recorded: sign-out is local-only (no server endpoint, per `contracts/auth-api.md`) and always succeeds — there is no offline-failure branch; the spec edge case does not apply
+- [x] T045 [US3] Unit tests for the session helpers in `apps/admin/src/tests/session.test.ts` (`getInitials`, `getDisplayName`); backend `login`/`me` now return `name` (from `user_metadata.full_name`, seeded "Admin Komyuter")
 
 **Checkpoint**: US1, US2, and US3 work — sign-out is reliable from any section.
 
