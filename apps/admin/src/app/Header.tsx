@@ -52,7 +52,7 @@ export function Header() {
                 </Button>
               )}
             />
-            <DropdownMenuContent align="end" className="w-64 p-1 shadow-none">
+            <DropdownMenuContent align="end" className="w-64 p-1">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2">
                   <Avatar>

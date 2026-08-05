@@ -10,7 +10,7 @@
 
 ## 1. TL;DR — What the admin is
 
-A **map-first web dashboard** for transit curators to maintain the Iloilo PUJ (public utility jeepney) dataset: routes, directions, stops, detours, restrictions, and fare configurations. React 18 + Vite + TypeScript (strict), MapLibre GL for the map, Mapbox services for snapping/geocoding (server-proxied), Supabase Auth, and a Fastify admin API backed by Postgres/PostGIS (ADR-0013).
+A **map-first web dashboard** for transit curators to maintain the Iloilo PUJ (public utility jeepney) dataset: routes, directions, stops, detours, restrictions, and fare configurations. React 18 + Vite + TypeScript (strict), MapLibre GL for the map, Mapbox services for snapping/geocoding (server-proxied), backend-proxied Supabase Auth (Fastify login/session endpoints, ADR-0006), and a Fastify admin API backed by Postgres/PostGIS (ADR-0013).
 
 Two users exist in the product: **commuters** (mobile app, `apps/mobile`) and **administrators** (this dashboard). This document is only about the administrator surface.
 
@@ -44,26 +44,26 @@ Key architectural rules (from the project constitution, mirrored in `AGENTS.md`)
 
 ### Frontend (`apps/admin`)
 
-| Concern       | Choice                                                                                      | Notes                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Framework     | React 18.3 + Vite 5 + TypeScript 5.5 (strict)                                               | `@repo/typescript-config/vite.json`                                                                  |
-| Routing       | `react-router-dom` 6                                                                        | `/login`, `/` (Overview), `/routes` → workspace, `/routes/:routeId` → workspace, `/fares`, `/export` |
-| Data fetching | `@tanstack/react-query` 5                                                                   | query hooks in `features/*/use*Queries.ts`; keys in `lib/queryKeys.ts`                               |
-| API client    | `axios` via `lib/api.ts`                                                                    | envelope-aware, Bearer token, connection-banner + unauthorized handling                              |
-| Auth          | `@supabase/supabase-js` + `lib/auth.tsx`                                                    | Supabase Auth (ADR-0006), no DIY JWT                                                                 |
-| Map           | **MapLibre GL JS** via `react-map-gl` (maplibre entry)                                      | Vector tiles when `MAPBOX_PUBLIC_TOKEN` set; falls back to OSM raster tiles (`lib/tiles.ts`)         |
-| Geocoder      | **Mapbox Geocoding API**, proxied server-side                                               | small search-input component calling `/api/admin/mapbox/geocode`                                     |
-| Road snapping | **Mapbox Directions API** (`driving`), proxied server-side                                  | `/api/admin/mapbox/directions`; full-path snap preview (ADR-0013)                                    |
-| State (UI)    | `zustand`                                                                                   | `lib/uiStore.ts` (nav rail toggle)                                                                   |
-| Forms/UI      | `@base-ui/react` wrapped in `components/ui/*` (shadcn-style), `cva`/`clsx`/`tailwind-merge` | pill radii, brand tokens                                                                             |
-| Styling       | Tailwind CSS 4 + `@tailwindcss/postcss`                                                     | brand tokens in the CSS entry                                                                        |
-| Icons         | `lucide-react`                                                                              |                                                                                                      |
-| Toasts        | `sonner`                                                                                    | toast helper wraps every mutation                                                                    |
-| Drag reorder  | `@dnd-kit/core` + `@dnd-kit/sortable`                                                       | stop reorder                                                                                         |
-| Hotkeys       | `react-hotkeys-hook`                                                                        | `mod+s` save, `mod+z` undo snap, `1`/`2` focus direction, `Tab` cycle stops                          |
-| Drafts        | localStorage, 24h TTL, debounced                                                            | draft helper + restore banner                                                                        |
-| Tests         | Vitest (`pnpm --filter admin test`)                                                         | unit tests in `apps/admin/src/tests/`                                                                |
-| Fonts         | Nunito (display) + Geist (body)                                                             |                                                                                                      |
+| Concern       | Choice                                                                                                      | Notes                                                                                                    |
+| ------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Framework     | React 18.3 + Vite 5 + TypeScript 5.5 (strict)                                                               | `@repo/typescript-config/vite.json`                                                                      |
+| Routing       | `react-router-dom` 6                                                                                        | `/login`, `/` (Overview), `/routes` → workspace, `/routes/:routeId` → workspace, `/fares`, `/export`     |
+| Data fetching | `@tanstack/react-query` 5                                                                                   | query hooks in `features/*/use*Queries.ts`; keys in `lib/queryKeys.ts`                                   |
+| API client    | `axios` via `lib/api.ts`                                                                                    | envelope-aware, Bearer token, connection-banner + unauthorized handling                                  |
+| Auth          | Backend-proxied: `features/auth/api.ts` → `POST /api/auth/login` + `GET /api/auth/me` on the Fastify server | Supabase Auth behind the server (ADR-0006), no DIY JWT; Bearer token kept in localStorage (`lib/api.ts`) |
+| Map           | **MapLibre GL JS** via `react-map-gl` (maplibre entry)                                                      | Vector tiles when `MAPBOX_PUBLIC_TOKEN` set; falls back to OSM raster tiles (`lib/tiles.ts`)             |
+| Geocoder      | **Mapbox Geocoding API**, proxied server-side                                                               | small search-input component calling `/api/admin/mapbox/geocode`                                         |
+| Road snapping | **Mapbox Directions API** (`driving`), proxied server-side                                                  | `/api/admin/mapbox/directions`; full-path snap preview (ADR-0013)                                        |
+| State (UI)    | `zustand`                                                                                                   | `lib/uiStore.ts` (nav rail toggle)                                                                       |
+| Forms/UI      | `@base-ui/react` wrapped in `components/ui/*` (shadcn-style), `cva`/`clsx`/`tailwind-merge`                 | Route Sign grammar: ≤4px corners, no shadows, amber only for attention (no pill shapes)                  |
+| Styling       | Tailwind CSS 4 + `@tailwindcss/postcss`                                                                     | brand tokens in the CSS entry                                                                            |
+| Icons         | `lucide-react`                                                                                              |                                                                                                          |
+| Toasts        | `sonner`                                                                                                    | toast helper wraps every mutation                                                                        |
+| Drag reorder  | `@dnd-kit/core` + `@dnd-kit/sortable`                                                                       | stop reorder                                                                                             |
+| Hotkeys       | `react-hotkeys-hook`                                                                                        | `mod+s` save, `mod+z` undo snap, `1`/`2` focus direction, `Tab` cycle stops                              |
+| Drafts        | localStorage, 24h TTL, debounced                                                                            | draft helper + restore banner                                                                            |
+| Tests         | Vitest (`pnpm --filter admin test`)                                                                         | unit tests in `apps/admin/src/tests/`                                                                    |
+| Fonts         | Nunito (display) + Geist (body)                                                                             |                                                                                                          |
 
 ### Backend surface the admin uses (`apps/server`)
 
@@ -168,9 +168,11 @@ Key behaviors implemented:
 
 ### 5.6 Auth & shell
 
-- `App.tsx`: `BrowserRouter` → `AuthProvider` → `QueryClientProvider` → `Toaster` → `ConnectionBanner` → auth-gated routes wrapped in `AppShell`.
-- `AppShell` (nav rail + header + content), `NavRail` (collapsible Overview/Routes/Fares/Export), `Header` (page title + sign-out).
-- `ConnectionBanner` surfaces offline.
+- `App.tsx`: `AuthProvider` → `QueryClientProvider` → `BrowserRouter` (`AppRoutes`) → `Toaster`. No `ConnectionBanner` at root — it lives inside `AppShell`.
+- `RequireAuth` wraps the shell routes: unauthenticated → `<Navigate to="/login" state={{ returnTo }}>`; after sign-in `Login` redirects back via `getReturnPath` (deep-link return, SC-004).
+- `AppShell`: skip-to-content link (`#main-content`), `ConnectionBanner` (browser offline, SC-006), `NavRail` (collapsible Overview/Routes/Fares/Export; three modes expanded/collapsed/hover via `lib/uiStore.ts`), `Header` (page title + user menu with sign-out).
+- Sign-in flow (`components/auth/AuthForm`): calls backend `POST /api/auth/login`; on 401 shows a non-technical inline error + toast; success toast "Signed in" fired from `Login`. Session token stored in `localStorage` by `lib/api.ts`; `/me` re-validates on boot (ADR-0006, backend-proxied — no `supabase-js` in the admin app).
+- Accessibility (WCAG AA, FR-013): visible focus rings on every control (brand `--ring` color ≥3:1), skip link, keyboard-operable menus (Base UI), WCAG AA token contrast. Validated with an automated axe scan (0 violations) and a numeric contrast audit of the token palette (text ≥4.5:1, focus ≥3:1).
 
 ### 5.7 Pure helpers (tested)
 

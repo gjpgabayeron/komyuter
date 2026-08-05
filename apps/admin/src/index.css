@@ -73,15 +73,15 @@
   --muted-foreground: oklch(0.45 0.02 230);
   --accent: oklch(0.83 0.06 220);
   --accent-foreground: oklch(0.3 0.05 225);
-  --destructive: oklch(0.63 0.21 25);
+  --destructive: oklch(0.59 0.21 25);
   --destructive-foreground: oklch(1 0 0);
   --success: oklch(0.55 0.14 150);
   --success-foreground: oklch(1 0 0);
   --warning: oklch(0.78 0.14 70);
   --warning-foreground: oklch(0.3 0.05 70);
   --border: oklch(0.9 0.01 230);
-  --input: oklch(0.9 0.01 230);
-  --ring: oklch(0.65 0.12 225);
+  --input: oklch(0.66 0.03 230);
+  --ring: oklch(0.52 0.13 235);
   --radius: 0.25rem;
   --sidebar: oklch(0.97 0.005 225);
   --sidebar-foreground: oklch(0.23 0.02 230);
@@ -90,7 +90,7 @@
   --sidebar-accent: oklch(0.83 0.06 220);
   --sidebar-accent-foreground: oklch(0.3 0.05 225);
   --sidebar-border: oklch(0.9 0.01 230);
-  --sidebar-ring: oklch(0.65 0.12 225);
+  --sidebar-ring: oklch(0.52 0.13 235);
 
   /* Route corridor polyline colors (presentation; not state) */
   --route-blue: oklch(0.56 0.16 250);
@@ -103,7 +103,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring;
   }
   body {
     @apply bg-background text-foreground;

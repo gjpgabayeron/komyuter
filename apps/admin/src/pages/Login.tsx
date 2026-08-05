@@ -24,7 +24,7 @@ export default function Login() {
   };
 
   return (
-    <div className="bg-background flex min-h-svh flex-col">
+    <main className="bg-background flex min-h-svh flex-col">
       <ConnectionBanner online={online} />
       <div className="grid min-h-svh flex-1 xl:grid-cols-[1.25fr_2fr]">
         <div className="relative flex flex-col items-center justify-center px-4 md:px-6">
@@ -39,6 +39,6 @@ export default function Login() {
           <BrandPanel />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

@@ -62,6 +62,8 @@ export function NavRail({ onHoverChange }: NavRailProps) {
       collapsible="icon"
       data-sidebar-mode={sidebarMode}
       className="absolute h-full"
+      role="navigation"
+      aria-label="Primary"
       onMouseEnter={() => {
         if (sidebarMode === "hover") onHoverChange(true);
       }}
@@ -70,7 +72,7 @@ export function NavRail({ onHoverChange }: NavRailProps) {
       }}
     >
       <SidebarHeader>
-        <div className="flex items-center overflow-hidden px-2">
+        <div className="flex items-center overflow-hidden px-2 py-1">
           <BrandMark compact={collapsed} />
         </div>
       </SidebarHeader>
@@ -126,7 +128,7 @@ export function NavRail({ onHoverChange }: NavRailProps) {
             align="start"
             side="top"
             sideOffset={8}
-            className="w-60 min-w-60 p-1 shadow-none"
+            className="w-60 min-w-60 p-1"
           >
             <DropdownMenuRadioGroup
               value={sidebarMode}

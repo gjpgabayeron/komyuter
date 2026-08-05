@@ -6,9 +6,9 @@ export function BrandPanel() {
       <div className="relative z-10 flex flex-col items-center gap-2 text-center">
         <img src={brandMarkUrl} alt="Komyuter" className="h-24 w-auto" />
         <div>
-          <h2 className="font-display text-foreground text-2xl font-bold tracking-tight xl:text-3xl">
+          <p className="font-display text-foreground text-2xl font-bold tracking-tight xl:text-3xl">
             Komyuter
-          </h2>
+          </p>
         </div>
       </div>
     </div>
