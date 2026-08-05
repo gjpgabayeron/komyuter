@@ -4,7 +4,6 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "strictNullChecks": true,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     }

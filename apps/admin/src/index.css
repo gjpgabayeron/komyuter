@@ -2,12 +2,16 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
+@import "@fontsource-variable/baloo-2/wght.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", sans-serif;
+  --font-display:
+    "Baloo 2 Variable", "Baloo 2", "Geist Variable", ui-rounded, system-ui,
+    sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -105,4 +109,20 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Red Outline for Debugging UI Boundaries */
+.debug {
+  outline: 1px solid red;
+}
+
+/* Expand-on-hover sidebar: reserve only the collapsed rail width in flow; the
+   fixed sidebar panel expands over the content on hover (no content push).
+   The `data-sidebar-mode` attribute is spread onto the fixed panel
+   (`sidebar-container`), so the in-flow gap is pinned via its parent wrapper
+   (`data-slot="sidebar"`) using `:has()`. Pinned with !important so the
+   content area never reflows while the panel overlays it. */
+[data-slot="sidebar"]:has([data-sidebar-mode="hover"])
+  > [data-slot="sidebar-gap"] {
+  width: var(--sidebar-width-icon) !important;
 }

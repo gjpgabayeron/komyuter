@@ -68,16 +68,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Create `apps/admin/src/main.tsx` — render `<App/>`, import `index.css` (depends T008/T011)
-- [ ] T025 [US1] Create `apps/admin/src/app/App.tsx` — provider composition: `AuthProvider` > `QueryClientProvider` > `Toaster` > router (see `contracts/ui-shell.md` §4)
-- [ ] T026 [US1] Create `apps/admin/src/app/router.tsx` — route table: public `/login`; guarded shell layout for `/`, `/routes`, `/routes/:routeId`, `/fares`, `/export` (depends T013; `contracts/ui-shell.md` §2)
-- [ ] T027 [US1] Create `apps/admin/src/features/auth/RequireAuth.tsx` — guard that redirects unauthenticated users to `/login` with `state.returnTo` (FR-008)
-- [ ] T028 [US1] Create `apps/admin/src/pages/Login.tsx` — email + password form (shadcn button/input/label) calling `auth.signIn`, maps 401/403 to non-technical messages, redirects to `returnTo`, success/failure toasts (FR-001, FR-002, FR-015)
-- [ ] T029 [US1] Create `apps/admin/src/app/AppShell.tsx` — layout of `NavRail` + `Header` + `<Outlet/>` (FR-003)
-- [ ] T030 [US1] Create `apps/admin/src/app/NavRail.tsx` — brand plate + four section links rendered from `lib/sections.ts` (basic; full active/collapse behavior in US2)
-- [ ] T031 [US1] Create `apps/admin/src/app/Header.tsx` — current section title + sign-out slot (FR-005; wiring in US3)
-- [ ] T032 [US1] Create `apps/admin/src/pages/Overview.tsx` — designed placeholder/empty-state page per Route Sign grammar (FR-012)
-- [ ] T033 [US1] Unit tests for the RequireAuth `returnTo` redirect logic in `apps/admin/src/tests/require-auth.test.ts`
+- [x] T024 [US1] Create `apps/admin/src/main.tsx` — render `<App/>`, import `index.css` (depends T008/T011)
+- [x] T025 [US1] Create `apps/admin/src/app/App.tsx` — provider composition: `AuthProvider` > `QueryClientProvider` > `Toaster` > router (see `contracts/ui-shell.md` §4)
+- [x] T026 [US1] Create `apps/admin/src/app/router.tsx` — route table: public `/login`; guarded shell layout for `/`, `/routes`, `/routes/:routeId`, `/fares`, `/export` (depends T013; `contracts/ui-shell.md` §2)
+- [x] T027 [US1] Create `apps/admin/src/features/auth/RequireAuth.tsx` — guard that redirects unauthenticated users to `/login` with `state.returnTo` (FR-008)
+- [x] T028 [US1] Create `apps/admin/src/pages/Login.tsx` — email + password form (shadcn button/input/label) calling `auth.signIn`, maps 401/403 to non-technical messages, redirects to `returnTo`, success/failure toasts (FR-001, FR-002, FR-015)
+- [x] T029 [US1] Create `apps/admin/src/app/AppShell.tsx` — layout of `NavRail` + `Header` + `<Outlet/>` (FR-003)
+- [x] T030 [US1] Create `apps/admin/src/app/NavRail.tsx` — brand plate + four section links rendered from `lib/sections.ts` (basic; full active/collapse behavior in US2)
+- [x] T031 [US1] Create `apps/admin/src/app/Header.tsx` — current section title + sign-out slot (FR-005; wiring in US3)
+- [x] T032 [US1] Create `apps/admin/src/pages/Overview.tsx` — designed placeholder/empty-state page per Route Sign grammar (FR-012)
+- [x] T033 [US1] Unit tests for the RequireAuth `returnTo` redirect logic in `apps/admin/src/tests/require-auth.test.ts`
 
 **Checkpoint**: US1 is fully functional — sign-in lands on the shell showing Overview.
 
@@ -90,14 +90,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T034 [US2] Create `apps/admin/src/lib/uiStore.ts` — zustand store with `collapsed` boolean for the nav rail (FR-010)
-- [ ] T035 [US2] Implement NavRail active state + collapse toggle in `apps/admin/src/app/NavRail.tsx` — active state from the current route, `aria-expanded`, state conveyed by more than color (FR-006, FR-010, FR-013)
-- [ ] T036 [US2] Header derives its title from the active route via the section registry in `apps/admin/src/app/Header.tsx` (FR-005)
-- [ ] T037 [US2] Create `apps/admin/src/pages/RouteWorkspace.tsx` placeholder — used by both `/routes` and `/routes/:routeId` (FR-012)
-- [ ] T038 [US2] Create `apps/admin/src/pages/Fares.tsx` designed placeholder (FR-012)
-- [ ] T039 [US2] Create `apps/admin/src/pages/Export.tsx` designed placeholder (FR-012)
-- [ ] T040 [US2] Create `apps/admin/src/pages/NotFound.tsx` + add the `*` catch-all route in `apps/admin/src/app/router.tsx`
-- [ ] T041 [US2] Create shared `EmptyState` and `PageHeader` components in `apps/admin/src/components/shared/` and apply them to all four placeholder pages
+- [x] T034 [US2] Create `apps/admin/src/lib/uiStore.ts` — zustand store with `sidebarMode` (`expanded` | `collapsed` | `hover`) driving the nav rail (FR-010)
+- [x] T035 [US2] Implement NavRail active state + three-mode visibility toggle in `apps/admin/src/app/NavRail.tsx` (shadcn Sidebar; `SidebarMenuButton` `isActive` for the active state, not color-only; bottom-left icon button opens a dropdown with Expanded / Collapsed / Expand-on-hover) (FR-006, FR-010, FR-013)
+- [x] T036 [US2] Header derives its title from the active route via the section registry in `apps/admin/src/app/Header.tsx` (FR-005)
+- [x] T037 [US2] Create `apps/admin/src/pages/RouteWorkspace.tsx` placeholder — used by both `/routes` and `/routes/:routeId` (FR-012)
+- [x] T038 [US2] Create `apps/admin/src/pages/Fares.tsx` designed placeholder (FR-012)
+- [x] T039 [US2] Create `apps/admin/src/pages/Export.tsx` designed placeholder (FR-012)
+- [x] T040 [US2] Create `apps/admin/src/pages/NotFound.tsx` + add the `*` catch-all route in `apps/admin/src/app/router.tsx`
+- [x] T041 [US2] Standardize empty states on the shadcn `empty.tsx` component (`Empty`/`EmptyHeader`/`EmptyMedia`/`EmptyTitle`/`EmptyContent`/`EmptyDescription`) and apply it to all four placeholder pages + NotFound (a custom `EmptyState` and a `PageHeader` were created then removed — the latter to avoid duplicating the shell header's section title)
 
 **Checkpoint**: US1 and US2 both work — full navigation across four sections with active state.
 
