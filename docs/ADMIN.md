@@ -823,6 +823,13 @@ Design rules: pill shapes, two cerulean blues carry identity, pure white ground,
 
 **Envelope**: all responses are `{ success: true, data }` or `{ success: false, error: { code, message, details? } }`; codes `UNAUTHORIZED | FORBIDDEN | NOT_FOUND | VALIDATION_ERROR | CONFLICT | INTERNAL`. Admin routes require the Supabase admin token (`Authorization: Bearer <token>`).
 
+**Fare configurations API semantics (feature 006, reconciled)**:
+
+- `GET /api/admin/fare-configs` list rows carry `active_route_count` (count of active Routes referencing the config via `routes.fare_config_id`) in addition to the `FareConfiguration` fields; `active_route_count` exists only in the list serializer.
+- `DELETE /api/admin/fare-configs/:fareConfigId` is a **soft deactivate** (`is_active = false`, never destroys). It returns `409 CONFLICT` when any active Route references the config ("Cannot deactivate fare configuration referenced by active Routes") or when it is the sole default config.
+- `PUT /api/admin/fare-configs/:fareConfigId` returns `409 CONFLICT` when the update would leave an **inactive default** (FR-015: `is_default === true && is_active === false` — e.g. `{ is_active: false }` on the default, or `{ is_default: true }` on an inactive config) or would leave **zero defaults**.
+- The admin UI mirrors these rules (delete disabled with explanatory label; inline "Reactivate before making default" check), but the guards live at the API boundary so direct API callers are protected too.
+
 **Planned detour-trigger API change (ADR-0012)**: detour create/update bodies gain optional `active_timeframes` and `condition`; detour read responses include them; server resolves active detours at request time (replaces base segment when active, per ADR-0008).
 
 # Appendix H — Embedded glossary (canonical terms)

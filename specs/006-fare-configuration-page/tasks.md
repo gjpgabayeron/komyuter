@@ -132,9 +132,9 @@ description: "Task list for the Fare Configuration Page feature"
 
 **Purpose**: Verify the whole feature against the quality gates and quickstart, and keep the documented API surface honest.
 
-- [ ] T019 Run all quality gates and fix any failures: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test` (fare-validation + fare-format + existing), `pnpm --filter server test` (requires local Supabase stack + `apps/server/.env`)
-- [ ] T020 Run the quickstart validation in `specs/006-fare-configuration-page/quickstart.md` scenarios 1–12 and fix any gaps: list, create (valid/invalid/duplicate), set-as-default, default-on-inactive, delete confirm / sole default / referenced (incl. API-race 409 via curl), save failure, a11y/design (keyboard, focus, WCAG AA contrast scan, text+color states, Route Sign grammar)
-- [ ] T021 [P] Reconcile `docs/ADMIN.md` with the implemented API surface: note `active_route_count` in the fare-configs list response, the DELETE active-route guard, and the PUT inactive-default rejection (Constitution II — recorded decisions/reconciliation; no ADR change required)
+- [x] T019 Run all quality gates and fix any failures: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test` (fare-validation + fare-format + existing), `pnpm --filter server test` (requires local Supabase stack + `apps/server/.env`)
+- [x] T020 Run the quickstart validation in `specs/006-fare-configuration-page/quickstart.md` scenarios 1–12 and fix any gaps: list, create (valid/invalid/duplicate), set-as-default, default-on-inactive, delete confirm / sole default / referenced (incl. API-race 409 via curl), save failure, a11y/design (keyboard, focus, WCAG AA contrast scan, text+color states, Route Sign grammar)
+- [x] T021 [P] Reconcile `docs/ADMIN.md` with the implemented API surface: note `active_route_count` in the fare-configs list response, the DELETE active-route guard, and the PUT inactive-default rejection (Constitution II — recorded decisions/reconciliation; no ADR change required)
 
 ---
 
