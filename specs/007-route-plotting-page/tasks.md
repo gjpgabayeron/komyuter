@@ -29,10 +29,10 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 **Purpose**: Dependencies and shared schemas the whole feature builds on.
 
-- [ ] T001 Add map dependencies to `apps/admin/package.json` (`pnpm --filter admin add maplibre-gl@^6.2.0 react-map-gl@^8.1.2`) — MapLibre GL JS via the `react-map-gl/maplibre` entry (research R1, ADR-0013)
-- [ ] T002 [P] Add hotkey dependency to `apps/admin/package.json` (`pnpm --filter admin add react-hotkeys-hook@^4`) (FR-019/FR-020)
-- [ ] T003 [P] Add shared snap contract: `packages/shared/src/schemas/mapbox.ts` (mapboxDirectionsResponseSchema: `polyline` GeoLineString, `distance_meters` number, `snapped` boolean, `warning` string|null) + `packages/shared/src/types/mapbox.ts` (DirectionRequest, SnappedPath) + export both from `packages/shared/src/index.ts`
-- [ ] T004 [P] Add optional `MAPBOX_SECRET_TOKEN` to `apps/server/src/config/env.ts` (absent → straight-line fallback, FR-009) and document it in `apps/server/.env.example`
+- [x] T001 Add map dependencies to `apps/admin/package.json` (`pnpm --filter admin add maplibre-gl@^6.2.0 react-map-gl@^8.1.2`) — MapLibre GL JS via the `react-map-gl/maplibre` entry (research R1, ADR-0013)
+- [x] T002 [P] Add hotkey dependency to `apps/admin/package.json` (`pnpm --filter admin add react-hotkeys-hook@^4`) (FR-019/FR-020)
+- [x] T003 [P] Add shared snap contract: `packages/shared/src/schemas/mapbox.ts` (mapboxDirectionsResponseSchema: `polyline` GeoLineString, `distance_meters` number, `snapped` boolean, `warning` string|null) + `packages/shared/src/types/mapbox.ts` (DirectionRequest, SnappedPath) + export both from `packages/shared/src/index.ts`
+- [x] T004 [P] Add optional `MAPBOX_SECRET_TOKEN` to `apps/server/src/config/env.ts` (absent → straight-line fallback, FR-009) and document it in `apps/server/.env.example`
 
 ---
 
@@ -44,21 +44,21 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 ### Tests for the foundation (write FIRST, red before implementation) ⚠️
 
-- [ ] T005 [P] Unit tests for return-direction derivation in `apps/server/tests/unit/derive.test.ts` (reverse polyline coordinates; reverse stop order; origin/destination swap; auto labels "To {destination stop name}" / "To {origin stop name}"; base object never mutated — ADR-0008/ADR-0011)
-- [ ] T006 [P] Contract tests for the atomic save in `apps/server/tests/integration/plotting-save.test.ts` (POST creates base + derived return + stops in one transaction; PUT replaces stops + re-derives return; <2 stops rejected 422; path not starting/ending on a stop rejected 422; loop allowed; third active direction rejected 409 — ADR-0008; numeric columns returned as numbers)
-- [ ] T007 [P] Unit tests for the Mapbox proxy in `apps/server/tests/unit/mapbox-proxy.test.ts` with stubbed fetch (duration field stripped — ADR-0009; >25 waypoints chunked and concatenated without duplicate joints; no token → mock straight-line `snapped:false` + `warning:"no_token"`; upstream error → `snapped:false` + `warning:"upstream_error"`; <2 coordinates → 422)
+- [x] T005 [P] Unit tests for return-direction derivation in `apps/server/tests/unit/derive.test.ts` (reverse polyline coordinates; reverse stop order; origin/destination swap; auto labels "To {destination stop name}" / "To {origin stop name}"; base object never mutated — ADR-0008/ADR-0011)
+- [x] T006 [P] Contract tests for the atomic save in `apps/server/tests/integration/plotting-save.test.ts` (POST creates base + derived return + stops in one transaction; PUT replaces stops + re-derives return; <2 stops rejected 422; path not starting/ending on a stop rejected 422; loop allowed; third active direction rejected 409 — ADR-0008; numeric columns returned as numbers)
+- [x] T007 [P] Unit tests for the Mapbox proxy in `apps/server/tests/unit/mapbox-proxy.test.ts` with stubbed fetch (duration field stripped — ADR-0009; >25 waypoints chunked and concatenated without duplicate joints; no token → mock straight-line `snapped:false` + `warning:"no_token"`; upstream error → `snapped:false` + `warning:"upstream_error"`; <2 coordinates → 422)
 
 ### Implementation for the foundation
 
-- [ ] T008 Implement `apps/server/src/domain/derive.ts` (pure: reverseDirection, deriveLabels, originDestinationFor) — make T005 green
-- [ ] T009 Implement transactional `POST /api/admin/routes/:routeId/directions` in `apps/server/src/api/directions.ts`: `db.transaction` inserting base Direction + ordered Stops, auto-labels, first/last stop ↔ polyline endpoint validation (tolerance ≈ 100 m), 2-active-directions guard (409), returns `{ direction, return_direction }` each with stops (contract: `contracts/admin-save-api.md`) — make T006 green
-- [ ] T010 Implement transactional `PUT /api/admin/directions/:directionId` in `apps/server/src/api/directions.ts` (same body; replaces the direction's stops, updates polyline, re-derives the return direction in the same transaction) — make T006 green
-- [ ] T011 [P] Document the PUT variant (request/response + error table) in `specs/007-route-plotting-page/contracts/admin-save-api.md`
-- [ ] T012 Implement `GET /api/admin/mapbox/directions` proxy in `apps/server/src/api/mapbox.ts` and register it in `apps/server/src/api/index.ts` (prefix `/api/admin`; Mapbox Directions v5 driving, `geometries=geojson&overview=full&steps=false&alternatives=false`, chunking at 25 waypoints, duration stripped, straight-line mock fallback; shared schema validates the response) — make T007 green
-- [ ] T013 [P] Create `apps/admin/src/lib/tiles.ts` — tile source resolution: OSM raster fallback when no `MAPBOX_PUBLIC_TOKEN`, Mapbox vector tiles otherwise (ADR-0013 dev fallback)
-- [ ] T014 [P] Create pure helpers `apps/admin/src/lib/coords.ts` (parse `lng,lat`, coordinate equality, nearestCoordIndex on a LineString) + tests in `apps/admin/src/tests/coords.test.ts` ([lng,lat] sole format — FR-022)
-- [ ] T015 Create the map platform `apps/admin/src/features/routes/RouteMap.tsx`: full-bleed MapLibre map (`Map` + `useMap` from `react-map-gl/maplibre`), tiles from `lib/tiles.ts`, initial view centered on the service region (Iloilo City Proper + Oton/Pavia/Leganes — ADR-0010), no fixed side columns (FR-001)
-- [ ] T016 [P] Create the plotting state core `apps/admin/src/lib/plottingStore.ts` (zustand): `mode`, ordered `stops[]`, `polyline`, `snap` state, `selection`, `layers`, `history` (structure only — undo wiring is US3) + selection helpers `apps/admin/src/lib/selection.ts` + tests in `apps/admin/src/tests/selection.test.ts`
+- [x] T008 Implement `apps/server/src/domain/derive.ts` (pure: reverseDirection, deriveLabels, originDestinationFor) — make T005 green
+- [x] T009 Implement transactional `POST /api/admin/routes/:routeId/directions` in `apps/server/src/api/directions.ts`: `db.transaction` inserting base Direction + ordered Stops, auto-labels, first/last stop ↔ polyline endpoint validation (tolerance ≈ 100 m), 2-active-directions guard (409), returns `{ direction, return_direction }` each with stops (contract: `contracts/admin-save-api.md`) — make T006 green
+- [x] T010 Implement transactional `PUT /api/admin/directions/:directionId` in `apps/server/src/api/directions.ts` (same body; replaces the direction's stops, updates polyline, re-derives the return direction in the same transaction) — make T006 green
+- [x] T011 [P] Document the PUT variant (request/response + error table) in `specs/007-route-plotting-page/contracts/admin-save-api.md`
+- [x] T012 Implement `GET /api/admin/mapbox/directions` proxy in `apps/server/src/api/mapbox.ts` and register it in `apps/server/src/api/index.ts` (prefix `/api/admin`; Mapbox Directions v5 driving, `geometries=geojson&overview=full&steps=false&alternatives=false`, chunking at 25 waypoints, duration stripped, straight-line mock fallback; shared schema validates the response) — make T007 green
+- [x] T013 [P] Create `apps/admin/src/lib/tiles.ts` — tile source resolution: OSM raster fallback when no `MAPBOX_PUBLIC_TOKEN`, Mapbox vector tiles otherwise (ADR-0013 dev fallback)
+- [x] T014 [P] Create pure helpers `apps/admin/src/lib/coords.ts` (parse `lng,lat`, coordinate equality, nearestCoordIndex on a LineString) + tests in `apps/admin/src/tests/coords.test.ts` ([lng,lat] sole format — FR-022)
+- [x] T015 Create the map platform `apps/admin/src/features/routes/RouteMap.tsx`: full-bleed MapLibre map (`Map` + `useMap` from `react-map-gl/maplibre`), tiles from `lib/tiles.ts`, initial view centered on the service region (Iloilo City Proper + Oton/Pavia/Leganes — ADR-0010), no fixed side columns (FR-001)
+- [x] T016 [P] Create the plotting state core `apps/admin/src/lib/plottingStore.ts` (zustand): `mode`, ordered `stops[]`, `polyline`, `snap` state, `selection`, `layers`, `history` (structure only — undo wiring is US3) + selection helpers `apps/admin/src/lib/selection.ts` + tests in `apps/admin/src/tests/selection.test.ts`
 
 **Checkpoint**: Foundation ready — atomic save + snap proxy work (unit/integration green) and the map renders; user story implementation can begin.
 
