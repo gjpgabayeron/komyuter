@@ -62,13 +62,13 @@ description: "Task list for the Fare Configuration Page feature"
 
 ### Tests for User Story 1 (unit — pure helpers, red before green)
 
-- [ ] T007 [P] [US1] Write the FAILING unit tests in `apps/admin/src/tests/fare-format.test.ts` (contract `fare-config-page-ui.md`): `formatPeso` (13 → "₱13", 13.5 → "₱13.50", exact two decimals when fractional), `formatKm` (1–2 decimals), `formatPct` (integer %) — exactness per SC-007. Verify they FAIL before T008
-- [ ] T008 [US1] Implement `apps/admin/src/features/fares/format.ts` (`formatPeso` / `formatKm` / `formatPct`) until T007 is green
+- [x] T007 [P] [US1] Write the FAILING unit tests in `apps/admin/src/tests/fare-format.test.ts` (contract `fare-config-page-ui.md`): `formatPeso` (13 → "₱13", 13.5 → "₱13.50", exact two decimals when fractional), `formatKm` (1–2 decimals), `formatPct` (integer %) — exactness per SC-007. Verify they FAIL before T008
+- [x] T008 [US1] Implement `apps/admin/src/features/fares/format.ts` (`formatPeso` / `formatKm` / `formatPct`) until T007 is green
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Create `apps/admin/src/features/fares/FareConfigTable.tsx` (depends on T008): semantic `<table>` (shadcn `table`, `thead` with `scope="col"`); columns Label (with **Default** text badge), Status (**Active**/**Inactive** text badge — FR-012, never color alone), Base fare (`formatPeso`), Base distance (`formatKm`), Rate/km (`formatPeso` + "/km"), Student/Senior (`formatPct`); row Actions column (Edit/Delete icon buttons with `aria-label`s — Delete disabled state implemented in US4, stub disabled for `is_default || active_route_count > 0` with explanatory label); deactivated rows visually muted but fully readable
-- [ ] T010 [US1] Rewrite `apps/admin/src/pages/Fares.tsx` (depends on T009): page composition driven by `useFareConfigsQuery` with four states — Loading (skeleton rows, existing `skeleton` primitive), Error (message + Retry → refetch, no partial data, FR-010), Empty ("No fare configurations yet" + call to create, existing `empty` primitive), Loaded (`FareConfigTable`); header keeps the shell-provided "Fares" title and gains a **New fare configuration** primary button (wired in US2)
+- [x] T009 [US1] Create `apps/admin/src/features/fares/FareConfigTable.tsx` (depends on T008): semantic `<table>` (shadcn `table`, `thead` with `scope="col"`); columns Label (with **Default** text badge), Status (**Active**/**Inactive** text badge — FR-012, never color alone), Base fare (`formatPeso`), Base distance (`formatKm`), Rate/km (`formatPeso` + "/km"), Student/Senior (`formatPct`); row Actions column (Edit/Delete icon buttons with `aria-label`s — Delete disabled state implemented in US4, stub disabled for `is_default || active_route_count > 0` with explanatory label); deactivated rows visually muted but fully readable
+- [x] T010 [US1] Rewrite `apps/admin/src/pages/Fares.tsx` (depends on T009): page composition driven by `useFareConfigsQuery` with four states — Loading (skeleton rows, existing `skeleton` primitive), Error (message + Retry → refetch, no partial data, FR-010), Empty ("No fare configurations yet" + call to create, existing `empty` primitive), Loaded (`FareConfigTable`); header keeps the shell-provided "Fares" title and gains a **New fare configuration** primary button (wired in US2)
 
 **Checkpoint**: US1 fully functional — the Fares section lists configurations with exact values, states, and a11y badges.
 
@@ -82,13 +82,13 @@ description: "Task list for the Fare Configuration Page feature"
 
 ### Tests for User Story 2 (unit — pure helpers, red before green)
 
-- [ ] T011 [P] [US2] Write the FAILING unit tests in `apps/admin/src/tests/fare-validation.test.ts` (contract `fare-config-page-ui.md`): label required (trimmed) and unique case-insensitive with self-exclusion on edit; negative fare/km/rate rejected; discounts 0 and 100 accepted, −1 and 101 rejected; NaN rejected; `is_default && !is_active` rejected. Verify they FAIL before T012
-- [ ] T012 [US2] Implement `apps/admin/src/features/fares/validation.ts` — `validateFareConfigForm(values, existing, selfId)` returning field errors — until T011 is green (depends on T011)
+- [x] T011 [P] [US2] Write the FAILING unit tests in `apps/admin/src/tests/fare-validation.test.ts` (contract `fare-config-page-ui.md`): label required (trimmed) and unique case-insensitive with self-exclusion on edit; negative fare/km/rate rejected; discounts 0 and 100 accepted, −1 and 101 rejected; NaN rejected; `is_default && !is_active` rejected. Verify they FAIL before T012
+- [x] T012 [US2] Implement `apps/admin/src/features/fares/validation.ts` — `validateFareConfigForm(values, existing, selfId)` returning field errors — until T011 is green (depends on T011)
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Create `apps/admin/src/features/fares/FareConfigForm.tsx` (depends on T012): single create/edit dialog component (shadcn `dialog`, Base UI focus trap) — create mode prefills LTFRB defaults (₱13 / 4 km / ₱1.80 / 20% / 20%) and `is_active: true`; fields per contract (label, base fare `step=0.01`, base distance, rate/km, student %, senior %, Set as default `switch`) with `<label>` associations, inline errors via `aria-describedby`, block submit when `is_default && !is_active` ("Reactivate before making default", FR-015); submit disabled while pending (FR-014); on save → `useCreateFareConfig`, invalidate + success toast; on failure keep dialog open with values intact + error toast (FR-008); **Cancel** closes and discards
-- [ ] T014 [US2] Wire the **New fare configuration** button in `apps/admin/src/pages/Fares.tsx` to open `FareConfigForm` in create mode (depends on T013)
+- [x] T013 [US2] Create `apps/admin/src/features/fares/FareConfigForm.tsx` (depends on T012): single create/edit dialog component (shadcn `dialog`, Base UI focus trap) — create mode prefills LTFRB defaults (₱13 / 4 km / ₱1.80 / 20% / 20%) and `is_active: true`; fields per contract (label, base fare `step=0.01`, base distance, rate/km, student %, senior %, Set as default `switch`) with `<label>` associations, inline errors via `aria-describedby`, block submit when `is_default && !is_active` ("Reactivate before making default", FR-015); submit disabled while pending (FR-014); on save → `useCreateFareConfig`, invalidate + success toast; on failure keep dialog open with values intact + error toast (FR-008); **Cancel** closes and discards
+- [x] T014 [US2] Wire the **New fare configuration** button in `apps/admin/src/pages/Fares.tsx` to open `FareConfigForm` in create mode (depends on T013)
 
 **Checkpoint**: US2 done — create works end-to-end: valid create appears in the list, invalid/duplicate rejected inline, exactly-one-default reflected.
 
