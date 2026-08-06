@@ -1,10 +1,13 @@
-import { eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import {
   createFareConfigSchema,
   updateFareConfigSchema,
 } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
-import { fareConfigs as fareConfigsTable } from "../db/schema";
+import {
+  fareConfigs as fareConfigsTable,
+  routes as routesTable,
+} from "../db/schema";
 import { conflict, notFound } from "./errors";
 import { uniqueSlug, uuidId } from "../domain/ids";
 
@@ -51,8 +54,28 @@ export async function registerFareConfigs(
   const { db } = deps;
 
   app.get("/fare-configs", async () => {
-    const rows = await db.select().from(fareConfigsTable);
-    return { success: true, data: rows.map(serialize) };
+    const rows = await db
+      .select({
+        config: fareConfigsTable,
+        active_route_count: sql<number>`count(${routesTable.fare_config_id})::int`,
+      })
+      .from(fareConfigsTable)
+      .leftJoin(
+        routesTable,
+        and(
+          eq(routesTable.fare_config_id, fareConfigsTable.fare_config_id),
+          eq(routesTable.is_active, true),
+        ),
+      )
+      .groupBy(fareConfigsTable.fare_config_id);
+
+    return {
+      success: true,
+      data: rows.map((row) => ({
+        ...serialize(row.config),
+        active_route_count: num(row.active_route_count),
+      })),
+    };
   });
 
   app.get("/fare-configs/:fareConfigId", async (request) => {
@@ -123,6 +146,29 @@ export async function registerFareConfigs(
         throw notFound(`Fare config ${fareConfigId} not found`);
       }
 
+      const resultIsActive =
+        body.is_active !== undefined ? body.is_active : existing.is_active;
+      const resultIsDefault =
+        body.is_default !== undefined ? body.is_default : existing.is_default;
+
+      // FR-015: an inactive configuration must never be default.
+      if (resultIsDefault && !resultIsActive) {
+        throw conflict(
+          "Cannot set the default fare configuration inactive; reactivate it or assign another default first.",
+        );
+      }
+      // FR-005: exactly one default must remain; deactivating the sole default
+      // while explicitly un-marking it would leave zero defaults.
+      if (
+        existing.is_default &&
+        body.is_active === false &&
+        body.is_default === false
+      ) {
+        throw conflict(
+          "Cannot remove the default fare configuration without assigning a replacement default.",
+        );
+      }
+
       const patch: Record<string, unknown> = {};
       if (body.label !== undefined) patch.label = body.label;
       if (body.base_fare !== undefined)
@@ -138,6 +184,11 @@ export async function registerFareConfigs(
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
       if (body.is_default === true && !existing.is_default) {
+        // NOTE: un-mark + mark is not transactional (two statements). With a
+        // single admin writer the window is acceptable; a unique partial index
+        // on is_default would close it, but migrations are out of scope (see
+        // data-model.md). The FR-015 guard above runs first, so this can never
+        // hand default to an inactive config.
         await db
           .update(fareConfigsTable)
           .set({ is_default: false })
@@ -167,12 +218,23 @@ export async function registerFareConfigs(
       throw notFound(`Fare config ${fareConfigId} not found`);
     }
 
-    const [defaultConfig] = await db
-      .select({ fare_config_id: fareConfigsTable.fare_config_id })
-      .from(fareConfigsTable)
-      .where(eq(fareConfigsTable.is_default, true))
+    const [activeReference] = await db
+      .select({ route_id: routesTable.route_id })
+      .from(routesTable)
+      .where(
+        and(
+          eq(routesTable.fare_config_id, fareConfigId),
+          eq(routesTable.is_active, true),
+        ),
+      )
       .limit(1);
-    if (!defaultConfig && existing.is_default) {
+    if (activeReference) {
+      throw conflict(
+        "Cannot deactivate fare configuration referenced by active Routes",
+      );
+    }
+
+    if (existing.is_default) {
       throw conflict("Cannot deactivate the last default fare configuration");
     }
 
