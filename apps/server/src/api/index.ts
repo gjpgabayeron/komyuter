@@ -8,6 +8,7 @@ import { registerStops } from "./stops";
 import { registerDetours } from "./detours";
 import { registerRestrictions } from "./restrictions";
 import { registerExport } from "./export";
+import { registerMapbox } from "./mapbox";
 import { registerStatus } from "./status";
 
 export async function registerAdminRoutes(
@@ -29,6 +30,7 @@ export async function registerAdminRoutes(
       await admin.register(registerDetours, deps);
       await admin.register(registerRestrictions, deps);
       await admin.register(registerExport, deps);
+      await admin.register(registerMapbox, deps);
     },
     { prefix: "/api/admin" },
   );

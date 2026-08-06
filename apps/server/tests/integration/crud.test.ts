@@ -181,8 +181,9 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       url: `/api/admin/routes/${routeId}`,
       headers: auth(),
     });
-    expect(list.json().data.directions).toHaveLength(1);
+    expect(list.json().data.directions).toHaveLength(2);
     expect(list.json().data.directions[0].stops).toHaveLength(2);
+    expect(list.json().data.directions[1].stops).toHaveLength(2);
   });
 
   it("rejects deleting a stop referenced as a direction terminal with 409", async () => {
