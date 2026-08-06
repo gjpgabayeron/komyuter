@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  validateDefaultUnset,
   validateFareConfigForm,
   type FareConfigFormValues,
 } from "@/features/fares/validation";
@@ -132,5 +133,47 @@ describe("validateFareConfigForm", () => {
       [],
     );
     expect(errors.form).toBeUndefined();
+  });
+});
+
+describe("validateDefaultUnset", () => {
+  const twoConfigs = [
+    { fare_config_id: "fc-1", is_default: true },
+    { fare_config_id: "fc-2", is_default: false },
+  ];
+
+  it("blocks unsetting the only default (FR-005)", () => {
+    const message = validateDefaultUnset(
+      { is_default: false },
+      "fc-1",
+      twoConfigs,
+    );
+    expect(message).toBeDefined();
+  });
+
+  it("allows unsetting the default when another config is the default", () => {
+    const message = validateDefaultUnset({ is_default: false }, "fc-1", [
+      { fare_config_id: "fc-1", is_default: true },
+      { fare_config_id: "fc-2", is_default: true },
+    ]);
+    expect(message).toBeNull();
+  });
+
+  it("allows keeping the default set", () => {
+    const message = validateDefaultUnset(
+      { is_default: true },
+      "fc-1",
+      twoConfigs,
+    );
+    expect(message).toBeNull();
+  });
+
+  it("allows unsetting on a config that is not the default (no-op)", () => {
+    const message = validateDefaultUnset(
+      { is_default: false },
+      "fc-2",
+      twoConfigs,
+    );
+    expect(message).toBeNull();
   });
 });

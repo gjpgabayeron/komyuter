@@ -10,6 +10,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { FareConfigListItem } from "@/features/fares/api";
 import { FareConfigForm } from "@/features/fares/FareConfigForm";
 import { FareConfigTable } from "@/features/fares/FareConfigTable";
 import { useFareConfigsQuery } from "@/features/fares/queries";
@@ -17,6 +18,9 @@ import { useFareConfigsQuery } from "@/features/fares/queries";
 export default function Fares() {
   const { data, isError, isLoading, refetch } = useFareConfigsQuery();
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingConfig, setEditingConfig] = useState<FareConfigListItem | null>(
+    null,
+  );
 
   return (
     <div className="flex h-full flex-col p-6">
@@ -86,10 +90,19 @@ export default function Fares() {
           </Empty>
         </div>
       ) : (
-        <FareConfigTable configs={data} />
+        <FareConfigTable configs={data} onEdit={setEditingConfig} />
       )}
 
-      <FareConfigForm open={createOpen} onOpenChange={setCreateOpen} />
+      <FareConfigForm
+        open={createOpen || editingConfig !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateOpen(false);
+            setEditingConfig(null);
+          }
+        }}
+        config={editingConfig}
+      />
     </div>
   );
 }

@@ -104,8 +104,8 @@ description: "Task list for the Fare Configuration Page feature"
 
 ### Implementation for User Story 3
 
-- [ ] T015 [US3] Extend `apps/admin/src/features/fares/FareConfigForm.tsx` for edit mode (depends on T013): prefill all fields incl. `is_default` and `is_active`; add the **Active** switch (edit only, toggling to inactive re-validates the default rule); submit via `useUpdateFareConfig`; surface server `CONFLICT` (inactive-default PUT rejection) as an honest error toast with the dialog open and values intact; reactivation path (inactive → toggle Active on → save)
-- [ ] T016 [US3] Wire the **Edit** row action in `apps/admin/src/features/fares/FareConfigTable.tsx` to open `FareConfigForm` in edit mode prefilled from the row (depends on T015)
+- [x] T015 [US3] Extend `apps/admin/src/features/fares/FareConfigForm.tsx` for edit mode (depends on T013): prefill all fields incl. `is_default` and `is_active`; add the **Active** switch (edit only, toggling to inactive re-validates the default rule); submit via `useUpdateFareConfig`; surface server `CONFLICT` (inactive-default PUT rejection) as an honest error toast with the dialog open and values intact; reactivation path (inactive → toggle Active on → save)
+- [x] T016 [US3] Wire the **Edit** row action in `apps/admin/src/features/fares/FareConfigTable.tsx` to open `FareConfigForm` in edit mode prefilled from the row (depends on T015)
 
 **Checkpoint**: US3 done — edit works: prefill, save → list reflects new values + success toast, invalid edits rejected inline with previous values intact, reload persists, inactive default blocked (client inline + server 409).
 
@@ -121,8 +121,8 @@ description: "Task list for the Fare Configuration Page feature"
 
 ### Implementation for User Story 4
 
-- [ ] T017 [US4] Create `apps/admin/src/features/fares/DeleteFareConfigDialog.tsx` (depends on T006): shadcn `alert-dialog` — "Delete fare configuration '<label>'?" + "This deactivates the configuration; it can be reactivated later." + **Cancel**/**Delete**; on confirm → `useDeactivateFareConfig`, invalidate + success toast; server `CONFLICT`/`NOT_FOUND`/network → error toast, list unchanged, dialog closes (FR-008)
-- [ ] T018 [US4] Wire the **Delete** row action in `apps/admin/src/features/fares/FareConfigTable.tsx` (depends on T017 + T009): enabled only when `!is_default && active_route_count === 0`, otherwise disabled with explanatory label ("In use by N active route(s)" / "Default — cannot deactivate the last default"); clicking opens `DeleteFareConfigDialog`
+- [x] T017 [US4] Create `apps/admin/src/features/fares/DeleteFareConfigDialog.tsx` (depends on T006): shadcn `alert-dialog` — "Delete fare configuration '<label>'?" + "This deactivates the configuration; it can be reactivated later." + **Cancel**/**Delete**; on confirm → `useDeactivateFareConfig`, invalidate + success toast; server `CONFLICT`/`NOT_FOUND`/network → error toast, list unchanged, dialog closes (FR-008)
+- [x] T018 [US4] Wire the **Delete** row action in `apps/admin/src/features/fares/FareConfigTable.tsx` (depends on T017 + T009): enabled only when `!is_default && active_route_count === 0`, otherwise disabled with explanatory label ("In use by N active route(s)" / "Default — cannot deactivate the last default"); clicking opens `DeleteFareConfigDialog`
 
 **Checkpoint**: US4 done — guarded deactivation works: confirm dialog, soft-deactivate reflected in list, sole default + referenced configs blocked client-side, server 409 race surfaced honestly.
 

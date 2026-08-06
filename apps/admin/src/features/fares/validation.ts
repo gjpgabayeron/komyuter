@@ -11,6 +11,9 @@
  * - label uniqueness (case-insensitive, self-excluded on edit)
  * - the default-implies-active invariant (FR-015): an inactive configuration
  *   can never be the default, and vice versa.
+ *
+ * `validateDefaultUnset` covers the zero-defaults invariant (FR-005): an edit
+ * must not leave the system with no default configuration.
  */
 export interface FareConfigFormValues {
   label: string;
@@ -45,7 +48,8 @@ const NOT_A_NUMBER = "Enter a valid number.";
 const NOT_NEGATIVE = "Must be 0 or greater.";
 const DISCOUNT_RANGE = "Must be between 0 and 100.";
 const DEFAULT_INACTIVE =
-  "Reactivate this configuration before making it the default.";
+  "Cannot set the default fare configuration inactive; reactivate it or assign another default first.";
+const DEFAULT_UNSET = "Assign another default before unsetting the default.";
 
 /** Parses a raw numeric input; null when blank or not a finite number. */
 function parseNumber(value: string): number | null {
@@ -115,4 +119,24 @@ export function validateFareConfigForm(
   }
 
   return errors;
+}
+
+/**
+ * FR-005: an edit must not leave the system with zero default configurations.
+ * Blocks unsetting the default when the edited row is currently the default
+ * and no other configuration is the default. Returns null when allowed.
+ */
+export function validateDefaultUnset(
+  values: Pick<FareConfigFormValues, "is_default">,
+  selfId: string,
+  configs: { fare_config_id: string; is_default: boolean }[],
+): string | null {
+  const self = configs.find((config) => config.fare_config_id === selfId);
+  if (!self?.is_default || values.is_default) {
+    return null;
+  }
+  const otherDefault = configs.some(
+    (config) => config.fare_config_id !== selfId && config.is_default,
+  );
+  return otherDefault ? null : DEFAULT_UNSET;
 }
