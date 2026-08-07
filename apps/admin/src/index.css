@@ -128,3 +128,26 @@
   > [data-slot="sidebar-gap"] {
   width: var(--sidebar-width-icon) !important;
 }
+
+/* Overlay-style scrollbars: reserve a stable gutter so content never shifts
+   when a scrollbar appears/disappears, with a thin, unobtrusive thumb that
+   reads as an overlay (macOS-like). */
+@utility overlay-scrollbar {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, var(--foreground) 30%, transparent)
+    transparent;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background-color: color-mix(in oklch, var(--foreground) 28%, transparent);
+    background-clip: content-box;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
