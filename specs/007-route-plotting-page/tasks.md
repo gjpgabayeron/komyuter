@@ -72,23 +72,23 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 ### Tests for User Story 1 ⚠️ (write FIRST, red before implementation)
 
-- [ ] T017 [P] [US1] Unit tests for the snap-preview orchestration in `apps/admin/src/tests/plottingStore.test.ts` (debounced 500 ms request after placement; preview pending → resolved before commit; apply/revert transitions; auto-named "Stop N" in placement order — FR-008/FR-009/FR-028)
+- [x] T017 [P] [US1] Unit tests for the snap-preview orchestration in `apps/admin/src/tests/plottingStore.test.ts` (debounced 500 ms request after placement; preview pending → resolved before commit; apply/revert transitions; auto-named "Stop N" in placement order — FR-008/FR-009/FR-028)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Rewrite the placeholder `apps/admin/src/pages/RouteWorkspace.tsx` into the plotting surface: full-bleed `RouteMap`, floating nav overlay, centered floating `PlotActionBar`, right-side `PropertiesPanel` slot (hidden until selection), empty-state overlay; keep the existing `/routes` + `/routes/:routeId` routing and `RequireAuth` (FR-001/FR-019/FR-026)
-- [ ] T019 [P] [US1] Create `apps/admin/src/features/routes/routesApi.ts` — typed axios calls through `lib/api.ts`: GET/POST `/api/admin/routes`, GET `/api/admin/routes/:routeId`, GET `/api/admin/routes/:routeId/directions`, GET `/api/admin/directions/:directionId/stops`, POST/PUT atomic save, GET `/api/admin/mapbox/directions` (envelope `{success, data|error}`)
-- [ ] T020 [P] [US1] Create `apps/admin/src/features/routes/useRouteQueries.ts` — react-query hooks (route list, route meta, directions, snap preview) + new keys in `apps/admin/src/lib/queryKeys.ts`
-- [ ] T021 [US1] Create `apps/admin/src/features/routes/RouteList.tsx` — floating nav overlay: searchable route rows, active-route highlight, loads existing stops+path into the plotting surface (FR-002)
-- [ ] T022 [US1] Create `apps/admin/src/features/routes/NewRouteDialog.tsx` — minimal create-route form (name, short_name, color, optional fare_config) via POST `/api/admin/routes` (FR-002/FR-030)
-- [ ] T023 [US1] Create the empty-state guidance overlay in `apps/admin/src/features/routes/EmptyState.tsx` — "Create new route" (opens NewRouteDialog) + "Import JSON dataset" disabled with a coming-soon label; element-editing panel hidden (FR-030)
-- [ ] T024 [US1] Implement stop placement in `RouteMap.tsx` + `plottingStore.ts`: map click → exact `[lng,lat]` stop (FR-022) with auto-default name "Stop N" in placement order (FR-028), default type `major_stop`, marked start-of-route for the first stop (US1 AC1)
-- [ ] T025 [US1] Implement Automatic-mode connecting line: after each placement, request the snap preview via `/api/admin/mapbox/directions` (debounced 500 ms, coordinates from placed stops) and render it; straight-line fallback + visible warning when `snapped:false` (FR-006/FR-008/FR-009)
-- [ ] T026 [US1] Implement Apply/Revert: Apply commits the snapped polyline to the draft (undoable); Revert keeps the previous line; pending preview is resolved before another placement or save (FR-008; edge case)
-- [ ] T027 [US1] Create `apps/admin/src/features/routes/PlotActionBar.tsx` — centered floating bar below the map (FR-019) hosting: mode toggle placeholder (disabled until US2), Connect (disabled until US2), Apply/Revert, undo/redo (disabled until US3), layer toggles (disabled until US4), Save
-- [ ] T028 [US1] Implement the Save flow in `apps/admin/src/features/routes/useRouteQueries.ts`/`RouteWorkspace.tsx`: pre-validate (≥2 stops; path starts and ends on a stop; loop allowed — FR-004/FR-017); POST atomic save for a new direction, PUT for an existing one (FR-027); render base + derived return (FR-012); clear the draft; success toast; 409 conflict → clear message, local work retained (edge case)
-- [ ] T029 [US1] Add loading/empty/error states: route load skeleton, load failure with retry, save conflict banner (FR-023)
-- [ ] T030 [US1] Wire `mod+s` save hotkey via react-hotkeys-hook in `RouteWorkspace.tsx` (FR-020; visible controls remain)
+- [x] T018 [US1] Rewrite the placeholder `apps/admin/src/pages/RouteWorkspace.tsx` into the plotting surface: full-bleed `RouteMap`, floating nav overlay, centered floating `PlotActionBar`, right-side `PropertiesPanel` slot (hidden until selection), empty-state overlay; keep the existing `/routes` + `/routes/:routeId` routing and `RequireAuth` (FR-001/FR-019/FR-026)
+- [x] T019 [P] [US1] Create `apps/admin/src/features/routes/routesApi.ts` — typed axios calls through `lib/api.ts`: GET/POST `/api/admin/routes`, GET `/api/admin/routes/:routeId`, GET `/api/admin/routes/:routeId/directions`, GET `/api/admin/directions/:directionId/stops`, POST/PUT atomic save, GET `/api/admin/mapbox/directions` (envelope `{success, data|error}`)
+- [x] T020 [P] [US1] Create `apps/admin/src/features/routes/useRouteQueries.ts` — react-query hooks (route list, route meta, directions, snap preview) + new keys in `apps/admin/src/lib/queryKeys.ts`
+- [x] T021 [US1] Create `apps/admin/src/features/routes/RouteList.tsx` — floating nav overlay: searchable route rows, active-route highlight, loads existing stops+path into the plotting surface (FR-002)
+- [x] T022 [US1] Create `apps/admin/src/features/routes/NewRouteDialog.tsx` — minimal create-route form (name, short_name, color, optional fare_config) via POST `/api/admin/routes` (FR-002/FR-030)
+- [x] T023 [US1] Create the empty-state guidance overlay in `apps/admin/src/features/routes/EmptyState.tsx` — "Create new route" (opens NewRouteDialog) + "Import JSON dataset" disabled with a coming-soon label; element-editing panel hidden (FR-030)
+- [x] T024 [US1] Implement stop placement in `RouteMap.tsx` + `plottingStore.ts`: map click → exact `[lng,lat]` stop (FR-022) with auto-default name "Stop N" in placement order (FR-028), default type `major_stop`, marked start-of-route for the first stop (US1 AC1)
+- [x] T025 [US1] Implement Automatic-mode connecting line: after each placement, request the snap preview via `/api/admin/mapbox/directions` (debounced 500 ms, coordinates from placed stops) and render it; straight-line fallback + visible warning when `snapped:false` (FR-006/FR-008/FR-009)
+- [x] T026 [US1] Implement Apply/Revert: Apply commits the snapped polyline to the draft (undoable); Revert keeps the previous line; pending preview is resolved before another placement or save (FR-008; edge case)
+- [x] T027 [US1] Create `apps/admin/src/features/routes/PlotActionBar.tsx` — centered floating bar below the map (FR-019) hosting: mode toggle placeholder (disabled until US2), Connect (disabled until US2), Apply/Revert, undo/redo (disabled until US3), layer toggles (disabled until US4), Save
+- [x] T028 [US1] Implement the Save flow in `apps/admin/src/features/routes/useRouteQueries.ts`/`RouteWorkspace.tsx`: pre-validate (≥2 stops; path starts and ends on a stop; loop allowed — FR-004/FR-017); POST atomic save for a new direction, PUT for an existing one (FR-027); render base + derived return (FR-012); clear the draft; success toast; 409 conflict → clear message, local work retained (edge case)
+- [x] T029 [US1] Add loading/empty/error states: route load skeleton, load failure with retry, save conflict banner (FR-023)
+- [x] T030 [US1] Wire `mod+s` save hotkey via react-hotkeys-hook in `RouteWorkspace.tsx` (FR-020; visible controls remain)
 
 **Checkpoint**: US1 fully functional and independently testable — MVP complete.
 
