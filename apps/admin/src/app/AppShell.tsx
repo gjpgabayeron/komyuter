@@ -6,6 +6,7 @@ import { ConnectionBanner } from "@/components/shared/ConnectionBanner";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useOnline } from "@/lib/useOnline";
 import { useUiStore } from "@/lib/uiStore";
+import { cn } from "@/lib/utils";
 
 export function AppShell() {
   const sidebarMode = useUiStore((s) => s.sidebarMode);
@@ -35,7 +36,18 @@ export function AppShell() {
         <ConnectionBanner online={online} />
         <div className="relative flex min-h-0 flex-1">
           <NavRail onHoverChange={setHoverOpen} />
-          <SidebarInset className="min-h-0">
+          <SidebarInset
+            className={cn(
+              "min-h-0 transition-[padding] duration-150 ease-linear",
+              // The rail is a pure overlay: content offsets itself by the
+              // rail width so the collapsed rail never covers the page's left
+              // panel, while hover-expand overlays on top (z-30 in NavRail)
+              // without shifting the layout.
+              sidebarMode === "expanded"
+                ? "md:pl-[var(--sidebar-width)]"
+                : "md:pl-[var(--sidebar-width-icon)]",
+            )}
+          >
             <Header />
             <div
               id="main-content"

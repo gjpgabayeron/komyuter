@@ -2,7 +2,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,12 +16,24 @@ import {
 import { useAuth } from "@/features/auth/auth";
 import { getDisplayName, getInitials } from "@/features/auth/session";
 import { getSectionByPath } from "@/lib/sections";
+import { usePlottingStore } from "@/lib/plottingStore";
+import { useRouteQuery } from "@/features/routes/useRouteQueries";
 
 export function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const section = getSectionByPath(pathname);
+
+  // Breadcrumb: the plotting page reflects the route being edited.
+  const routeId = usePlottingStore((s) => s.routeId);
+  const routeQuery = useRouteQuery(routeId);
+  const title =
+    section?.id === "routes"
+      ? routeId !== null
+        ? `Route › ${routeQuery.data?.name ?? "…"}`
+        : "Route"
+      : (section?.label ?? "Komyuter");
 
   const handleSignOut = () => {
     signOut();
@@ -30,18 +43,23 @@ export function Header() {
 
   return (
     <header className="bg-background flex h-14 shrink-0 items-center justify-between border-b px-4 lg:px-6">
-      <h1 className="text-foreground text-base font-semibold tracking-tight">
-        {section?.label ?? "Komyuter"}
+      <h1
+        className="text-foreground text-base font-semibold tracking-tight"
+        aria-live="polite"
+      >
+        {title}
       </h1>
       <div className="flex items-center gap-2">
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger
               render={(props) => (
-                <Button
+                <button
                   {...props}
-                  variant="ghost"
-                  size="icon"
+                  type="button"
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "icon" }),
+                  )}
                   aria-label="Account menu"
                 >
                   <Avatar>
@@ -49,7 +67,7 @@ export function Header() {
                       {getInitials(user.name, user.email)}
                     </AvatarFallback>
                   </Avatar>
-                </Button>
+                </button>
               )}
             />
             <DropdownMenuContent align="end" className="w-64 p-1">

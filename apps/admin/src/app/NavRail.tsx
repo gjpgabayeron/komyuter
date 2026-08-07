@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { PanelLeft } from "lucide-react";
 import { BrandMark } from "@/components/shared/BrandMark";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
@@ -48,6 +47,15 @@ interface NavRailProps {
   onHoverChange: (open: boolean) => void;
 }
 
+/**
+ * Overlay navigation rail.
+ *
+ * Unlike the stock shadcn `Sidebar`, this rail is a pure overlay: it never
+ * pushes the content area (no sidebar-gap), so pages like the plotting
+ * surface keep their own layout and the rail simply slides over them on
+ * hover-expand. The content area offsets itself by the rail width in
+ * `AppShell`, so the collapsed rail never covers the page's left panel.
+ */
 export function NavRail({ onHoverChange }: NavRailProps) {
   const sidebarMode = useUiStore((s) => s.sidebarMode);
   const setSidebarMode = useUiStore((s) => s.setSidebarMode);
@@ -58,12 +66,16 @@ export function NavRail({ onHoverChange }: NavRailProps) {
   const collapsed = state === "collapsed";
 
   return (
-    <Sidebar
-      collapsible="icon"
-      data-sidebar-mode={sidebarMode}
-      className="absolute h-full"
+    <div
+      data-slot="sidebar"
+      data-state={state}
+      data-collapsible={collapsed ? "icon" : ""}
       role="navigation"
       aria-label="Primary"
+      className={cn(
+        "bg-sidebar text-sidebar-foreground group absolute inset-y-0 left-0 z-30 hidden h-full flex-col border-r transition-[width] duration-150 ease-linear md:flex",
+        collapsed ? "w-(--sidebar-width-icon)" : "w-(--sidebar-width)",
+      )}
       onMouseEnter={() => {
         if (sidebarMode === "hover") onHoverChange(true);
       }}
@@ -113,15 +125,17 @@ export function NavRail({ onHoverChange }: NavRailProps) {
         <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger
             render={(props) => (
-              <Button
+              <button
                 {...props}
-                variant="ghost"
-                size="icon"
-                className="justify-center"
+                type="button"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon" }),
+                  "justify-center",
+                )}
                 aria-label="Sidebar visibility options"
               >
                 <PanelLeft className="size-4" />
-              </Button>
+              </button>
             )}
           />
           <DropdownMenuContent
@@ -134,6 +148,7 @@ export function NavRail({ onHoverChange }: NavRailProps) {
               value={sidebarMode}
               onValueChange={(value) => {
                 setSidebarMode(value as SidebarMode);
+                // Radio items don't auto-close the menu — close explicitly.
                 setMenuOpen(false);
               }}
             >
@@ -153,6 +168,6 @@ export function NavRail({ onHoverChange }: NavRailProps) {
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>
-    </Sidebar>
+    </div>
   );
 }
