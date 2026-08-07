@@ -4,7 +4,8 @@
 
 ## R1 — Map renderer: MapLibre GL JS via react-map-gl
 
-- **Decision**: `maplibre-gl@^6.2.0` + `react-map-gl@^8.1.2` (maplibre entry), OSM raster fallback tiles.
+- **Decision**: `maplibre-gl@^5.24.0` + `react-map-gl@^8.1.2` (maplibre entry), OSM raster fallback tiles.
+- **Correction (2026-08, runtime)**: originally pinned `maplibre-gl@^6.2.0`, but v6 removed the internal `style._loaded` flag that `@vis.gl/react-maplibre@8.1.2` gates every dynamic `<Source>`/`<Layer>` on — so GeoJSON polylines silently never rendered. Fix has two parts: (1) downgraded to `maplibre-gl@^5.24.0` (v6's removal is unsupported by react-map-gl 8.1.2; peer range `>=1.13.0` satisfied by both), and (2) `RouteMap` no longer uses react-map-gl's `<Source>`/`<Layer>` at all — it manages the line source/layers imperatively via the raw maplibre API (`map.addSource`/`addLayer`/`setData`, gated on `map.isStyleLoaded()` + `load`/`styledata` events), which is version-proof and renders reliably.
 - **Rationale**: ADR-0013 (recorded as ACCEPTED in `docs/ADMIN.md` §9) selects MapLibre GL JS, which consumes GeoJSON `[lng, lat]` natively — the sole coordinate format in the project. react-map-gl 8.1.2 peers with React ≥16.3 (we run React 18.3) and exports a dedicated `react-map-gl/maplibre` entry. The mobile app already uses the Mapbox GL family, keeping the renderer family consistent. OSM raster fallback (`https://tile.openstreetmap.org/{z}/{x}/{y}.png`) keeps `pnpm dev` working with no Mapbox account (ADR-0013 dev fallback).
 - **Alternatives considered**: Leaflet + react-leaflet (ADR-0007) — superseded by ADR-0013; would reintroduce a `[lat, lng]` exception and a conversion layer the codebase never built. React-Map-GL mapbox entry — vendor-locked to Mapbox GL (no dev fallback tiles).
 - **Code reality check**: `apps/admin` currently has **no map code at all** (no mapbox/maplibre/leaflet deps; `RouteWorkspace.tsx` is a placeholder; no `lib/tiles.ts`). The map stack is greenfield. The Leaflet converter module described in `AGENTS.md`/constitution **never existed** — with MapLibre it is not needed ([lng,lat] native). Constitution/AGENTS.md references to "Leaflet exception (ADR-0007)" are stale and must be reconciled (see R6).
@@ -47,7 +48,7 @@
 
 ## R7 — Version pinning (verified against npm registry 2026-08-06)
 
-- `maplibre-gl@^6.2.0` (BSD-3, ESM, Node ≥16.14) — Vite 5 compatible.
+- `maplibre-gl@^5.24.0` (BSD-3, ESM, Node ≥16.14) — Vite 5 compatible. (v6 dropped `style._loaded`, breaking react-map-gl 8.1.2's dynamic `<Source>`/`<Layer>`; see R1 correction.)
 - `react-map-gl@^8.1.2` (MIT, ESM; peer react ≥16.3, maplibre-gl ≥1.13; use the `react-map-gl/maplibre` entry).
 - `react-hotkeys-hook@^4` (planned in ADMIN.md stack; React 18 compatible).
 - Admin unit tests stay in the existing Vitest **node** env: map components are kept thin; all testable logic lives in pure helpers so no jsdom/WebGL mocking is needed.
