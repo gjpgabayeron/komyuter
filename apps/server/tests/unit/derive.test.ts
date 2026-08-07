@@ -113,6 +113,13 @@ describe("pathEndpointsOnStops", () => {
     ).toEqual({ ok: true });
   });
 
+  it("accepts a loop ending on the start stop (FR-004)", () => {
+    const loop: GeoLineString = { type: "LineString", coordinates: [A, B, A] };
+    expect(pathEndpointsOnStops(loop, [stop("A", A), stop("B", B)])).toEqual({
+      ok: true,
+    });
+  });
+
   it("rejects a path starting far from the first stop", () => {
     const polyline: GeoLineString = {
       type: "LineString",

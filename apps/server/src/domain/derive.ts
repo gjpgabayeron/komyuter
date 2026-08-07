@@ -133,8 +133,21 @@ export function pathEndpointsOnStops(
     coordinates[coordinates.length - 1],
     stops[stops.length - 1].location.coordinates,
   );
-  if (endDistance > ENDPOINT_TOLERANCE_METERS) {
-    return { ok: false, reason: "end_mismatch", distanceMeters: endDistance };
+  const endDistanceToStart = coordinatesDistanceMeters(
+    coordinates[coordinates.length - 1],
+    stops[0].location.coordinates,
+  );
+  if (
+    endDistance > ENDPOINT_TOLERANCE_METERS &&
+    endDistanceToStart > ENDPOINT_TOLERANCE_METERS
+  ) {
+    // A loop ends on the START stop, so the end may match either the last or
+    // the first stop (FR-004).
+    return {
+      ok: false,
+      reason: "end_mismatch",
+      distanceMeters: Math.min(endDistance, endDistanceToStart),
+    };
   }
   return { ok: true };
 }

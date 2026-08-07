@@ -167,6 +167,35 @@ describe("Route plotting atomic save (FR-012/FR-027/FR-028, ADR-0008)", () => {
     expect(list.json().data).toHaveLength(0);
   });
 
+  it("accepts a loop that ends on the starting stop (FR-004)", async () => {
+    const routeId = await createRoute("loop");
+    const res = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${routeId}/directions`,
+      headers: auth(),
+      payload: {
+        label: "Loop",
+        base_polyline: { type: "LineString", coordinates: [A, MID, B, A] },
+        stops: [
+          {
+            name: "City Hall",
+            type: "terminal",
+            location: point(A),
+            stop_order: 1,
+          },
+          {
+            name: "Port",
+            type: "major_stop",
+            location: point(B),
+            stop_order: 2,
+          },
+        ],
+      },
+    });
+    expect(res.statusCode).toBe(201);
+    expect(res.json().data.return_direction).toBeTruthy();
+  });
+
   it("rejects a third active direction with 409 (ADR-0008)", async () => {
     const routeId = await createRoute("third");
     const first = await app.inject({
