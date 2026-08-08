@@ -102,12 +102,12 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 ### Tests for User Story 2 ⚠️ (write FIRST, red before implementation)
 
-- [ ] T031 [P] [US2] Unit tests for mode semantics in `apps/admin/src/tests/plottingStore.test.ts` (manual placement adds no lines; Connect triggers the same snap-preview flow; switching modes mid-plot preserves all placed stops — FR-005/FR-007, US2 AC3)
+- [x] T031 [P] [US2] Unit tests for mode semantics in `apps/admin/src/tests/plotting-store.test.ts` + `connections.test.ts` (manual placement adds no lines; `linkStops` links/unlinks, commits the straight draft and requests the preview; mode switching mid-plot preserves stops + seeds the chain; chain invariants — FR-005/FR-007, US2 AC3)
 
 ### Implementation for User Story 2
 
-- [ ] T032 [US2] Implement the Automatic/Manual mode toggle in `PlotActionBar.tsx` (`plottingStore.mode`) — a clear toggle, not an icon-only control (FR-005)
-- [ ] T033 [US2] Implement Manual mode in `RouteMap.tsx`/`plottingStore.ts`: placed stops show no connecting lines (FR-007); a single **Connect** action links stops in placement order and triggers the snap-preview/Apply/Revert flow from US1; mid-plot switching keeps placed stops (US2 AC2/AC3)
+- [x] T032 [US2] Implement the Automatic/Manual mode toggle in `PlotActionBar.tsx` (`plottingStore.mode`) — a clear labelled toggle, not an icon-only control (FR-005)
+- [x] T033 [US2] Implement Manual mode in `RouteMap.tsx`/`plottingStore.ts` (node-based workflow — replaces the Connect button per product revision): placed stops show no connecting lines (FR-007); clicking a stop starts a rubber-band straight preview that follows the mouse, clicking a second stop links them (toggle: an already-linked pair disconnects), interior links re-route (chain invariant: degree ≤ 2, no cycles) via `lib/connections.ts`; linked edges commit straight into the draft polyline and request the whole-path snap preview (Apply/Revert unchanged); mid-plot switching keeps placed stops (US2 AC2/AC3); only chain stops are saved, off-path stops warned in the left panel
 
 **Checkpoint**: US1 AND US2 both work independently.
 
@@ -121,18 +121,18 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 ### Tests for User Story 3 ⚠️ (write FIRST, red before implementation)
 
-- [ ] T034 [P] [US3] Unit tests for the history stack in `apps/admin/src/tests/plottingHistory.test.ts` (undo/redo of stop_placed, stop_deleted, stop_dragged, snap_applied; stack cleared on save; mid-sequence delete reconnects and restores on undo — FR-013, edge case)
-- [ ] T035 [P] [US3] Unit tests for the draft module in `apps/admin/src/tests/draft.test.ts` (serialize/parse round-trip; 24h TTL expiry → no draft offered; expired draft never silently restored — FR-014)
+- [x] T034 [P] [US3] Unit tests for the history stack in `apps/admin/src/tests/plottingHistory.test.ts` (undo/redo of stop_placed, stop_deleted, stop_dragged, snap_applied; stack cleared on save; mid-sequence delete reconnects and restores on undo — FR-013, edge case)
+- [x] T035 [P] [US3] Unit tests for the draft module in `apps/admin/src/tests/draft.test.ts` (serialize/parse round-trip; 24h TTL expiry → no draft offered; expired draft never silently restored — FR-014)
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Implement undo/redo history in `apps/admin/src/lib/plottingStore.ts` + `apps/admin/src/lib/plottingHistory.ts` (entries: stop_placed, stop_deleted, stop_dragged, snap_applied) — make T034 green
-- [ ] T037 [US3] Implement stop deletion (map marker + ordered list): path reconnects across the gap, remaining stops keep order, undo restores the deleted stop (FR-013; edge case)
-- [ ] T038 [US3] Implement drag repositioning of placed stops in `RouteMap.tsx` (FR-029): marker drag → new `[lng,lat]` → affected segments re-snap (straight-line fallback + warning when service unavailable) → undoable → position persists with next Save
-- [ ] T039 [US3] Wire `mod+z` / `mod+shift+z` in `RouteWorkspace.tsx` + enable the undo/redo buttons in `PlotActionBar.tsx` (FR-019/FR-020)
-- [ ] T040 [US3] Create `apps/admin/src/lib/draft.ts` — localStorage draft (`komyuter.draft.{routeId}.{directionId}`, 24h TTL, debounced ~500 ms writes, never sent to the server) — make T035 green
-- [ ] T041 [US3] Add the navigation guard in `RouteWorkspace.tsx` (unsaved changes → explicit confirmation on `beforeunload` and route leave; leaving keeps the draft — FR-014)
-- [ ] T042 [US3] Create `apps/admin/src/features/routes/DraftRestoreBanner.tsx` — offers Restore (continues exact state incl. history) or Discard (clears the draft key); nothing offered after expiry (FR-014)
+- [x] T036 [US3] Implement undo/redo history in `apps/admin/src/lib/plottingStore.ts` + `apps/admin/src/lib/plottingHistory.ts` (entries: stop_placed, stop_deleted, stop_dragged, snap_applied) — make T034 green
+- [x] T037 [US3] Implement stop deletion (map marker + ordered list): path reconnects across the gap, remaining stops keep order, undo restores the deleted stop (FR-013; edge case)
+- [x] T038 [US3] Implement drag repositioning of placed stops in `RouteMap.tsx` (FR-029): marker drag → new `[lng,lat]` → affected segments re-snap (straight-line fallback + warning when service unavailable) → undoable → position persists with next Save
+- [x] T039 [US3] Wire `mod+z` / `mod+shift+z` in `RouteWorkspace.tsx` + enable the undo/redo buttons in `PlotActionBar.tsx` (FR-019/FR-020)
+- [x] T040 [US3] Create `apps/admin/src/lib/draft.ts` — localStorage draft (`komyuter.draft.{routeId}.{directionId}`, 24h TTL, debounced ~500 ms writes, never sent to the server) — make T035 green
+- [x] T041 [US3] Add the navigation guard in `RouteWorkspace.tsx` (unsaved changes → explicit confirmation on `beforeunload` and route leave; leaving keeps the draft — FR-014)
+- [x] T042 [US3] Create `apps/admin/src/features/routes/DraftRestoreBanner.tsx` — offers Restore (continues exact state incl. history) or Discard (clears the draft key); nothing offered after expiry (FR-014)
 
 **Checkpoint**: US1–US3 all work independently.
 
