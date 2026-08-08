@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,18 +11,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { FareConfigSelect } from "./FareConfigSelect";
-import { isValidHexColor, ROUTE_COLORS } from "./routeColors";
+import { isValidHexColor, randomRouteColor } from "./routeColors";
 import { useCreateRouteMutation } from "./useRouteQueries";
+import { useFareConfigsQuery } from "@/features/fares/queries";
 
 interface NewRouteDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const randomColor = () =>
-  ROUTE_COLORS[Math.floor(Math.random() * ROUTE_COLORS.length)];
+const randomColor = () => randomRouteColor();
 
 /** Minimal create-route form (FR-002/FR-030): name, short name, colour, fare. */
 export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
@@ -32,11 +33,34 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
   const [hexText, setHexText] = useState(color);
   const [fareConfigId, setFareConfigId] = useState<string | null>(null);
 
+  // A fresh random colour on EVERY open — not just first mount — so each new
+  // route gets a distinct identity even if the dialog stays mounted between
+  // opens (or the previous create was cancelled). Also pre-fills the default
+  // fare config when one exists.
+  const fareQuery = useFareConfigsQuery();
+  useEffect(() => {
+    if (!open) return;
+    const next = randomColor();
+    setColor(next);
+    setHexText(next);
+    const defaults = fareQuery.data?.filter((c) => c.is_default);
+    setFareConfigId(defaults?.[0]?.fare_config_id ?? null);
+  }, [open, fareQuery.data]);
+
   const createMutation = useCreateRouteMutation();
+  // Route creation is blocked entirely until at least one fare config exists.
+  const noFareConfigs =
+    !fareQuery.isLoading && (fareQuery.data?.length ?? 0) === 0;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!name.trim() || !shortName.trim()) return;
+    if (noFareConfigs) {
+      toast.error(
+        "No fare config exists yet — create one in Fares first, then add the route.",
+      );
+      return;
+    }
     try {
       const route = await createMutation.mutateAsync({
         name: name.trim(),
@@ -129,17 +153,28 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
               />
             </div>
           </div>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating…" : "Create"}
-            </Button>
+          <DialogFooter className="flex-col items-stretch gap-2">
+            {noFareConfigs && (
+              <p className="text-xs text-amber-700">
+                No fare config exists yet — routes require one. Create a fare
+                config in the Fares section first.
+              </p>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={createMutation.isPending || noFareConfigs}
+              >
+                {createMutation.isPending ? "Creating…" : "Create"}
+              </Button>
+            </div>
           </DialogFooter>
         </form>
       </DialogContent>

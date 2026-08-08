@@ -110,7 +110,7 @@ export function FareConfigSelect({
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 z-20 mt-1 w-full min-w-64 rounded-lg border bg-white p-1.5">
+        <div className="absolute top-full left-0 z-20 mt-1 flex max-h-[min(24rem,calc(100dvh-10rem))] w-full min-w-64 flex-col rounded-lg border bg-white p-1.5">
           {creating ? (
             <form onSubmit={submitCreate} className="space-y-2">
               <div className="space-y-1">
@@ -174,7 +174,7 @@ export function FareConfigSelect({
             </form>
           ) : (
             <>
-              <div className="relative mb-1">
+              <div className="relative mb-1 shrink-0">
                 <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
                 <Input
                   value={query}
@@ -184,7 +184,7 @@ export function FareConfigSelect({
                   className="h-8 pr-2 pl-7"
                 />
               </div>
-              <ul className="overlay-scrollbar max-h-48 overflow-y-auto">
+              <ul className="overlay-scrollbar min-h-0 flex-1 overflow-y-auto">
                 {fareQuery.isLoading && (
                   <li className="text-muted-foreground px-2 py-1.5 text-xs">
                     Loading…
@@ -233,7 +233,7 @@ export function FareConfigSelect({
                     </li>
                   ))}
               </ul>
-              <div className="mt-1 border-t pt-1">
+              <div className="mt-1 shrink-0 border-t pt-1">
                 <Button
                   type="button"
                   variant="ghost"

@@ -25,10 +25,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
+import { pathFromConnections } from "@/lib/connections";
 import { useFareConfigsQuery } from "@/features/fares/queries";
 import { FareConfigSelect } from "./FareConfigSelect";
 import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "./routeColors";
-import { formatTimestamp } from "./format";
 import { STOP_TYPE_LABELS } from "./stopLabels";
 import { useRouteQuery } from "./useRouteQueries";
 import { cn } from "@/lib/utils";
@@ -56,6 +56,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
  */
 export function PropertiesPanel() {
   const routeId = usePlottingStore((s) => s.routeId);
+  const selection = usePlottingStore((s) => s.selection);
   if (routeId === null) return null;
 
   return (
@@ -67,8 +68,7 @@ export function PropertiesPanel() {
         Properties
       </h2>
       <div className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto">
-        <RouteGroup />
-        <StopGroup />
+        {selection.type === "stop" ? <StopGroup /> : <RouteGroup />}
       </div>
     </aside>
   );
@@ -182,20 +182,6 @@ function RouteGroup() {
             />
           </div>
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <div className="space-y-0.5">
-            <SectionLabel>Status</SectionLabel>
-            <p className="text-muted-foreground text-xs">
-              Active routes are usable in the commuter app.
-            </p>
-          </div>
-          <Switch
-            checked={routeMeta?.isActive ?? true}
-            onCheckedChange={(checked) => setRouteMeta({ isActive: checked })}
-            disabled={saving}
-            aria-label="Active route"
-          />
-        </div>
         <div className="space-y-1.5">
           <SectionLabel>Fare config</SectionLabel>
           <FareConfigSelect
@@ -241,22 +227,6 @@ function RouteGroup() {
             </span>
           </p>
         </div>
-        {route && (
-          <>
-            <div className="space-y-0.5">
-              <SectionLabel>Created</SectionLabel>
-              <p className="text-sm tabular-nums">
-                {formatTimestamp(route.created_at)}
-              </p>
-            </div>
-            <div className="space-y-0.5">
-              <SectionLabel>Last updated</SectionLabel>
-              <p className="text-sm tabular-nums">
-                {formatTimestamp(route.updated_at)}
-              </p>
-            </div>
-          </>
-        )}
       </div>
     </section>
   );
@@ -375,6 +345,30 @@ function StopEditor({
 
   const showGuaranteed = stop.type !== "waiting_area";
 
+  // Chain neighbours (path order — orientation-independent) for the
+  // "Connected from/to" dropdowns. Closed loops (FR-004) wrap around: the
+  // first stop's predecessor is the last stop and vice versa.
+  const connections = usePlottingStore((s) => s.connections);
+  const stops = usePlottingStore((s) => s.stops);
+  const setStopLinks = usePlottingStore((s) => s.setStopLinks);
+  const path = pathFromConnections(connections, stops);
+  const pathIndex = path.stopIds.indexOf(stop.id);
+  const lastIndex = path.stopIds.length - 1;
+  const closedLoop = path.closed && path.stopIds.length >= 3;
+  const chainFromId =
+    closedLoop && pathIndex === 0
+      ? path.stopIds[lastIndex]
+      : pathIndex > 0
+        ? path.stopIds[pathIndex - 1]
+        : null;
+  const chainToId =
+    closedLoop && pathIndex === lastIndex
+      ? path.stopIds[0]
+      : pathIndex >= 0 && pathIndex < lastIndex
+        ? path.stopIds[pathIndex + 1]
+        : null;
+  const otherStops = stops.filter((s) => s.id !== stop.id);
+
   return (
     <div className="space-y-3.5">
       <div className="space-y-1.5">
@@ -477,6 +471,26 @@ function StopEditor({
         </div>
       </div>
 
+      {/* Linked-chain neighbours, editable via dropdowns — the chain stays in
+          sync with placement order (single-mode plotting). */}
+      <div className="space-y-1.5">
+        <SectionLabel>Connections</SectionLabel>
+        <ConnectionSelect
+          label="Connected from"
+          value={chainFromId}
+          options={otherStops}
+          onSelect={(id) => setStopLinks(stop.id, { from: id })}
+          disabled={disabled}
+        />
+        <ConnectionSelect
+          label="Connected to"
+          value={chainToId}
+          options={otherStops}
+          onSelect={(id) => setStopLinks(stop.id, { to: id })}
+          disabled={disabled}
+        />
+      </div>
+
       {showGuaranteed && (
         <div className="flex items-center justify-between gap-2">
           <div className="space-y-0.5">
@@ -534,6 +548,61 @@ function StopEditor({
           {index + 1} of {usePlottingStore.getState().stops.length}.
         </p>
       )}
+    </div>
+  );
+}
+
+/** Dropdown that picks a stop's chain neighbour on one side. */
+function ConnectionSelect({
+  label,
+  value,
+  options,
+  onSelect,
+  disabled,
+}: {
+  label: string;
+  value: string | null;
+  options: { id: string; name: string }[];
+  onSelect: (id: string | null) => void;
+  disabled: boolean;
+}) {
+  const selected = options.find((option) => option.id === value) ?? null;
+  return (
+    <div className="space-y-1">
+      <Label className="text-muted-foreground text-[11px]">{label}</Label>
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={(props) => (
+            <button
+              {...props}
+              type="button"
+              disabled={disabled}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "w-full justify-between font-normal",
+              )}
+            >
+              <span className="truncate">
+                {selected ? selected.name : "None"}
+              </span>
+              <ChevronDown className="size-3.5" />
+            </button>
+          )}
+        />
+        <DropdownMenuContent align="start" className="w-56 p-1">
+          <DropdownMenuRadioGroup
+            value={value ?? ""}
+            onValueChange={(next) => onSelect(next === "" ? null : next)}
+          >
+            <DropdownMenuRadioItem value="">None</DropdownMenuRadioItem>
+            {options.map((option) => (
+              <DropdownMenuRadioItem key={option.id} value={option.id}>
+                {option.name}
+              </DropdownMenuRadioItem>
+            ))}
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

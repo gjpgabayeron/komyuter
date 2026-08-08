@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,6 +33,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isStopSelected, selectStop } from "@/lib/selection";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
+import { pathFromConnections } from "@/lib/connections";
 import { cn } from "@/lib/utils";
 import {
   useDeleteRouteMutation,
@@ -79,6 +81,13 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
   const deleteMutation = useDeleteRouteMutation();
 
   const stops = usePlottingStore((s) => s.stops);
+  const routeMeta = usePlottingStore((s) => s.routeMeta);
+  const setRouteMeta = usePlottingStore((s) => s.setRouteMeta);
+  const saving = usePlottingStore((s) => s.saving);
+  const connections = usePlottingStore((s) => s.connections);
+  // Closed loops (FR-004): the last stop connects back to the first.
+  const closedLoop =
+    pathFromConnections(connections, stops).closed && stops.length >= 3;
   const selection = usePlottingStore((s) => s.selection);
   const setSelection = usePlottingStore((s) => s.setSelection);
   const reorderStop = usePlottingStore((s) => s.reorderStop);
@@ -113,8 +122,11 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
         landmark_hint: stop.landmark_hint,
         notes: stop.notes,
       })),
+      base.base_polyline, // closes the chain when the route is a loop (FR-004)
     );
     store.setPolyline(base.base_polyline);
+    // The loaded route is the saved baseline — undo back to it hides Save.
+    store.captureSavedBaseline();
     store.requestFit();
   }, [routeQuery.data]);
 
@@ -152,14 +164,34 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
     }
   };
 
+  /** Inserts a stop right after the given stop, mid-way to its successor. */
+  const insertAfter = (stopId: string) => {
+    const current = usePlottingStore.getState().stops;
+    const index = current.findIndex((s) => s.id === stopId);
+    if (index === -1) return;
+    const anchor = current[index];
+    const successor = current[index + 1];
+    const location = successor
+      ? [
+          (anchor.location[0] + successor.location[0]) / 2,
+          (anchor.location[1] + successor.location[1]) / 2,
+        ]
+      : // No successor: drop the new stop slightly off the anchor so it is
+        // visible and draggable instead of hidden underneath.
+        [anchor.location[0] + 0.0005, anchor.location[1] + 0.0005];
+    usePlottingStore
+      .getState()
+      .insertStopBetween(stopId, location as [number, number]);
+  };
+
   const empty =
     !routesQuery.isLoading && !routesQuery.isError && routes.length === 0;
 
   return (
     <>
       {detail ? (
-        <aside className="absolute top-3 left-3 z-10 flex max-h-[calc(100dvh-9rem)] w-80 flex-col rounded-lg border bg-white p-2">
-          <div className="flex items-center gap-1.5 px-1 pb-1.5">
+        <aside className="absolute top-3 left-3 z-10 flex max-h-[calc(100dvh-9rem)] w-80 flex-col overflow-hidden rounded-lg border bg-white p-2">
+          <div className="flex shrink-0 items-center gap-1.5 px-1 pb-1.5">
             <button
               type="button"
               aria-label="Back to routes"
@@ -190,15 +222,36 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                 )}
               </div>
             </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <Switch
+                checked={routeMeta?.isActive ?? true}
+                onCheckedChange={(checked) =>
+                  setRouteMeta({ isActive: checked })
+                }
+                disabled={saving}
+                aria-label="Active route"
+                className="scale-90"
+              />
+            </div>
           </div>
 
-          <div className="border-t pt-1.5">
-            <div className="flex items-center justify-between px-1 pb-1">
+          <div className="flex min-h-0 flex-1 flex-col border-t pt-1.5">
+            <div className="flex shrink-0 items-center justify-between px-1 pb-1">
               <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
                 Stops
               </span>
-              <span className="text-muted-foreground text-xs tabular-nums">
-                {stops.length}
+              <span className="flex items-center gap-1.5">
+                {closedLoop && (
+                  <span
+                    className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
+                    title="Last stop connects back to the first — circular route"
+                  >
+                    Circular
+                  </span>
+                )}
+                <span className="text-muted-foreground text-xs tabular-nums">
+                  {stops.length}
+                </span>
               </span>
             </div>
             {stops.length === 0 ? (
@@ -217,79 +270,91 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                   const isDropTarget =
                     dropIndex === index && dragIndex !== null && !isDragging;
                   return (
-                    <button
-                      key={stop.id}
-                      type="button"
-                      draggable
-                      onDragStart={(event) => {
-                        event.dataTransfer.effectAllowed = "move";
-                        event.dataTransfer.setData("text/plain", String(index));
-                        setDragIndex(index);
-                      }}
-                      onDragOver={(event) => {
-                        event.preventDefault();
-                        event.dataTransfer.dropEffect = "move";
-                        setDropIndex(index);
-                      }}
-                      onDrop={(event) => {
-                        event.preventDefault();
-                        const from = Number(
-                          event.dataTransfer.getData("text/plain"),
-                        );
-                        if (Number.isFinite(from)) reorderStop(from, index);
-                        setDragIndex(null);
-                        setDropIndex(null);
-                      }}
-                      onDragEnd={() => {
-                        setDragIndex(null);
-                        setDropIndex(null);
-                      }}
-                      onClick={() => setSelection(selectStop(stop.id))}
-                      aria-label={`Select ${stop.name}`}
-                      className={cn(
-                        "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
-                        selected
-                          ? "border-primary/50 bg-primary/5"
-                          : "hover:bg-muted border-transparent",
-                        isDragging && "opacity-40",
-                        isDropTarget && "shadow-[inset_0_2px_0_0_#1B6DB2]",
-                      )}
-                    >
-                      <span
+                    <div className="group" key={stop.id}>
+                      <button
+                        type="button"
+                        draggable
+                        onDragStart={(event) => {
+                          event.dataTransfer.effectAllowed = "move";
+                          event.dataTransfer.setData(
+                            "text/plain",
+                            String(index),
+                          );
+                          setDragIndex(index);
+                        }}
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          event.dataTransfer.dropEffect = "move";
+                          setDropIndex(index);
+                        }}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          const from = Number(
+                            event.dataTransfer.getData("text/plain"),
+                          );
+                          if (Number.isFinite(from)) reorderStop(from, index);
+                          setDragIndex(null);
+                          setDropIndex(null);
+                        }}
+                        onDragEnd={() => {
+                          setDragIndex(null);
+                          setDropIndex(null);
+                        }}
+                        onClick={() => setSelection(selectStop(stop.id))}
+                        aria-label={`Select ${stop.name}`}
                         className={cn(
-                          "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
-                          SHAPE_CHIP[shape.shape],
-                          selected &&
-                            "outline-foreground outline-2 outline-offset-1",
+                          "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
+                          selected
+                            ? "border-primary/50 bg-primary/5"
+                            : "hover:bg-muted border-transparent",
+                          isDragging && "opacity-40",
+                          isDropTarget && "shadow-[inset_0_2px_0_0_#1B6DB2]",
                         )}
-                        style={{
-                          backgroundColor: shape.color,
-                          color:
-                            stop.type === "waiting_area"
-                              ? "#201A10"
-                              : "#ffffff",
-                        }}
                       >
-                        {shape.shape === "diamond" ? (
-                          <span className="-rotate-45">{index + 1}</span>
-                        ) : (
-                          index + 1
-                        )}
-                      </span>
-                      <span className="text-foreground min-w-0 flex-1 truncate text-sm">
-                        {stop.name}
-                      </span>
-                      <Badge
-                        variant="outline"
-                        className="h-4 shrink-0 px-1 text-[10px] font-medium"
-                        style={{
-                          borderColor: shape.color,
-                          color: shape.color,
-                        }}
+                        <span
+                          className={cn(
+                            "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
+                            SHAPE_CHIP[shape.shape],
+                            selected &&
+                              "outline-foreground outline-2 outline-offset-1",
+                          )}
+                          style={{
+                            backgroundColor: shape.color,
+                            color:
+                              stop.type === "waiting_area"
+                                ? "#201A10"
+                                : "#ffffff",
+                          }}
+                        >
+                          {shape.shape === "diamond" ? (
+                            <span className="-rotate-45">{index + 1}</span>
+                          ) : (
+                            index + 1
+                          )}
+                        </span>
+                        <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                          {stop.name}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className="h-4 shrink-0 px-1 text-[10px] font-medium"
+                          style={{
+                            borderColor: shape.color,
+                            color: shape.color,
+                          }}
+                        >
+                          {STOP_TYPE_LABELS[stop.type]}
+                        </Badge>
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Insert stop after ${stop.name}`}
+                        onClick={() => insertAfter(stop.id)}
+                        className="text-muted-foreground/40 hover:text-primary flex w-full items-center justify-center py-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
                       >
-                        {STOP_TYPE_LABELS[stop.type]}
-                      </Badge>
-                    </button>
+                        <Plus className="size-3" />
+                      </button>
+                    </div>
                   );
                 })}
                 {stops.length > 0 && (
@@ -450,8 +515,8 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete route?</AlertDialogTitle>
             <AlertDialogDescription>
-              This deactivates “{deleteTarget?.name}”. It will no longer be
-              usable in the app. This action can’t be undone.
+              This permanently deletes “{deleteTarget?.name}” and its plotted
+              stops from the database. This action can’t be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

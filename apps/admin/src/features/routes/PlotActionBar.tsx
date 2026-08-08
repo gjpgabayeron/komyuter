@@ -1,13 +1,4 @@
-import {
-  Check,
-  Layers,
-  Link2,
-  MousePointer2,
-  Plus,
-  Redo2,
-  Undo2,
-  X,
-} from "lucide-react";
+import { Layers, MousePointer2, Plus, Redo2, Undo2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -17,11 +8,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePlottingStore } from "@/lib/plottingStore";
+import { canRedo, canUndo } from "@/lib/plottingHistory";
 import { cn } from "@/lib/utils";
 
 interface PlotActionBarProps {
-  onApply: () => void;
-  onRevert: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 function IconAction({
@@ -123,43 +115,24 @@ function ToolToggle({ disabled }: { disabled: boolean }) {
  * toggle shows the active edit tool. Everything locks while a save is in
  * flight; the dedicated Save button (right of the bar) owns persistence.
  */
-export function PlotActionBar({ onApply, onRevert }: PlotActionBarProps) {
-  const snapStatus = usePlottingStore((s) => s.snap.status);
+export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
   const saving = usePlottingStore((s) => s.saving);
+  const history = usePlottingStore((s) => s.history);
 
-  const previewReady = snapStatus === "preview";
+  const undoReady = canUndo(history) && !saving;
+  const redoReady = canRedo(history) && !saving;
 
   return (
     <TooltipProvider>
       <div className="flex items-center gap-0.5 rounded-lg border bg-white px-1.5 py-1">
         <ToolToggle disabled={saving} />
-        <IconAction label="Connect" disabled>
-          <Link2 className="size-3.5" />
-        </IconAction>
 
         <Separator orientation="vertical" className="mx-1 h-5" />
 
-        <IconAction
-          label="Apply preview"
-          onClick={onApply}
-          disabled={saving || !previewReady}
-        >
-          <Check className="size-3.5" />
-        </IconAction>
-        <IconAction
-          label="Revert preview"
-          onClick={onRevert}
-          disabled={saving || !previewReady}
-        >
-          <X className="size-3.5" />
-        </IconAction>
-
-        <Separator orientation="vertical" className="mx-1 h-5" />
-
-        <IconAction label="Undo" disabled>
+        <IconAction label="Undo" onClick={onUndo} disabled={!undoReady}>
           <Undo2 className="size-3.5" />
         </IconAction>
-        <IconAction label="Redo" disabled>
+        <IconAction label="Redo" onClick={onRedo} disabled={!redoReady}>
           <Redo2 className="size-3.5" />
         </IconAction>
 

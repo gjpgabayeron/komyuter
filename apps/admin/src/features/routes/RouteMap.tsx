@@ -7,7 +7,7 @@ import Map, { MapProvider, Marker, useMap } from "react-map-gl/maplibre";
 import type { GeoJSONSource } from "maplibre-gl";
 import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
 import { getTileSource, ILOILO_CITY } from "@/lib/tiles";
-import { straightLineThrough } from "@/lib/coords";
+import { resolveConnectingLine } from "@/lib/coords";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
 import { clearSelection, isStopSelected, selectStop } from "@/lib/selection";
@@ -15,9 +15,8 @@ import { usePlottingStore } from "@/lib/plottingStore";
 
 /** Signboard green-blue (draft path — committed to save). */
 const DRAFT_LINE = "#1B6DB2";
-/** Vivid orange (connecting/preview line — the proposed "after" path awaiting
- *  Apply/Revert). Chosen to stand out against light AND dark map tiles, and
- *  clearly distinct from the committed blue line. */
+/** Vivid orange (transient connecting line — the straight fallback shown
+ *  until a road-snapped path exists; never persisted). */
 const PREVIEW_LINE = "#FF5C00";
 
 /** Static Tailwind classes per stop shape (FR-015). */
@@ -152,20 +151,6 @@ function RouteLines({
           data: { type: "FeatureCollection", features: [] },
         });
       }
-      if (!map.getLayer("route-line-draft")) {
-        map.addLayer({
-          id: "route-line-draft",
-          type: "line",
-          source: "route-lines",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": color, "line-width": 4 },
-          filter: ["==", ["get", "kind"], "draft"],
-        });
-      } else {
-        // Live colour feedback: the committed line follows the route's colour
-        // as it's edited in the properties panel.
-        map.setPaintProperty("route-line-draft", "line-color", color);
-      }
       if (!map.getLayer("route-line-connecting")) {
         map.addLayer({
           id: "route-line-connecting",
@@ -179,6 +164,23 @@ function RouteLines({
           },
           filter: ["==", ["get", "kind"], "connecting"],
         });
+      }
+      // The committed (draft) line is added LAST so it renders on top of the
+      // proposal layers: live colour feedback stays visible even while a
+      // preview overlaps the current path.
+      if (!map.getLayer("route-line-draft")) {
+        map.addLayer({
+          id: "route-line-draft",
+          type: "line",
+          source: "route-lines",
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: { "line-color": color, "line-width": 4 },
+          filter: ["==", ["get", "kind"], "draft"],
+        });
+      } else {
+        // Live colour feedback: the committed line follows the route's colour
+        // as it's edited in the properties panel.
+        map.setPaintProperty("route-line-draft", "line-color", color);
       }
       const features: RouteLineFeature[] = [];
       if (draft) {
@@ -205,9 +207,15 @@ function RouteLines({
     if (map.isStyleLoaded()) update();
     map.on("load", update);
     map.on("styledata", update);
+    // Self-heal: if the initial draw was ever missed (style raced past the
+    // mount, stale listeners, HMR residue), the lines re-sync on the next
+    // map settle — the same interaction the user reported as "making them
+    // appear" (selecting/dragging a stop pans or zooms, ending in `idle`).
+    map.on("idle", update);
     return () => {
       map.off("load", update);
       map.off("styledata", update);
+      map.off("idle", update);
     };
   }, [map, draft, connecting, color]);
 
@@ -226,7 +234,6 @@ export function RouteMap({ className, children }: RouteMapProps) {
   const tool = usePlottingStore((s) => s.tool);
   const stops = usePlottingStore((s) => s.stops);
   const polyline = usePlottingStore((s) => s.polyline);
-  const snap = usePlottingStore((s) => s.snap);
   const selection = usePlottingStore((s) => s.selection);
   const poi = usePlottingStore((s) => s.poi);
   const addStop = usePlottingStore((s) => s.addStop);
@@ -249,17 +256,21 @@ export function RouteMap({ className, children }: RouteMapProps) {
     addStop([event.lngLat.lng, event.lngLat.lat]);
   };
 
+  const handleStopClick = (stopId: string) => {
+    if (routeId === null) return;
+    setSelection(selectStop(stopId));
+  };
+
   const canDrag = routeId !== null && tool === "select";
 
-  // Always keep a visible connecting line between stops (FR-006): prefer the
-  // road-following preview; otherwise draw a client-side straight line until a
-  // snapped or committed path exists (FR-009 fallback — never block/blank).
-  const connectingLine: GeoLineString | null =
-    snap.status === "preview" && snap.polyline
-      ? snap.polyline
-      : polyline
-        ? null
-        : straightLineThrough(stops.map((stop) => stop.location));
+  // Keep a visible connecting line between stops (FR-006): the committed
+  // road-snapped draft is drawn separately; before any path exists a
+  // client-side straight line bridges the stops so the map is never blank
+  // (FR-009 fallback — it is only ever a display line, never persisted).
+  const connectingLine = resolveConnectingLine(
+    polyline,
+    stops.map((stop) => stop.location),
+  );
 
   return (
     <div
@@ -319,7 +330,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     aria-label={`Stop ${index + 1}: ${stop.name} (${STOP_TYPE_LABELS[stop.type]})`}
                     onClick={(event) => {
                       event.stopPropagation();
-                      setSelection(selectStop(stop.id));
+                      handleStopClick(stop.id);
                     }}
                     style={{
                       backgroundColor: shape.color,

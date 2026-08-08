@@ -61,6 +61,56 @@ export function coordsDistanceMeters(
   return 2 * earthRadiusMeters * Math.asin(Math.sqrt(h));
 }
 
+/** True when the polyline's last coordinate lies within ~100 m of `point`
+ *  (FR-004 closed-loop detection; mirrors the server's endpoint rule). */
+export function polylineClosesOn(
+  polyline: GeoLineString | null | undefined,
+  point: CoordinatePair,
+  toleranceMeters = 100,
+): boolean {
+  if (!polyline || polyline.coordinates.length < 3) return false;
+  return (
+    coordsDistanceMeters(
+      polyline.coordinates[polyline.coordinates.length - 1],
+      point,
+    ) <= toleranceMeters
+  );
+}
+
+/**
+ * Splits a polyline into the contiguous runs that genuinely DIVERGE from
+ * another polyline (every vertex further than `thresholdMeters` from the
+ * other line). The overview uses this to render the derived return direction
+ * ONLY where it leaves the base corridor — on shared stretches the return is
+ * an exact reverse (redundant), so drawing it there would split the route
+ * into two parallel lines. Runs shorter than two vertices are dropped.
+ * Returns [] when nothing diverges (fully coincident pair).
+ */
+export function divergingSegments(
+  coordinates: readonly CoordinatePair[],
+  overlapWith: readonly CoordinatePair[],
+  thresholdMeters = 20,
+): CoordinatePair[][] {
+  const runs: CoordinatePair[][] = [];
+  let current: CoordinatePair[] = [];
+  const flush = () => {
+    if (current.length >= 2) runs.push(current);
+    current = [];
+  };
+  for (const point of coordinates) {
+    const coincides = overlapWith.some(
+      (other) => coordsDistanceMeters(point, other) <= thresholdMeters,
+    );
+    if (coincides) {
+      flush();
+    } else {
+      current.push([...point] as CoordinatePair);
+    }
+  }
+  flush();
+  return runs;
+}
+
 /**
  * Client-side save pre-validation (mirrors the server's ≈100 m rule): the
  * plotted path must start and end on a stop (FR-017); a loop ending on the
@@ -99,9 +149,9 @@ export function pathEndsOnStops(
 
 /**
  * Straight connecting line through ordered points (FR-009 fallback): keeps a
- * visible polyline between stops whenever the road-following preview is not
- * available yet (no token, upstream error, before Apply). Returns null with
- * fewer than 2 points.
+ * visible polyline between stops whenever the road-following path is not
+ * available yet (no token, upstream error, snap still in flight). Returns null
+ * with fewer than 2 points.
  */
 export function straightLineThrough(
   points: readonly CoordinatePair[],
@@ -122,10 +172,52 @@ export function polylineDistanceMeters(polyline: GeoLineString): number {
   return total;
 }
 
+/**
+ * Resolves which connecting line to draw between stops (FR-006): before a
+ * committed path exists, a straight client-side fallback keeps the map from
+ * looking blank (FR-009 — never persisted); once the committed road-snapped
+ * draft exists it is drawn separately by the caller, so nothing connects.
+ */
+export function resolveConnectingLine(
+  polyline: GeoLineString | null,
+  stopLocations: readonly CoordinatePair[],
+): GeoLineString | null {
+  // The committed road-snapped draft line is drawn separately; before any
+  // path exists (first placements / snap still in flight), a transient
+  // straight line keeps the map from looking blank — it is never saved
+  // (FR-009 keeps straight lines out of the persisted route).
+  if (polyline) return null;
+  return straightLineThrough(stopLocations);
+}
+
 /** Formats meters as "1,234 m" or "1.23 km" per the chosen unit. */
 export function formatDistance(meters: number, unit: "m" | "km"): string {
   if (unit === "km") {
     return `${(meters / 1000).toFixed(2)} km`;
   }
   return `${Math.round(meters).toLocaleString()} m`;
+}
+
+/**
+ * True when EVERY stop lies within `toleranceMeters` of the polyline.
+ *
+ * Auto-commit keeps the committed path in lockstep with the stops, so this
+ * only fails on genuinely inconsistent drafts — a partial undo that popped the
+ * path change but not the stop edit, or a snap failure that left a stale path.
+ * Save blocks on it rather than persist mismatched route data (the server only
+ * checks endpoints).
+ */
+export function pathCoversStops(
+  polyline: GeoLineString,
+  stops: readonly { location: CoordinatePair }[],
+  toleranceMeters = 150,
+): boolean {
+  return stops.every((stop) => {
+    const index = nearestCoordIndex(stop.location, polyline.coordinates);
+    if (index < 0) return false;
+    return (
+      coordsDistanceMeters(polyline.coordinates[index], stop.location) <=
+      toleranceMeters
+    );
+  });
 }

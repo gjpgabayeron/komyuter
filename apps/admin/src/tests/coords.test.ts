@@ -3,11 +3,14 @@ import type { CoordinatePair, GeoLineString } from "@komyuter/shared";
 import {
   coordsDistanceMeters,
   coordinatesEqual,
+  divergingSegments,
   formatDistance,
   nearestCoordIndex,
   parseCoordinatePair,
+  pathCoversStops,
   pathEndsOnStops,
   polylineDistanceMeters,
+  resolveConnectingLine,
   straightLineThrough,
 } from "@/lib/coords";
 
@@ -179,5 +182,117 @@ describe("formatDistance", () => {
   it("converts to kilometres with two decimals", () => {
     expect(formatDistance(1234, "km")).toBe("1.23 km");
     expect(formatDistance(1000, "km")).toBe("1.00 km");
+  });
+});
+
+describe("resolveConnectingLine (FR-006/FR-007, US2)", () => {
+  const A: CoordinatePair = [122.5, 10.6];
+  const B: CoordinatePair = [122.52, 10.62];
+  const line = (coordinates: CoordinatePair[]): GeoLineString => ({
+    type: "LineString",
+    coordinates,
+  });
+
+  it("shows the straight fallback until a path exists, then nothing to connect", () => {
+    // No committed path yet → transient straight line keeps the map non-blank.
+    expect(resolveConnectingLine(null, [A, B])).toEqual(
+      straightLineThrough([A, B]),
+    );
+    // Committed draft: the draft line itself is drawn, nothing to connect.
+    expect(resolveConnectingLine(line([A, B]), [A, B])).toBeNull();
+  });
+});
+
+describe("divergingSegments", () => {
+  // Points on the "shared road": the corridor near lat 0.
+  const corridor = (() => {
+    const pts: CoordinatePair[] = [];
+    for (let i = 0; i <= 10; i++) {
+      pts.push([i * 0.001, 0]); // 0 → 0.01 lng, ~1.1 km, on lat 0
+    }
+    return pts;
+  })();
+
+  it("returns [] when the polyline fully coincides with the other", () => {
+    // Exact reverse of the corridor — nothing diverges.
+    const reverse = [...corridor].reverse();
+    expect(divergingSegments(reverse, corridor)).toEqual([]);
+  });
+
+  it("returns one run equal to the polyline when it fully diverges", () => {
+    const farAway = corridor.map(
+      (p) => [p[0], p[1] + 0.1] as CoordinatePair, // ~11 km north
+    );
+    const runs = divergingSegments(farAway, corridor);
+    expect(runs).toHaveLength(1);
+    expect(runs[0]).toEqual(farAway);
+  });
+
+  it("returns only the middle run when the ends stay on the shared road", () => {
+    // Divergent detour in the middle: vertices 4-7 move 500 m north, the
+    // rest stay on the corridor.
+    const detour = corridor.map((p, i) =>
+      i >= 4 && i <= 7 ? ([p[0], p[1] + 0.005] as CoordinatePair) : p,
+    );
+    const runs = divergingSegments(detour, corridor);
+    expect(runs).toHaveLength(1);
+    expect(runs[0]).toHaveLength(4); // vertices 4..7
+    expect(runs[0][0]).toEqual([0.004, 0.005]);
+    expect(runs[0][3]).toEqual([0.007, 0.005]);
+  });
+
+  it("splits two disjoint divergent runs", () => {
+    const detached = corridor.map((p, i) => {
+      if (i >= 2 && i <= 3) return [p[0], p[1] + 0.005] as CoordinatePair;
+      if (i >= 7 && i <= 8) return [p[0], p[1] + 0.006] as CoordinatePair;
+      return p;
+    });
+    const runs = divergingSegments(detached, corridor);
+    expect(runs).toHaveLength(2);
+    expect(runs[0]).toHaveLength(2);
+    expect(runs[1]).toHaveLength(2);
+  });
+
+  it("drops single-vertex fragments", () => {
+    const isolated = corridor.map((p, i) =>
+      i === 5 ? ([p[0], p[1] + 0.005] as CoordinatePair) : p,
+    );
+    expect(divergingSegments(isolated, corridor)).toEqual([]);
+  });
+
+  it("handles an empty overlap target (single-direction route)", () => {
+    expect(divergingSegments(corridor, [])).toEqual([corridor]);
+  });
+});
+
+describe("pathCoversStops", () => {
+  const line = (coords: CoordinatePair[]): GeoLineString => ({
+    type: "LineString",
+    coordinates: coords,
+  });
+
+  it("accepts a path that passes through every stop", () => {
+    const polyline = line([
+      [122.5, 10.6],
+      [122.505, 10.605],
+      [122.51, 10.61],
+    ]);
+    const stops = [
+      { location: [122.5, 10.6] },
+      { location: [122.51, 10.61] },
+    ] as { location: CoordinatePair }[];
+    expect(pathCoversStops(polyline, stops)).toBe(true);
+  });
+
+  it("rejects when a stop is far from the path entirely", () => {
+    const polyline = line([
+      [122.5, 10.6],
+      [122.51, 10.61],
+    ]);
+    const stops = [
+      { location: [122.5, 10.6] },
+      { location: [122.9, 10.9] },
+    ] as { location: CoordinatePair }[];
+    expect(pathCoversStops(polyline, stops)).toBe(false);
   });
 });

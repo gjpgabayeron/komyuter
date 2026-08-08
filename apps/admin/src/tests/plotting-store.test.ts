@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { CoordinatePair, SnappedPath } from "@komyuter/shared";
+import type {
+  CoordinatePair,
+  GeoLineString,
+  SnappedPath,
+} from "@komyuter/shared";
 import {
   clearSelection,
   isStopSelected,
@@ -9,11 +13,11 @@ import {
 import {
   bindSnapFetcher,
   cancelPendingSnap,
+  draftMatchesBaseline,
   reorderStops,
   SNAP_DEBOUNCE_MS,
   usePlottingStore,
 } from "@/lib/plottingStore";
-
 describe("selection helpers", () => {
   it("selectStop creates a stop selection", () => {
     expect(selectStop("stop-1")).toEqual({ type: "stop", stopId: "stop-1" });
@@ -364,7 +368,7 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
     expect(usePlottingStore.getState().snap.status).toBe("idle");
   });
 
-  it("marks the preview pending while the request is in flight, then preview", async () => {
+  it("marks the snap pending while the request is in flight, then auto-commits", async () => {
     let resolve!: (value: SnappedPath) => void;
     const fetcher = vi.fn(
       () =>
@@ -385,13 +389,57 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
       ]),
     );
     await vi.advanceTimersByTimeAsync(0);
-    const { snap } = usePlottingStore.getState();
-    expect(snap.status).toBe("preview");
+    const { polyline, snap } = usePlottingStore.getState();
+    expect(snap.status).toBe("applied");
     expect(snap.polyline?.coordinates).toEqual([
       [122.5, 10.6],
       [122.51, 10.61],
     ]);
+    expect(polyline?.coordinates).toEqual([
+      [122.5, 10.6],
+      [122.51, 10.61],
+    ]);
     expect(snap.distanceMeters).toBe(1234);
+  });
+
+  it("auto-commits the road-snapped path when the response lands (no Apply)", async () => {
+    const fetcher = vi.fn(async (coordinates: CoordinatePair[]) =>
+      snapResult(coordinates),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const { polyline, snap } = usePlottingStore.getState();
+    expect(snap.status).toBe("applied");
+    expect(polyline?.coordinates).toEqual([
+      [122.5, 10.6],
+      [122.51, 10.61],
+    ]);
+  });
+
+  it("never auto-commits a straight-line fallback (FR-009)", async () => {
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        // The fallback carries a polyline, but it is NOT road-snapped — it
+        // must never become the committed route path.
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 0,
+        snapped: false,
+        warning: "no_token",
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const { polyline, snap } = usePlottingStore.getState();
+    expect(polyline).toBeNull();
+    expect(snap.status).toBe("idle");
+    expect(snap.snapped).toBe(false);
+    expect(snap.warning).toBe("no_token");
   });
 
   it("resolves a pending preview before save (no fetch fires later)", async () => {
@@ -408,7 +456,7 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
     expect(usePlottingStore.getState().snap.status).toBe("idle");
   });
 
-  it("apply commits the preview to the draft polyline", async () => {
+  it("each placement re-snaps and replaces the committed draft path", async () => {
     const fetcher = vi.fn(async (coordinates: CoordinatePair[]) =>
       snapResult(coordinates),
     );
@@ -417,40 +465,16 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
     addStop([122.5, 10.6]);
     addStop([122.51, 10.61]);
     await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
-    expect(usePlottingStore.getState().polyline).toBeNull();
-    usePlottingStore.getState().applySnapPreview();
-    const { polyline, snap } = usePlottingStore.getState();
-    expect(snap.status).toBe("applied");
-    expect(polyline?.coordinates).toEqual([
-      [122.5, 10.6],
-      [122.51, 10.61],
-    ]);
-  });
-
-  it("revert discards the preview and keeps the previously applied line", async () => {
-    const fetcher = vi.fn(async (coordinates: CoordinatePair[]) =>
-      snapResult(coordinates),
-    );
-    bindSnapFetcher(fetcher);
-    const { addStop } = usePlottingStore.getState();
-    addStop([122.5, 10.6]);
-    addStop([122.51, 10.61]);
-    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
-    usePlottingStore.getState().applySnapPreview();
     addStop([122.52, 10.62]);
     await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
-    expect(usePlottingStore.getState().snap.status).toBe("preview");
-    usePlottingStore.getState().revertSnapPreview();
-    const { polyline, snap } = usePlottingStore.getState();
-    expect(snap.status).toBe("reverted");
-    expect(snap.polyline).toBeNull();
-    expect(polyline?.coordinates).toEqual([
+    expect(usePlottingStore.getState().polyline?.coordinates).toEqual([
       [122.5, 10.6],
       [122.51, 10.61],
+      [122.52, 10.62],
     ]);
   });
 
-  it("ignores a superseded in-flight preview after another placement", async () => {
+  it("ignores a superseded in-flight response after another placement", async () => {
     const fetcher = vi.fn(async (coordinates: CoordinatePair[]) => {
       await new Promise((r) => setTimeout(r, 50));
       return snapResult(coordinates);
@@ -464,56 +488,373 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
     await vi.advanceTimersByTimeAsync(100); // request 1 resolves late → ignored
     expect(usePlottingStore.getState().snap.status).toBe("pending");
     await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS); // request 2 fires + resolves
-    const { snap } = usePlottingStore.getState();
-    expect(snap.status).toBe("preview");
-    expect(snap.polyline?.coordinates).toEqual([
+    const { snap, polyline } = usePlottingStore.getState();
+    expect(snap.status).toBe("applied");
+    expect(polyline?.coordinates).toEqual([
       [122.5, 10.6],
       [122.51, 10.61],
       [122.52, 10.62],
     ]);
   });
 
-  it("revert restores dragged stop positions to their pre-edit state", async () => {
+  it("dragging a stop auto-commits the re-snapped path for the new position", async () => {
     const fetcher = vi.fn(async (coordinates: CoordinatePair[]) =>
       snapResult(coordinates),
     );
     bindSnapFetcher(fetcher);
-    const { addStop, moveStop, revertSnapPreview } =
-      usePlottingStore.getState();
+    const { addStop, moveStop } = usePlottingStore.getState();
     addStop([122.5, 10.6], "A");
     addStop([122.51, 10.61], "B");
-    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS); // preview from placement
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS); // committed path lands
     const stopId = usePlottingStore.getState().stops[0].id;
-    moveStop(stopId, [122.55, 10.65]); // drag → new preview scheduled
+    moveStop(stopId, [122.55, 10.65]); // drag → new snap scheduled
     await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
-    expect(usePlottingStore.getState().snap.status).toBe("preview");
-    expect(usePlottingStore.getState().stops[0].location).toEqual([
-      122.55, 10.65,
+    const { snap, stops } = usePlottingStore.getState();
+    expect(snap.status).toBe("applied");
+    expect(stops[0].location).toEqual([122.55, 10.65]);
+    // The committed path follows the dragged position (snapped with it).
+    expect(usePlottingStore.getState().polyline?.coordinates).toEqual([
+      [122.55, 10.65],
+      [122.51, 10.61],
     ]);
-    revertSnapPreview();
-    expect(usePlottingStore.getState().snap.status).toBe("reverted");
-    expect(usePlottingStore.getState().stops[0].location).toEqual([
-      122.5, 10.6,
-    ]);
-    expect(usePlottingStore.getState().previewBaseline).toBeNull();
+  });
+});
+
+describe("undo/redo history wiring (FR-013)", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
   });
 
-  it("apply commits the preview and clears the position baseline", async () => {
-    const fetcher = vi.fn(async (coordinates: CoordinatePair[]) =>
-      snapResult(coordinates),
+  it("addStop pushes stop_placed; undo removes the stop; redo restores it", () => {
+    const { addStop, undo, redo } = usePlottingStore.getState();
+    addStop([122.5, 10.7]);
+    addStop([122.51, 10.71]);
+    expect(usePlottingStore.getState().stops).toHaveLength(2);
+    undo();
+    expect(usePlottingStore.getState().stops).toHaveLength(1);
+    expect(usePlottingStore.getState().stops[0].location).toEqual([
+      122.5, 10.7,
+    ]);
+    redo();
+    expect(usePlottingStore.getState().stops).toHaveLength(2);
+    expect(usePlottingStore.getState().history.past).toHaveLength(2);
+  });
+
+  it("clearHistory empties the stack (save clears it)", () => {
+    const { addStop, clearHistory } = usePlottingStore.getState();
+    addStop([122.5, 10.7]);
+    addStop([122.51, 10.71]);
+    clearHistory();
+    expect(usePlottingStore.getState().history.past).toHaveLength(0);
+    expect(usePlottingStore.getState().history.future).toHaveLength(0);
+  });
+
+  it("removeStop records stop_deleted; undo restores the stop and reconnects the chain", () => {
+    const { addStop, removeStop, undo } = usePlottingStore.getState();
+    addStop([122.5, 10.7]);
+    addStop([122.51, 10.71]);
+    addStop([122.52, 10.72]);
+    const middle = usePlottingStore.getState().stops[1].id;
+    removeStop(middle);
+    expect(usePlottingStore.getState().stops).toHaveLength(2);
+    expect(usePlottingStore.getState().connections).toHaveLength(1);
+    undo();
+    expect(usePlottingStore.getState().stops).toHaveLength(3);
+    expect(usePlottingStore.getState().connections).toHaveLength(2);
+  });
+
+  it("moveStop records stop_dragged; undo restores the previous position", () => {
+    const { addStop, moveStop, undo } = usePlottingStore.getState();
+    addStop([122.5, 10.7]);
+    const id = usePlottingStore.getState().stops[0].id;
+    moveStop(id, [122.6, 10.8]);
+    expect(usePlottingStore.getState().stops[0].location).toEqual([
+      122.6, 10.8,
+    ]);
+    undo();
+    expect(usePlottingStore.getState().stops[0].location).toEqual([
+      122.5, 10.7,
+    ]);
+    usePlottingStore.getState().redo();
+    expect(usePlottingStore.getState().stops[0].location).toEqual([
+      122.6, 10.8,
+    ]);
+  });
+
+  it("one undo reverts a placement AND its auto-committed path together", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 120,
+        snapped: true,
+        warning: null,
+      }),
     );
     bindSnapFetcher(fetcher);
-    const { addStop, moveStop, applySnapPreview } = usePlottingStore.getState();
+    const { addStop, undo, redo } = usePlottingStore.getState();
+    addStop([122.5, 10.7]);
+    addStop([122.51, 10.71]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS); // 2-stop path auto-commits
+    addStop([122.52, 10.72]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS); // 3-stop path auto-commits
+    expect(usePlottingStore.getState().polyline?.coordinates).toHaveLength(3);
+    // The snap MERGED into the placement entry — one undo reverts the whole
+    // addition (stop removed AND the path back to the 2-stop line).
+    undo();
+    const afterUndo = usePlottingStore.getState();
+    expect(afterUndo.stops).toHaveLength(2);
+    expect(afterUndo.polyline?.coordinates).toHaveLength(2);
+    redo();
+    const afterRedo = usePlottingStore.getState();
+    expect(afterRedo.stops).toHaveLength(3);
+    expect(afterRedo.polyline?.coordinates).toHaveLength(3);
+    bindSnapFetcher(null);
+    vi.useRealTimers();
+  });
+
+  it("pathStopIds tracks the stops each committed path was derived for", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop, removeStop, undo } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    addStop([122.52, 10.62]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const ids = usePlottingStore.getState().stops.map((s) => s.id);
+    expect(usePlottingStore.getState().pathStopIds).toEqual(ids);
+
+    removeStop(ids[1]); // delete B → auto-commit re-derives for [A, C]
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    expect(usePlottingStore.getState().pathStopIds).toEqual([ids[0], ids[2]]);
+
+    // One undo pops the MERGED stop_deleted entry: B comes back AND the
+    // path/association revert to the pre-delete state — no mismatched
+    // intermediate to block on.
+    undo();
+    expect(usePlottingStore.getState().stops.map((s) => s.id)).toEqual(ids);
+    expect(usePlottingStore.getState().pathStopIds).toEqual(ids);
+    expect(usePlottingStore.getState().polyline?.coordinates).toHaveLength(3);
+    bindSnapFetcher(null);
+    vi.useRealTimers();
+  });
+});
+
+describe("save-baseline dirty tracking (undo hides the save button)", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  const baselineStop = (id: string) => ({
+    id,
+    name: `Stop ${id}`,
+    type: "major_stop" as const,
+    location: [122.5, 10.7] as [number, number],
+  });
+  const polyline = (): GeoLineString => ({
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.7],
+      [122.51, 10.71],
+    ],
+  });
+
+  it("is clean right after loading a route (baseline captured)", () => {
+    const store = usePlottingStore.getState();
+    store.setStops([baselineStop("a")]);
+    store.setPolyline(polyline());
+    store.captureSavedBaseline();
+    expect(usePlottingStore.getState().draftDirty).toBe(false);
+  });
+
+  it("undo back to the baseline hides the unsaved state; redo restores it", () => {
+    const store = usePlottingStore.getState();
+    store.setStops([baselineStop("a")]);
+    store.setPolyline(polyline());
+    store.captureSavedBaseline();
+    store.addStop([122.52, 10.72]);
+    expect(usePlottingStore.getState().draftDirty).toBe(true);
+    usePlottingStore.getState().undo();
+    expect(usePlottingStore.getState().draftDirty).toBe(false);
+    expect(usePlottingStore.getState().stops).toHaveLength(1);
+    usePlottingStore.getState().redo();
+    expect(usePlottingStore.getState().draftDirty).toBe(true);
+    expect(usePlottingStore.getState().stops).toHaveLength(2);
+  });
+
+  it("undo keeps the unsaved state when other edits remain", () => {
+    const store = usePlottingStore.getState();
+    store.setStops([baselineStop("a")]);
+    store.setPolyline(polyline());
+    store.captureSavedBaseline();
+    store.addStop([122.52, 10.72]); // b
+    store.addStop([122.53, 10.73]); // c
+    usePlottingStore.getState().undo(); // removes c; [a, b] still differs
+    expect(usePlottingStore.getState().draftDirty).toBe(true);
+    usePlottingStore.getState().undo(); // removes b; back to baseline [a]
+    expect(usePlottingStore.getState().draftDirty).toBe(false);
+  });
+
+  it("an edit outside the history model stays dirty even after undo-all", () => {
+    const store = usePlottingStore.getState();
+    store.setStops([baselineStop("a"), baselineStop("b"), baselineStop("c")]);
+    store.setPolyline(polyline());
+    store.captureSavedBaseline();
+    store.reorderStop(0, 2); // [b, c, a] — reorder records no history entry
+    expect(usePlottingStore.getState().draftDirty).toBe(true);
+    usePlottingStore.getState().undo(); // nothing to undo — must stay dirty
+    expect(usePlottingStore.getState().draftDirty).toBe(true);
+  });
+
+  it("draftMatchesBaseline compares stops and polyline by value", () => {
+    const baseline = {
+      stops: [baselineStop("a")],
+      polyline: polyline(),
+    };
+    const sameStops = [baselineStop("a")];
+    const movedStop = [
+      { ...baselineStop("a"), location: [122.9, 10.9] as [number, number] },
+    ];
+    const differentName = [{ ...baselineStop("a"), name: "Plaza" }];
+    const differentPolyline: GeoLineString = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.7],
+        [122.52, 10.72],
+      ],
+    };
+    expect(draftMatchesBaseline(sameStops, polyline(), baseline)).toBe(true);
+    expect(draftMatchesBaseline(movedStop, polyline(), baseline)).toBe(false);
+    expect(draftMatchesBaseline(differentName, polyline(), baseline)).toBe(
+      false,
+    );
+    expect(draftMatchesBaseline(sameStops, differentPolyline, baseline)).toBe(
+      false,
+    );
+    expect(draftMatchesBaseline(sameStops, polyline(), null)).toBe(false);
+  });
+});
+
+describe("merged first-commit undo (null previous path)", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+  it("undo of the first auto-committed placement clears the path entirely", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop, undo } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const st = usePlottingStore.getState();
+    expect(st.polyline?.coordinates).toHaveLength(2);
+    expect(st.pathStopIds).toHaveLength(2);
+
+    undo(); // merged stop_placed: remove the stop AND the path (first commit)
+    const after = usePlottingStore.getState();
+    expect(after.stops).toHaveLength(1);
+    expect(after.polyline).toBeNull();
+    expect(after.pathStopIds).toBeNull();
+    bindSnapFetcher(null);
+    vi.useRealTimers();
+  });
+});
+
+describe("stop property + connection undo (stop_props_changed)", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  it("undo/redo restores and re-applies a stop name edit", () => {
+    const { addStop, updateStop, undo, redo } = usePlottingStore.getState();
+    addStop([122.5, 10.6], "Original");
+    const id = usePlottingStore.getState().stops[0].id;
+    updateStop(id, { name: "Renamed" });
+    expect(usePlottingStore.getState().stops[0].name).toBe("Renamed");
+    undo();
+    expect(usePlottingStore.getState().stops[0].name).toBe("Original");
+    redo();
+    expect(usePlottingStore.getState().stops[0].name).toBe("Renamed");
+  });
+
+  it("per-keystroke name edits coalesce into one undo step", () => {
+    const { addStop, updateStop, undo } = usePlottingStore.getState();
+    addStop([122.5, 10.6], "A");
+    const id = usePlottingStore.getState().stops[0].id;
+    updateStop(id, { name: "Ci" });
+    updateStop(id, { name: "Cit" });
+    updateStop(id, { name: "City" });
+    expect(usePlottingStore.getState().history.past).toHaveLength(2); // place + coalesced name
+    undo(); // one undo reverts the whole typing session
+    expect(usePlottingStore.getState().stops[0].name).toBe("A");
+  });
+
+  it("undo of a connection dropdown change restores the previous chain AND path", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop, setStopLinks, undo, redo } = usePlottingStore.getState();
     addStop([122.5, 10.6], "A");
     addStop([122.51, 10.61], "B");
+    addStop([122.52, 10.62], "C");
     await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
-    const stopId = usePlottingStore.getState().stops[0].id;
-    moveStop(stopId, [122.55, 10.65]);
+    const [a, , c] = usePlottingStore.getState().stops;
+    const chainBefore = usePlottingStore.getState().connections.map((e) => ({
+      ...e,
+    }));
+    const stopIds = usePlottingStore.getState().stops.map((s) => s.id);
+    const roadBefore = usePlottingStore.getState().polyline;
+
+    // Rewire C's "from" to A (was B) — a real structural change.
+    setStopLinks(c.id, { from: a.id });
     await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
-    applySnapPreview();
-    expect(usePlottingStore.getState().previewBaseline).toBeNull();
-    expect(usePlottingStore.getState().stops[0].location).toEqual([
-      122.55, 10.65,
-    ]);
+    const chainAfter = usePlottingStore.getState().connections.map((e) => ({
+      ...e,
+    }));
+    expect(chainAfter.map((e) => e.id)).not.toEqual(
+      chainBefore.map((e) => e.id),
+    );
+
+    // ONE undo restores the previous connection relationship AND its path,
+    // with a truthful path↔stop association (save guard must NOT false-block).
+    undo();
+    const undone = usePlottingStore.getState();
+    expect(undone.connections.map((e) => e.id)).toEqual(
+      chainBefore.map((e) => e.id),
+    );
+    expect(undone.polyline?.coordinates).toEqual(roadBefore?.coordinates);
+    expect(undone.pathStopIds).toEqual(stopIds); // association restored truthfully
+    expect(undone.draftDirty).toBe(true);
+    // redo re-applies the new relationship.
+    redo();
+    const redone = usePlottingStore.getState();
+    expect(redone.connections.map((e) => e.id)).toEqual(
+      chainAfter.map((e) => e.id),
+    );
+    bindSnapFetcher(null);
+    vi.useRealTimers();
   });
 });

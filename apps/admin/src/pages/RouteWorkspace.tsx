@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
@@ -11,7 +11,10 @@ import {
   type RouteMetaDraft,
 } from "@/lib/plottingStore";
 import { clearSelection } from "@/lib/selection";
-import { pathEndsOnStops } from "@/lib/coords";
+import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
+import type { DraftPayload } from "@/lib/draft";
+import { DraftRestoreBanner } from "@/features/routes/DraftRestoreBanner";
+import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
 import type { SaveDirectionPayload } from "@/features/routes/routesApi";
 import { snapPreview } from "@/features/routes/routesApi";
 import { RouteMap } from "@/features/routes/RouteMap";
@@ -68,6 +71,7 @@ export default function RouteWorkspace() {
 
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [conflict, setConflict] = useState(false);
+  const [draftOffer, setDraftOffer] = useState<DraftPayload | null>(null);
 
   const routeQuery = useRouteQuery(routeId);
   const routesQuery = useRoutesQuery();
@@ -93,6 +97,75 @@ export default function RouteWorkspace() {
     return () => bindSnapFetcher(null);
   }, []);
 
+  // --- FR-014: client-local draft (24 h TTL, debounced ~500 ms writes) ---
+  const draftWriterRef = useRef(createDebouncedDraftWriter());
+
+  // Persist the plotting draft to localStorage whenever there are unsaved
+  // changes and a route is open. The draft is never sent to the server.
+  useEffect(() => {
+    return usePlottingStore.subscribe((state, prevState) => {
+      if (state.routeId === null) return;
+      if (state.draftDirty) {
+        draftWriterRef.current.save({
+          routeId: state.routeId,
+          directionId: state.directionId,
+          stops: state.stops,
+          polyline: state.polyline,
+          connections: state.connections,
+          history: state.history,
+          routeMeta: state.routeMeta,
+          pathStopIds: state.pathStopIds,
+        });
+        return;
+      }
+      // Just became clean (undo back to the baseline / save) — drop the
+      // stored draft so a stale copy is never offered again.
+      if (prevState.draftDirty) {
+        clearDraft(state.routeId, state.directionId);
+        draftWriterRef.current.cancel();
+      }
+    });
+  }, []);
+
+  // Flush a pending draft write before the tab goes away.
+  useEffect(() => {
+    const writer = draftWriterRef.current;
+    const flush = () => writer.flush();
+    window.addEventListener("beforeunload", flush);
+    return () => {
+      window.removeEventListener("beforeunload", flush);
+      writer.flush();
+    };
+  }, []);
+
+  // Offer the stored draft when a route (re)opens and a fresh load landed.
+  // The offer is made once per route/direction session (guarded by restoredRef)
+  // and never after the 24 h TTL (loadDraft returns null then — FR-014).
+  const restoredRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (routeId === null || !routeQuery.data) return;
+    const directionId = routeQuery.data.directions[0]?.direction_id ?? null;
+    const key = `${routeId}/${directionId}`;
+    if (restoredRef.current === key) return;
+    if (usePlottingStore.getState().stops.length === 0) return;
+    const draft = loadDraft(routeId, directionId);
+    if (draft) setDraftOffer(draft);
+  }, [routeQuery.data, routeId]);
+
+  const restoreDraft = (draft: DraftPayload) => {
+    restoredRef.current = `${draft.routeId}/${draft.directionId}`;
+    usePlottingStore.getState().restoreDraft(draft);
+    clearDraft(draft.routeId, draft.directionId);
+    setDraftOffer(null);
+  };
+
+  const discardDraft = (draft: DraftPayload) => {
+    restoredRef.current = `${draft.routeId}/${draft.directionId}`;
+    clearDraft(draft.routeId, draft.directionId);
+    draftWriterRef.current.cancel();
+    setDraftOffer(null);
+  };
+
   const createSave = useSaveDirectionMutation(routeId ?? "");
   const replaceSave = useReplaceDirectionMutation(directionId ?? "");
   const updateMeta = useUpdateRouteMutation(routeId ?? "");
@@ -100,21 +173,26 @@ export default function RouteWorkspace() {
   /** Persists the plotting draft (stops + path). Returns true on success. */
   const savePlot = async (): Promise<boolean> => {
     await usePlottingStore.getState().resolvePendingSnap();
-    const {
-      stops,
-      polyline,
-      directionId: editingId,
-    } = usePlottingStore.getState();
+    // Save exactly what the admin sees (FR-008): road-snapped responses are
+    // auto-committed the moment they land, so the draft polyline already is
+    // the road-following path — never straight lines (FR-009).
+    const store = usePlottingStore.getState();
+    const { stops, polyline, directionId: editingId } = store;
 
-    if (stops.length < 2) {
+    // Single-mode plotting: the route path follows the stop list in order.
+    const saveStops = stops;
+
+    if (saveStops.length < 2) {
       toast.error("A route needs at least 2 stops (a start and an end stop).");
       return false;
     }
     if (!polyline) {
-      toast.error("Apply the previewed path before saving.");
+      toast.error(
+        "The road-following path hasn't loaded yet — wait a moment, then save again.",
+      );
       return false;
     }
-    const endpoints = pathEndsOnStops(polyline, stops);
+    const endpoints = pathEndsOnStops(polyline, saveStops);
     if (!endpoints.ok) {
       toast.error(
         endpoints.reason === "start"
@@ -123,12 +201,35 @@ export default function RouteWorkspace() {
       );
       return false;
     }
+    // The committed path must cover EVERY stop, not just the endpoints. A
+    // partial undo (path change popped, stop edit still applied) or a snap
+    // failure can leave a stale polyline — never persist mismatched data.
+    if (!pathCoversStops(polyline, saveStops)) {
+      toast.error(
+        "The road-following path doesn't match the current stops — undo or adjust, then save again.",
+      );
+      return false;
+    }
+    // The path must also have been derived for the CURRENT stop sequence —
+    // pathCoversStops alone can't see a stale excursion through a removed
+    // stop (the surviving stops still lie on the old path).
+    const { pathStopIds } = usePlottingStore.getState();
+    if (
+      pathStopIds === null ||
+      pathStopIds.length !== saveStops.length ||
+      !pathStopIds.every((id, i) => id === saveStops[i].id)
+    ) {
+      toast.error(
+        "The road-following path is out of sync with the stops — undo or wait for the path to update, then save again.",
+      );
+      return false;
+    }
 
     const payload: SaveDirectionPayload = {
       // Auto-default base label; the server derives the return label (FR-012).
-      label: `To ${stops[stops.length - 1].name}`,
+      label: `To ${saveStops[saveStops.length - 1].name}`,
       base_polyline: polyline,
-      stops: stops.map((stop) => ({
+      stops: saveStops.map((stop) => ({
         name: stop.name,
         type: stop.type,
         location: { type: "Point", coordinates: stop.location },
@@ -144,6 +245,9 @@ export default function RouteWorkspace() {
       // (FR-027: one atomic save persisted base + stops + derived return).
       const store = usePlottingStore.getState();
       store.setDirectionId(result.direction_id);
+      // Passing the polyline here re-derives pathStopIds from the SERVER's
+      // stop ids (new routes get fresh ids) — without it, a later name/type
+      // edit would false-block save on the path↔stop equality guard.
       store.setStops(
         result.stops.map((stop) => ({
           id: stop.stop_id,
@@ -151,8 +255,10 @@ export default function RouteWorkspace() {
           type: stop.type,
           location: stop.location.coordinates,
         })),
+        result.base_polyline,
       );
-      store.setPolyline(result.base_polyline);
+      // The persisted state is the new baseline — the draft matches it exactly.
+      store.captureSavedBaseline();
       store.setSnap({
         status: "idle",
         polyline: null,
@@ -161,6 +267,12 @@ export default function RouteWorkspace() {
         warning: null,
       });
       store.setSelection(clearSelection);
+      // A saved route is the new baseline — the undo history no longer applies.
+      store.clearHistory();
+      // The persisted state is the draft's content too — stop offering/keeping it.
+      clearDraft(store.routeId, store.directionId);
+      draftWriterRef.current.cancel();
+      setDraftOffer(null);
       setConflict(false);
       return true;
     } catch (error) {
@@ -182,6 +294,56 @@ export default function RouteWorkspace() {
     routeMeta !== null &&
     isRouteMetaDirty(routeMeta, route);
   const showSave = routeId !== null && (draftDirty || metaDirty);
+
+  // --- FR-014: unsaved-changes navigation guard ---
+  // Dirty state read at event time (not captured in closures).
+  const dirtyRef = useRef(false);
+  dirtyRef.current = showSave;
+
+  // Tab close / refresh: ask before the page unloads.
+  useEffect(() => {
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!dirtyRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, []);
+
+  // In-app navigation (sidebar links, navigate()): BrowserRouter's history
+  // calls the patched pushState/replaceState at click time, so intercepting
+  // them asks before leaving. Back/forward buttons bypass this — the draft
+  // keeps the work recoverable either way.
+  useEffect(() => {
+    const confirmLeave = () =>
+      !dirtyRef.current ||
+      window.confirm(
+        "You have unsaved route changes. Leave anyway? Your work is kept as a draft on this device.",
+      );
+    const originalPush = window.history.pushState;
+    const originalReplace = window.history.replaceState;
+    window.history.pushState = ((
+      data: unknown,
+      unused: string,
+      url?: string | URL | null,
+    ) => {
+      if (!confirmLeave()) return;
+      originalPush.call(window.history, data, unused, url);
+    }) as typeof window.history.pushState;
+    window.history.replaceState = ((
+      data: unknown,
+      unused: string,
+      url?: string | URL | null,
+    ) => {
+      if (!confirmLeave()) return;
+      originalReplace.call(window.history, data, unused, url);
+    }) as typeof window.history.replaceState;
+    return () => {
+      window.history.pushState = originalPush;
+      window.history.replaceState = originalReplace;
+    };
+  }, []);
 
   /** Single consolidated save: plotting draft first, then route metadata. */
   const saveAll = async () => {
@@ -212,10 +374,19 @@ export default function RouteWorkspace() {
     }
   };
 
-  const showSnapWarning =
-    snap.status === "preview" && !snap.snapped && snap.warning !== null;
+  const showSnapWarning = !snap.snapped && snap.warning !== null;
 
   useHotkeys("mod+s", () => void saveAll(), {
+    enabled: hasRoute && !saving,
+    preventDefault: true,
+  });
+
+  // Undo/redo the plotting draft (FR-013/FR-019/FR-020).
+  useHotkeys("mod+z", () => usePlottingStore.getState().undo(), {
+    enabled: hasRoute && !saving,
+    preventDefault: true,
+  });
+  useHotkeys("mod+shift+z", () => usePlottingStore.getState().redo(), {
     enabled: hasRoute && !saving,
     preventDefault: true,
   });
@@ -232,10 +403,17 @@ export default function RouteWorkspace() {
 
       {hasRoute ? (
         <>
+          {draftOffer && (
+            <DraftRestoreBanner
+              draft={draftOffer}
+              onRestore={() => restoreDraft(draftOffer)}
+              onDiscard={() => discardDraft(draftOffer)}
+            />
+          )}
           <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
             <PlotActionBar
-              onApply={() => usePlottingStore.getState().applySnapPreview()}
-              onRevert={() => usePlottingStore.getState().revertSnapPreview()}
+              onUndo={() => usePlottingStore.getState().undo()}
+              onRedo={() => usePlottingStore.getState().redo()}
             />
             {showSave && (
               <Button
@@ -259,7 +437,7 @@ export default function RouteWorkspace() {
         </>
       ) : noRoutes ? (
         <>
-          <div className="bg-background/60 absolute inset-0 z-[5] backdrop-blur-sm" />
+          <div className="bg-background/60 absolute inset-0 z-5 backdrop-blur-sm" />
           <EmptyState onCreateRoute={() => setNewRouteOpen(true)} />
         </>
       ) : null}

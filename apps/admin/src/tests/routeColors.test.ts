@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ROUTE_COLOR,
   isValidHexColor,
+  randomRouteColor,
 } from "@/features/routes/routeColors";
 import { formatTimestamp } from "@/features/routes/format";
 
@@ -17,6 +18,21 @@ describe("isValidHexColor", () => {
     expect(isValidHexColor("#1B6D")).toBe(false);
     expect(isValidHexColor("#1B6DB2FF")).toBe(false);
     expect(isValidHexColor("")).toBe(false);
+  });
+});
+
+describe("randomRouteColor", () => {
+  it("returns a valid #RRGGBB hex colour", () => {
+    for (let i = 0; i < 50; i++) {
+      expect(isValidHexColor(randomRouteColor())).toBe(true);
+    }
+  });
+
+  it("produces variety — consecutive calls differ (no palette reuse)", () => {
+    const samples = new Set(
+      Array.from({ length: 50 }, () => randomRouteColor()),
+    );
+    expect(samples.size).toBeGreaterThan(1);
   });
 });
 

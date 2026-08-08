@@ -110,11 +110,11 @@ export async function createRoute(
   return data;
 }
 
-/** Soft-deletes (deactivates) a route. */
+/** Hard-deletes a route (and its plotted directions + stops via cascade). */
 export async function deleteRoute(
   routeId: string,
-): Promise<{ route_id: string; is_active: boolean }> {
-  const { data } = await api.delete<{ route_id: string; is_active: boolean }>(
+): Promise<{ route_id: string }> {
+  const { data } = await api.delete<{ route_id: string }>(
     `/api/admin/routes/${routeId}`,
   );
   return data;
