@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useQueries } from "@tanstack/react-query";
 import { Marker, useMap } from "react-map-gl/maplibre";
 import type {
   ExpressionSpecification,
-  GeoJSONSource,
   Map as MapLibreMap,
   MapLayerMouseEvent,
   MapMouseEvent,
 } from "maplibre-gl";
-import type { GeoLineString } from "@komyuter/shared";
-import type { RouteSummary, StopEntity } from "./routesApi";
-import { getRoute } from "./routesApi";
-import { routeKeys } from "@/lib/queryKeys";
+import type { GeoLineString, OverviewRouteEntity } from "@komyuter/shared";
+import { useOverviewQuery } from "./useRouteQueries";
 import { usePlottingStore } from "@/lib/plottingStore";
+import {
+  ensureGeoJsonSource,
+  lineLayerSpec,
+  setSourceData,
+  useDrawWhenReady,
+} from "@/lib/mapLayers";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { divergingSegments } from "@/lib/coords";
 import { findOppositeOverlapRuns, shiftOverlapRuns } from "@/lib/overlap";
@@ -88,7 +90,7 @@ interface OverviewRoute {
   polyline: GeoLineString | null;
   /** Derived return direction polyline (may be null for legacy single directions). */
   returnPolyline: GeoLineString | null;
-  stops: StopEntity[];
+  stops: OverviewRouteEntity["stops"];
 }
 
 interface OverviewFeature {
@@ -134,34 +136,26 @@ function fitToOverview(map: MapLibreMap, overview: OverviewRoute) {
  * derived return is drawn only where it leaves the base corridor, so shared
  * stretches are never doubled up.
  */
-export function RouteOverviewLayer({ routes }: { routes: RouteSummary[] }) {
+export function RouteOverviewLayer() {
   const map = useMap().current?.getMap();
   const overviewRouteId = usePlottingStore((s) => s.overviewRouteId);
   const setOverviewRouteId = usePlottingStore((s) => s.setOverviewRouteId);
 
-  const details = useQueries({
-    queries: routes.map((route) => ({
-      queryKey: routeKeys.detail(route.route_id),
-      queryFn: () => getRoute(route.route_id),
-      staleTime: 30_000,
-    })),
-  });
+  // ONE request for every route's base/return polylines + stops (perf audit —
+  // the old N+1 detail fetches delayed the first paint and churned the store).
+  const overview = useOverviewQuery();
 
   const overviewRoutes = useMemo<OverviewRoute[]>(
     () =>
-      routes.map((route, index) => {
-        const base = details[index]?.data?.directions[0];
-        const returnDirection = details[index]?.data?.directions[1];
-        return {
-          routeId: route.route_id,
-          name: route.name,
-          color: route.color,
-          polyline: base?.base_polyline ?? null,
-          returnPolyline: returnDirection?.base_polyline ?? null,
-          stops: base?.stops ?? [],
-        };
-      }),
-    [routes, details],
+      (overview.data ?? []).map((route) => ({
+        routeId: route.route_id,
+        name: route.name,
+        color: route.color,
+        polyline: route.base_polyline,
+        returnPolyline: route.return_polyline,
+        stops: route.stops,
+      })),
+    [overview.data],
   );
 
   const overviewRoutesRef = useRef(overviewRoutes);
@@ -175,204 +169,219 @@ export function RouteOverviewLayer({ routes }: { routes: RouteSummary[] }) {
     name: string;
   } | null>(null);
 
-  // Draw the overview line source/layers (imperative — same pattern as RouteLines).
-  useEffect(() => {
-    if (!map) return;
-    const update = () => {
-      if (!map.isStyleLoaded()) return;
-      if (!map.getSource("overview-lines")) {
-        map.addSource("overview-lines", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: [] },
+  // Draw the overview line source/layers via the SHARED lifecycle
+
+  // (useDrawWhenReady — same primitive as RouteLines, so both pipelines
+
+  // behave identically: retry until the first successful draw, then only
+
+  // redraw on real data/style changes, never on idle chatter).
+
+  // Heavy derived geometry (overlap runs, diverging segments) is memoized
+  // so redraws never recompute it — only data changes rebuild the features.
+  const overviewFeatures = useMemo<OverviewFeature[]>(() => {
+    // The BASE direction is the route's primary line — always drawn in
+
+    // full on its saved geometry. The derived RETURN is drawn ONLY where
+
+    // it genuinely leaves the base corridor (divergingSegments). Shared
+
+    // bidirectional corridors get a subtle tapered lateral shift so both
+
+    // directions read as two parallel lines (Pasted #34 model).
+
+    const overlapRuns = new Map(
+      findOppositeOverlapRuns(
+        overviewRoutes.flatMap((route) => {
+          const coords = route.polyline?.coordinates ?? [];
+
+          return coords.length >= 2 ? [{ routeId: route.routeId, coords }] : [];
+        }),
+      ).map((entry) => [entry.routeId, entry.runs]),
+    );
+
+    const features: OverviewFeature[] = [];
+
+    let nextFeatureId = 0;
+
+    const metaOf = new Map(
+      overviewRoutes.map((route) => [
+        route.routeId,
+
+        { name: route.name, color: route.color || "#1B6DB2" },
+      ]),
+    );
+
+    overviewRoutes.forEach((route) => {
+      const meta = metaOf.get(route.routeId) ?? { name: "", color: "#1B6DB2" };
+
+      const baseCoords = route.polyline?.coordinates ?? [];
+
+      const returnCoords = route.returnPolyline?.coordinates ?? [];
+
+      if (baseCoords.length >= 2) {
+        features.push({
+          id: nextFeatureId++,
+
+          type: "Feature",
+
+          properties: {
+            routeId: route.routeId,
+            name: meta.name,
+            color: meta.color,
+            direction: "base",
+          },
+
+          geometry: {
+            type: "LineString",
+            coordinates: shiftOverlapRuns(
+              baseCoords,
+              overlapRuns.get(route.routeId) ?? [],
+            ),
+          },
         });
       }
+
+      for (const run of divergingSegments(returnCoords, baseCoords)) {
+        features.push({
+          id: nextFeatureId++,
+
+          type: "Feature",
+
+          properties: {
+            routeId: route.routeId,
+            name: meta.name,
+            color: meta.color,
+            direction: "return",
+          },
+
+          geometry: { type: "LineString", coordinates: run },
+        });
+      }
+    });
+
+    return features;
+  }, [overviewRoutes]);
+  useDrawWhenReady(
+    map,
+    [overviewFeatures],
+    () => {
+      if (!map) return false;
+
+      ensureGeoJsonSource(map, "overview-lines");
+
       if (!map.hasImage("route-arrow")) {
         const arrow = createArrowIcon();
+
         if (arrow) map.addImage("route-arrow", arrow, { sdf: true });
       }
-      if (!map.getLayer("overview-lines-casing-base")) {
-        map.addLayer({
-          id: "overview-lines-casing-base",
-          type: "line",
+
+      const lineLayers = [
+        lineLayerSpec("overview-lines-casing-base", {
           source: "overview-lines",
+
           filter: ["==", ["get", "direction"], "base"],
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": "#ffffff",
-            "line-width": 7,
-            "line-opacity": OVERVIEW_OPACITY,
-          },
-        });
-      }
-      if (!map.getLayer("overview-lines-casing-return")) {
-        map.addLayer({
-          id: "overview-lines-casing-return",
-          type: "line",
+
+          color: ["literal", "#ffffff"],
+
+          width: 7,
+
+          opacity: OVERVIEW_OPACITY,
+        }),
+
+        lineLayerSpec("overview-lines-casing-return", {
           source: "overview-lines",
+
           filter: ["==", ["get", "direction"], "return"],
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": "#ffffff",
-            "line-width": 7,
-            "line-opacity": OVERVIEW_OPACITY,
-          },
-        });
-      }
-      if (!map.getLayer("overview-lines-base")) {
-        map.addLayer({
-          id: "overview-lines-base",
-          type: "line",
+
+          color: ["literal", "#ffffff"],
+
+          width: 7,
+
+          opacity: OVERVIEW_OPACITY,
+        }),
+
+        lineLayerSpec("overview-lines-base", {
           source: "overview-lines",
+
           filter: ["==", ["get", "direction"], "base"],
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": ["coalesce", ["get", "color"], "#1B6DB2"],
-            "line-width": 3.5,
-            "line-opacity": OVERVIEW_OPACITY,
-          },
-        });
-      }
-      if (!map.getLayer("overview-lines-return")) {
-        map.addLayer({
-          id: "overview-lines-return",
-          type: "line",
+
+          color: ["coalesce", ["get", "color"], "#1B6DB2"],
+
+          width: 3.5,
+
+          opacity: OVERVIEW_OPACITY,
+        }),
+
+        lineLayerSpec("overview-lines-return", {
           source: "overview-lines",
+
           filter: ["==", ["get", "direction"], "return"],
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": ["coalesce", ["get", "color"], "#1B6DB2"],
-            "line-width": 3.5,
-            "line-opacity": OVERVIEW_OPACITY,
-          },
-        });
+
+          color: ["coalesce", ["get", "color"], "#1B6DB2"],
+
+          width: 3.5,
+
+          opacity: OVERVIEW_OPACITY,
+        }),
+      ];
+
+      for (const layer of lineLayers) {
+        if (!map.getLayer(layer.id)) map.addLayer(layer);
       }
-      if (!map.getLayer("overview-arrows-base")) {
-        map.addLayer({
-          id: "overview-arrows-base",
-          type: "symbol",
-          source: "overview-lines",
-          filter: ["==", ["get", "direction"], "base"],
-          layout: {
-            "symbol-placement": "line",
-            "symbol-spacing": ARROW_SPACING_PX,
-            "icon-image": "route-arrow",
-            "icon-size": 0.7,
-            "icon-rotation-alignment": "map",
-            "icon-allow-overlap": false,
-          },
-          paint: {
-            "icon-color": ["coalesce", ["get", "color"], "#1B6DB2"],
-            "icon-opacity": OVERVIEW_OPACITY,
-          },
-        });
-      }
-      if (!map.getLayer("overview-arrows-return")) {
-        map.addLayer({
-          id: "overview-arrows-return",
-          type: "symbol",
-          source: "overview-lines",
-          filter: ["==", ["get", "direction"], "return"],
-          layout: {
-            "symbol-placement": "line",
-            "symbol-spacing": ARROW_SPACING_PX,
-            "icon-image": "route-arrow",
-            "icon-size": 0.7,
-            "icon-rotation-alignment": "map",
-            "icon-allow-overlap": false,
-          },
-          paint: {
-            "icon-color": ["coalesce", ["get", "color"], "#1B6DB2"],
-            "icon-opacity": OVERVIEW_OPACITY,
-          },
-        });
-      }
-      // The BASE direction is the route's primary line — always drawn in full
-      // on its saved geometry. The derived RETURN is drawn ONLY where it
-      // genuinely leaves the base corridor (divergingSegments): on shared
-      // stretches the return is an exact reverse (redundant), so drawing it
-      // there would split the route into two parallel lines. Every road is
-      // therefore rendered once, unbroken — no artificial gaps or spacing.
-      //
-      // Where two routes genuinely share a bidirectional corridor (or a single
-      // loop doubles back on itself), the overlapping runs get a subtle lateral
-      // shift — right of travel, tapered at each end — so both directions read
-      // as two parallel lines instead of hiding behind each other. Everything
-      // else stays a single unbroken line (Pasted #34 model).
-      const overlapRuns = new Map(
-        findOppositeOverlapRuns(
-          overviewRoutes.flatMap((route) => {
-            const coords = route.polyline?.coordinates ?? [];
-            return coords.length >= 2
-              ? [{ routeId: route.routeId, coords }]
-              : [];
-          }),
-        ).map((entry) => [entry.routeId, entry.runs]),
-      );
-      const features: OverviewFeature[] = [];
-      let nextFeatureId = 0;
-      const metaOf = new Map(
-        overviewRoutes.map((route) => [
-          route.routeId,
-          { name: route.name, color: route.color || "#1B6DB2" },
-        ]),
-      );
-      overviewRoutes.forEach((route) => {
-        const meta = metaOf.get(route.routeId) ?? {
-          name: "",
-          color: "#1B6DB2",
-        };
-        const baseCoords = route.polyline?.coordinates ?? [];
-        const returnCoords = route.returnPolyline?.coordinates ?? [];
-        if (baseCoords.length >= 2) {
-          features.push({
-            id: nextFeatureId++,
-            type: "Feature",
-            properties: {
-              routeId: route.routeId,
-              name: meta.name,
-              color: meta.color,
-              direction: "base",
+
+      for (const direction of ["base", "return"] as const) {
+        const id = `overview-arrows-${direction}`;
+
+        if (!map.getLayer(id)) {
+          map.addLayer({
+            id,
+
+            type: "symbol",
+
+            source: "overview-lines",
+
+            filter: ["==", ["get", "direction"], direction],
+
+            layout: {
+              "symbol-placement": "line",
+
+              "symbol-spacing": ARROW_SPACING_PX,
+
+              "icon-image": "route-arrow",
+
+              "icon-size": 0.7,
+
+              "icon-rotation-alignment": "map",
+
+              "icon-allow-overlap": false,
             },
-            geometry: {
-              type: "LineString",
-              coordinates: shiftOverlapRuns(
-                baseCoords,
-                overlapRuns.get(route.routeId) ?? [],
-              ),
+
+            paint: {
+              "icon-color": ["coalesce", ["get", "color"], "#1B6DB2"],
+
+              "icon-opacity": OVERVIEW_OPACITY,
             },
           });
         }
-        for (const run of divergingSegments(returnCoords, baseCoords)) {
-          features.push({
-            id: nextFeatureId++,
-            type: "Feature",
-            properties: {
-              routeId: route.routeId,
-              name: meta.name,
-              color: meta.color,
-              direction: "return",
-            },
-            geometry: { type: "LineString", coordinates: run },
-          });
-        }
-      });
+      }
+
+      return true;
+    },
+
+    // Signature = the memoized feature array identity: a data change rebuilds
+    // the memo (new reference); a style reload resets the util's signature so
+    // the rebuild still redraws (perf-audit review fix).
+    () => overviewFeatures,
+    () => {
+      const features = overviewFeatures;
       featuresRef.current = features.map((feature) => ({
         id: feature.id,
         routeId: feature.properties.routeId,
       }));
-      (map.getSource("overview-lines") as GeoJSONSource | undefined)?.setData({
-        type: "FeatureCollection",
-        features,
-      } as Parameters<GeoJSONSource["setData"]>[0]);
-    };
-    if (map.isStyleLoaded()) update();
-    map.on("load", update);
-    map.on("styledata", update);
-    return () => {
-      map.off("load", update);
-      map.off("styledata", update);
-    };
-  }, [map, overviewRoutes]);
+      setSourceData(map!, "overview-lines", features);
+    },
+  );
 
   // Tear down the overview layers/source/image only when the component
   // unmounts (or the map is replaced) — NOT on every data refresh, which

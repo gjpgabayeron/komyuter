@@ -66,7 +66,12 @@ export async function registerRoutes(
       const existingIds = await db
         .select({ route_id: routesTable.route_id })
         .from(routesTable);
-      const taken = new Set(existingIds.map((r) => r.route_id));
+      // "overview" is a reserved static route segment (GET /routes/overview) —
+      // an explicit route_id must not shadow it either (perf audit endpoint).
+      const taken = new Set([
+        ...existingIds.map((r) => r.route_id),
+        "overview",
+      ]);
 
       const routeId = body.route_id ?? uniqueSlug(body.name, taken);
       if (taken.has(routeId)) {
@@ -103,6 +108,53 @@ export async function registerRoutes(
       });
     },
   );
+
+  // Overview payload: ALL routes' base/return polylines + stops in ONE request
+  // (perf audit — replaces the N+1 detail fetches the overview used to make).
+  // Registered before /routes/:routeId; Fastify gives the static segment
+  // precedence, so "overview" is never treated as a route id.
+  app.get("/routes/overview", async () => {
+    const rows = await db
+      .select({
+        route_id: routesTable.route_id,
+        name: routesTable.name,
+        color: routesTable.color,
+        is_active: routesTable.is_active,
+      })
+      .from(routesTable)
+      // Keep the previous overview z-order (most recently updated first).
+      .orderBy(desc(routesTable.updated_at));
+
+    const data = await Promise.all(
+      rows.map(async (route) => {
+        const directionIds = await db
+          .select({ direction_id: directionsTable.direction_id })
+          .from(directionsTable)
+          .where(eq(directionsTable.route_id, route.route_id))
+          .orderBy(
+            asc(directionsTable.direction_kind),
+            asc(directionsTable.created_at),
+            asc(directionsTable.direction_id),
+          );
+        const [base, ret] = await Promise.all(
+          directionIds
+            .slice(0, 2)
+            .map((d) => loadDirectionFull(db, d.direction_id)),
+        );
+        return {
+          route_id: route.route_id,
+          name: route.name,
+          color: route.color,
+          is_active: route.is_active,
+          base_polyline: base?.base_polyline ?? null,
+          return_polyline: ret?.base_polyline ?? null,
+          stops: base?.stops ?? [],
+        };
+      }),
+    );
+
+    return { success: true, data };
+  });
 
   app.get("/routes/:routeId", async (request) => {
     const { routeId } = request.params as { routeId: string };

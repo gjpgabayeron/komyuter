@@ -4,6 +4,7 @@ export const fareConfigKeys = {
 
 export const routeKeys = {
   all: ["routes"] as const,
+  overview: ["routes", "overview"] as const,
   detail: (routeId: string) => ["routes", routeId] as const,
   directions: (routeId: string) => ["routes", routeId, "directions"] as const,
   directionStops: (directionId: string) =>

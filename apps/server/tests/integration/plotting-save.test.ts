@@ -392,4 +392,55 @@ describe("Route plotting atomic save (FR-012/FR-027/FR-028, ADR-0008)", () => {
       "Origin Stop",
     ]);
   });
+
+  it("GET /routes/overview returns every route's base/return polylines + stops in one request", async () => {
+    const routeId = await createRoute("ov");
+    const save = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${routeId}/directions`,
+      headers: auth(),
+      payload: {
+        label: "To Port",
+        base_polyline: LONG_POLYLINE,
+        stops: [
+          {
+            name: "City Hall",
+            type: "terminal",
+            location: point(A),
+            stop_order: 1,
+          },
+          {
+            name: "Port",
+            type: "major_stop",
+            location: point(B),
+            stop_order: 2,
+          },
+        ],
+      },
+    });
+    expect(save.statusCode).toBe(201);
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/admin/routes/overview",
+      headers: auth(),
+    });
+    expect(res.statusCode).toBe(200);
+    const data = res.json().data as Array<{
+      route_id: string;
+      name: string;
+      color: string | null;
+      is_active: boolean;
+      base_polyline: { coordinates: number[][] } | null;
+      return_polyline: { coordinates: number[][] } | null;
+      stops: { name: string }[];
+    }>;
+    // "overview" must never be captured by the /routes/:routeId param route.
+    expect(res.json().data).toBeInstanceOf(Array);
+    const mine = data.find((r) => r.route_id === routeId);
+    expect(mine).toBeTruthy();
+    expect(mine?.base_polyline?.coordinates).toEqual(LONG_POLYLINE.coordinates);
+    expect(mine?.return_polyline?.coordinates).toEqual([B, MID, A]);
+    expect(mine?.stops.map((s) => s.name)).toEqual(["City Hall", "Port"]);
+    expect(mine?.is_active).toBe(false); // draft-first default
+  });
 });

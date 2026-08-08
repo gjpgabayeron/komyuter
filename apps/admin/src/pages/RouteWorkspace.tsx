@@ -81,11 +81,6 @@ export default function RouteWorkspace() {
   const noRoutes = routesLoaded && routes.length === 0;
   const hasRoute = routeId !== null;
   const overviewMode = !hasRoute && !noRoutes && routesLoaded;
-  const plottedRoutes = useMemo(
-    () => routes.filter((route) => route.direction_count > 0),
-    [routes],
-  );
-
   // URL param seeds the store; the overlay is then the source of truth.
   useEffect(() => {
     usePlottingStore.getState().openRoute(routeParam ?? null);
@@ -394,7 +389,7 @@ export default function RouteWorkspace() {
   return (
     <div className="relative h-full w-full overflow-hidden">
       <RouteMap className="absolute inset-0">
-        {overviewMode && <RouteOverviewLayer routes={plottedRoutes} />}
+        {overviewMode && <RouteOverviewLayer />}
       </RouteMap>
 
       {!noRoutes && <RouteList onCreateRoute={() => setNewRouteOpen(true)} />}

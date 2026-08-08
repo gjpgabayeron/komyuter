@@ -14,6 +14,7 @@ import type {
 import {
   createRoute,
   deleteRoute,
+  listOverview,
   getDirectionStops,
   getRoute,
   listDirections,
@@ -27,6 +28,14 @@ export function useRoutesQuery() {
   return useQuery({
     queryKey: routeKeys.all,
     queryFn: listRoutes,
+  });
+}
+
+export function useOverviewQuery() {
+  return useQuery({
+    queryKey: routeKeys.overview,
+    queryFn: listOverview,
+    staleTime: 30_000,
   });
 }
 

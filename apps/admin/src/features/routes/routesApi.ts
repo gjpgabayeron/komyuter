@@ -2,6 +2,7 @@ import type {
   CoordinatePair,
   GeoLineString,
   GeoPoint,
+  OverviewRouteEntity,
   SnappedPath,
   StopType,
 } from "@komyuter/shared";
@@ -101,6 +102,15 @@ export interface DirectionSaveResult {
 
 export async function listRoutes(): Promise<RouteSummary[]> {
   const { data } = await api.get<RouteSummary[]>("/api/admin/routes");
+  return data;
+}
+
+/** GET /api/admin/routes/overview — every route's base/return polylines +
+ *  stops in ONE request (perf audit: replaces the N+1 overview fetches). */
+export async function listOverview(): Promise<OverviewRouteEntity[]> {
+  const { data } = await api.get<OverviewRouteEntity[]>(
+    "/api/admin/routes/overview",
+  );
   return data;
 }
 
