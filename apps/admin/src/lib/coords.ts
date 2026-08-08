@@ -182,12 +182,20 @@ export function resolveConnectingLine(
   polyline: GeoLineString | null,
   stopLocations: readonly CoordinatePair[],
 ): GeoLineString | null {
-  // The committed road-snapped draft line is drawn separately; before any
-  // path exists (first placements / snap still in flight), a transient
-  // straight line keeps the map from looking blank — it is never saved
-  // (FR-009 keeps straight lines out of the persisted route).
-  if (polyline) return null;
-  return straightLineThrough(stopLocations);
+  // Before any path exists (first placements / snap still in flight), a
+  // transient straight line keeps the map from looking blank — never saved.
+  if (!polyline) return straightLineThrough(stopLocations);
+  // A committed path exists but the newest stop is beyond its end (just
+  // placed / dragged): extend a short transient stub from the path end to
+  // that stop so placements connect visually IMMEDIATELY — the auto-committed
+  // snap replaces the stub when it lands (perf/UX audit: no more "stop
+  // appears, line lags"). The stub is display-only, never persisted.
+  const last = polyline.coordinates[polyline.coordinates.length - 1];
+  const newest = stopLocations[stopLocations.length - 1];
+  if (last && newest && coordsDistanceMeters(last, newest) > 150) {
+    return { type: "LineString", coordinates: [last, newest] };
+  }
+  return null;
 }
 
 /** Formats meters as "1,234 m" or "1.23 km" per the chosen unit. */

@@ -296,3 +296,44 @@ describe("pathCoversStops", () => {
     expect(pathCoversStops(polyline, stops)).toBe(false);
   });
 });
+
+describe("resolveConnectingLine transient stub (perf/UX audit)", () => {
+  it("extends a stub from the committed path end to a just-placed stop", () => {
+    const path: GeoLineString = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.6],
+        [122.51, 10.61],
+      ],
+    };
+    const stops: CoordinatePair[] = [
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.55, 10.65], // new stop well beyond the path end
+    ];
+    const line = resolveConnectingLine(path, stops);
+    expect(line).toEqual({
+      type: "LineString",
+      coordinates: [
+        [122.51, 10.61],
+        [122.55, 10.65],
+      ],
+    });
+  });
+
+  it("returns null when the newest stop is already covered by the path", () => {
+    const path: GeoLineString = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.6],
+        [122.51, 10.61],
+      ],
+    };
+    expect(
+      resolveConnectingLine(path, [
+        [122.5, 10.6],
+        [122.51, 10.61],
+      ]),
+    ).toBeNull();
+  });
+});

@@ -1,11 +1,17 @@
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { MapPin } from "lucide-react";
 import type { GeoLineString } from "@komyuter/shared";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Map, { MapProvider, Marker, useMap } from "react-map-gl/maplibre";
-import type { GeoJSONSource } from "maplibre-gl";
+
 import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
 import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
+import {
+  ensureGeoJsonSource,
+  lineLayerSpec,
+  setSourceData,
+  useDrawWhenReady,
+} from "@/lib/mapLayers";
 import { resolveConnectingLine } from "@/lib/coords";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
@@ -198,11 +204,11 @@ function BasemapController() {
  */
 interface RouteLineFeature {
   type: "Feature";
-  properties: { kind: "draft" | "connecting" };
+  properties: { kind: "draft" | "connecting"; color: string };
   geometry: GeoLineString;
 }
 
-function RouteLines({
+const RouteLines = memo(function RouteLines({
   draft,
   connecting,
   color,
@@ -213,86 +219,80 @@ function RouteLines({
 }) {
   const map = useMap().current?.getMap();
 
-  useEffect(() => {
-    if (!map) return;
-    const update = () => {
-      if (!map.isStyleLoaded()) return;
-      if (!map.getSource("route-lines")) {
-        map.addSource("route-lines", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: [] },
-        });
-      }
-      if (!map.getLayer("route-line-connecting")) {
-        map.addLayer({
-          id: "route-line-connecting",
-          type: "line",
+  useDrawWhenReady(
+    map,
+    [draft, connecting, color],
+    () => {
+      if (!map) return false;
+      ensureGeoJsonSource(map, "route-lines");
+      const layers = [
+        lineLayerSpec("route-line-connecting", {
           source: "route-lines",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: {
-            "line-color": PREVIEW_LINE,
-            "line-width": 4,
-            "line-dasharray": [2, 1],
-          },
           filter: ["==", ["get", "kind"], "connecting"],
-        });
-      }
-      // The committed (draft) line is added LAST so it renders on top of the
-      // proposal layers: live colour feedback stays visible even while a
-      // preview overlaps the current path.
-      if (!map.getLayer("route-line-draft")) {
-        map.addLayer({
-          id: "route-line-draft",
-          type: "line",
+          color: ["coalesce", ["get", "color"], PREVIEW_LINE],
+          width: 4,
+          dasharray: [2, 1],
+        }),
+        lineLayerSpec("route-line-draft", {
           source: "route-lines",
-          layout: { "line-cap": "round", "line-join": "round" },
-          paint: { "line-color": color, "line-width": 4 },
           filter: ["==", ["get", "kind"], "draft"],
-        });
-      } else {
-        // Live colour feedback: the committed line follows the route's colour
-        // as it's edited in the properties panel.
-        map.setPaintProperty("route-line-draft", "line-color", color);
+          color: ["coalesce", ["get", "color"], DRAFT_LINE],
+          width: 4,
+        }),
+      ];
+      for (const layer of layers) {
+        if (!map.getLayer(layer.id)) map.addLayer(layer);
       }
+      return true;
+    },
+    () => {
       const features: RouteLineFeature[] = [];
       if (draft) {
         features.push({
           type: "Feature",
-          properties: { kind: "draft" },
+          properties: { kind: "draft", color },
           geometry: draft,
         });
       }
       if (connecting) {
         features.push({
           type: "Feature",
-          properties: { kind: "connecting" },
+          properties: { kind: "connecting", color: PREVIEW_LINE },
           geometry: connecting,
         });
       }
-      const source = map.getSource("route-lines") as GeoJSONSource | undefined;
-      source?.setData({
-        type: "FeatureCollection",
-        features,
-      } as Parameters<GeoJSONSource["setData"]>[0]);
-    };
-
-    if (map.isStyleLoaded()) update();
-    map.on("load", update);
-    map.on("styledata", update);
-    // Self-heal: if the initial draw was ever missed (style raced past the
-    // mount, stale listeners, HMR residue), the lines re-sync on the next
-    // map settle — the same interaction the user reported as "making them
-    // appear" (selecting/dragging a stop pans or zooms, ending in `idle`).
-    map.on("idle", update);
-    return () => {
-      map.off("load", update);
-      map.off("styledata", update);
-      map.off("idle", update);
-    };
-  }, [map, draft, connecting, color]);
+      // Content-based signature INCLUDING coordinates: a drag that keeps the
+      // same vertex count still redraws (perf-audit review fix).
+      return JSON.stringify(
+        features.map((f) => [
+          f.properties.kind,
+          f.properties.color,
+          f.geometry.coordinates,
+        ]),
+      );
+    },
+    () => {
+      const features: RouteLineFeature[] = [];
+      if (draft) {
+        features.push({
+          type: "Feature",
+          properties: { kind: "draft", color },
+          geometry: draft,
+        });
+      }
+      if (connecting) {
+        features.push({
+          type: "Feature",
+          properties: { kind: "connecting", color: PREVIEW_LINE },
+          geometry: connecting,
+        });
+      }
+      setSourceData(map!, "route-lines", features);
+    },
+  );
 
   return null;
-}
+});
 
 export function RouteMap({ className, children }: RouteMapProps) {
   const routeColor = usePlottingStore((s) => s.routeMeta?.color ?? null);
@@ -341,9 +341,13 @@ export function RouteMap({ className, children }: RouteMapProps) {
   // road-snapped draft is drawn separately; before any path exists a
   // client-side straight line bridges the stops so the map is never blank
   // (FR-009 fallback — it is only ever a display line, never persisted).
-  const connectingLine = resolveConnectingLine(
-    polyline,
-    stops.map((stop) => stop.location),
+  const connectingLine = useMemo(
+    () =>
+      resolveConnectingLine(
+        polyline,
+        stops.map((stop) => stop.location),
+      ),
+    [polyline, stops],
   );
 
   // Layer filtering (FR-016): markers follow Stops/Terminals; the route path

@@ -176,7 +176,7 @@ export function visibleStopsForLayers(
 }
 
 /** Debounce window between the last stop placement and the snap request. */
-export const SNAP_DEBOUNCE_MS = 500;
+export const SNAP_DEBOUNCE_MS = 300;
 
 export type SnapFetcher = (
   coordinates: CoordinatePair[],
