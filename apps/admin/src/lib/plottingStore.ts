@@ -62,18 +62,44 @@ export interface SnapState {
   warning: string | null;
 }
 
+/** Basemap style choices (Default / Minimalist / 3D). */
+export type BaseMapStyle = "default" | "minimalist" | "3d";
+
 export interface LayerVisibility {
+  /** Whether the basemap is visible at all. */
   base: boolean;
-  stops: boolean;
+  /** Which basemap style is active. */
+  baseStyle: BaseMapStyle;
+  /** Basemap opacity, 0 (fully transparent) to 1 (opaque). */
+  baseOpacity: number;
+  /** Per-stop-type marker visibility — every type is on by default and can be
+   *  hidden individually (FR-016 product revision: per-type granular control,
+   *  no surprise sub-filtering). */
+  markers: Record<StopType, boolean>;
+  /** Stop-name labels beneath markers (on by default). */
+  markerLabels: boolean;
+  /** Route path lines (committed draft + transient connecting line). */
+  routes: boolean;
 }
 
-const DEFAULT_LAYERS: LayerVisibility = { base: true, stops: true };
+const DEFAULT_LAYERS: LayerVisibility = {
+  base: true,
+  baseStyle: "default",
+  baseOpacity: 1,
+  markers: {
+    terminal: true,
+    major_stop: true,
+    waiting_area: true,
+  },
+  markerLabels: true,
+  routes: true,
+};
 
 const EMPTY_ROUTE_META: RouteMetaDraft = {
   name: "",
   shortName: "",
   color: "#1B6DB2",
-  isActive: true,
+  isActive: false,
   fareConfigId: null,
 };
 
@@ -135,6 +161,18 @@ export function draftMatchesBaseline(
     const base = basePolyline.coordinates[i];
     return coord[0] === base[0] && coord[1] === base[1];
   });
+}
+
+/**
+ * Stops visible under the current layer configuration (FR-016): the Markers
+ * group gives per-stop-type control — each type is on by default and can be
+ * hidden independently, with no sub-filtering surprises.
+ */
+export function visibleStopsForLayers(
+  stops: readonly DraftStop[],
+  layers: LayerVisibility,
+): DraftStop[] {
+  return stops.filter((stop) => layers.markers[stop.type] !== false);
 }
 
 /** Debounce window between the last stop placement and the snap request. */
@@ -452,7 +490,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => ({
       name:
         (name?.trim() || `Stop ${stops.length + 1}`) ??
         `Stop ${stops.length + 1}`,
-      type: "major_stop",
+      type: "waiting_area",
       location,
     };
     const nextStops = [
@@ -485,7 +523,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => ({
 
   requestFit: () => set((state) => ({ fitCounter: state.fitCounter + 1 })),
 
-  addStop: (location, name, type = "major_stop") => {
+  addStop: (location, name, type = "waiting_area") => {
     set((state) => {
       const stop: DraftStop = {
         id: crypto.randomUUID(),

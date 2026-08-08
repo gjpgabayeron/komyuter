@@ -7,9 +7,26 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { usePlottingStore } from "@/lib/plottingStore";
+import { usePlottingStore, type BaseMapStyle } from "@/lib/plottingStore";
 import { canRedo, canUndo } from "@/lib/plottingHistory";
 import { cn } from "@/lib/utils";
+import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
+import type { StopType } from "@komyuter/shared";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface PlotActionBarProps {
   onUndo: () => void;
@@ -47,6 +64,148 @@ function IconAction({
         )}
       />
       <TooltipContent side="top">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** Map layer controls (FR-016 product revision) — one collapsible Layers
+ *  submenu in the toolbar:
+ *  - Basemap: style (Default / Minimalist / 3D) + opacity
+ *  - Markers: a per-stop-type group — every type is on by default and can be
+ *    hidden individually (no surprise sub-filtering)
+ *  - Routes: the path lines
+ *  Toggling one control leaves the others untouched (setLayers merges). */
+function LayerToggles() {
+  const layers = usePlottingStore((s) => s.layers);
+  const setLayers = usePlottingStore((s) => s.setLayers);
+  const stopTypes = Object.keys(STOP_TYPE_LABELS) as StopType[];
+  const styles: { value: BaseMapStyle; label: string }[] = [
+    { value: "default", label: "Default" },
+    { value: "minimalist", label: "Minimalist" },
+    { value: "3d", label: "3D" },
+  ];
+  return (
+    <Tooltip>
+      <TooltipTrigger>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={(props) => (
+              <button
+                {...props}
+                type="button"
+                aria-label="Layers"
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon-sm" }),
+                  "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <Layers className="size-3.5" />
+              </button>
+            )}
+          />
+          <DropdownMenuContent side="top" align="start" className="w-52">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>Map Layers</DropdownMenuLabel>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Basemap</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Basemap Styles</DropdownMenuLabel>
+                      <DropdownMenuRadioGroup
+                        value={layers.baseStyle}
+                        onValueChange={(value) =>
+                          setLayers({ baseStyle: value as BaseMapStyle })
+                        }
+                      >
+                        {styles.map((style) => (
+                          <DropdownMenuRadioItem
+                            key={style.value}
+                            value={style.value}
+                          >
+                            {style.label}
+                          </DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <div className="px-1.5 py-1">
+                      <label
+                        htmlFor="basemap-opacity"
+                        className="text-muted-foreground flex items-center justify-between text-xs"
+                      >
+                        <span>Opacity</span>
+                        <span className="tabular-nums">
+                          {Math.round(layers.baseOpacity * 100)}%
+                        </span>
+                      </label>
+                      <input
+                        id="basemap-opacity"
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={Math.round(layers.baseOpacity * 100)}
+                        onChange={(event) =>
+                          setLayers({
+                            baseOpacity: Number(event.target.value) / 100,
+                          })
+                        }
+                        className="w-full"
+                        aria-label="Basemap opacity"
+                      />
+                    </div>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Markers</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Toggle Visibility</DropdownMenuLabel>
+                      {stopTypes.map((type) => (
+                        <DropdownMenuCheckboxItem
+                          key={type}
+                          checked={layers.markers[type]}
+                          onCheckedChange={(value) =>
+                            setLayers({
+                              markers: { ...layers.markers, [type]: value },
+                            })
+                          }
+                        >
+                          {STOP_TYPE_LABELS[type]}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Toggle Labels</DropdownMenuLabel>
+                      <DropdownMenuCheckboxItem
+                        checked={layers.markerLabels}
+                        onCheckedChange={(value) =>
+                          setLayers({ markerLabels: value })
+                        }
+                      >
+                        Stop names
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuCheckboxItem
+              checked={layers.routes}
+              onCheckedChange={(value) => setLayers({ routes: value })}
+            >
+              Toggle Route Visibility
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TooltipTrigger>
+      <TooltipContent side="top">Modify Map Layers</TooltipContent>
     </Tooltip>
   );
 }
@@ -138,9 +297,7 @@ export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
 
         <Separator orientation="vertical" className="mx-1 h-5" />
 
-        <IconAction label="Layers" disabled>
-          <Layers className="size-3.5" />
-        </IconAction>
+        <LayerToggles />
       </div>
     </TooltipProvider>
   );

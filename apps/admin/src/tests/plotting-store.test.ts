@@ -3,6 +3,7 @@ import type {
   CoordinatePair,
   GeoLineString,
   SnappedPath,
+  StopType,
 } from "@komyuter/shared";
 import {
   clearSelection,
@@ -15,6 +16,8 @@ import {
   cancelPendingSnap,
   draftMatchesBaseline,
   reorderStops,
+  visibleStopsForLayers,
+  type LayerVisibility,
   SNAP_DEBOUNCE_MS,
   usePlottingStore,
 } from "@/lib/plottingStore";
@@ -117,15 +120,29 @@ describe("plottingStore", () => {
     setPolyline({ type: "LineString", coordinates: [[122.5, 10.6]] });
     setSnap({ status: "applied" });
     setSelection(selectPolyline);
-    setLayers({ stops: false });
+    setLayers({ routes: false });
     reset();
     const state = usePlottingStore.getState();
     expect(state.stops).toEqual([]);
     expect(state.polyline).toBeNull();
     expect(state.snap.status).toBe("idle");
     expect(state.selection).toEqual(clearSelection);
-    expect(state.layers).toEqual({ base: true, stops: true });
+    expect(state.layers).toEqual({
+      base: true,
+      baseStyle: "default",
+      baseOpacity: 1,
+      markers: { terminal: true, major_stop: true, waiting_area: true },
+      markerLabels: true,
+      routes: true,
+    });
     expect(state.history).toEqual({ past: [], future: [] });
+  });
+
+  it("new stops default to the Waiting Area type (Pasted #42)", () => {
+    const { addStop } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    expect(usePlottingStore.getState().stops[0].type).toBe("waiting_area");
+    expect(usePlottingStore.getState().stops[0].name).toBe("Stop 1");
   });
 
   it("requestFit increments the fit counter", () => {
@@ -856,5 +873,83 @@ describe("stop property + connection undo (stop_props_changed)", () => {
     );
     bindSnapFetcher(null);
     vi.useRealTimers();
+  });
+});
+
+describe("layer filtering (FR-016 product revision)", () => {
+  const stop = (id: string, type: StopType) => ({
+    id,
+    name: id,
+    type,
+    location: [122.5, 10.6] as [number, number],
+  });
+  const allOn: LayerVisibility = {
+    base: true,
+    baseStyle: "default",
+    baseOpacity: 1,
+    markers: { terminal: true, major_stop: true, waiting_area: true },
+    markerLabels: true,
+    routes: true,
+  };
+
+  it("shows every stop type by default (Markers all on)", () => {
+    const stops = [
+      stop("t", "terminal"),
+      stop("m", "major_stop"),
+      stop("w", "waiting_area"),
+    ];
+    expect(visibleStopsForLayers(stops, allOn).map((s) => s.id)).toEqual([
+      "t",
+      "m",
+      "w",
+    ]);
+  });
+
+  it("hides only the toggled-off stop type", () => {
+    const stops = [
+      stop("t", "terminal"),
+      stop("m", "major_stop"),
+      stop("w", "waiting_area"),
+    ];
+    const layers: LayerVisibility = {
+      ...allOn,
+      markers: { ...allOn.markers, waiting_area: false },
+    };
+    expect(visibleStopsForLayers(stops, layers).map((s) => s.id)).toEqual([
+      "t",
+      "m",
+    ]);
+    // Turning another type off leaves the first hidden type hidden.
+    const layers2: LayerVisibility = {
+      ...allOn,
+      markers: { ...allOn.markers, terminal: false, waiting_area: false },
+    };
+    expect(visibleStopsForLayers(stops, layers2).map((s) => s.id)).toEqual([
+      "m",
+    ]);
+  });
+
+  it("toggling one control affects only that control (setLayers merges)", () => {
+    const { setLayers } = usePlottingStore.getState();
+    setLayers({
+      markers: {
+        ...usePlottingStore.getState().layers.markers,
+        terminal: false,
+      },
+    });
+    let layers = usePlottingStore.getState().layers;
+    expect(layers.markers.terminal).toBe(false);
+    expect(layers.markers.major_stop).toBe(true); // untouched
+    expect(layers.base).toBe(true);
+    expect(layers.routes).toBe(true);
+    setLayers({ base: false });
+    layers = usePlottingStore.getState().layers;
+    expect(layers.base).toBe(false);
+    expect(layers.markers.terminal).toBe(false); // untouched
+    expect(layers.routes).toBe(true); // untouched
+    setLayers({ baseStyle: "3d", baseOpacity: 0.4 });
+    layers = usePlottingStore.getState().layers;
+    expect(layers.baseStyle).toBe("3d");
+    expect(layers.baseOpacity).toBe(0.4);
   });
 });

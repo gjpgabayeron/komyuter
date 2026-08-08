@@ -1,31 +1,31 @@
-import type { RasterSourceSpecification } from "maplibre-gl";
+import type { BaseMapStyle } from "./plottingStore";
 
 /** Default map center: Iloilo City proper (lng, lat). */
 export const ILOILO_CITY: [number, number] = [122.5645, 10.693];
 
 /**
- * Basemap tile source for the Route Plotting map. Uses the Mapbox public
- * style token when configured; otherwise falls back to OpenStreetMap so the
- * admin always renders offline/local without a token.
+ * OpenFreeMap vector styles (OSM data, OpenMapTiles schema) — free for
+ * COMMERCIAL use with attribution (per openfreemap.org FAQ), no API key,
+ * no volume limits. Crisp at every zoom (vector, not pre-rasterized).
+ *
+ * - default: bright (standard detail)
+ * - minimalist: positron (grey, simplified — POI icons hidden)
+ * - 3d: liberty, shown in a tilted/rotatable perspective (same map the
+ *   OpenFreeMap demo calls "3D" — the style is liberty, the 3D effect comes
+ *   from the camera pitch/rotation, applied by PerspectiveController)
  */
-export function getTileSource(): RasterSourceSpecification {
-  const token = import.meta.env.VITE_MAPBOX_PUBLIC_TOKEN;
-  if (token) {
-    return {
-      type: "raster",
-      tiles: [
-        `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/256/{z}/{x}/{y}?access_token=${token}`,
-      ],
-      tileSize: 256,
-      attribution: "© Mapbox © OpenStreetMap",
-      maxzoom: 22,
-    };
+const OPENFREEMAP_BRIGHT = "https://tiles.openfreemap.org/styles/bright";
+const OPENFREEMAP_POSITRON = "https://tiles.openfreemap.org/styles/positron";
+const OPENFREEMAP_LIBERTY = "https://tiles.openfreemap.org/styles/liberty";
+
+/** The basemap style URL for a style choice. */
+export function baseMapStyleFor(style: BaseMapStyle): string {
+  switch (style) {
+    case "minimalist":
+      return OPENFREEMAP_POSITRON;
+    case "3d":
+      return OPENFREEMAP_LIBERTY;
+    default:
+      return OPENFREEMAP_BRIGHT;
   }
-  return {
-    type: "raster",
-    tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
-    tileSize: 256,
-    attribution: "© OpenStreetMap contributors",
-    maxzoom: 19,
-  };
 }

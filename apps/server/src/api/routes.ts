@@ -81,6 +81,9 @@ export async function registerRoutes(
           short_name: body.short_name,
           color: body.color ?? null,
           fare_config_id: body.fare_config_id ?? null,
+          // Draft-first workflow: new routes start INACTIVE so they can be
+          // reviewed before going live (Pasted #42).
+          is_active: body.is_active ?? false,
         })
         .returning();
 

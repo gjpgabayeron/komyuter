@@ -224,7 +224,9 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
               <Switch
-                checked={routeMeta?.isActive ?? true}
+                checked={
+                  routeMeta?.isActive ?? routeQuery.data?.is_active ?? false
+                }
                 onCheckedChange={(checked) =>
                   setRouteMeta({ isActive: checked })
                 }
@@ -246,7 +248,7 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                     className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
                     title="Last stop connects back to the first — circular route"
                   >
-                    Circular
+                    Loop
                   </span>
                 )}
                 <span className="text-muted-foreground text-xs tabular-nums">
@@ -346,14 +348,25 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                           {STOP_TYPE_LABELS[stop.type]}
                         </Badge>
                       </button>
-                      <button
-                        type="button"
-                        aria-label={`Insert stop after ${stop.name}`}
-                        onClick={() => insertAfter(stop.id)}
-                        className="text-muted-foreground/40 hover:text-primary flex w-full items-center justify-center py-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-                      >
-                        <Plus className="size-3" />
-                      </button>
+                      {/* Insert-after indicator: the wrapper collapses to zero
+                          height when hidden (max-h-0 + overflow-hidden) so the
+                          list stays compact. The appear is DELIBERATE: the
+                          hover state carries a 400 ms transition-delay, so the
+                          indicator only shows after hovering the gap briefly
+                          (distinguishing intent from casual mouse movement);
+                          the base state has zero delay, so it disappears
+                          immediately on leave (Pasted #42/#43/#44). The icon
+                          is centered via flex on a full-width button. */}
+                      <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
+                        <button
+                          type="button"
+                          aria-label={`Insert stop after ${stop.name}`}
+                          onClick={() => insertAfter(stop.id)}
+                          className="text-muted-foreground/40 hover:text-primary flex w-full items-center justify-center py-0.5"
+                        >
+                          <Plus className="size-3" />
+                        </button>
+                      </div>
                     </div>
                   );
                 })}

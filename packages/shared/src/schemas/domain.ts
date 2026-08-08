@@ -41,6 +41,7 @@ export const createRouteSchema = z.object({
     .nullable()
     .optional(),
   fare_config_id: z.string().min(1).nullable().optional(),
+  is_active: z.boolean().optional(),
 });
 
 export const updateRouteSchema = createRouteSchema.partial().extend({

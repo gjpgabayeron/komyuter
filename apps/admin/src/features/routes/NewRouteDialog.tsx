@@ -67,6 +67,8 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
         short_name: shortName.trim(),
         color,
         fare_config_id: fareConfigId ?? undefined,
+        // Draft-first workflow: new routes start inactive for review (Pasted #42).
+        is_active: false,
       });
       // Select the new route as the active plotting surface (FR-002).
       usePlottingStore.getState().openRoute(route.route_id);

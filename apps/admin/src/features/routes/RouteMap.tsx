@@ -1,17 +1,16 @@
-import { useEffect, useState } from "react";
-import type { StyleSpecification } from "maplibre-gl";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin } from "lucide-react";
 import type { GeoLineString } from "@komyuter/shared";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Map, { MapProvider, Marker, useMap } from "react-map-gl/maplibre";
 import type { GeoJSONSource } from "maplibre-gl";
 import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
-import { getTileSource, ILOILO_CITY } from "@/lib/tiles";
+import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
 import { resolveConnectingLine } from "@/lib/coords";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
 import { clearSelection, isStopSelected, selectStop } from "@/lib/selection";
-import { usePlottingStore } from "@/lib/plottingStore";
+import { usePlottingStore, visibleStopsForLayers } from "@/lib/plottingStore";
 
 /** Signboard green-blue (draft path — committed to save). */
 const DRAFT_LINE = "#1B6DB2";
@@ -26,24 +25,16 @@ const SHAPE_CLASS: Record<StopShape, string> = {
   diamond: "rotate-45 rounded-[3px]",
 };
 
-const BASE_STYLE: StyleSpecification = {
-  version: 8,
-  sources: {
-    "route-sign-basemap": getTileSource(),
-  },
-  layers: [
-    {
-      id: "route-sign-basemap",
-      type: "raster",
-      source: "route-sign-basemap",
-    },
-  ],
-};
+/** Basemap layers that the opacity fade must NEVER touch — the route lines
+ *  and overview overlays are drawn on top of the basemap and stay opaque. */
+const OVERLAY_LAYER_PREFIXES = ["route-line-", "overview-", "route-arrow"];
 
 interface Viewport {
   longitude: number;
   latitude: number;
   zoom: number;
+  pitch: number;
+  bearing: number;
 }
 
 interface RouteMapProps {
@@ -113,6 +104,87 @@ function SelectionPanner() {
       duration: 450,
     });
   }, [selection, map]);
+
+  return null;
+}
+
+/**
+ * Applies the 3D camera when the basemap style is "3d" (the liberty style
+ * shown in a tilted perspective, per OpenFreeMap's own demo): tilts the map
+ * to pitch 60 and allows rotation; switching back to a flat style levels the
+ * camera. Mirrors OpenFreeMap's liberty-3d demo behavior.
+ */
+function PerspectiveController() {
+  const map = useMap().current?.getMap();
+  const baseStyle = usePlottingStore((s) => s.layers.baseStyle);
+
+  useEffect(() => {
+    if (!map || !map.isStyleLoaded()) return;
+    if (baseStyle === "3d") {
+      map.easeTo({ pitch: 60, bearing: 0, duration: 500 });
+    } else {
+      map.easeTo({ pitch: 0, bearing: 0, duration: 500 });
+    }
+  }, [map, baseStyle]);
+
+  return null;
+}
+
+/**
+ * Applies the basemap layer controls to the raster layer: visibility (on/off)
+ * and `raster-opacity`. Rendered INSIDE `<Map>` (where useMap() resolves) and
+ * re-applies on every style load, so switching the basemap style can never
+ * leave the layer uncontrolled.
+ */
+function BasemapController() {
+  const map = useMap().current?.getMap();
+  const baseOpacity = usePlottingStore((s) => s.layers.baseOpacity);
+
+  useEffect(() => {
+    if (!map) return;
+    const apply = () => {
+      if (!map.isStyleLoaded()) return;
+      // Fade the BASEMAP layers (the map's own style layers) to the chosen
+      // opacity. The route lines / overview overlays are skipped so they
+      // always stay fully opaque. Overwriting the opacity paint props with a
+      // constant is safe for basemap layers (their defaults are 1.0).
+      const layers = map.getStyle()?.layers ?? [];
+      for (const layer of layers) {
+        if (
+          OVERLAY_LAYER_PREFIXES.some((prefix) => layer.id.startsWith(prefix))
+        ) {
+          continue;
+        }
+        switch (layer.type) {
+          case "background":
+            map.setPaintProperty(layer.id, "background-opacity", baseOpacity);
+            break;
+          case "fill":
+            map.setPaintProperty(layer.id, "fill-opacity", baseOpacity);
+            break;
+          case "line":
+            map.setPaintProperty(layer.id, "line-opacity", baseOpacity);
+            break;
+          case "symbol":
+            map.setPaintProperty(layer.id, "icon-opacity", baseOpacity);
+            map.setPaintProperty(layer.id, "text-opacity", baseOpacity);
+            break;
+          case "raster":
+            map.setPaintProperty(layer.id, "raster-opacity", baseOpacity);
+            break;
+          default:
+            break;
+        }
+      }
+    };
+    apply();
+    map.on("styledata", apply);
+    map.on("load", apply);
+    return () => {
+      map.off("styledata", apply);
+      map.off("load", apply);
+    };
+  }, [map, baseOpacity]);
 
   return null;
 }
@@ -228,6 +300,8 @@ export function RouteMap({ className, children }: RouteMapProps) {
     longitude: ILOILO_CITY[0],
     latitude: ILOILO_CITY[1],
     zoom: 13,
+    pitch: 0,
+    bearing: 0,
   });
 
   const routeId = usePlottingStore((s) => s.routeId);
@@ -272,6 +346,26 @@ export function RouteMap({ className, children }: RouteMapProps) {
     stops.map((stop) => stop.location),
   );
 
+  // Layer filtering (FR-016): markers follow Stops/Terminals; the route path
+  // lines follow Routes. Original placement indices are kept for numbering.
+  const layers = usePlottingStore((s) => s.layers);
+  // Memoize the basemap style: a STABLE reference unless the style choice
+  // actually changes. react-map-gl reloads the whole style whenever the
+  // mapStyle reference differs — a fresh object per render would setStyle on
+  // every re-render (marker toggles, opacity) and flicker the route lines.
+  const mapStyle = useMemo(
+    () => baseMapStyleFor(layers.baseStyle),
+    [layers.baseStyle],
+  );
+  const visibleMarkers = useMemo(
+    () =>
+      visibleStopsForLayers(stops, layers).map((stop) => ({
+        stop,
+        index: stops.findIndex((s) => s.id === stop.id),
+      })),
+    [stops, layers],
+  );
+
   return (
     <div
       className={className}
@@ -286,16 +380,20 @@ export function RouteMap({ className, children }: RouteMapProps) {
               longitude: event.viewState.longitude,
               latitude: event.viewState.latitude,
               zoom: event.viewState.zoom,
+              pitch: event.viewState.pitch ?? 0,
+              bearing: event.viewState.bearing ?? 0,
             })
           }
-          mapStyle={BASE_STYLE}
+          mapStyle={mapStyle}
           style={{ width: "100%", height: "100%" }}
         >
           <RouteFitter />
           <SelectionPanner />
+          <BasemapController />
+          <PerspectiveController />
           <RouteLines
-            draft={polyline}
-            connecting={connectingLine}
+            draft={layers.routes ? polyline : null}
+            connecting={layers.routes ? connectingLine : null}
             color={routeColor ?? DRAFT_LINE}
           />
           {routeId !== null && <PoiSearchBar />}
@@ -311,7 +409,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
               </div>
             </Marker>
           )}
-          {stops.map((stop, index) => {
+          {visibleMarkers.map(({ stop, index }) => {
             const selected = isStopSelected(selection, stop.id);
             const shape = getStopShape(stop.type);
             return (
@@ -357,17 +455,14 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     )}
                   </button>
                   {/* Labels are absolutely positioned so the marker plate stays
-                    perfectly centered when a label appears (no perceived shift). */}
-                  {selected ? (
+                    perfectly centered when a label appears (no perceived shift).
+                    The marker-labels layer toggle controls the ACTUAL stop name
+                    beneath every marker (the first keeps a "Start · " prefix
+                    for orientation) — not just the Start chip (Pasted #42/#45). */}
+                  {layers.markerLabels && (
                     <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[10px] leading-4 font-medium text-[#1B6DB2]">
-                      {stop.name}
+                      {index === 0 ? `Start · ${stop.name}` : stop.name}
                     </span>
-                  ) : (
-                    index === 0 && (
-                      <span className="absolute top-full mt-0.5 rounded-xs border border-[#1B6DB2] bg-white px-1 text-[10px] leading-4 font-medium text-[#1B6DB2]">
-                        Start
-                      </span>
-                    )
                   )}
                 </div>
               </Marker>

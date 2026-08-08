@@ -66,6 +66,7 @@ export interface CreateRoutePayload {
   short_name: string;
   color?: string | null;
   fare_config_id?: string | null;
+  is_active?: boolean;
 }
 
 export interface SaveStopPayload {

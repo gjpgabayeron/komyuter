@@ -146,16 +146,16 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 ### Tests for User Story 4 ⚠️ (write FIRST, red before implementation)
 
-- [ ] T043 [P] [US4] Unit tests for stop shapes in `apps/admin/src/tests/stopShapes.test.ts` (terminal → square, major_stop → circle, waiting_area → diamond; shapes and colors are distinct; selection never conveyed by shape or color alone — FR-015)
-- [ ] T044 [P] [US4] Unit tests for layer filtering in `apps/admin/src/tests/plottingStore.test.ts` (Terminals is a sub-filter of Stops by `type === "terminal"`; toggling a layer affects only that layer — FR-016)
+- [x] T043 [P] [US4] Unit tests for stop shapes in `apps/admin/src/tests/stopShapes.test.ts` (terminal → square, major_stop → circle, waiting_area → diamond; shapes and colors are distinct; selection never conveyed by shape or color alone — FR-015)
+- [x] T044 [P] [US4] Unit tests for layer filtering in `apps/admin/src/tests/plottingStore.test.ts` (Terminals is a sub-filter of Stops by `type === "terminal"`; toggling a layer affects only that layer — FR-016)
 
 ### Implementation for User Story 4
 
-- [ ] T045 [US4] Create `apps/admin/src/lib/stopShapes.ts` (type → shape/color mapping, default `major_stop`) and render typed shapes on the map — make T043 green
-- [ ] T046 [US4] Implement layer toggles in `PlotActionBar.tsx` + filtering in `RouteMap.tsx`: Stops, Terminals (sub-filter of Stops), Routes; toggling restores the layer (FR-016/FR-019)
-- [ ] T047 [US4] Implement selection highlight: selecting a stop highlights the stop marker AND its row in the ordered stop list; selection state never uses shape or color alone (FR-015, US4 AC3)
-- [ ] T048 [US4] Create `apps/admin/src/features/routes/PropertiesPanel.tsx` — right-side contextual panel, visible only when an element is selected (Q3/FR-018): stop editor (name, type, is_guaranteed_service, landmark_hint, notes — edits persist through save + reload) + polyline info (exact `distance_meters` from the snap response, no ETA — FR-018/FR-021/FR-024)
-- [ ] T049 [US4] Wire `PropertiesPanel` into `RouteWorkspace.tsx` (appears on stop/polyline selection, hides on deselect — FR-018)
+- [x] T045 [US4] Create `apps/admin/src/lib/stopShapes.ts` (type → shape/color mapping, default `major_stop`) and render typed shapes on the map — make T043 green
+- [x] T046 [US4] Implement layer toggles in `PlotActionBar.tsx` + filtering in `RouteMap.tsx`: Stops, Terminals (sub-filter of Stops), Routes; toggling restores the layer (FR-016/FR-019)
+- [x] T047 [US4] Implement selection highlight: selecting a stop highlights the stop marker AND its row in the ordered stop list; selection state never uses shape or color alone (FR-015, US4 AC3)
+- [x] T048 [US4] Create `apps/admin/src/features/routes/PropertiesPanel.tsx` — right-side contextual panel, visible only when an element is selected (Q3/FR-018): stop editor (name, type, is_guaranteed_service, landmark_hint, notes — edits persist through save + reload) + polyline info (exact `distance_meters` from the snap response, no ETA — FR-018/FR-021/FR-024)
+- [x] T049 [US4] Wire `PropertiesPanel` into `RouteWorkspace.tsx` (appears on stop/polyline selection, hides on deselect — FR-018)
 
 **Checkpoint**: All user stories independently functional.
 

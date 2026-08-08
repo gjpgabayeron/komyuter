@@ -27,7 +27,7 @@ import { coordsDistanceMeters } from "./coords";
 /** Max distance between two vertices for them to count as the same road point. */
 export const OVERLAP_TOLERANCE_METERS = 20;
 /** Lateral shift applied to each overlapping pass, right of its own travel. */
-export const OVERLAP_OFFSET_METERS = 2;
+export const OVERLAP_OFFSET_METERS = 1;
 /** Distance over which the shift ramps 0 → full at each end of a run. */
 export const OVERLAP_TAPER_METERS = 30;
 /** A corridor needs at least this many matched vertices to be worth offsetting. */

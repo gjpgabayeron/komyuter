@@ -50,7 +50,8 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       .json()
       .data.find((r: { route_id: string }) => r.route_id === routeId);
     expect(listed).toBeTruthy();
-    expect(listed.is_active).toBe(true);
+    // Draft-first: new routes default to INACTIVE (Pasted #42).
+    expect(listed.is_active).toBe(false);
     expect(listed.direction_count).toBe(0);
 
     const update = await app.inject({
@@ -391,7 +392,11 @@ describe("fare configuration lifecycle guards (feature 006)", () => {
     };
   }
 
-  async function createRoute(routeId: string, fareConfigId: string | null) {
+  async function createRoute(
+    routeId: string,
+    fareConfigId: string | null,
+    isActive = true,
+  ) {
     const res = await app.inject({
       method: "POST",
       url: "/api/admin/routes",
@@ -401,6 +406,7 @@ describe("fare configuration lifecycle guards (feature 006)", () => {
         name: routeId,
         short_name: "T",
         fare_config_id: fareConfigId,
+        is_active: isActive,
       },
     });
     expect(res.statusCode).toBe(201);
@@ -484,7 +490,7 @@ describe("fare configuration lifecycle guards (feature 006)", () => {
     await createRoute(uniqueRouteId("count-active"), referenced);
 
     const inactiveRouteId = uniqueRouteId("count-inactive");
-    await createRoute(inactiveRouteId, referenced);
+    await createRoute(inactiveRouteId, referenced, false);
     const deactivateRoute = await app.inject({
       method: "PUT",
       url: `/api/admin/routes/${inactiveRouteId}`,
