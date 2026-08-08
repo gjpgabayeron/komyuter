@@ -115,3 +115,14 @@ The client renders both directions immediately; no follow-up fetch needed.
 | `GET /api/admin/directions/:directionId`       | load one direction                                              |
 | `GET /api/admin/directions/:directionId/stops` | load ordered stops                                              |
 | `PUT /api/admin/stops/:stopId`                 | stop name/type edits from the properties panel (FR-018/FR-028)  |
+
+## Client cache semantics (perf audit round 2)
+
+The admin keeps a react-query client cache: `GET /api/admin/routes/overview` (single request
+for all routes' polylines + lean stops) and `GET /api/admin/routes/:routeId` details are cached
+(staleTime 30 s, gcTime 5 min). Mutations PATCH the cache in place from their responses — the
+atomic save response (`DirectionSaveResult`) carries the base + derived return polylines and
+stops, so the cached detail/overview are updated without a refetch. `updated_at` returned by the
+server is the freshness reference; the save-time `409 CONFLICT` (server authority) guards
+write-write races, and the conflict banner offers **Load latest** (refetch + replace the draft).
+The list refetches on window focus so remote (multi-admin) changes surface without push infra.

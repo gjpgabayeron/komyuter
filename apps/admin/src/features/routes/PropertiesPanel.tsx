@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
+import { formatTimestamp } from "./format";
 import { pathFromConnections } from "@/lib/connections";
 import { useFareConfigsQuery } from "@/features/fares/queries";
 import { FareConfigSelect } from "./FareConfigSelect";
@@ -225,6 +226,12 @@ function RouteGroup() {
               {" "}
               (from plotted path)
             </span>
+          </p>
+        </div>
+        <div className="space-y-1.5">
+          <SectionLabel>Last updated</SectionLabel>
+          <p className="text-sm tabular-nums">
+            {route ? formatTimestamp(route.updated_at) : "—"}
           </p>
         </div>
       </div>

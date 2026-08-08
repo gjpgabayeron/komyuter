@@ -2,6 +2,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import { routeKeys } from "@/lib/queryKeys";
+import {
+  patchRouteCreated,
+  patchRouteDeleted,
+  patchRouteFromSave,
+  patchRouteMeta,
+} from "./routeCache";
 import type {
   CreateRoutePayload,
   DirectionEntity,
@@ -28,6 +34,11 @@ export function useRoutesQuery() {
   return useQuery({
     queryKey: routeKeys.all,
     queryFn: listRoutes,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+    // Cheap summary rows: refetch on tab focus so remote (multi-admin) route
+    // changes surface without any push infrastructure (manual freshness).
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -36,6 +47,7 @@ export function useOverviewQuery() {
     queryKey: routeKeys.overview,
     queryFn: listOverview,
     staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 }
 
@@ -44,6 +56,11 @@ export function useRouteQuery(routeId: string | null) {
     queryKey: routeKeys.detail(routeId ?? ""),
     queryFn: () => getRoute(routeId as string),
     enabled: routeId !== null,
+    // Route details are the heaviest payload — cache for 5 min so reopening a
+    // route (or switching between routes) reuses the cached copy, and treat
+    // them as fresh for 30 s (no refetch on every render).
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 }
 
@@ -52,6 +69,7 @@ export function useDirectionsQuery(routeId: string | null) {
     queryKey: routeKeys.directions(routeId ?? ""),
     queryFn: () => listDirections(routeId as string),
     enabled: routeId !== null,
+    gcTime: 5 * 60_000,
   });
 }
 
@@ -60,6 +78,7 @@ export function useDirectionStopsQuery(directionId: string | null) {
     queryKey: routeKeys.directionStops(directionId ?? ""),
     queryFn: () => getDirectionStops(directionId as string),
     enabled: directionId !== null,
+    gcTime: 5 * 60_000,
   });
 }
 
@@ -68,7 +87,7 @@ export function useCreateRouteMutation() {
   return useMutation({
     mutationFn: (payload: CreateRoutePayload) => createRoute(payload),
     onSuccess: (route: RouteSummary) => {
-      void queryClient.invalidateQueries({ queryKey: routeKeys.all });
+      patchRouteCreated(queryClient, route);
       toast.success(`Route "${route.name}" created.`);
     },
     onError: (error: Error) => {
@@ -82,10 +101,7 @@ export function useDeleteRouteMutation() {
   return useMutation({
     mutationFn: (routeId: string) => deleteRoute(routeId),
     onSuccess: (_result, routeId) => {
-      void queryClient.invalidateQueries({ queryKey: routeKeys.all });
-      void queryClient.invalidateQueries({
-        queryKey: routeKeys.detail(routeId),
-      });
+      patchRouteDeleted(queryClient, routeId);
       toast.success("Route deleted.");
     },
     onError: (error: Error) => {
@@ -99,11 +115,8 @@ export function useUpdateRouteMutation(routeId: string) {
   return useMutation({
     mutationFn: (patch: Parameters<typeof updateRoute>[1]) =>
       updateRoute(routeId, patch),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: routeKeys.all });
-      void queryClient.invalidateQueries({
-        queryKey: routeKeys.detail(routeId),
-      });
+    onSuccess: (route: RouteSummary) => {
+      patchRouteMeta(queryClient, route);
       toast.success("Route updated.");
     },
     onError: (error: Error) => {
@@ -117,14 +130,8 @@ export function useSaveDirectionMutation(routeId: string) {
   return useMutation({
     mutationFn: (payload: SaveDirectionPayload) =>
       saveDirection(routeId, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: routeKeys.all });
-      void queryClient.invalidateQueries({
-        queryKey: routeKeys.detail(routeId),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: routeKeys.directions(routeId),
-      });
+    onSuccess: (result: DirectionSaveResult) => {
+      patchRouteFromSave(queryClient, result);
     },
     onError: (error: Error) => {
       // A save conflict surfaces as an inline banner, not a toast (edge case).
@@ -140,13 +147,7 @@ export function useReplaceDirectionMutation(directionId: string) {
     mutationFn: (payload: SaveDirectionPayload) =>
       replaceDirection(directionId, payload),
     onSuccess: (result: DirectionSaveResult) => {
-      void queryClient.invalidateQueries({ queryKey: routeKeys.all });
-      void queryClient.invalidateQueries({
-        queryKey: routeKeys.detail(result.route_id),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: routeKeys.directions(result.route_id),
-      });
+      patchRouteFromSave(queryClient, result);
     },
     onError: (error: Error) => {
       if (error instanceof ApiError && error.code === "CONFLICT") return;

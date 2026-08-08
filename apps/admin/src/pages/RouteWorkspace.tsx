@@ -16,7 +16,9 @@ import type { DraftPayload } from "@/lib/draft";
 import { DraftRestoreBanner } from "@/features/routes/DraftRestoreBanner";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
 import type { SaveDirectionPayload } from "@/features/routes/routesApi";
-import { snapPreview } from "@/features/routes/routesApi";
+import { getRoute, snapPreview } from "@/features/routes/routesApi";
+import { queryClient } from "@/lib/queryClient";
+import { routeKeys } from "@/lib/queryKeys";
 import { RouteMap } from "@/features/routes/RouteMap";
 import { RouteList } from "@/features/routes/RouteList";
 import { RouteOverviewLayer } from "@/features/routes/RouteOverviewLayer";
@@ -288,6 +290,51 @@ export default function RouteWorkspace() {
     route !== undefined &&
     routeMeta !== null &&
     isRouteMetaDirty(routeMeta, route);
+  /** Load-latest recovery for a save conflict: refetch the server detail and
+   *  replace the local drafting draft with it (after an explicit confirm — the
+   *  admin's unsaved edits are discarded). Reuses the same seed the load
+   *  effect uses, so the surface returns to a consistent, saved state. */
+  const loadLatest = async () => {
+    if (routeId === null) return;
+    if (
+      !window.confirm(
+        "Discard your unsaved changes and load the latest version?",
+      )
+    ) {
+      return;
+    }
+    const detail = await queryClient.fetchQuery({
+      queryKey: routeKeys.detail(routeId),
+      queryFn: () => getRoute(routeId as string),
+    });
+    const base = detail.directions[0];
+    const store = usePlottingStore.getState();
+    store.setDirectionId(base.direction_id);
+    store.setStops(
+      base.stops.map((stop) => ({
+        id: stop.stop_id,
+        name: stop.name,
+        type: stop.type,
+        location: stop.location.coordinates,
+        is_guaranteed_service: stop.is_guaranteed_service,
+        landmark_hint: stop.landmark_hint,
+        notes: stop.notes,
+      })),
+      base.base_polyline,
+    );
+    store.setPolyline(base.base_polyline);
+    store.captureSavedBaseline();
+    store.clearHistory();
+    store.setRouteMeta({
+      name: detail.name,
+      shortName: detail.short_name,
+      color: detail.color ?? ROUTE_COLORS[0],
+      isActive: detail.is_active,
+      fareConfigId: detail.fare_config_id ?? null,
+    });
+    setConflict(false);
+  };
+
   const showSave = routeId !== null && (draftDirty || metaDirty);
 
   // --- FR-014: unsaved-changes navigation guard ---
@@ -447,6 +494,14 @@ export default function RouteWorkspace() {
             Another Administrator edited this route. Your work is still here —
             reload to see the latest, or adjust and save again.
           </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 shrink-0 px-2 text-xs"
+            onClick={() => void loadLatest()}
+          >
+            Load latest
+          </Button>
           <Button
             size="icon-xs"
             variant="ghost"
