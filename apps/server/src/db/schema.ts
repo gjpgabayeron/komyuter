@@ -19,6 +19,11 @@ export const stopType = pgEnum("stop_type", [
   "waiting_area",
 ]);
 
+/** Which direction of the pair a row is: the admin-plotted base or the
+ *  auto-derived return (ADR-0011). Used to order directions deterministically
+ *  so clients always load the base first. */
+export const directionKind = pgEnum("direction_kind", ["base", "return"]);
+
 export const restrictionReason = pgEnum("restriction_reason", [
   "no_stopping_zone",
   "contraflow",
@@ -122,6 +127,7 @@ export const directions = pgTable(
     base_polyline: lineStringGeometry("base_polyline").notNull(),
     origin_stop_id: text("origin_stop_id"),
     destination_stop_id: text("destination_stop_id"),
+    direction_kind: directionKind("direction_kind").notNull().default("base"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
   },

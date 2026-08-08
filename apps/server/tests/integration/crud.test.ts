@@ -68,15 +68,15 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       headers: auth(),
     });
     expect(softDelete.statusCode).toBe(200);
-    expect(softDelete.json().data.is_active).toBe(false);
+    expect(softDelete.json().data.route_id).toBe(routeId);
 
+    // Hard delete: the route is gone, not just deactivated.
     const reRead = await app.inject({
       method: "GET",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(),
     });
-    expect(reRead.statusCode).toBe(200);
-    expect(reRead.json().data.is_active).toBe(false);
+    expect(reRead.statusCode).toBe(404);
   });
 
   it("creates a fare config, edits it, and reads the new value", async () => {

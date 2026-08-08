@@ -82,7 +82,11 @@ async function persistPlottedPair(
     if (input.baseId) {
       await tx
         .update(directionsTable)
-        .set({ label: input.base.label, base_polyline: baseGeometry })
+        .set({
+          label: input.base.label,
+          base_polyline: baseGeometry,
+          direction_kind: "base",
+        })
         .where(eq(directionsTable.direction_id, baseId));
       await tx.delete(stopsTable).where(eq(stopsTable.direction_id, baseId));
     } else {
@@ -93,6 +97,7 @@ async function persistPlottedPair(
           route_id: input.routeId,
           label: input.base.label,
           base_polyline: baseGeometry,
+          direction_kind: "base",
         })
         .returning();
     }
@@ -144,7 +149,11 @@ async function persistPlottedPair(
     if (sibling) {
       await tx
         .update(directionsTable)
-        .set({ label: derived.label, base_polyline: returnGeometry })
+        .set({
+          label: derived.label,
+          base_polyline: returnGeometry,
+          direction_kind: "return",
+        })
         .where(eq(directionsTable.direction_id, returnId));
       await tx.delete(stopsTable).where(eq(stopsTable.direction_id, returnId));
     } else {
@@ -155,6 +164,7 @@ async function persistPlottedPair(
           route_id: input.routeId,
           label: derived.label,
           base_polyline: returnGeometry,
+          direction_kind: "return",
         })
         .returning();
     }

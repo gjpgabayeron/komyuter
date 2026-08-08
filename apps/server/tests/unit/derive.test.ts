@@ -100,6 +100,25 @@ describe("buildDerivedReturn", () => {
     expect(polyline.coordinates).toEqual([A, B, C]);
     expect(base.stops.map((s) => s.name)).toEqual(["City Hall", "Port"]);
   });
+
+  it("keeps the first stop leading when the base is a closed loop (FR-004)", () => {
+    const loopBase = {
+      label: "Loop",
+      polyline: {
+        type: "LineString" as const,
+        coordinates: [A, B, C, A],
+      },
+      stops: [stop("A", A, 1), stop("B", B, 2), stop("C", C, 3)],
+    };
+    const derived = buildDerivedReturn(loopBase);
+    // The reversed ring already starts at A, so the FIRST base stop must lead
+    // the return's stop list too — otherwise the return would appear to start
+    // at the terminus (stop C) while its polyline starts at stop A.
+    expect(derived.stops.map((s) => s.name)).toEqual(["A", "C", "B"]);
+    expect(derived.stops.map((s) => s.stop_order)).toEqual([1, 2, 3]);
+    expect(derived.polyline.coordinates).toEqual([A, C, B, A]);
+    expect(derived.label).toBe("To A");
+  });
 });
 
 describe("pathEndpointsOnStops", () => {

@@ -345,4 +345,51 @@ describe("Route plotting atomic save (FR-012/FR-027/FR-028, ADR-0008)", () => {
     const list = await listDirections(routeId);
     expect(list.json().data).toHaveLength(1);
   });
+
+  it("route detail returns the base direction first, never the derived return", async () => {
+    const routeId = await createRoute("order");
+    const res = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${routeId}/directions`,
+      headers: auth(),
+      payload: {
+        label: "To B",
+        base_polyline: { type: "LineString", coordinates: [A, B] },
+        stops: [
+          {
+            name: "Origin Stop",
+            type: "terminal",
+            location: point(A),
+            stop_order: 1,
+          },
+          {
+            name: "End Stop",
+            type: "terminal",
+            location: point(B),
+            stop_order: 2,
+          },
+        ],
+      },
+    });
+    expect(res.statusCode).toBe(201);
+
+    const detail = await app.inject({
+      method: "GET",
+      url: `/api/admin/routes/${routeId}`,
+      headers: auth(),
+    });
+    const directions = detail.json().data.directions;
+    expect(directions).toHaveLength(2);
+    // directions[0] is the admin-plotted base: its label + stop order.
+    expect(directions[0].label).toBe("To B");
+    expect(directions[0].stops.map((s: { name: string }) => s.name)).toEqual([
+      "Origin Stop",
+      "End Stop",
+    ]);
+    // The derived return is second, with the reversed sequence.
+    expect(directions[1].stops.map((s: { name: string }) => s.name)).toEqual([
+      "End Stop",
+      "Origin Stop",
+    ]);
+  });
 });

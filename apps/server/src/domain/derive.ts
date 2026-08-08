@@ -76,13 +76,31 @@ export function deriveReturnLabel(
  * and an auto-derived label. Never mutates the base input.
  */
 export function buildDerivedReturn(base: PlotBaseInput): DerivedReturn {
+  const polyline: GeoLineString = {
+    type: "LineString",
+    coordinates: reverseCoordinates(base.polyline.coordinates),
+  };
+  // Closed loop (FR-004): the base polyline ends back on its first stop, so
+  // the reversed ring already starts there. Rotate the reversed stop list so
+  // the SAME stop leads the return direction — otherwise the return's first
+  // stop would sit at the far end of its own polyline (the return would look
+  // like it starts at the terminus instead of the origin).
+  const lastCoordinate =
+    base.polyline.coordinates[base.polyline.coordinates.length - 1];
+  const isClosed =
+    base.stops.length >= 2 &&
+    coordinatesDistanceMeters(
+      lastCoordinate,
+      base.stops[0].location.coordinates,
+    ) <= ENDPOINT_TOLERANCE_METERS;
+  const reversed = [...base.stops].reverse();
+  const stopOrder = isClosed
+    ? [reversed[reversed.length - 1], ...reversed.slice(0, reversed.length - 1)]
+    : reversed;
   return {
     label: deriveReturnLabel(base.stops),
-    polyline: {
-      type: "LineString",
-      coordinates: reverseCoordinates(base.polyline.coordinates),
-    },
-    stops: [...base.stops].reverse().map((stop, index) => ({
+    polyline,
+    stops: stopOrder.map((stop, index) => ({
       ...stop,
       location: {
         type: "Point",

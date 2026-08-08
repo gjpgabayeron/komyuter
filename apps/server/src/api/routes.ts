@@ -1,4 +1,4 @@
-import { count, desc, eq } from "drizzle-orm";
+import { asc, count, desc, eq } from "drizzle-orm";
 import { createRouteSchema, updateRouteSchema } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
 import {
@@ -126,7 +126,15 @@ export async function registerRoutes(
     const directionRows = await db
       .select({ direction_id: directionsTable.direction_id })
       .from(directionsTable)
-      .where(eq(directionsTable.route_id, routeId));
+      .where(eq(directionsTable.route_id, routeId))
+      // The admin-plotted BASE direction always comes first: the derived
+      // return shares the pair's created_at (same atomic transaction), so the
+      // kind marker — not row order — decides. Legacy rows default to 'base'.
+      .orderBy(
+        asc(directionsTable.direction_kind),
+        asc(directionsTable.created_at),
+        asc(directionsTable.direction_id),
+      );
 
     const directions = await Promise.all(
       directionRows.map((d) => loadDirectionFull(db, d.direction_id)),
@@ -197,27 +205,20 @@ export async function registerRoutes(
   app.delete("/routes/:routeId", async (request) => {
     const { routeId } = request.params as { routeId: string };
 
-    const [existing] = await db
-      .select({ route_id: routesTable.route_id })
-      .from(routesTable)
+    // Hard delete: the directions → routes and stops → directions foreign keys
+    // cascade (schema.ts), so one row removal clears the route's plotted
+    // directions and stops from the database.
+    const [deleted] = await db
+      .delete(routesTable)
       .where(eq(routesTable.route_id, routeId))
-      .limit(1);
-    if (!existing) {
+      .returning({ route_id: routesTable.route_id });
+    if (!deleted) {
       throw notFound(`Route ${routeId} not found`);
     }
 
-    const [updated] = await db
-      .update(routesTable)
-      .set({ is_active: false })
-      .where(eq(routesTable.route_id, routeId))
-      .returning();
-
     return {
       success: true,
-      data: {
-        route_id: updated.route_id,
-        is_active: updated.is_active,
-      },
+      data: { route_id: deleted.route_id },
     };
   });
 }
