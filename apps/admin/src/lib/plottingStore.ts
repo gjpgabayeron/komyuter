@@ -14,7 +14,11 @@ import {
   setStopLink,
   type Connection,
 } from "./connections";
-import { polylineClosesOn } from "./coords";
+import {
+  coordsDistanceMeters,
+  LOOP_CLOSE_TOLERANCE_METERS,
+  polylineClosesOn,
+} from "./coords";
 import type { DraftDraft } from "./draft";
 import {
   coalesceDragEntry,
@@ -317,152 +321,509 @@ export interface PlottingState {
   reset: () => void;
 }
 
-export const usePlottingStore = create<PlottingState>((set, get) => ({
-  routeId: null,
-  directionId: null,
-  tool: "select",
-  poi: null,
-  routeMeta: null,
-  connections: [],
-  draftDirty: false,
-  saving: false,
-  overviewRouteId: null,
-  fitCounter: 0,
-  stops: [],
-  polyline: null,
-  snap: {
-    status: "idle",
-    polyline: null,
-    distanceMeters: null,
-    snapped: false,
-    warning: null,
-  },
-  selection: clearSelection,
-  layers: DEFAULT_LAYERS,
-  history: emptyHistory(),
-  savedBaseline: null,
-  pathStopIds: null,
+export const usePlottingStore = create<PlottingState>((set, get) => {
+  // The in-flight snap promise (if any), so a save can await the commit.
+  let inFlightSnap: Promise<void> | null = null;
 
-  setRouteId: (routeId) => set({ routeId }),
-  setDirectionId: (directionId) => set({ directionId }),
-  setTool: (tool) => set({ tool }),
-  setPoi: (poi) => set({ poi }),
-  setRouteMeta: (patch) =>
-    // Initialize-or-merge: the first patch after opening a route creates the
-    // draft from the loaded route; later patches update it in place.
-    set((state) => ({
-      routeMeta: { ...(state.routeMeta ?? EMPTY_ROUTE_META), ...patch },
-    })),
-  setDraftDirty: (draftDirty) => set({ draftDirty }),
-  setSaving: (saving) => set({ saving }),
-  setOverviewRouteId: (overviewRouteId) => set({ overviewRouteId }),
-
-  openRoute: (routeId) => {
-    // No request from the previous route may land on this one.
-    cancelPendingSnap();
-    snapGeneration += 1;
-    lastEditEntry = null;
+  /** Runs one snap request for `generation`; auto-commits on success. */
+  const runSnapRequest = (generation: number): Promise<void> => {
+    const current = get();
     set({
-      routeId,
-      directionId: null,
-      stops: [],
-      polyline: null,
       snap: {
-        status: "idle",
+        status: "pending",
         polyline: null,
         distanceMeters: null,
         snapped: false,
         warning: null,
       },
-      selection: clearSelection,
-      tool: "select",
-      poi: null,
-      routeMeta: null,
-      connections: [],
-      draftDirty: false,
-      saving: false,
-      overviewRouteId: null,
-      history: emptyHistory(),
-      savedBaseline: null,
     });
-    if (routeId !== null) {
-      get().requestFit();
+    // The road path follows the CHAIN order (which for the default
+    // consecutive chain equals placement order). Custom chains from the
+    // connected-from/to dropdowns re-route the path; stops disconnected
+    // (None) drop off the snapped path. Loop closure re-appends the start
+    // when the chain is closed, the last stop sits near the first, or the
+    // committed path already closes.
+    const chain = pathFromConnections(current.connections, current.stops);
+    // A corrupt/legacy draft (localStorage) can carry a connection endpoint
+    // that no longer exists in `stops` — never throw on the lookup below;
+    // drop unknown ids and fall back to placement order if the chain shrinks
+    // below two stops.
+    const chainIds =
+      chain.stopIds.length >= 2
+        ? chain.stopIds.filter((id) =>
+            current.stops.some((stop) => stop.id === id),
+          )
+        : [];
+    // The chain is unusable when it is too short OR the corrupt-draft filter
+    // dropped it below two stops — fall back to placement order either way.
+    const waypointIds =
+      chainIds.length >= 2 ? chainIds : current.stops.map((stop) => stop.id);
+    const coordinates = waypointIds
+      .map((id) => current.stops.find((stop) => stop.id === id)?.location)
+      .filter((loc): loc is [number, number] => loc !== undefined);
+    const first = coordinates[0];
+    const last = coordinates[coordinates.length - 1];
+    // Loop closure re-appends the start ONLY when the chain itself is closed,
+    // the committed path still loops AND is trusted (pathStopIds is nulled by
+    // disconnects — a stale looping polyline must NOT re-close a loop the
+    // admin just opened), or the admin just PLACED a stop near the first
+    // (placement intent). A connection edit (None/rewire) never re-closes:
+    // the chain is the source of truth after a disconnect.
+    const trustedClosed =
+      current.pathStopIds !== null &&
+      first !== undefined &&
+      polylineClosesOn(current.polyline, first);
+    const closingIntent =
+      lastEditEntry !== null &&
+      lastEditEntry.kind === "stop_placed" &&
+      last !== undefined &&
+      first !== undefined &&
+      coordsDistanceMeters(last, first) <= LOOP_CLOSE_TOLERANCE_METERS;
+    if (
+      coordinates.length >= 3 &&
+      (chain.closed || trustedClosed || closingIntent)
+    ) {
+      coordinates.push(coordinates[0]);
     }
-  },
+    const promise = snapFetcher!(coordinates)
+      .then((result) => {
+        if (generation !== snapGeneration) return; // superseded by a newer request
+        if (result.snapped && result.polyline) {
+          // Auto-commit: a road-snapped path becomes the draft immediately
+          // (no Apply step). It MERGES into the history entry of the stop
+          // edit that triggered the request, so ONE undo reverts the whole
+          // edit (stop AND path) to the exact previous state. A commit that
+          // matches the current path is a no-op (no entry, no re-set).
+          const { polyline, history, pathStopIds } = get();
+          const snapStopIds = waypointIds;
+          const samePath =
+            polyline !== null &&
+            pathStopIds !== null &&
+            pathStopIds.length === snapStopIds.length &&
+            pathStopIds.every((id, i) => id === snapStopIds[i]) &&
+            polyline.coordinates.length ===
+              result.polyline.coordinates.length &&
+            polyline.coordinates.every((coord, i) => {
+              const base = result.polyline!.coordinates[i];
+              return coord[0] === base[0] && coord[1] === base[1];
+            });
+          const lastEntry = history.past[history.past.length - 1];
+          const mergeable =
+            !samePath &&
+            lastEditEntry !== null &&
+            lastEntry === lastEditEntry &&
+            (lastEntry.kind === "stop_placed" ||
+              lastEntry.kind === "stop_deleted" ||
+              lastEntry.kind === "stop_dragged" ||
+              lastEntry.kind === "stop_props_changed") &&
+            lastEntry.path === undefined;
+          set({
+            polyline: samePath ? polyline : result.polyline,
+            pathStopIds: snapStopIds,
+            draftDirty: true,
+            history: samePath
+              ? history
+              : mergeable
+                ? {
+                    past: [
+                      ...history.past.slice(0, -1),
+                      {
+                        ...lastEntry,
+                        path: result.polyline,
+                        // Edits that already capture their pre-edit path or
+                        // association (connection dropdowns) keep them;
+                        // others take the commit-time values (which equal
+                        // the pre-edit ones for stop edits). `undefined`
+                        // falls back; an explicit `null` is preserved.
+                        previousPath:
+                          lastEntry.previousPath !== undefined
+                            ? lastEntry.previousPath
+                            : polyline,
+                        stops: snapStopIds,
+                        previousStops: lastEntry.previousStops ?? pathStopIds,
+                      },
+                    ],
+                    future: [],
+                  }
+                : pushHistory(history, {
+                    kind: "snap_applied",
+                    previous: polyline,
+                    applied: result.polyline,
+                    stops: snapStopIds,
+                    previousStops: pathStopIds,
+                  }),
+            snap: {
+              status: "applied",
+              polyline: result.polyline,
+              distanceMeters: result.distanceMeters,
+              snapped: true,
+              warning: null,
+            },
+          });
+          if (mergeable) lastEditEntry = null; // the entry consumed the merge
+          return;
+        }
+        // Straight-line fallback (no token / upstream error): warn but
+        // NEVER commit it as route data (FR-009).
+        set({
+          snap: {
+            status: "idle",
+            polyline: null,
+            distanceMeters: null,
+            snapped: false,
+            warning: result.warning,
+          },
+        });
+      })
+      .catch(() => {
+        if (generation !== snapGeneration) return;
+        set({
+          snap: {
+            status: "idle",
+            polyline: null,
+            distanceMeters: null,
+            snapped: false,
+            warning: "upstream_error",
+          },
+        });
+      });
 
-  // Stop property dropdowns: force the predecessor ('connected from') and/or
-  // successor ('connected to') via the chain-aware setStopLink — edges are
-  // replaced, never toggled, and the draft polyline re-derives immediately.
-  setStopLinks: (stopId, patch) => {
-    const { connections, stops, polyline, pathStopIds } = get();
-    // Capture the pre-edit chain and path/association — the undo entry
-    // restores them exactly (including a truthful pathStopIds so a restored
-    // road path never false-blocks the save guard).
-    const connectionsBefore = connections.map((c) => ({ ...c }));
-    const previousPath = polyline;
-    const previousStops = pathStopIds;
-    let next = connections;
-    const applySide = (side: "from" | "to", otherId: string | null) => {
-      const path = pathFromConnections(next, stops);
-      const index = path.stopIds.indexOf(stopId);
-      const last = path.stopIds.length - 1;
-      // Closed loops (FR-004) wrap around: the first stop's predecessor is the
-      // last stop and vice versa, so the dropdowns stay in sync with the loop.
-      const closed = path.closed && path.stopIds.length >= 3;
-      const currentFrom =
-        closed && index === 0
-          ? path.stopIds[last]
-          : index > 0
-            ? path.stopIds[index - 1]
-            : null;
-      const currentTo =
-        closed && index === last
-          ? path.stopIds[0]
-          : index >= 0 && index < last
-            ? path.stopIds[index + 1]
-            : null;
-      next = setStopLink(next, stopId, side, otherId, currentFrom, currentTo);
-    };
-    if (patch.from !== undefined) applySide("from", patch.from);
-    if (patch.to !== undefined) applySide("to", patch.to);
-    // A re-selection of the current value is a no-op — skip the history entry,
-    // the association nulling, and the re-snap.
-    const changed =
-      next.length !== connections.length ||
-      next.some((edge, i) => edge.id !== connections[i]?.id);
-    if (!changed) return;
-    const derived = pathFromConnections(next, stops);
-    const removed = next.length < connections.length;
-    const connectionsAfter = next.map((c) => ({ ...c }));
-    // The dropdown is a deliberate structural edit — redraw the polyline
-    // immediately so the map reflects the new stop linkage in real time.
-    // The derived straight line is NOT a snapped path: null the association
-    // so Save blocks until the snap re-derives a truthful pathStopIds.
-    set((state) => ({
-      connections: next,
-      polyline: derived.polyline,
-      pathStopIds: null,
-      draftDirty: true,
-      // Undoable edit: the connection change is a stop_props_changed entry
-      // (connection variant) carrying the chain before/after and the pre-edit
-      // path + association, so the snap result merges into it and ONE undo
-      // restores the previous connection relationship AND its road path.
-      history: pushHistory(state.history, {
-        kind: "stop_props_changed",
-        stopId,
-        before: {},
-        after: {},
-        connectionsBefore,
-        connectionsAfter,
-        previousPath,
-        previousStops,
-      }),
-    }));
-    // This edit owns the next snap result (merges into this entry).
-    lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
-    if (removed) {
+    inFlightSnap = promise;
+    void promise.then(
+      () => {
+        if (inFlightSnap === promise) inFlightSnap = null;
+      },
+      () => {
+        if (inFlightSnap === promise) inFlightSnap = null;
+      },
+    );
+    return promise;
+  };
+
+  return {
+    routeId: null,
+    directionId: null,
+    tool: "select",
+    poi: null,
+    routeMeta: null,
+    connections: [],
+    draftDirty: false,
+    saving: false,
+    overviewRouteId: null,
+    fitCounter: 0,
+    stops: [],
+    polyline: null,
+    snap: {
+      status: "idle",
+      polyline: null,
+      distanceMeters: null,
+      snapped: false,
+      warning: null,
+    },
+    selection: clearSelection,
+    layers: DEFAULT_LAYERS,
+    history: emptyHistory(),
+    savedBaseline: null,
+    pathStopIds: null,
+
+    setRouteId: (routeId) => set({ routeId }),
+    setDirectionId: (directionId) => set({ directionId }),
+    setTool: (tool) => set({ tool }),
+    setPoi: (poi) => set({ poi }),
+    setRouteMeta: (patch) =>
+      // Initialize-or-merge: the first patch after opening a route creates the
+      // draft from the loaded route; later patches update it in place.
+      set((state) => ({
+        routeMeta: { ...(state.routeMeta ?? EMPTY_ROUTE_META), ...patch },
+      })),
+    setDraftDirty: (draftDirty) => set({ draftDirty }),
+    setSaving: (saving) => set({ saving }),
+    setOverviewRouteId: (overviewRouteId) => set({ overviewRouteId }),
+
+    openRoute: (routeId) => {
+      // No request from the previous route may land on this one.
       cancelPendingSnap();
-      snapGeneration += 1; // invalidate any in-flight fetch too
+      snapGeneration += 1;
+      lastEditEntry = null;
+      set({
+        routeId,
+        directionId: null,
+        stops: [],
+        polyline: null,
+        snap: {
+          status: "idle",
+          polyline: null,
+          distanceMeters: null,
+          snapped: false,
+          warning: null,
+        },
+        selection: clearSelection,
+        tool: "select",
+        poi: null,
+        routeMeta: null,
+        connections: [],
+        draftDirty: false,
+        saving: false,
+        overviewRouteId: null,
+        history: emptyHistory(),
+        savedBaseline: null,
+      });
+      if (routeId !== null) {
+        get().requestFit();
+      }
+    },
+
+    // Stop property dropdowns: force the predecessor ('connected from') and/or
+    // successor ('connected to') via the chain-aware setStopLink — edges are
+    // replaced, never toggled, and the draft polyline re-derives immediately.
+    setStopLinks: (stopId, patch) => {
+      const { connections, stops, polyline, pathStopIds } = get();
+      // Capture the pre-edit chain and path/association — the undo entry
+      // restores them exactly (including a truthful pathStopIds so a restored
+      // road path never false-blocks the save guard).
+      const connectionsBefore = connections.map((c) => ({ ...c }));
+      const previousPath = polyline;
+      const previousStops = pathStopIds;
+      let next = connections;
+      const applySide = (side: "from" | "to", otherId: string | null) => {
+        const path = pathFromConnections(next, stops);
+        const index = path.stopIds.indexOf(stopId);
+        const last = path.stopIds.length - 1;
+        // Closed loops (FR-004) wrap around: the first stop's predecessor is the
+        // last stop and vice versa, so the dropdowns stay in sync with the loop.
+        const closed = path.closed && path.stopIds.length >= 3;
+        const currentFrom =
+          closed && index === 0
+            ? path.stopIds[last]
+            : index > 0
+              ? path.stopIds[index - 1]
+              : // 2-cycle fallback: the chain walk needs >=3 stops to report a
+                // closure, so a 2-stop loop looks "open" here. Edge lookup
+                // still finds the reverse edge so "Connected from = None"
+                // clears it instead of being a silent no-op. Side-matched:
+                // only the INCOMING edge counts as the "from" neighbor.
+                (next.find((e) => e.to === stopId)?.from ?? null);
+        const currentTo =
+          closed && index === last
+            ? path.stopIds[0]
+            : index >= 0 && index < last
+              ? path.stopIds[index + 1]
+              : // 2-cycle fallback (side-matched: only the OUTGOING edge
+                // counts as the "to" neighbor — the incoming edge belongs to
+                // the stop's "from" side).
+                (next.find((e) => e.from === stopId)?.to ?? null);
+        next = setStopLink(next, stopId, side, otherId, currentFrom, currentTo);
+      };
+      if (patch.from !== undefined) applySide("from", patch.from);
+      if (patch.to !== undefined) applySide("to", patch.to);
+      // A re-selection of the current value is a no-op — skip the history entry,
+      // the association nulling, and the re-snap.
+      const changed =
+        next.length !== connections.length ||
+        next.some((edge, i) => edge.id !== connections[i]?.id);
+      if (!changed) return;
+      const connectionsAfter = next.map((c) => ({ ...c }));
+      // Structural edit: update the chain, but NEVER replace the committed
+      // road-snapped path with the straight derived line. The association is
+      // nulled (the old path no longer matches the new chain) and a re-snap is
+      // requested so the road path re-derives for the new chain; if the snap
+      // fails, the previous road geometry is preserved instead of degrading to
+      // straight lines (loop/None bug). The undo entry keeps the pre-edit road
+      // path, so one undo restores it exactly.
+      set((state) => ({
+        connections: next,
+        pathStopIds: null,
+        draftDirty: true,
+        history: pushHistory(state.history, {
+          kind: "stop_props_changed",
+          stopId,
+          before: {},
+          after: {},
+          connectionsBefore,
+          connectionsAfter,
+          previousPath,
+          previousStops,
+        }),
+      }));
+      // This edit owns the next snap result (merges into this entry).
+      lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
+      // Always re-derive the road path for the new chain — including after a
+      // disconnection (None), where the old code cancelled the snap and left
+      // the straight line behind.
+      get().requestSnapPreview();
+    },
+
+    // Insert a stop directly after an existing one (e.g. between two stops of
+    // the route). The stop sequence auto-reorders, the chain is re-linked, and
+    // the new stop becomes the selection so it can be dragged into place.
+    insertStopBetween: (anchorStopId, location, name) => {
+      const { stops } = get();
+      const index = stops.findIndex((s) => s.id === anchorStopId);
+      if (index === -1) return;
+      const stopId = crypto.randomUUID();
+      const stop: DraftStop = {
+        id: stopId,
+        name:
+          (name?.trim() || `Stop ${stops.length + 1}`) ??
+          `Stop ${stops.length + 1}`,
+        type: "waiting_area",
+        location,
+      };
+      const nextStops = [
+        ...stops.slice(0, index + 1),
+        stop,
+        ...stops.slice(index + 1),
+      ];
+      // Single-mode plotting: the chain is always the consecutive stop pairs.
+      const nextConnections = connectionsFromStops(nextStops, get().polyline);
+      const derived = pathFromConnections(nextConnections, nextStops);
+      set((state) => ({
+        stops: nextStops,
+        connections: nextConnections,
+        polyline: get().polyline ?? derived.polyline,
+        selection: { type: "stop", stopId },
+        poi: null,
+        draftDirty: true,
+        // An inserted stop is a placement — undoable (FR-013).
+        history: pushHistory(state.history, {
+          kind: "stop_placed",
+          stop,
+          index: index + 1,
+        }),
+      }));
+      cancelPendingSnap();
+      // This edit owns the next snap result (merges into its entry).
+      lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
+      get().requestSnapPreview();
+    },
+
+    requestFit: () => set((state) => ({ fitCounter: state.fitCounter + 1 })),
+
+    addStop: (location, name, type = "waiting_area") => {
+      set((state) => {
+        const stop: DraftStop = {
+          id: crypto.randomUUID(),
+          // Auto-default name "Stop N" in placement order (FR-028), editable later.
+          name:
+            name && name.trim().length > 0
+              ? name.trim()
+              : `Stop ${state.stops.length + 1}`,
+          type,
+          location,
+        };
+        const nextStops = [...state.stops, stop];
+        // Preserve the existing chain: append the new stop after the chain's
+        // LAST stop (breaking + re-closing the loop edge for closed routes)
+        // instead of rebuilding consecutive pairs — a rebuild would silently
+        // wipe a custom connected-from/to chain (the "values revert on the
+        // next edit" bug). For the default consecutive chain the result is
+        // identical to the old rebuild.
+        const chain = pathFromConnections(state.connections, state.stops);
+        // The chain's last stop — or, before the first edge exists (first two
+        // placements), the placement-order last stop so the first link is made.
+        const lastId =
+          chain.stopIds.length >= 2
+            ? chain.stopIds[chain.stopIds.length - 1]
+            : state.stops[state.stops.length - 1]?.id;
+        const firstId = chain.stopIds[0];
+        let connections = state.connections;
+        if (lastId) {
+          const closing = connections.find(
+            (c) => c.from === lastId && c.to === firstId,
+          );
+          if (closing) {
+            connections = connections.filter((c) => c.id !== closing.id);
+          }
+          connections = [
+            ...connections,
+            { id: edgeId(lastId, stop.id), from: lastId, to: stop.id },
+          ];
+          if (closing && firstId) {
+            connections = [
+              ...connections,
+              { id: edgeId(stop.id, firstId), from: stop.id, to: firstId },
+            ];
+          }
+        }
+        return {
+          stops: nextStops,
+          connections,
+          poi: null, // placing a route point dismisses the temporary POI marker
+          draftDirty: true,
+          // Undoable edit (FR-013): stop_placed (undo restores the exact
+          // pre-append chain).
+          history: pushHistory(state.history, {
+            kind: "stop_placed",
+            stop,
+            index: state.stops.length,
+            connectionsBefore: state.connections,
+            connectionsAfter: connections,
+          }),
+        };
+      });
+      // This edit owns the next snap result — it merges into this entry.
+      lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
+      if (get().stops.length >= 2) {
+        get().requestSnapPreview();
+      }
+    },
+    removeStop: (stopId) => {
+      const removedStop = get().stops.find((stop) => stop.id === stopId);
+      set((state) => {
+        const nextStops = state.stops.filter((stop) => stop.id !== stopId);
+        const removed = removedStop;
+        // Preserve the existing chain: drop the removed stop's edges and
+        // reconnect its predecessor→successor (skip it) instead of rebuilding
+        // consecutive pairs — a rebuild would wipe a custom connected-from/to
+        // chain. End removals leave an open chain (the re-snap re-derives);
+        // middle removals keep the closure edge intact.
+        const chain = pathFromConnections(state.connections, state.stops);
+        const index = chain.stopIds.indexOf(stopId);
+        const prevId = index > 0 ? chain.stopIds[index - 1] : null;
+        // In a closed chain the last stop's successor is the FIRST stop —
+        // removing the last stop re-closes prev→first (matches the old
+        // consecutive rebuild; keeps chain and path loop-consistent).
+        const nextId =
+          index >= 0 && index < chain.stopIds.length - 1
+            ? chain.stopIds[index + 1]
+            : chain.closed && index === chain.stopIds.length - 1
+              ? chain.stopIds[0]
+              : null;
+        let connections = state.connections.filter(
+          (c) => c.from !== stopId && c.to !== stopId,
+        );
+        if (prevId && nextId) {
+          connections = [
+            ...connections,
+            { id: edgeId(prevId, nextId), from: prevId, to: nextId },
+          ];
+        }
+        return {
+          stops: nextStops,
+          connections,
+          selection:
+            state.selection.type === "stop" && state.selection.stopId === stopId
+              ? clearSelection
+              : state.selection,
+          draftDirty: true,
+          // Undoable edit (FR-013): stop_deleted (undo restores the exact
+          // pre-removal chain).
+          history: removed
+            ? pushHistory(state.history, {
+                kind: "stop_deleted",
+                stop: removed,
+                index: state.stops.indexOf(removed),
+                edges: state.connections.filter(
+                  (c) => c.from === stopId || c.to === stopId,
+                ),
+                connectionsBefore: state.connections,
+                connectionsAfter: connections,
+              })
+            : state.history,
+        };
+      });
+      // A stale preview no longer matches the new stop sequence.
+      cancelPendingSnap();
       set({
         snap: {
           status: "idle",
@@ -472,569 +833,340 @@ export const usePlottingStore = create<PlottingState>((set, get) => ({
           warning: null,
         },
       });
-    } else {
+      // This edit owns the next snap result (merges into its entry).
+      lastEditEntry = removedStop
+        ? (get().history.past[get().history.past.length - 1] ?? null)
+        : null;
+      // The re-established road path follows the new stop sequence.
       get().requestSnapPreview();
-    }
-  },
-
-  // Insert a stop directly after an existing one (e.g. between two stops of
-  // the route). The stop sequence auto-reorders, the chain is re-linked, and
-  // the new stop becomes the selection so it can be dragged into place.
-  insertStopBetween: (anchorStopId, location, name) => {
-    const { stops } = get();
-    const index = stops.findIndex((s) => s.id === anchorStopId);
-    if (index === -1) return;
-    const stopId = crypto.randomUUID();
-    const stop: DraftStop = {
-      id: stopId,
-      name:
-        (name?.trim() || `Stop ${stops.length + 1}`) ??
-        `Stop ${stops.length + 1}`,
-      type: "waiting_area",
-      location,
-    };
-    const nextStops = [
-      ...stops.slice(0, index + 1),
-      stop,
-      ...stops.slice(index + 1),
-    ];
-    // Single-mode plotting: the chain is always the consecutive stop pairs.
-    const nextConnections = connectionsFromStops(nextStops, get().polyline);
-    const derived = pathFromConnections(nextConnections, nextStops);
-    set((state) => ({
-      stops: nextStops,
-      connections: nextConnections,
-      polyline: get().polyline ?? derived.polyline,
-      selection: { type: "stop", stopId },
-      poi: null,
-      draftDirty: true,
-      // An inserted stop is a placement — undoable (FR-013).
-      history: pushHistory(state.history, {
-        kind: "stop_placed",
-        stop,
-        index: index + 1,
-      }),
-    }));
-    cancelPendingSnap();
-    // This edit owns the next snap result (merges into its entry).
-    lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
-    get().requestSnapPreview();
-  },
-
-  requestFit: () => set((state) => ({ fitCounter: state.fitCounter + 1 })),
-
-  addStop: (location, name, type = "waiting_area") => {
-    set((state) => {
-      const stop: DraftStop = {
-        id: crypto.randomUUID(),
-        // Auto-default name "Stop N" in placement order (FR-028), editable later.
-        name:
-          name && name.trim().length > 0
-            ? name.trim()
-            : `Stop ${state.stops.length + 1}`,
-        type,
-        location,
-      };
-      const nextStops = [...state.stops, stop];
-      return {
-        stops: nextStops,
-        // The chain stays in sync with placement order so the "connected
-        // from/to" properties stay live.
-        connections:
-          state.stops.length === 0
-            ? state.connections
-            : [
-                ...state.connections,
-                {
-                  id: edgeId(state.stops[state.stops.length - 1].id, stop.id),
-                  from: state.stops[state.stops.length - 1].id,
-                  to: stop.id,
-                },
-              ],
-        poi: null, // placing a route point dismisses the temporary POI marker
-        draftDirty: true,
-        // Undoable edit (FR-013): stop_placed.
-        history: pushHistory(state.history, {
-          kind: "stop_placed",
-          stop,
-          index: state.stops.length,
-        }),
-      };
-    });
-    // This edit owns the next snap result — it merges into this entry.
-    lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
-    if (get().stops.length >= 2) {
-      get().requestSnapPreview();
-    }
-  },
-  removeStop: (stopId) => {
-    const removedStop = get().stops.find((stop) => stop.id === stopId);
-    set((state) => {
-      const nextStops = state.stops.filter((stop) => stop.id !== stopId);
-      const removed = state.stops.find((stop) => stop.id === stopId);
-      return {
-        stops: nextStops,
-        // The chain stays consecutive after the removal.
-        connections: connectionsFromStops(nextStops, state.polyline),
-        selection:
-          state.selection.type === "stop" && state.selection.stopId === stopId
-            ? clearSelection
-            : state.selection,
-        draftDirty: true,
-        // Undoable edit (FR-013): stop_deleted (undo reconnects + restores).
-        history: removed
-          ? pushHistory(state.history, {
-              kind: "stop_deleted",
-              stop: removed,
-              index: state.stops.indexOf(removed),
-              edges: state.connections.filter(
-                (c) => c.from === stopId || c.to === stopId,
-              ),
-            })
-          : state.history,
-      };
-    });
-    // A stale preview no longer matches the new stop sequence.
-    cancelPendingSnap();
-    set({
-      snap: {
-        status: "idle",
-        polyline: null,
-        distanceMeters: null,
-        snapped: false,
-        warning: null,
-      },
-    });
-    // This edit owns the next snap result (merges into its entry).
-    lastEditEntry = removedStop
-      ? (get().history.past[get().history.past.length - 1] ?? null)
-      : null;
-    // The re-established road path follows the new stop sequence.
-    get().requestSnapPreview();
-  },
-  updateStop: (stopId, patch) => {
-    const previous = get().stops.find((stop) => stop.id === stopId);
-    const { location, ...props } = patch;
-    // Capture the OLD values of the changed non-location attributes so the
-    // undo entry can restore them exactly.
-    const propsBefore = {} as StopPropsPatch;
-    for (const key of Object.keys(props) as (keyof StopPropsPatch)[]) {
-      (propsBefore as Record<string, unknown>)[key] = previous?.[key];
-    }
-    const hasProps = Object.keys(propsBefore).length > 0;
-    const dragged = Boolean(
-      location &&
-      previous &&
-      (previous.location[0] !== location[0] ||
-        previous.location[1] !== location[1]),
-    );
-    set((state) => {
-      let history = state.history;
-      // Property edits are coalesced per stop (per-keystroke inputs must not
-      // flood the stack); location edits coalesce too (coordinate inputs).
-      if (hasProps) {
-        history = coalescePropsEntry(history, {
-          kind: "stop_props_changed",
-          stopId,
-          before: propsBefore,
-          after: props as StopPropsPatch,
-        });
+    },
+    updateStop: (stopId, patch) => {
+      const previous = get().stops.find((stop) => stop.id === stopId);
+      const { location, ...props } = patch;
+      // Capture the OLD values of the changed non-location attributes so the
+      // undo entry can restore them exactly.
+      const propsBefore = {} as StopPropsPatch;
+      for (const key of Object.keys(props) as (keyof StopPropsPatch)[]) {
+        (propsBefore as Record<string, unknown>)[key] = previous?.[key];
       }
+      const hasProps = Object.keys(propsBefore).length > 0;
+      const dragged = Boolean(
+        location &&
+        previous &&
+        (previous.location[0] !== location[0] ||
+          previous.location[1] !== location[1]),
+      );
+      set((state) => {
+        let history = state.history;
+        // Property edits are coalesced per stop (per-keystroke inputs must not
+        // flood the stack); location edits coalesce too (coordinate inputs).
+        if (hasProps) {
+          history = coalescePropsEntry(history, {
+            kind: "stop_props_changed",
+            stopId,
+            before: propsBefore,
+            after: props as StopPropsPatch,
+          });
+        }
+        if (dragged) {
+          history = coalesceDragEntry(history, {
+            kind: "stop_dragged",
+            stopId,
+            from: previous!.location,
+            to: location!,
+          });
+        }
+        return {
+          stops: state.stops.map((stop) =>
+            stop.id === stopId ? { ...stop, ...patch } : stop,
+          ),
+          draftDirty: true,
+          history,
+        };
+      });
+      // This edit owns the next snap result (merges into its entry). A
+      // name/type/notes-only edit leaves any pending merge target alone — it
+      // neither pushes history nor triggers a snap.
       if (dragged) {
-        history = coalesceDragEntry(history, {
-          kind: "stop_dragged",
-          stopId,
-          from: previous!.location,
-          to: location!,
-        });
+        lastEditEntry =
+          get().history.past[get().history.past.length - 1] ?? null;
       }
-      return {
-        stops: state.stops.map((stop) =>
-          stop.id === stopId ? { ...stop, ...patch } : stop,
-        ),
-        draftDirty: true,
-        history,
-      };
-    });
-    // This edit owns the next snap result (merges into its entry). A
-    // name/type/notes-only edit leaves any pending merge target alone — it
-    // neither pushes history nor triggers a snap.
-    if (dragged) {
-      lastEditEntry = get().history.past[get().history.past.length - 1] ?? null;
-    }
-    if (patch.location) {
-      get().requestSnapPreview();
-    }
-  },
-  moveStop: (stopId, location) => get().updateStop(stopId, { location }),
-  reorderStop: (fromIndex, toIndex) => {
-    if (fromIndex === toIndex) return;
-    const nextStops = reorderStops(get().stops, fromIndex, toIndex);
-    set({
-      stops: nextStops,
-      // The chain stays in sync with the new placement order.
-      connections: connectionsFromStops(nextStops, get().polyline),
-      draftDirty: true,
-    });
-    // Reorder has no history entry — its snap result stays a plain
-    // snap_applied entry, never merged.
-    lastEditEntry = null;
-    get().requestSnapPreview();
-  },
-  setStops: (stops, polyline?: GeoLineString | null) =>
-    set((state) => ({
-      stops,
-      // The provided path IS the draft: when a caller loads a saved route
-      // with its polyline, the committed line must render immediately —
-      // never wait for a separate setPolyline call (which is how an edit
-      // view could show no line until a preview re-triggers a draw).
-      polyline: polyline === undefined ? state.polyline : polyline,
-      // Seed the chain from the loaded path (consecutive pairs); a loop route
-      // (FR-004) closes the chain when its polyline ends on the first stop.
-      connections: connectionsFromStops(stops, polyline),
-      // A loaded path was derived for these stops.
-      pathStopIds:
-        polyline === undefined ? state.pathStopIds : stops.map((s) => s.id),
-    })),
-  setPolyline: (polyline) => set({ polyline }),
-  setSnap: (snap) => set((state) => ({ snap: { ...state.snap, ...snap } })),
-  setSelection: (selection) => set({ selection, poi: null }), // selecting a stop dismisses the POI marker
-  setLayers: (layers) =>
-    set((state) => ({ layers: { ...state.layers, ...layers } })),
-
-  requestSnapPreview: () => {
-    const { stops } = get();
-    // Bump BEFORE the early returns: any edit that calls this invalidates an
-    // in-flight fetch, even when no new request can fire (e.g. removing the
-    // second-to-last stop) — a stale response must never auto-commit.
-    snapGeneration += 1;
-    if (stops.length < 2 || !snapFetcher) return;
-    if (snapTimer) {
-      clearTimeout(snapTimer);
-      snapTimer = null;
-    }
-    const generation = snapGeneration;
-    snapTimer = setTimeout(() => {
-      snapTimer = null;
-      const current = get();
+      if (patch.location) {
+        get().requestSnapPreview();
+      }
+    },
+    moveStop: (stopId, location) => get().updateStop(stopId, { location }),
+    reorderStop: (fromIndex, toIndex) => {
+      if (fromIndex === toIndex) return;
+      const nextStops = reorderStops(get().stops, fromIndex, toIndex);
       set({
+        stops: nextStops,
+        // The chain stays in sync with the new placement order.
+        connections: connectionsFromStops(nextStops, get().polyline),
+        draftDirty: true,
+      });
+      // Reorder has no history entry — its snap result stays a plain
+      // snap_applied entry, never merged.
+      lastEditEntry = null;
+      get().requestSnapPreview();
+    },
+    setStops: (stops, polyline?: GeoLineString | null) =>
+      set((state) => ({
+        stops,
+        // The provided path IS the draft: when a caller loads a saved route
+        // with its polyline, the committed line must render immediately —
+        // never wait for a separate setPolyline call (which is how an edit
+        // view could show no line until a preview re-triggers a draw).
+        polyline: polyline === undefined ? state.polyline : polyline,
+        // Seed the chain from the loaded path (consecutive pairs); a loop route
+        // (FR-004) closes the chain when its polyline ends on the first stop.
+        connections: connectionsFromStops(stops, polyline),
+        // A loaded path was derived for these stops.
+        pathStopIds:
+          polyline === undefined ? state.pathStopIds : stops.map((s) => s.id),
+      })),
+    setPolyline: (polyline) => set({ polyline }),
+    setSnap: (snap) => set((state) => ({ snap: { ...state.snap, ...snap } })),
+    setSelection: (selection) => set({ selection, poi: null }), // selecting a stop dismisses the POI marker
+    setLayers: (layers) =>
+      set((state) => ({ layers: { ...state.layers, ...layers } })),
+
+    requestSnapPreview: () => {
+      const { stops } = get();
+      // Bump BEFORE the early returns: any edit that calls this invalidates an
+      // in-flight fetch, even when no new request can fire (e.g. removing the
+      // second-to-last stop) — a stale response must never auto-commit.
+      snapGeneration += 1;
+      if (stops.length < 2 || !snapFetcher) return;
+      if (snapTimer) {
+        clearTimeout(snapTimer);
+        snapTimer = null;
+      }
+      const generation = snapGeneration;
+      snapTimer = setTimeout(() => {
+        snapTimer = null;
+        void runSnapRequest(generation);
+      }, SNAP_DEBOUNCE_MS);
+    },
+
+    resolvePendingSnap: async () => {
+      // A pending (debounced) request is fired NOW and awaited so the save sees
+      // the road path + association the edit produced — cancelling it (as the
+      // old code did) left the draft out of sync and blocked the save. An
+      // in-flight request is settled by the generation guard (and, being
+      // road-snapped, already auto-committed); awaiting it waits for that commit.
+      if (snapTimer) {
+        clearTimeout(snapTimer);
+        snapTimer = null;
+        await runSnapRequest(snapGeneration);
+      } else if (inFlightSnap) {
+        await inFlightSnap;
+      }
+      return get().snap;
+    },
+
+    undo: () => {
+      const state = get();
+      const entry = state.history.past[state.history.past.length - 1];
+      if (!entry) return;
+      lastEditEntry = null; // undoing orphans any pending merge target
+      const selection = state.selection;
+      const next = undoChanges(entry, {
+        stops: state.stops,
+        connections: state.connections,
+        polyline: state.polyline,
+      });
+      // A pending snap refers to the pre-undo stop set — invalidate it (bump
+      // the generation so an in-flight fetch can't auto-commit a stale path).
+      // The restored entries carry the exact path, so no re-request is needed
+      // (re-requesting would auto-commit and re-feed the history stack).
+      cancelPendingSnap();
+      snapGeneration += 1;
+      set({
+        ...next,
+        // Undo that lands exactly on the saved baseline clears the unsaved
+        // state (save button hides); otherwise the draft stays dirty.
+        draftDirty: !draftMatchesBaseline(
+          next.stops,
+          next.polyline,
+          get().savedBaseline,
+        ),
+        selection:
+          selection.type === "stop" &&
+          !next.stops.some((s) => s.id === selection.stopId)
+            ? clearSelection
+            : selection,
+        history: {
+          past: state.history.past.slice(0, -1),
+          future: [...state.history.future, entry],
+        },
+        // A snap (or merged edit) undo restores the path AND the stop set it
+        // was derived for (its predecessor's association), so a stale path
+        // can't pass the save guard; other entries leave the association alone.
+        // `undefined` (old-format entries) falls back to the current value;
+        // an explicit `null` (first commit, no prior path) stays truthful.
+        pathStopIds:
+          entry.kind === "snap_applied" || entry.previousStops !== undefined
+            ? entry.previousStops === undefined
+              ? state.pathStopIds
+              : entry.previousStops
+            : state.pathStopIds,
         snap: {
-          status: "pending",
+          status: "idle",
           polyline: null,
           distanceMeters: null,
           snapped: false,
           warning: null,
         },
       });
-      // The road path follows the placed stops in order. A closed draft
-      // (e.g. a loaded loop route) re-appends the start stop so the snap
-      // keeps the loop closed.
-      const coordinates = current.stops.map((stop) => stop.location);
-      if (
-        coordinates.length >= 3 &&
-        polylineClosesOn(current.polyline, coordinates[0])
-      ) {
-        coordinates.push(coordinates[0]);
+    },
+    redo: () => {
+      const state = get();
+      const entry = state.history.future[state.history.future.length - 1];
+      if (!entry) return;
+      lastEditEntry = null;
+      const selection = state.selection;
+      const next = redoChanges(entry, {
+        stops: state.stops,
+        connections: state.connections,
+        polyline: state.polyline,
+      });
+      cancelPendingSnap();
+      snapGeneration += 1;
+      set({
+        ...next,
+        draftDirty: !draftMatchesBaseline(
+          next.stops,
+          next.polyline,
+          get().savedBaseline,
+        ),
+        selection:
+          selection.type === "stop" &&
+          !next.stops.some((s) => s.id === selection.stopId)
+            ? clearSelection
+            : selection,
+        history: {
+          past: [...state.history.past, entry],
+          future: state.history.future.slice(0, -1),
+        },
+        pathStopIds:
+          entry.kind === "snap_applied" || entry.stops !== undefined
+            ? (entry.stops ?? state.pathStopIds)
+            : state.pathStopIds,
+        snap: {
+          status: "idle",
+          polyline: null,
+          distanceMeters: null,
+          snapped: false,
+          warning: null,
+        },
+      });
+    },
+    clearHistory: () => set({ history: emptyHistory() }),
+
+    captureSavedBaseline: () => {
+      const { stops, polyline } = get();
+      set({
+        savedBaseline: {
+          stops: stops.map((stop) => ({
+            ...stop,
+            location: [stop.location[0], stop.location[1]] as [number, number],
+          })),
+          polyline: polyline
+            ? {
+                type: "LineString",
+                coordinates: polyline.coordinates.map((c) => [c[0], c[1]]) as [
+                  number,
+                  number,
+                ][],
+              }
+            : null,
+        },
+        draftDirty: false,
+      });
+    },
+
+    restoreDraft: (payload) => {
+      cancelPendingSnap();
+      snapGeneration += 1;
+      lastEditEntry = null;
+      // The stored draft can be a mid-snap RACE snapshot: the connections are
+      // already rewired but the polyline/pathStopIds still describe the path
+      // from BEFORE the edit (the debounced writer can fire between the edit
+      // and the auto-commit). Only trust the association when it matches the
+      // chain derived from the restored connections; otherwise re-derive it.
+      const restoredChain = pathFromConnections(
+        payload.connections,
+        payload.stops,
+      );
+      const restoredChainIds = restoredChain.stopIds;
+      const associationValid =
+        payload.pathStopIds !== null &&
+        payload.pathStopIds.length === restoredChainIds.length &&
+        payload.pathStopIds.every((id, i) => id === restoredChainIds[i]);
+      set({
+        stops: payload.stops,
+        polyline: payload.polyline,
+        connections: payload.connections,
+        history: payload.history ?? emptyHistory(),
+        routeMeta: payload.routeMeta ?? null,
+        directionId: payload.directionId,
+        draftDirty: true,
+        // The path↔stop association must match the restored chain. A race
+        // snapshot (rewired chain + stale path) or a legacy draft without
+        // pathStopIds is NOT trusted — leave it null so the save guard blocks,
+        // then re-derive it via the snap below.
+        pathStopIds: associationValid ? payload.pathStopIds : null,
+        // A restored draft has no known saved baseline — it is all unsaved work.
+        savedBaseline: null,
+        selection: clearSelection,
+        poi: null,
+        snap: {
+          status: "idle",
+          polyline: null,
+          distanceMeters: null,
+          snapped: false,
+          warning: null,
+        },
+      });
+      // Re-snap so the auto-commit re-derives a truthful polyline + pathStopIds
+      // for the restored chain (and unblocks Save) — a no-op for a consistent
+      // draft whose path is already committed.
+      if (get().polyline !== null && get().pathStopIds === null) {
+        get().requestSnapPreview();
       }
-      void snapFetcher!(coordinates)
-        .then((result) => {
-          if (generation !== snapGeneration) return; // superseded by a newer request
-          if (result.snapped && result.polyline) {
-            // Auto-commit: a road-snapped path becomes the draft immediately
-            // (no Apply step). It MERGES into the history entry of the stop
-            // edit that triggered the request, so ONE undo reverts the whole
-            // edit (stop AND path) to the exact previous state. A commit that
-            // matches the current path is a no-op (no entry, no re-set).
-            const { polyline, history, pathStopIds } = get();
-            const snapStopIds = current.stops.map((stop) => stop.id);
-            const samePath =
-              polyline !== null &&
-              pathStopIds !== null &&
-              pathStopIds.length === snapStopIds.length &&
-              pathStopIds.every((id, i) => id === snapStopIds[i]) &&
-              polyline.coordinates.length ===
-                result.polyline.coordinates.length &&
-              polyline.coordinates.every((coord, i) => {
-                const base = result.polyline!.coordinates[i];
-                return coord[0] === base[0] && coord[1] === base[1];
-              });
-            const lastEntry = history.past[history.past.length - 1];
-            const mergeable =
-              !samePath &&
-              lastEditEntry !== null &&
-              lastEntry === lastEditEntry &&
-              (lastEntry.kind === "stop_placed" ||
-                lastEntry.kind === "stop_deleted" ||
-                lastEntry.kind === "stop_dragged" ||
-                lastEntry.kind === "stop_props_changed") &&
-              lastEntry.path === undefined;
-            set({
-              polyline: samePath ? polyline : result.polyline,
-              pathStopIds: snapStopIds,
-              draftDirty: true,
-              history: samePath
-                ? history
-                : mergeable
-                  ? {
-                      past: [
-                        ...history.past.slice(0, -1),
-                        {
-                          ...lastEntry,
-                          path: result.polyline,
-                          // Edits that already capture their pre-edit path or
-                          // association (connection dropdowns) keep them;
-                          // others take the commit-time values (which equal
-                          // the pre-edit ones for stop edits). `undefined`
-                          // falls back; an explicit `null` is preserved.
-                          previousPath:
-                            lastEntry.previousPath !== undefined
-                              ? lastEntry.previousPath
-                              : polyline,
-                          stops: snapStopIds,
-                          previousStops: lastEntry.previousStops ?? pathStopIds,
-                        },
-                      ],
-                      future: [],
-                    }
-                  : pushHistory(history, {
-                      kind: "snap_applied",
-                      previous: polyline,
-                      applied: result.polyline,
-                      stops: snapStopIds,
-                      previousStops: pathStopIds,
-                    }),
-              snap: {
-                status: "applied",
-                polyline: result.polyline,
-                distanceMeters: result.distanceMeters,
-                snapped: true,
-                warning: null,
-              },
-            });
-            if (mergeable) lastEditEntry = null; // the entry consumed the merge
-            return;
-          }
-          // Straight-line fallback (no token / upstream error): warn but
-          // NEVER commit it as route data (FR-009).
-          set({
-            snap: {
-              status: "idle",
-              polyline: null,
-              distanceMeters: null,
-              snapped: false,
-              warning: result.warning,
-            },
-          });
-        })
-        .catch(() => {
-          if (generation !== snapGeneration) return;
-          set({
-            snap: {
-              status: "idle",
-              polyline: null,
-              distanceMeters: null,
-              snapped: false,
-              warning: "upstream_error",
-            },
-          });
-        });
-    }, SNAP_DEBOUNCE_MS);
-  },
+    },
 
-  resolvePendingSnap: async () => {
-    // A scheduled (debounced) request is cancelled outright; an in-flight one
-    // is settled by the generation guard — and, being road-snapped, already
-    // auto-committed. Nothing more to do before saving.
-    cancelPendingSnap();
-    return get().snap;
-  },
-
-  undo: () => {
-    const state = get();
-    const entry = state.history.past[state.history.past.length - 1];
-    if (!entry) return;
-    lastEditEntry = null; // undoing orphans any pending merge target
-    const selection = state.selection;
-    const next = undoChanges(entry, {
-      stops: state.stops,
-      connections: state.connections,
-      polyline: state.polyline,
-    });
-    // A pending snap refers to the pre-undo stop set — invalidate it (bump
-    // the generation so an in-flight fetch can't auto-commit a stale path).
-    // The restored entries carry the exact path, so no re-request is needed
-    // (re-requesting would auto-commit and re-feed the history stack).
-    cancelPendingSnap();
-    snapGeneration += 1;
-    set({
-      ...next,
-      // Undo that lands exactly on the saved baseline clears the unsaved
-      // state (save button hides); otherwise the draft stays dirty.
-      draftDirty: !draftMatchesBaseline(
-        next.stops,
-        next.polyline,
-        get().savedBaseline,
-      ),
-      selection:
-        selection.type === "stop" &&
-        !next.stops.some((s) => s.id === selection.stopId)
-          ? clearSelection
-          : selection,
-      history: {
-        past: state.history.past.slice(0, -1),
-        future: [...state.history.future, entry],
-      },
-      // A snap (or merged edit) undo restores the path AND the stop set it
-      // was derived for (its predecessor's association), so a stale path
-      // can't pass the save guard; other entries leave the association alone.
-      // `undefined` (old-format entries) falls back to the current value;
-      // an explicit `null` (first commit, no prior path) stays truthful.
-      pathStopIds:
-        entry.kind === "snap_applied" || entry.previousStops !== undefined
-          ? entry.previousStops === undefined
-            ? state.pathStopIds
-            : entry.previousStops
-          : state.pathStopIds,
-      snap: {
-        status: "idle",
+    reset: () => {
+      cancelPendingSnap();
+      snapGeneration += 1;
+      lastEditEntry = null;
+      set({
+        routeId: null,
+        directionId: null,
+        tool: "select",
+        poi: null,
+        routeMeta: null,
+        connections: [],
+        draftDirty: false,
+        saving: false,
+        overviewRouteId: null,
+        fitCounter: 0,
+        stops: [],
         polyline: null,
-        distanceMeters: null,
-        snapped: false,
-        warning: null,
-      },
-    });
-  },
-  redo: () => {
-    const state = get();
-    const entry = state.history.future[state.history.future.length - 1];
-    if (!entry) return;
-    lastEditEntry = null;
-    const selection = state.selection;
-    const next = redoChanges(entry, {
-      stops: state.stops,
-      connections: state.connections,
-      polyline: state.polyline,
-    });
-    cancelPendingSnap();
-    snapGeneration += 1;
-    set({
-      ...next,
-      draftDirty: !draftMatchesBaseline(
-        next.stops,
-        next.polyline,
-        get().savedBaseline,
-      ),
-      selection:
-        selection.type === "stop" &&
-        !next.stops.some((s) => s.id === selection.stopId)
-          ? clearSelection
-          : selection,
-      history: {
-        past: [...state.history.past, entry],
-        future: state.history.future.slice(0, -1),
-      },
-      pathStopIds:
-        entry.kind === "snap_applied" || entry.stops !== undefined
-          ? (entry.stops ?? state.pathStopIds)
-          : state.pathStopIds,
-      snap: {
-        status: "idle",
-        polyline: null,
-        distanceMeters: null,
-        snapped: false,
-        warning: null,
-      },
-    });
-  },
-  clearHistory: () => set({ history: emptyHistory() }),
-
-  captureSavedBaseline: () => {
-    const { stops, polyline } = get();
-    set({
-      savedBaseline: {
-        stops: stops.map((stop) => ({
-          ...stop,
-          location: [stop.location[0], stop.location[1]] as [number, number],
-        })),
-        polyline: polyline
-          ? {
-              type: "LineString",
-              coordinates: polyline.coordinates.map((c) => [c[0], c[1]]) as [
-                number,
-                number,
-              ][],
-            }
-          : null,
-      },
-      draftDirty: false,
-    });
-  },
-
-  restoreDraft: (payload) => {
-    cancelPendingSnap();
-    snapGeneration += 1;
-    lastEditEntry = null;
-    set({
-      stops: payload.stops,
-      polyline: payload.polyline,
-      connections: payload.connections,
-      history: payload.history ?? emptyHistory(),
-      routeMeta: payload.routeMeta ?? null,
-      directionId: payload.directionId,
-      draftDirty: true,
-      // The path↔stop association must be truthful: a legacy draft without
-      // pathStopIds is NOT trusted (it could be a stale path persisted
-      // mid-partial-undo) — leave it null so the save guard blocks, then
-      // re-derive it via the snap below.
-      pathStopIds: payload.pathStopIds ?? null,
-      // A restored draft has no known saved baseline — it is all unsaved work.
-      savedBaseline: null,
-      selection: clearSelection,
-      poi: null,
-      snap: {
-        status: "idle",
-        polyline: null,
-        distanceMeters: null,
-        snapped: false,
-        warning: null,
-      },
-    });
-    // Legacy drafts: re-snap so the auto-commit re-derives a truthful
-    // pathStopIds (and unblocks Save) — a no-op once a path exists.
-    if (get().polyline !== null && get().pathStopIds === null) {
-      get().requestSnapPreview();
-    }
-  },
-
-  reset: () => {
-    cancelPendingSnap();
-    snapGeneration += 1;
-    lastEditEntry = null;
-    set({
-      routeId: null,
-      directionId: null,
-      tool: "select",
-      poi: null,
-      routeMeta: null,
-      connections: [],
-      draftDirty: false,
-      saving: false,
-      overviewRouteId: null,
-      fitCounter: 0,
-      stops: [],
-      polyline: null,
-      snap: {
-        status: "idle",
-        polyline: null,
-        distanceMeters: null,
-        snapped: false,
-        warning: null,
-      },
-      selection: clearSelection,
-      layers: DEFAULT_LAYERS,
-      history: emptyHistory(),
-      savedBaseline: null,
-      pathStopIds: null,
-    });
-  },
-}));
+        snap: {
+          status: "idle",
+          polyline: null,
+          distanceMeters: null,
+          snapped: false,
+          warning: null,
+        },
+        selection: clearSelection,
+        layers: DEFAULT_LAYERS,
+        history: emptyHistory(),
+        savedBaseline: null,
+        pathStopIds: null,
+      });
+    },
+  };
+});

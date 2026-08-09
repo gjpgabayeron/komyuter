@@ -459,7 +459,7 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
     expect(snap.warning).toBe("no_token");
   });
 
-  it("resolves a pending preview before save (no fetch fires later)", async () => {
+  it("resolves a pending preview before save by firing it immediately", async () => {
     const fetcher = vi.fn(async (coordinates: CoordinatePair[]) =>
       snapResult(coordinates),
     );
@@ -467,10 +467,16 @@ describe("snap-preview orchestration (FR-008/FR-009/FR-028)", () => {
     const { addStop, resolvePendingSnap } = usePlottingStore.getState();
     addStop([122.5, 10.6]);
     addStop([122.51, 10.61]);
+    // The debounced snap hasn't fired yet — resolving fires it NOW so the
+    // save sees the committed path, and no stray fetch fires afterwards.
     await resolvePendingSnap();
     await vi.advanceTimersByTimeAsync(1000);
-    expect(fetcher).not.toHaveBeenCalled();
-    expect(usePlottingStore.getState().snap.status).toBe("idle");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(usePlottingStore.getState().snap.status).toBe("applied");
+    expect(usePlottingStore.getState().polyline?.coordinates).toEqual([
+      [122.5, 10.6],
+      [122.51, 10.61],
+    ]);
   });
 
   it("each placement re-snaps and replaces the committed draft path", async () => {
@@ -951,5 +957,430 @@ describe("layer filtering (FR-016 product revision)", () => {
     layers = usePlottingStore.getState().layers;
     expect(layers.baseStyle).toBe("3d");
     expect(layers.baseOpacity).toBe(0.4);
+  });
+});
+
+describe("loop closure (FR-004 / loop-close bug)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    usePlottingStore.getState().reset();
+  });
+
+  afterEach(() => {
+    cancelPendingSnap();
+    bindSnapFetcher(null);
+    usePlottingStore.getState().reset();
+    vi.useRealTimers();
+  });
+
+  it("sends the closing waypoint when the last stop sits near the first", async () => {
+    vi.useFakeTimers();
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop } = usePlottingStore.getState();
+    addStop([122.5, 10.6]); // A
+    addStop([122.51, 10.61]); // B
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    fetcher.mockClear();
+    addStop([122.5, 10.601]); // C ≈ A (≈ 111 m) — within the close tolerance
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const lastCall = fetcher.mock.calls[
+      fetcher.mock.calls.length - 1
+    ][0] as CoordinatePair[];
+    // The closing waypoint (first stop re-appended) is sent so the snap closes.
+    expect(lastCall[lastCall.length - 1]).toEqual([122.5, 10.6]);
+    expect(lastCall).toHaveLength(4);
+    bindSnapFetcher(null);
+    vi.useRealTimers();
+  });
+
+  it("does NOT append the closing point for an open route", async () => {
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    fetcher.mockClear();
+    addStop([122.52, 10.62]); // C far from A — open route
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const lastCall = fetcher.mock.calls[
+      fetcher.mock.calls.length - 1
+    ][0] as CoordinatePair[];
+    expect(lastCall).toHaveLength(3);
+  });
+});
+
+describe("connection edits preserve road geometry (loop/None bug)", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    usePlottingStore.getState().reset();
+  });
+
+  afterEach(() => {
+    cancelPendingSnap();
+    bindSnapFetcher(null);
+    usePlottingStore.getState().reset();
+    vi.useRealTimers();
+  });
+
+  const roadFetcher = () =>
+    vi.fn(async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+      polyline: { type: "LineString", coordinates },
+      distanceMeters: 100,
+      snapped: true,
+      warning: null,
+    }));
+
+  it("setting connected-to None keeps the road polyline and re-snaps the remaining chain", async () => {
+    const fetcher = roadFetcher();
+    bindSnapFetcher(fetcher);
+    const { addStop, setStopLinks } = usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    addStop([122.52, 10.62]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const road = usePlottingStore.getState().polyline;
+    expect(road?.coordinates).toHaveLength(3);
+
+    fetcher.mockClear();
+    const b = usePlottingStore.getState().stops[1];
+    setStopLinks(b.id, { from: null }); // disconnect A—B
+    const after = usePlottingStore.getState();
+    // The committed road-snapped path is PRESERVED (never swapped for a
+    // straight derived line), the association is invalidated, and a re-snap
+    // is requested for the remaining chain B—C.
+    expect(after.polyline).toBe(road);
+    expect(after.pathStopIds).toBeNull();
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const lastCall = fetcher.mock.calls[
+      fetcher.mock.calls.length - 1
+    ][0] as CoordinatePair[];
+    expect(lastCall).toEqual([
+      [122.51, 10.61],
+      [122.52, 10.62],
+    ]);
+    // The committed path's association must match the CHAIN waypoints
+    // ([B, C] — the a→b edge was removed, so A is off-path), not all placed
+    // stops — otherwise the save guard would permanently reject the route.
+    const ids = usePlottingStore.getState().pathStopIds;
+    expect(ids).toHaveLength(2);
+  });
+
+  it("closing a loop via connected-to re-snaps the chain order with the closing waypoint", async () => {
+    const fetcher = roadFetcher();
+    bindSnapFetcher(fetcher);
+    const { addStop, setStopLinks } = usePlottingStore.getState();
+    addStop([122.5, 10.6]); // A
+    addStop([122.51, 10.61]); // B
+    addStop([122.52, 10.62]); // C (far from A)
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    fetcher.mockClear();
+    const c = usePlottingStore.getState().stops[2];
+    setStopLinks(c.id, {
+      to: c ? usePlottingStore.getState().stops[0].id : "",
+    }); // C→A closes the loop
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const lastCall = fetcher.mock.calls[
+      fetcher.mock.calls.length - 1
+    ][0] as CoordinatePair[];
+    // Chain order A—B—C plus the closing waypoint back to A.
+    expect(lastCall).toEqual([
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.52, 10.62],
+      [122.5, 10.6],
+    ]);
+  });
+  it("opening a loop via connected-to None removes ONLY the closure edge (user spec)", async () => {
+    const fetcher = roadFetcher();
+    bindSnapFetcher(fetcher);
+    const { addStop, setStopLinks } = usePlottingStore.getState();
+    addStop([122.5, 10.6]); // A
+    addStop([122.51, 10.61]); // B
+    addStop([122.52, 10.62]); // C
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    fetcher.mockClear();
+    const c = usePlottingStore.getState().stops[2];
+    // Close the loop (C's connected-to = A).
+    setStopLinks(c.id, { to: usePlottingStore.getState().stops[0].id });
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    expect(usePlottingStore.getState().connections.length).toBe(3);
+    fetcher.mockClear();
+    // Open it: C's connected-to = None.
+    setStopLinks(c.id, { to: null });
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const opened = usePlottingStore.getState();
+    // ONLY the C→A closure edge is gone; A→B and B→C are untouched.
+    expect(opened.connections.map((e) => e.to === e.to && e.from)).toHaveLength(
+      2,
+    );
+    const lastCall = fetcher.mock.calls[
+      fetcher.mock.calls.length - 1
+    ][0] as CoordinatePair[];
+    // Linear A—B—C: the open chain, NO closing waypoint back to A.
+    expect(lastCall).toEqual([
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.52, 10.62],
+    ]);
+  });
+
+  it("adding a stop to a loop route keeps the chain order (no reversed snap)", async () => {
+    const fetcher = roadFetcher();
+    bindSnapFetcher(fetcher);
+    const { setStops, setPolyline, addStop } = usePlottingStore.getState();
+    const A = {
+      id: "a",
+      name: "A",
+      type: "major_stop" as const,
+      location: [122.5, 10.6] as [number, number],
+    };
+    const B = {
+      id: "b",
+      name: "B",
+      type: "major_stop" as const,
+      location: [122.51, 10.61] as [number, number],
+    };
+    const C = {
+      id: "c",
+      name: "C",
+      type: "major_stop" as const,
+      location: [122.52, 10.62] as [number, number],
+    };
+    const loop: GeoLineString = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.6],
+        [122.51, 10.61],
+        [122.52, 10.62],
+        [122.5, 10.6],
+      ],
+    };
+    setStops([A, B, C], loop);
+    setPolyline(loop);
+    expect(usePlottingStore.getState().connections).toHaveLength(3); // closed a-b b-c c-a
+
+    fetcher.mockClear();
+    addStop([122.53, 10.63]); // D — the OLD manual append corrupted the loop chain
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    const lastCall = fetcher.mock.calls[
+      fetcher.mock.calls.length - 1
+    ][0] as CoordinatePair[];
+    // Correct order A,B,C,D + closing waypoint A — NOT reversed.
+    expect(lastCall).toEqual([
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.52, 10.62],
+      [122.53, 10.63],
+      [122.5, 10.6],
+    ]);
+  });
+});
+
+describe("draft restore association race (rewired chain + stale path)", () => {
+  beforeEach(() => {
+    bindSnapFetcher(null);
+    usePlottingStore.getState().reset();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    bindSnapFetcher(null);
+    usePlottingStore.getState().reset();
+    vi.useRealTimers();
+  });
+
+  it("untrusts a stale pathStopIds that no longer matches the restored chain and re-snaps", async () => {
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    usePlottingStore.getState().restoreDraft({
+      routeId: "r",
+      directionId: "d",
+      stops: [
+        {
+          id: "a",
+          name: "A",
+          type: "major_stop",
+          location: [122.5, 10.6] as [number, number],
+        },
+        {
+          id: "b",
+          name: "B",
+          type: "major_stop",
+          location: [122.51, 10.61] as [number, number],
+        },
+        {
+          id: "c",
+          name: "C",
+          type: "major_stop",
+          location: [122.52, 10.62] as [number, number],
+        },
+      ],
+      connections: [
+        { id: "a-b", from: "a", to: "b" },
+        { id: "b-c", from: "b", to: "c" },
+      ],
+      // Race snapshot: the polyline + association describe the PRE-edit chain
+      // (A, B only) while the connections already carry the rewired chain.
+      polyline: {
+        type: "LineString",
+        coordinates: [
+          [122.5, 10.6] as [number, number],
+          [122.51, 10.61] as [number, number],
+        ],
+      },
+      pathStopIds: ["a", "b"],
+      routeMeta: null,
+      history: { past: [], future: [] },
+    });
+    // The stale association is NOT trusted — it doesn't match the restored
+    // chain (A,B,C), so it is nulled and the save guard would block.
+    expect(usePlottingStore.getState().pathStopIds).toBeNull();
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS);
+    // The re-snap fires for the restored chain and auto-commits a truthful
+    // association covering all three stops — Save unblocks.
+    expect(usePlottingStore.getState().pathStopIds).toEqual(["a", "b", "c"]);
+  });
+
+  it("resolvePendingSnap fires an awaiting pending snap so a quick save sees the rewired chain", async () => {
+    const fetcher = vi.fn(
+      async (coordinates: CoordinatePair[]): Promise<SnappedPath> => ({
+        polyline: { type: "LineString", coordinates },
+        distanceMeters: 100,
+        snapped: true,
+        warning: null,
+      }),
+    );
+    bindSnapFetcher(fetcher);
+    const { addStop, setStopLinks, resolvePendingSnap } =
+      usePlottingStore.getState();
+    addStop([122.5, 10.6]);
+    addStop([122.51, 10.61]);
+    addStop([122.52, 10.62]);
+    await vi.advanceTimersByTimeAsync(SNAP_DEBOUNCE_MS); // commit the initial path
+    const initial = usePlottingStore.getState().pathStopIds!;
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    // Rewire A's "to" -> C (chain [A,C], B drops off). The re-snap is still
+    // DEBOUNCED — a save at this instant must NOT cancel it (old behavior,
+    // which blocked the save and left the draft out of sync).
+    setStopLinks(initial[0], { to: initial[2] });
+    expect(usePlottingStore.getState().pathStopIds).toBeNull();
+    const snap = await resolvePendingSnap();
+    expect(snap.snapped).toBe(true);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(usePlottingStore.getState().pathStopIds).toEqual([
+      initial[0],
+      initial[2],
+    ]);
+  });
+});
+
+describe("loop-end removal re-closes the chain", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  it("removing the LAST stop of a closed loop reconnects prev→first", () => {
+    const { setStops, removeStop } = usePlottingStore.getState();
+    const A = {
+      id: "a",
+      name: "A",
+      type: "major_stop" as const,
+      location: [122.5, 10.6] as [number, number],
+    };
+    const B = {
+      id: "b",
+      name: "B",
+      type: "major_stop" as const,
+      location: [122.51, 10.61] as [number, number],
+    };
+    const C = {
+      id: "c",
+      name: "C",
+      type: "major_stop" as const,
+      location: [122.52, 10.62] as [number, number],
+    };
+    const D = {
+      id: "d",
+      name: "D",
+      type: "major_stop" as const,
+      location: [122.5, 10.605] as [number, number],
+    };
+    const loop: GeoLineString = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.6],
+        [122.51, 10.61],
+        [122.52, 10.62],
+        [122.5, 10.6],
+      ],
+    };
+    setStops([A, B, C, D], loop); // closed: a→b b→c c→d d→a
+    expect(usePlottingStore.getState().connections).toHaveLength(4);
+    removeStop("d");
+    // The chain re-closes c→a (D was the last stop of the closed chain).
+    const edges = usePlottingStore
+      .getState()
+      .connections.map((c) => `${c.from}->${c.to}`);
+    expect(edges).toEqual(["a->b", "b->c", "c->a"]);
+  });
+});
+
+describe("custom chain durability (no silent consecutive rebuild)", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  const edgeKey = (c: { from: string; to: string }) => `${c.from}->${c.to}`;
+
+  it("addStop appends to the chain's end; removeStop reconnects; undo restores exactly", () => {
+    const { addStop, setStopLinks, removeStop, undo } =
+      usePlottingStore.getState();
+    addStop([122.5, 10.7]);
+    addStop([122.51, 10.71]);
+    addStop([122.52, 10.72]);
+    const [A, B, C] = usePlottingStore.getState().stops.map((s) => s.id);
+    // Build custom chain [A,C,B]: A.to=C, then B.from=C.
+    setStopLinks(A, { to: C });
+    setStopLinks(B, { from: C });
+    let keys = usePlottingStore.getState().connections.map(edgeKey);
+    expect(keys).toEqual([`${A}->${C}`, `${C}->${B}`]);
+    expect(keys).not.toContain(`${A}->${B}`); // no a->b: not a consecutive rebuild
+    // Adding D appends AFTER B (the chain's end) — the custom order survives.
+    addStop([122.53, 10.73]);
+    const D = usePlottingStore.getState().stops[3].id;
+    keys = usePlottingStore.getState().connections.map(edgeKey);
+    expect(keys).toEqual([`${A}->${C}`, `${C}->${B}`, `${B}->${D}`]);
+    expect(keys).not.toContain(`${A}->${B}`);
+    // Removing a MIDDLE stop reconnects its neighbours (skip it) — the custom
+    // A→C prefix survives: [A,C,B,D] minus B → [A,C,D].
+    removeStop(B);
+    const keys2 = usePlottingStore.getState().connections.map(edgeKey);
+    expect(keys2).toEqual([`${A}->${C}`, `${C}->${D}`]);
+    // Undo restores the exact pre-removal chain.
+    undo();
+    expect(usePlottingStore.getState().connections).toHaveLength(3);
   });
 });

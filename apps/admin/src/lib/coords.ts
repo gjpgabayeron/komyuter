@@ -61,12 +61,17 @@ export function coordsDistanceMeters(
   return 2 * earthRadiusMeters * Math.asin(Math.sqrt(h));
 }
 
-/** True when the polyline's last coordinate lies within ~100 m of `point`
- *  (FR-004 closed-loop detection; mirrors the server's endpoint rule). */
+/** The distance (meters) within which two stops count as "closing" a route
+ *  loop (FR-004) — shared by the snap waypoint closure, the chain closure,
+ *  and the transient stub logic so the three never disagree. */
+export const LOOP_CLOSE_TOLERANCE_METERS = 150;
+
+/** True when the polyline's last coordinate lies within `LOOP_CLOSE_TOLERANCE_METERS`
+ *  of `point` (FR-004 closed-loop detection; mirrors the server's endpoint rule). */
 export function polylineClosesOn(
   polyline: GeoLineString | null | undefined,
   point: CoordinatePair,
-  toleranceMeters = 100,
+  toleranceMeters = LOOP_CLOSE_TOLERANCE_METERS,
 ): boolean {
   if (!polyline || polyline.coordinates.length < 3) return false;
   return (
@@ -181,21 +186,41 @@ export function polylineDistanceMeters(polyline: GeoLineString): number {
 export function resolveConnectingLine(
   polyline: GeoLineString | null,
   stopLocations: readonly CoordinatePair[],
+  forceChainLine = false,
 ): GeoLineString | null {
+  // The chain no longer matches the committed road path (a connection rewire
+  // whose re-snap hasn't landed — or failed): when every chain stop is still
+  // covered by the old path no corrective stub would ever draw, so draw the
+  // chain's straight line immediately. The auto-committed snap replaces it.
+  const newest = stopLocations[stopLocations.length - 1];
+  // Whether the newest stop sits within the loop-close tolerance of ANY path
+  // vertex — the single coverage judgment shared by every branch below.
+  const covered =
+    newest !== undefined &&
+    polyline !== null &&
+    polyline.coordinates.some(
+      (vertex) =>
+        coordsDistanceMeters(vertex, newest) <= LOOP_CLOSE_TOLERANCE_METERS,
+    );
+  if (forceChainLine && covered) {
+    return straightLineThrough(stopLocations);
+  }
   // Before any path exists (first placements / snap still in flight), a
   // transient straight line keeps the map from looking blank — never saved.
   if (!polyline) return straightLineThrough(stopLocations);
-  // A committed path exists but the newest stop is beyond its end (just
-  // placed / dragged): extend a short transient stub from the path end to
-  // that stop so placements connect visually IMMEDIATELY — the auto-committed
-  // snap replaces the stub when it lands (perf/UX audit: no more "stop
-  // appears, line lags"). The stub is display-only, never persisted.
+  // A committed path exists but the newest stop is not yet covered by it
+  // (just placed / dragged beyond the path): extend a short transient stub
+  // from the path end to that stop so placements connect visually IMMEDIATELY
+  // — the auto-committed snap replaces the stub when it lands (perf/UX audit:
+  // no more "stop appears, line lags"). The stub is display-only, never
+  // persisted. Coverage is judged against the NEAREST path vertex, not the
+  // path end, so a closed loop never draws a stub: its final stop sits
+  // mid-loop, far from the loop's end vertex (== its start), but is covered.
+  if (!newest) return null;
+  if (covered) return null;
   const last = polyline.coordinates[polyline.coordinates.length - 1];
-  const newest = stopLocations[stopLocations.length - 1];
-  if (last && newest && coordsDistanceMeters(last, newest) > 150) {
-    return { type: "LineString", coordinates: [last, newest] };
-  }
-  return null;
+  if (!last) return null;
+  return { type: "LineString", coordinates: [last, newest] };
 }
 
 /** Formats meters as "1,234 m" or "1.23 km" per the chosen unit. */

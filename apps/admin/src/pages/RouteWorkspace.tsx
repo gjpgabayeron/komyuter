@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api";
 import {
   bindSnapFetcher,
+  cancelPendingSnap,
   usePlottingStore,
   type RouteMetaDraft,
 } from "@/lib/plottingStore";
@@ -15,6 +16,7 @@ import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
 import type { DraftPayload } from "@/lib/draft";
 import { DraftRestoreBanner } from "@/features/routes/DraftRestoreBanner";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
+import { pathFromConnections } from "@/lib/connections";
 import type { SaveDirectionPayload } from "@/features/routes/routesApi";
 import { getRoute, snapPreview } from "@/features/routes/routesApi";
 import { queryClient } from "@/lib/queryClient";
@@ -91,7 +93,12 @@ export default function RouteWorkspace() {
   // Bind the snap network call once (the store owns the debounce orchestration).
   useEffect(() => {
     bindSnapFetcher((coordinates) => snapPreview(coordinates));
-    return () => bindSnapFetcher(null);
+    return () => {
+      bindSnapFetcher(null);
+      // Never let a debounced snap timer fire after unmount (snapFetcher is
+      // null by then) — a stray fetch would reject unhandled.
+      cancelPendingSnap();
+    };
   }, []);
 
   // --- FR-014: client-local draft (24 h TTL, debounced ~500 ms writes) ---
@@ -174,10 +181,19 @@ export default function RouteWorkspace() {
     // auto-committed the moment they land, so the draft polyline already is
     // the road-following path — never straight lines (FR-009).
     const store = usePlottingStore.getState();
-    const { stops, polyline, directionId: editingId } = store;
+    const { stops, connections, polyline, directionId: editingId } = store;
 
-    // Single-mode plotting: the route path follows the stop list in order.
-    const saveStops = stops;
+    // The route path follows the CHAIN order (which for the default
+    // consecutive chain equals placement order). Stops disconnected via the
+    // connected-from/to dropdowns (None) are excluded from the save — they
+    // are no longer part of the route path.
+    const chain = pathFromConnections(connections, stops);
+    const saveStops =
+      chain.stopIds.length >= 2
+        ? chain.stopIds
+            .map((id) => stops.find((s) => s.id === id))
+            .filter((s): s is (typeof stops)[number] => s !== undefined)
+        : stops;
 
     if (saveStops.length < 2) {
       toast.error("A route needs at least 2 stops (a start and an end stop).");

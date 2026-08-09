@@ -35,6 +35,10 @@ export type HistoryEntry =
       /** The stop as placed, and its index in the stop list at placement. */
       stop: DraftStop;
       index: number;
+      /** The chain edges before/after the append (undo restores the exact
+       *  pre-edit chain — a custom connected-from/to chain must survive). */
+      connectionsBefore?: Connection[];
+      connectionsAfter?: Connection[];
       /** Merged snap result (auto-commit): the committed path AFTER this edit,
        *  so one undo reverts the whole addition — stop AND path together. */
       path?: GeoLineString | null;
@@ -50,6 +54,9 @@ export type HistoryEntry =
       stop: DraftStop;
       index: number;
       edges: Connection[];
+      /** The chain edges before/after the removal (undo restores exactly). */
+      connectionsBefore?: Connection[];
+      connectionsAfter?: Connection[];
       path?: GeoLineString | null;
       previousPath?: GeoLineString | null;
       stops?: string[];
@@ -158,7 +165,7 @@ export function undoChanges(
       return {
         ...current,
         stops,
-        connections: relink(stops, current.polyline),
+        connections: entry.connectionsBefore ?? relink(stops, current.polyline),
         // A merged entry reverts the polyline too — the exact previous state.
         polyline:
           entry.previousPath !== undefined
@@ -171,7 +178,7 @@ export function undoChanges(
       return {
         ...current,
         stops,
-        connections: relink(stops, current.polyline),
+        connections: entry.connectionsBefore ?? relink(stops, current.polyline),
         polyline:
           entry.previousPath !== undefined
             ? entry.previousPath
@@ -219,7 +226,7 @@ export function redoChanges(
       return {
         ...current,
         stops,
-        connections: relink(stops, current.polyline),
+        connections: entry.connectionsAfter ?? relink(stops, current.polyline),
         polyline: entry.path !== undefined ? entry.path : current.polyline,
       };
     }
@@ -228,7 +235,7 @@ export function redoChanges(
       return {
         ...current,
         stops,
-        connections: relink(stops, current.polyline),
+        connections: entry.connectionsAfter ?? relink(stops, current.polyline),
         polyline: entry.path !== undefined ? entry.path : current.polyline,
       };
     }

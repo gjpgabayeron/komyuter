@@ -13,10 +13,15 @@ import {
   useDrawWhenReady,
 } from "@/lib/mapLayers";
 import { resolveConnectingLine } from "@/lib/coords";
+import { pathFromConnections } from "@/lib/connections";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
 import { clearSelection, isStopSelected, selectStop } from "@/lib/selection";
-import { usePlottingStore, visibleStopsForLayers } from "@/lib/plottingStore";
+import {
+  usePlottingStore,
+  visibleStopsForLayers,
+  type DraftStop,
+} from "@/lib/plottingStore";
 
 /** Signboard green-blue (draft path — committed to save). */
 const DRAFT_LINE = "#1B6DB2";
@@ -307,6 +312,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
   const routeId = usePlottingStore((s) => s.routeId);
   const tool = usePlottingStore((s) => s.tool);
   const stops = usePlottingStore((s) => s.stops);
+  const connections = usePlottingStore((s) => s.connections);
   const polyline = usePlottingStore((s) => s.polyline);
   const selection = usePlottingStore((s) => s.selection);
   const poi = usePlottingStore((s) => s.poi);
@@ -341,13 +347,45 @@ export function RouteMap({ className, children }: RouteMapProps) {
   // road-snapped draft is drawn separately; before any path exists a
   // client-side straight line bridges the stops so the map is never blank
   // (FR-009 fallback — it is only ever a display line, never persisted).
+  // Locations follow the CHAIN order: stops disconnected (connected-to/from
+  // = None) drop off both the fallback and the transient stub.
+  const chainOrderedLocations = useMemo(() => {
+    const chain = pathFromConnections(connections, stops);
+    if (chain.stopIds.length < 2) {
+      // Degenerate graph (no path yet): keep only stops that still have at
+      // least one connection, so a disconnected stop never reappears.
+      return stops
+        .filter((stop) =>
+          connections.some(
+            (edge) => edge.from === stop.id || edge.to === stop.id,
+          ),
+        )
+        .map((stop) => stop.location);
+    }
+    return chain.stopIds
+      .map((id) => stops.find((stop) => stop.id === id))
+      .filter((stop): stop is DraftStop => stop !== undefined)
+      .map((stop) => stop.location);
+  }, [connections, stops]);
+  const pathStopIds = usePlottingStore((s) => s.pathStopIds);
+  // True only when the committed road path no longer matches the current
+  // chain: after setStopLinks (a rewire OR a disconnect) the association is
+  // nulled, and once the re-snap lands it mismatches by order or length. A
+  // placement (extra stop) never fires it — the transient stub handles the
+  // new stop, so no chain line flashes on ordinary placement near the path.
+  const chainOutOfSync = useMemo(() => {
+    const chain = pathFromConnections(connections, stops);
+    if (chain.stopIds.length < 2) return false;
+    if (pathStopIds === null) return true; // mid-rewire: association invalidated
+    return (
+      pathStopIds.length === chain.stopIds.length &&
+      !pathStopIds.every((id, i) => id === chain.stopIds[i])
+    );
+  }, [connections, stops, pathStopIds]);
   const connectingLine = useMemo(
     () =>
-      resolveConnectingLine(
-        polyline,
-        stops.map((stop) => stop.location),
-      ),
-    [polyline, stops],
+      resolveConnectingLine(polyline, chainOrderedLocations, chainOutOfSync),
+    [polyline, chainOrderedLocations, chainOutOfSync],
   );
 
   // Layer filtering (FR-016): markers follow Stops/Terminals; the route path

@@ -1,5 +1,5 @@
 import type { CoordinatePair, GeoLineString } from "@komyuter/shared";
-import { polylineClosesOn } from "./coords";
+import { LOOP_CLOSE_TOLERANCE_METERS, polylineClosesOn } from "./coords";
 
 /**
  * Stop-chain helpers for the plotting draft. Single-mode (auto) plotting
@@ -143,7 +143,7 @@ export function connectionsFromStops(
     polyline &&
     firstLocation &&
     stops.length >= 3 &&
-    polylineClosesOn(polyline, firstLocation)
+    polylineClosesOn(polyline, firstLocation, LOOP_CLOSE_TOLERANCE_METERS)
   ) {
     const from = stops[stops.length - 1].id;
     const to = stops[0].id;
@@ -188,22 +188,39 @@ export function setStopLink(
   let next = [...connections];
   // 1. Drop the existing edge on this side (either stored orientation).
   if (current) next = removeEdgeBetween(next, stopId, current);
-  // 2. Clearing the side is done.
+  // 2. Clearing the side terminates ONLY that connection: the stop stays in
+  //    the route (its other side is untouched) and no other segment changes.
+  //    E.g. removing the loop-closure C→A on [A,B,C] leaves [A,B] + [B,C] —
+  //    the route becomes linear A→B→C with nothing reconnected or dropped.
   if (otherId === null) return next;
-  // 3. Drop any existing edge to the target (e.g. the other side's neighbour).
-  next = removeEdgeBetween(next, stopId, otherId);
-  // 4. Never close a sub-cycle: break the edge adjacent to the stop on the
-  //    path toward the target first. Linking the two ENDS of the same chain
-  //    (both degree 1) instead closes the whole chain into a loop (FR-004).
+  // 3. Rewire: the target's OPPOSITE side becomes stopId — drop the target's
+  //    current opposite-side edge so it never gets two neighbours on that
+  //    side (e.g. setting A's "to" = B removes B's current incoming edge).
+  //    Deterministic — never the iteration-order-dependent degree cap.
+  if (side === "to") {
+    const incoming = next.find((edge) => edge.to === otherId);
+    if (incoming) next = next.filter((edge) => edge.id !== incoming.id);
+  } else {
+    const outgoing = next.find((edge) => edge.from === otherId);
+    if (outgoing) next = next.filter((edge) => edge.id !== outgoing.id);
+  }
+  // 4. Never close a sub-cycle. Linking the two ENDS of the same component
+  //    (both degree 1 AFTER the rewire above) closes the whole chain into a
+  //    loop (FR-004) — that is intended. Otherwise the link would wrap a
+  //    sub-cycle, so break the edge adjacent to the TARGET on the path back
+  //    toward the stop (keeps the stop's own edges — a rewire must not sever
+  //    the stop's other side).
   if (sameComponent(next, stopId, otherId)) {
-    const closesMainChain =
+    const bothEnds =
       degreeAt(next, stopId) === 1 && degreeAt(next, otherId) === 1;
-    if (!closesMainChain) {
-      const edge = firstEdgeOnPath(next, stopId, otherId);
+    if (!bothEnds) {
+      const edge = firstEdgeOnPath(next, otherId, stopId);
       if (edge) next = next.filter((c) => c.id !== edge.id);
     }
   }
-  // 5. Keep every stop at degree ≤ 2.
+  // 5. Defensive degree cap: unreachable for well-formed calls, but a stale
+  //    caller-supplied currentFrom/currentTo (e.g. after a draft restore)
+  //    could leave an undropped edge — never let a stop exceed degree 2.
   if (degreeAt(next, stopId) >= 2) next = removeFirstEdgeAt(next, stopId);
   if (degreeAt(next, otherId) >= 2) next = removeFirstEdgeAt(next, otherId);
   // 6. Add the forced edge with the requested orientation.
@@ -251,29 +268,32 @@ function chainComponents(
       }
     }
     if (component.length < 2) continue;
-    // Walk from an end (degree-1 stop) for a deterministic route order; a
-    // closed loop has no end, so start from its first-placed stop.
-    const start =
-      component.find((id) => (adj.get(id)?.length ?? 0) === 1) ?? component[0];
+    // Walk following the edge DIRECTION (from → to): a stop's successor is
+    // its "to" edge, so the order always matches the admin's "connected to"
+    // intent and is stable regardless of stop order. Start at the
+    // placement-earliest stop with NO incoming edge (a real route start); a
+    // closed loop has none, so start from its first-placed stop. (No
+    // component filter needed: any edge with one endpoint in the component
+    // has both in it, by BFS construction.)
+    const incoming = new Set(connections.map((edge) => edge.to));
+    const start = component.find((id) => !incoming.has(id)) ?? component[0];
     const order: string[] = [];
-    let previous: string | null = null;
     let current: string | null = start;
-    while (current) {
+    while (current && !order.includes(current)) {
       order.push(current);
-      const links = adj.get(current) ?? [];
-      const neighbors: string[] = links
-        .map((n) => n.next)
-        .filter((n) => n !== previous);
-      previous = current;
-      // Prefer unvisited neighbours; for a closed loop the only remaining
-      // neighbour is the start stop — stop there instead of re-walking it.
-      const unvisited = neighbors.filter((n) => !order.includes(n));
-      current = unvisited[0] ?? null;
+      // The successor is the stop's "to" edge; stop at an open end or when
+      // the loop wraps back to the start.
+      const next =
+        connections.find((edge) => edge.from === current)?.to ?? null;
+      if (next === null || next === start || order.includes(next)) break;
+      current = next;
     }
     const closed =
       order.length >= 3 &&
       order.length === component.length &&
-      (adj.get(order[order.length - 1]) ?? []).some((n) => n.next === order[0]);
+      connections.some(
+        (edge) => edge.from === order[order.length - 1] && edge.to === order[0],
+      );
     components.push({ order, closed });
   }
   return components;

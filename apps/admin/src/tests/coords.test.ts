@@ -321,6 +321,26 @@ describe("resolveConnectingLine transient stub (perf/UX audit)", () => {
     });
   });
 
+  it("draws NO stub for a closed loop whose newest stop is covered mid-loop", () => {
+    // The loop's path END is its START vertex, far from the final stop — but
+    // the final stop sits mid-loop on a nearby vertex, so it IS covered.
+    const loop: GeoLineString = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.6],
+        [122.51, 10.61],
+        [122.52, 10.62],
+        [122.5, 10.6],
+      ],
+    };
+    expect(
+      resolveConnectingLine(loop, [
+        [122.5, 10.6],
+        [122.5104, 10.6104], // ~60 m from the mid-loop vertex
+      ]),
+    ).toBeNull();
+  });
+
   it("returns null when the newest stop is already covered by the path", () => {
     const path: GeoLineString = {
       type: "LineString",
@@ -335,5 +355,55 @@ describe("resolveConnectingLine transient stub (perf/UX audit)", () => {
         [122.51, 10.61],
       ]),
     ).toBeNull();
+  });
+});
+
+describe("resolveConnectingLine chain-line override (map reflects a rewire)", () => {
+  const road: GeoLineString = {
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.52, 10.62],
+    ],
+  };
+  const allStops: CoordinatePair[] = [
+    [122.5, 10.6],
+    [122.51, 10.61],
+    [122.52, 10.62],
+  ];
+
+  it("draws the chain straight line when the newest stop is covered by the old path (rewire)", () => {
+    // All three stops sit ON the old path, so the stub would never draw — but
+    // the chain ORDER changed (out of sync) and the map must reflect it.
+    const line = resolveConnectingLine(road, allStops, true);
+    expect(line?.coordinates).toEqual(allStops);
+  });
+
+  it("draws nothing for a stop placed near the old path (covered — no stub, no line)", () => {
+    // A stop placed ~50 m from a path vertex is covered: without the rewire
+    // override (placements are not rewires at the RouteMap level) neither the
+    // stub nor a chain line draws — no flash during the snap window.
+    const stops: CoordinatePair[] = [
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.50045, 10.60045],
+    ];
+    expect(resolveConnectingLine(road, stops)).toBeNull();
+    expect(resolveConnectingLine(road, stops, true)).not.toBeNull(); // force still draws the chain
+  });
+
+  it("still falls through to the stub for a fresh placement beyond the path", () => {
+    const stops: CoordinatePair[] = [
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.55, 10.65], // far beyond the path — a placement, not a rewire
+    ];
+    const line = resolveConnectingLine(road, stops, true);
+    // The stub (path end -> newest), NOT the full straight chain line.
+    expect(line?.coordinates).toEqual([
+      [122.52, 10.62],
+      [122.55, 10.65],
+    ]);
   });
 });
