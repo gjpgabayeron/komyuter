@@ -249,6 +249,11 @@ export interface PlottingState {
    *  a partial undo or a stale snap can otherwise leave a path that routes
    *  through stops that no longer exist, which endpoint checks can't see. */
   pathStopIds: string[] | null;
+  /** Where the draft's stops/path came from: the overview cache (instant,
+   *  lean — no directionId yet) or the authoritative detail fetch. The seed
+   *  effect upgrades a pristine cache seed once the detail lands; null =
+   *  nothing loaded yet (or a fresh new route). */
+  seedSource: "cache" | "detail" | null;
 
   setRouteId: (routeId: string | null) => void;
   setDirectionId: (directionId: string | null) => void;
@@ -316,6 +321,13 @@ export interface PlottingState {
   clearHistory: () => void;
   /** Records the current draft as the saved baseline (after load/save). */
   captureSavedBaseline: () => void;
+  /** Seeds an empty draft from the cached overview payload (Phase 2: instant
+   *  paint on edit — no network round-trip). Marks seedSource = "cache" so
+   *  the detail fetch can upgrade it; only acts on a still-empty draft. */
+  seedFromOverview: (payload: {
+    polyline: GeoLineString | null;
+    stops: DraftStop[];
+  }) => void;
   /** Restores a client-side draft exactly (stops/path/chain/history). */
   restoreDraft: (payload: DraftDraft) => void;
   reset: () => void;
@@ -525,6 +537,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     history: emptyHistory(),
     savedBaseline: null,
     pathStopIds: null,
+    seedSource: null,
 
     setRouteId: (routeId) => set({ routeId }),
     setDirectionId: (directionId) => set({ directionId }),
@@ -565,6 +578,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         draftDirty: false,
         saving: false,
         overviewRouteId: null,
+        seedSource: null,
         history: emptyHistory(),
         savedBaseline: null,
       });
@@ -1086,6 +1100,18 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
       });
     },
 
+    seedFromOverview: (payload) => {
+      const { routeId, stops } = get();
+      if (routeId === null || stops.length > 0) return; // only seeds an empty draft
+      set({ seedSource: "cache", draftDirty: false });
+      // setStops carries the polyline (seeding the chain + pathStopIds too),
+      // so the committed line renders IMMEDIATELY — the blank frame between
+      // overview and edit is gone (the detail fetch upgrades this later).
+      get().setStops(payload.stops, payload.polyline);
+      get().captureSavedBaseline();
+      get().requestFit();
+    },
+
     restoreDraft: (payload) => {
       cancelPendingSnap();
       snapGeneration += 1;
@@ -1166,6 +1192,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         history: emptyHistory(),
         savedBaseline: null,
         pathStopIds: null,
+        seedSource: null,
       });
     },
   };

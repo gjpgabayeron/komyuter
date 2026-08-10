@@ -1384,3 +1384,95 @@ describe("custom chain durability (no silent consecutive rebuild)", () => {
     expect(usePlottingStore.getState().connections).toHaveLength(3);
   });
 });
+
+describe("cache seed (Phase 2 — instant edit paint)", () => {
+  const polyline = (): GeoLineString => ({
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.52, 10.62],
+    ],
+  });
+  const seed = {
+    polyline: polyline(),
+    stops: [
+      {
+        id: "s1",
+        name: "Stop 1",
+        type: "major_stop" as const,
+        location: [122.5, 10.6] as [number, number],
+      },
+      {
+        id: "s2",
+        name: "Stop 2",
+        type: "waiting_area" as const,
+        location: [122.51, 10.61] as [number, number],
+      },
+      {
+        id: "s3",
+        name: "Stop 3",
+        type: "terminal" as const,
+        location: [122.52, 10.62] as [number, number],
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  it("seedFromOverview populates stops + polyline + baseline with directionId null", () => {
+    const store = usePlottingStore.getState();
+    store.openRoute("route-1");
+    usePlottingStore.getState().seedFromOverview(seed);
+    const state = usePlottingStore.getState();
+    expect(state.seedSource).toBe("cache");
+    expect(state.stops.map((s) => s.id)).toEqual(["s1", "s2", "s3"]);
+    expect(state.polyline?.coordinates).toHaveLength(3);
+    expect(state.directionId).toBeNull();
+    expect(state.draftDirty).toBe(false);
+    expect(state.pathStopIds).toEqual(["s1", "s2", "s3"]);
+    // The seeded state is the saved baseline — undo back to it hides Save.
+    expect(state.savedBaseline?.stops.map((s) => s.id)).toEqual([
+      "s1",
+      "s2",
+      "s3",
+    ]);
+    expect(state.savedBaseline?.polyline).toEqual(polyline());
+  });
+
+  it("seedFromOverview is a no-op when the draft already has stops", () => {
+    const store = usePlottingStore.getState();
+    store.openRoute("route-1");
+    store.addStop([122.5, 10.6]);
+    usePlottingStore.getState().seedFromOverview(seed);
+    const state = usePlottingStore.getState();
+    expect(state.seedSource).toBeNull();
+    expect(state.stops).toHaveLength(1);
+  });
+
+  it("seedFromOverview is a no-op with no route open", () => {
+    usePlottingStore.getState().seedFromOverview(seed);
+    const state = usePlottingStore.getState();
+    expect(state.seedSource).toBeNull();
+    expect(state.stops).toEqual([]);
+  });
+
+  it("openRoute resets seedSource back to null", () => {
+    const store = usePlottingStore.getState();
+    store.openRoute("route-1");
+    usePlottingStore.getState().seedFromOverview(seed);
+    expect(usePlottingStore.getState().seedSource).toBe("cache");
+    store.openRoute(null);
+    expect(usePlottingStore.getState().seedSource).toBeNull();
+  });
+
+  it("reset() clears seedSource", () => {
+    const store = usePlottingStore.getState();
+    store.openRoute("route-1");
+    usePlottingStore.getState().seedFromOverview(seed);
+    store.reset();
+    expect(usePlottingStore.getState().seedSource).toBeNull();
+  });
+});

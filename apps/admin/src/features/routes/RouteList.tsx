@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { readOverviewCache } from "@/lib/overviewCache";
 import {
   ArrowLeft,
   Pencil,
@@ -99,36 +100,66 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
   const detail = routeId !== null;
 
   // Load an existing plotted direction into the surface once its detail
-  // arrives (FR-002), then frame the whole route. Only fills an empty draft
-  // so it never stomps edits.
+  // arrives (FR-002), then frame the whole route. Phase 2 (smooth
+  // transitions): the cached overview payload seeds the surface INSTANTLY on
+  // route open — no network round-trip, so the edit view never shows a blank
+  // frame — and the detail fetch then UPGRADES a pristine cache seed with the
+  // full stop fields + directionId. Never stomps real edits.
   useEffect(() => {
-    const base = routeQuery.data?.directions[0];
-    if (
-      !base ||
-      routeQuery.data?.route_id !== usePlottingStore.getState().routeId
-    ) {
-      return;
-    }
-    if (usePlottingStore.getState().stops.length > 0) return;
     const store = usePlottingStore.getState();
-    store.setDirectionId(base.direction_id);
-    store.setStops(
-      base.stops.map((stop) => ({
+    if (store.routeId === null || store.routeId !== routeId) return;
+
+    // 1) Detail arrived: fill an empty draft, or upgrade a pristine cache
+    //    seed (same stop ids, untouched since the seed → safe to replace with
+    //    the authoritative row).
+    const base = routeQuery.data?.directions[0];
+    if (base && routeQuery.data?.route_id === routeId) {
+      const state = usePlottingStore.getState();
+      const pristineCacheSeed =
+        state.seedSource === "cache" &&
+        !state.draftDirty &&
+        state.stops.length > 0 &&
+        state.stops.length === base.stops.length &&
+        state.stops.every((stop, i) => stop.id === base.stops[i]?.stop_id);
+      if (state.stops.length === 0 || pristineCacheSeed) {
+        store.setDirectionId(base.direction_id);
+        store.setStops(
+          base.stops.map((stop) => ({
+            id: stop.stop_id,
+            name: stop.name,
+            type: stop.type,
+            location: stop.location.coordinates,
+            is_guaranteed_service: stop.is_guaranteed_service,
+            landmark_hint: stop.landmark_hint,
+            notes: stop.notes,
+          })),
+          base.base_polyline, // closes the chain when the route is a loop (FR-004)
+        );
+        store.setPolyline(base.base_polyline);
+        // The loaded route is the saved baseline — undo back to it hides Save.
+        store.captureSavedBaseline();
+        store.requestFit();
+        usePlottingStore.setState({ seedSource: "detail" });
+      }
+      return; // dirty draft — never clobber
+    }
+
+    // 2) Detail not ready yet: seed instantly from the cached overview
+    //    payload so the polyline + markers paint the moment the view opens.
+    if (usePlottingStore.getState().stops.length > 0) return;
+    const cached = readOverviewCache();
+    const row = cached?.find((r) => r.route_id === routeId);
+    if (!row?.base_polyline) return;
+    usePlottingStore.getState().seedFromOverview({
+      polyline: row.base_polyline,
+      stops: row.stops.map((stop) => ({
         id: stop.stop_id,
         name: stop.name,
         type: stop.type,
         location: stop.location.coordinates,
-        is_guaranteed_service: stop.is_guaranteed_service,
-        landmark_hint: stop.landmark_hint,
-        notes: stop.notes,
       })),
-      base.base_polyline, // closes the chain when the route is a loop (FR-004)
-    );
-    store.setPolyline(base.base_polyline);
-    // The loaded route is the saved baseline — undo back to it hides Save.
-    store.captureSavedBaseline();
-    store.requestFit();
-  }, [routeQuery.data]);
+    });
+  }, [routeId, routeQuery.data]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
