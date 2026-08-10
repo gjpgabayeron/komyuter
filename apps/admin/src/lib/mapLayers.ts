@@ -93,6 +93,7 @@ export function useDrawWhenReady(
   ensure: () => boolean,
   signature: () => unknown,
   apply: () => void,
+  layerIds?: readonly string[],
 ): void {
   const ensureRef = useRef(ensure);
   ensureRef.current = ensure;
@@ -100,6 +101,8 @@ export function useDrawWhenReady(
   signatureRef.current = signature;
   const applyRef = useRef(apply);
   applyRef.current = apply;
+  const layerIdsRef = useRef(layerIds);
+  layerIdsRef.current = layerIds;
   const ensuredRef = useRef(false);
   const dirtyRef = useRef(false);
   const lastSignature = useRef<unknown>(null);
@@ -128,14 +131,49 @@ export function useDrawWhenReady(
       lastSignature.current = null;
       tick();
     };
+    const onStyledata = () => {
+      // `styledata` fires for ANY style update — including the crossfade's
+      // per-frame setPaintProperty calls. Only a style RELOAD (or explicit
+      // layer removal) destroys our layers, so resetting the signature here
+      // unconditionally made every fade frame force a full redraw (transition
+      // stutter). Detect destruction via the caller's layer ids: layers gone
+      // ⇒ invalidate; layers present ⇒ paint-only update, leave it alone.
+      // NOTE: no isStyleLoaded() gate — it OSCILLATES during transitions
+      // (paint churn), so gating here starves the retry path.
+      const ids = layerIdsRef.current;
+      if (ids && ids.length > 0 && ids.every((id) => map.getLayer(id))) {
+        // Layers intact: paint-only update (fades) — never invalidate, just
+        // ensure the source if somehow missing.
+        if (!ensuredRef.current) {
+          ensuredRef.current = ensureRef.current();
+        }
+        return;
+      }
+      invalidate();
+    };
     dirtyRef.current = true;
     tick();
+    // Ensure-retry safety net: the event-driven path (idle/load/styledata)
+    // can stall while the style flaps and the map never settles to idle
+    // (transition paint churn) — poll a bounded number of frames so the
+    // source/layers are built shortly after the style becomes drawable.
+    let ensureRetries = 0;
+    const retryEnsure = () => {
+      if (ensuredRef.current) return;
+      if (map.isStyleLoaded()) {
+        ensuredRef.current = ensureRef.current();
+        if (ensuredRef.current && dirtyRef.current) tick();
+        return;
+      }
+      if (ensureRetries++ < 150) requestAnimationFrame(retryEnsure);
+    };
+    retryEnsure();
     map.on("load", invalidate);
-    map.on("styledata", invalidate);
+    map.on("styledata", onStyledata);
     map.on("idle", tick);
     return () => {
       map.off("load", invalidate);
-      map.off("styledata", invalidate);
+      map.off("styledata", onStyledata);
       map.off("idle", tick);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

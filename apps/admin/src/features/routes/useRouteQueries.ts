@@ -1,7 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
 import { routeKeys } from "@/lib/queryKeys";
+import { readOverviewCache, writeOverviewCache } from "@/lib/overviewCache";
 import {
   patchRouteCreated,
   patchRouteDeleted,
@@ -43,12 +45,26 @@ export function useRoutesQuery() {
 }
 
 export function useOverviewQuery() {
-  return useQuery({
+  const query = useQuery({
     queryKey: routeKeys.overview,
     queryFn: listOverview,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
+    // Warm reloads render the cached geometry IMMEDIATELY alongside the map
+    // (no blank state); the refetch then replaces it and RouteOverviewLayer
+    // fades the fresh data in. The function form reads localStorage only
+    // while the query is actually loading.
+    placeholderData: () => readOverviewCache() ?? undefined,
   });
+  // Mirror fresh data back to localStorage so the NEXT reload is instant
+  // too. Skipped while the placeholder is on screen (that IS the cached
+  // value — writing it back would be a needless churn).
+  useEffect(() => {
+    if (query.data && !query.isPlaceholderData) {
+      writeOverviewCache(query.data);
+    }
+  }, [query.data, query.isPlaceholderData]);
+  return query;
 }
 
 export function useRouteQuery(routeId: string | null) {

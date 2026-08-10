@@ -1,4 +1,5 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { fadeLineLayers, fadeOutLayers } from "@/lib/overviewFade";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import type { GeoLineString } from "@komyuter/shared";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -25,6 +26,8 @@ import {
 
 /** Signboard green-blue (draft path — committed to save). */
 const DRAFT_LINE = "#1B6DB2";
+/** Crossfade-out duration for the editor's committed draft line (edit→overview). */
+const DRAFT_FADE_OUT_MS = 200;
 /** Vivid orange (transient connecting line — the straight fallback shown
  *  until a road-snapped path exists; never persisted). */
 const PREVIEW_LINE = "#FF5C00";
@@ -217,12 +220,93 @@ const RouteLines = memo(function RouteLines({
   draft,
   connecting,
   color,
+  routeId,
 }: {
   draft: GeoLineString | null;
   connecting: GeoLineString | null;
   color: string;
+  routeId: string | null;
 }) {
   const map = useMap().current?.getMap();
+  // Crossfade bookkeeping for the draft line: keep the CURRENT draft in a ref
+  // (the fade-out completion checks it), the LAST non-null draft (the anchor
+  // to fade out), and a guard that pauses the apply's source update while a
+  // fade-out is running (otherwise setData([]) would cut the line instantly).
+  const draftRef = useRef<GeoLineString | null>(draft);
+  draftRef.current = draft;
+  const lastDraftRef = useRef<GeoLineString | null>(null);
+  const draftFadeOutRef = useRef(false);
+  // One-time fade-in for the committed draft line per route open: entering
+  // the editor from the overview fades the polyline in instead of popping it
+  // (the overview→edit transition carries the fade over). Keyed on routeId so
+  // snap auto-commits during editing stay immediate (responsiveness), and the
+  // fade re-arms for the next route. Deliberately NOT inside the apply step —
+  // the fade's setPaintProperty emits `styledata`, which would feed
+  // useDrawWhenReady's invalidate→apply cycle (the overview fade-loop bug).
+  const draftFadedForRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!map || !draft || routeId === null) return;
+    if (draftFadedForRef.current === routeId) return;
+    const layerId = "route-line-draft";
+    let attempts = 0;
+    const tryFade = () => {
+      if (map.getLayer(layerId)) {
+        draftFadedForRef.current = routeId;
+        fadeLineLayers(map, [{ id: layerId, prop: "line-opacity" }]);
+        return;
+      }
+      // The layer is created by useDrawWhenReady on style load — retry a few
+      // frames so the very first draw still fades in.
+      if (attempts++ < 30) requestAnimationFrame(tryFade);
+    };
+    tryFade();
+  }, [map, draft, routeId]);
+
+  // CROSSFADE OUT (edit→overview / route close): when the committed draft
+  // becomes null while geometry was showing, fade the line to 0 over ~200 ms
+  // instead of popping it — the overview's fresh lines fade in on top. The
+  // apply step pauses its source update during the fade (guard below), and the
+  // geometry is only cleared after the fade completes.
+  const draftFadeOutCancelRef = useRef<(() => void) | null>(null);
+  useEffect(() => {
+    if (!map) return;
+    if (draft) {
+      lastDraftRef.current = draft;
+      // A new route opened while (or right after) a fade-out was running:
+      // cancel the fade, unblock the apply guard, and re-arm the fade-in so
+      // the fresh draft actually renders (second-edit blank bug — the layer
+      // was left at opacity 0 and the fade-in skipped for the same routeId).
+      if (draftFadeOutRef.current) {
+        draftFadeOutRef.current = false;
+        draftFadeOutCancelRef.current?.();
+        draftFadeOutCancelRef.current = null;
+        draftFadedForRef.current = null;
+      }
+      return;
+    }
+    if (!lastDraftRef.current || draftFadeOutRef.current) return;
+    draftFadeOutRef.current = true;
+    draftFadedForRef.current = null; // re-arm the fade-in for the NEXT open
+    draftFadeOutCancelRef.current = fadeOutLayers(
+      map,
+      [{ id: "route-line-draft", prop: "line-opacity" }],
+      DRAFT_FADE_OUT_MS,
+      () => {
+        draftFadeOutRef.current = false;
+        draftFadeOutCancelRef.current = null;
+        // Only clear the geometry if the route is still closed — a new route
+        // may have opened during the fade (its own data must survive).
+        if (draftRef.current === null) {
+          lastDraftRef.current = null;
+          setSourceData(map, "route-lines", []);
+        }
+      },
+    );
+    return () => {
+      draftFadeOutCancelRef.current?.();
+      draftFadeOutCancelRef.current = null;
+    };
+  }, [map, draft]);
 
   useDrawWhenReady(
     map,
@@ -292,8 +376,12 @@ const RouteLines = memo(function RouteLines({
           geometry: connecting,
         });
       }
+      // While a draft fade-out runs, keep the previous geometry pinned so the
+      // line can fade out instead of being cut by an empty source update.
+      if (draftFadeOutRef.current) return;
       setSourceData(map!, "route-lines", features);
     },
+    ["route-line-draft", "route-line-connecting"],
   );
 
   return null;
@@ -437,6 +525,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
             draft={layers.routes ? polyline : null}
             connecting={layers.routes ? connectingLine : null}
             color={routeColor ?? DRAFT_LINE}
+            routeId={routeId}
           />
           {routeId !== null && <PoiSearchBar />}
           {poi && (

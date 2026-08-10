@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Marker, useMap } from "react-map-gl/maplibre";
 import type {
-  ExpressionSpecification,
   Map as MapLibreMap,
   MapLayerMouseEvent,
   MapMouseEvent,
@@ -15,6 +14,12 @@ import {
   setSourceData,
   useDrawWhenReady,
 } from "@/lib/mapLayers";
+import {
+  OVERVIEW_FADE_MS,
+  fadeOutLayers,
+  mapIsUsable,
+  overviewOpacityAt,
+} from "@/lib/overviewFade";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { divergingSegments } from "@/lib/coords";
 import { findOppositeOverlapRuns, shiftOverlapRuns } from "@/lib/overlap";
@@ -32,28 +37,23 @@ const OVERVIEW_LAYERS = [
 /** Distance between direction arrows along a polyline (pixels). */
 const ARROW_SPACING_PX = 200;
 
-/** Rasterizes a small right-pointing triangle into an RGBA image for
- *  MapLibre's SDF icon pipeline (icon-color tints it per route). The triangle
- *  points EAST; the symbol layer's line placement rotates it to the direction
- *  of travel. */
+/** Creates the small right-pointing triangle used for direction arrows. */
 function createArrowIcon(): {
   width: number;
   height: number;
   data: Uint8ClampedArray;
 } | null {
-  if (typeof document === "undefined") return null;
   const size = 28;
   const canvas = document.createElement("canvas");
   canvas.width = size;
   canvas.height = size;
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  ctx.clearRect(0, 0, size, size);
-  ctx.fillStyle = "#000000";
+  ctx.fillStyle = "#fff";
   ctx.beginPath();
-  ctx.moveTo(6, 5); // back top
-  ctx.lineTo(23, 14); // tip
-  ctx.lineTo(6, 23); // back bottom
+  ctx.moveTo(6, 5);
+  ctx.lineTo(23, 14);
+  ctx.lineTo(6, 23);
   ctx.closePath();
   ctx.fill();
   return {
@@ -63,18 +63,50 @@ function createArrowIcon(): {
   };
 }
 
-/** Default: all routes visible. When any route is hovered/focused, the active
- *  one stays at full opacity and everything else recedes. */
-const OVERVIEW_OPACITY: ExpressionSpecification = [
-  "case",
-  ["==", ["feature-state", "hovered"], true],
-  1,
-  ["==", ["feature-state", "focused"], true],
-  1,
-  ["==", ["feature-state", "emphasized"], true],
-  0.15,
-  0.9,
-];
+/** Writes the current fade-in opacity (overviewOpacityAt(t)) to every existing
+ *  overview layer. Missing layers are skipped — the writes are safe no-ops
+ *  until the layers exist. */
+function writeOverviewOpacity(map: MapLibreMap, t: number): void {
+  if (!mapIsUsable(map)) return;
+  const isLine = (layerId: string) => layerId.startsWith("overview-lines-");
+  const opacity = overviewOpacityAt(t);
+  for (const layerId of OVERVIEW_LAYERS) {
+    if (!map.getLayer(layerId)) continue;
+    map.setPaintProperty(
+      layerId,
+      isLine(layerId) ? "line-opacity" : "icon-opacity",
+      opacity,
+    );
+  }
+}
+
+/** Single-flight guard: at most one fade-in timeline runs at a time. */
+let fadeTimelineRunning = false;
+
+/** Runs the 0→1 fade-in on a fixed 25 ms setTimeout timeline (immune to rAF
+ *  starvation). `onDone` fires on completion. The caller zeroes first via
+ *  writeOverviewOpacity(map, 0) — so freshly created layers never paint a
+ *  full-opacity frame. A no-op while another timeline is running. */
+function animateOverviewFadeIn(map: MapLibreMap, onDone?: () => void): void {
+  if (fadeTimelineRunning) return;
+  fadeTimelineRunning = true;
+  writeOverviewOpacity(map, 0);
+  const start = performance.now();
+  const step = () => {
+    const t = Math.max(
+      0,
+      Math.min(1, (performance.now() - start) / OVERVIEW_FADE_MS),
+    );
+    writeOverviewOpacity(map, t);
+    if (t < 1) {
+      window.setTimeout(step, 25);
+    } else {
+      fadeTimelineRunning = false;
+      onDone?.();
+    }
+  };
+  step();
+}
 
 const SHAPE_CLASS: Record<StopShape, string> = {
   square: "rounded-[4px]",
@@ -138,6 +170,7 @@ function fitToOverview(map: MapLibreMap, overview: OverviewRoute) {
  */
 export function RouteOverviewLayer() {
   const map = useMap().current?.getMap();
+
   const overviewRouteId = usePlottingStore((s) => s.overviewRouteId);
   const setOverviewRouteId = usePlottingStore((s) => s.setOverviewRouteId);
 
@@ -262,12 +295,58 @@ export function RouteOverviewLayer() {
 
     return features;
   }, [overviewRoutes]);
+  // One-time fade-in per MOUNT — the same simple pattern as the editor's
+  // draft line: one trigger (this effect), retry until the base layer exists,
+  // then a single 0→1 fade. No anchors, no crossfades, no re-fades: a later
+  // data change (refetch / save) swaps the geometry INSTANTLY via the apply —
+  // re-fading the already-visible lines is what reads as the flicker.
+  // Deliberately NOT inside the apply step: the fade's setPaintProperty calls
+  // emit `styledata`, which useDrawWhenReady treats as a style reload
+  // (invalidate → apply → fade → styledata → …) — that cycle self-sustains
+  // into a constant fade loop.
+  const fadedInRef = useRef(false);
+  /** Whether the overview source was missing at this mount's first data-effect
+   *  run (evaluated BEFORE the ensure creates it): missing → FRESH (fade in
+   *  0→1); present → the layers survived the edit (fast return → restore to
+   *  full instantly, never zero the visible lines). Decided from MAP state
+   *  only — module state is unreliable under HMR module duplication. */
+  const freshRef = useRef<boolean | null>(null);
+  useEffect(() => {
+    if (!map) return;
+    // Capture the mount-time source state BEFORE the empty-features guard and
+    // before the ensure can create the source: on the initial page load the
+    // ensure may create the (empty) source while the overview query is still
+    // resolving — capturing after that would misclassify the fresh overview
+    // as a "survivor" and skip the fade-in.
+    if (freshRef.current === null) {
+      freshRef.current = !map.getSource("overview-lines");
+    }
+    if (overviewFeatures.length === 0) return;
+    if (fadedInRef.current) return;
+    let attempts = 0;
+    const tryFade = () => {
+      if (!map.getLayer("overview-lines-base")) {
+        if (attempts++ < 300) requestAnimationFrame(tryFade);
+        return;
+      }
+      fadedInRef.current = true;
+      if (freshRef.current) {
+        animateOverviewFadeIn(map);
+      } else {
+        // Layers survived the edit (fast return) — they are at some partial
+        // opacity from the cancelled teardown fade-out. Never zero the
+        // visible lines; restore them to full immediately.
+        writeOverviewOpacity(map, 1);
+      }
+    };
+    tryFade();
+  }, [overviewFeatures, map]);
+
   useDrawWhenReady(
     map,
     [overviewFeatures],
     () => {
       if (!map) return false;
-
       ensureGeoJsonSource(map, "overview-lines");
 
       if (!map.hasImage("route-arrow")) {
@@ -286,7 +365,7 @@ export function RouteOverviewLayer() {
 
           width: 7,
 
-          opacity: OVERVIEW_OPACITY,
+          opacity: overviewOpacityAt(1),
         }),
 
         lineLayerSpec("overview-lines-casing-return", {
@@ -298,7 +377,7 @@ export function RouteOverviewLayer() {
 
           width: 7,
 
-          opacity: OVERVIEW_OPACITY,
+          opacity: overviewOpacityAt(1),
         }),
 
         lineLayerSpec("overview-lines-base", {
@@ -310,7 +389,7 @@ export function RouteOverviewLayer() {
 
           width: 3.5,
 
-          opacity: OVERVIEW_OPACITY,
+          opacity: overviewOpacityAt(1),
         }),
 
         lineLayerSpec("overview-lines-return", {
@@ -322,7 +401,7 @@ export function RouteOverviewLayer() {
 
           width: 3.5,
 
-          opacity: OVERVIEW_OPACITY,
+          opacity: overviewOpacityAt(1),
         }),
       ];
 
@@ -360,7 +439,7 @@ export function RouteOverviewLayer() {
             paint: {
               "icon-color": ["coalesce", ["get", "color"], "#1B6DB2"],
 
-              "icon-opacity": OVERVIEW_OPACITY,
+              "icon-opacity": overviewOpacityAt(1),
             },
           });
         }
@@ -381,15 +460,42 @@ export function RouteOverviewLayer() {
       }));
       setSourceData(map!, "overview-lines", features);
     },
+    OVERVIEW_LAYERS,
   );
+
+  /** The map-scoped mount token: a fresh object identity per mount, stored on
+   *  the MAP (shared across module copies — HMR can load two copies of this
+   *  module, so module-level state is unreliable). The unmount teardown
+   *  captures its own token; its delayed fade-out/removeAll are ABORTED if a
+   *  newer mount already re-owns the layers (fast Back during the 250 ms
+   *  overview→edit fade-out would otherwise let the old teardown fight the
+   *  new fade-in and delete the new mount's layers — the edit→overview
+   *  flicker). */
+  /** Cancel handle of the in-flight teardown fade-out (best-effort; module
+   *  state is unreliable under HMR duplication, so this is a soft cancel). */
+  const teardownFadeCancelRef = useRef<(() => void) | null>(null);
 
   // Tear down the overview layers/source/image only when the component
   // unmounts (or the map is replaced) — NOT on every data refresh, which
   // would rebuild all six layers repeatedly and flicker. MapLibre keeps
   // whatever was drawn, so without this they'd linger under the editing view.
+  // CROSSFADE: on unmount (overview→edit) the old geometry fades OUT over
+  // OVERVIEW_FADE_MS while the editor's draft line fades in on top, then the
+  // layers/source/image are removed — no cut, no blank frame.
   useEffect(() => {
     if (!map) return;
-    return () => {
+    // Claim the map for THIS setup: every setup (StrictMode cycle, map
+    // re-settle) gets a FRESH token, so any prior teardown's fade-out and
+    // delayed removal abort the moment this setup runs.
+    const myToken = {};
+    (
+      map as MapLibreMap & { __komyuterOverviewMount?: object }
+    ).__komyuterOverviewMount = myToken;
+    let removed = false;
+    const removeAll = () => {
+      if (removed) return;
+      removed = true;
+      if (!mapIsUsable(map)) return;
       for (const layerId of OVERVIEW_LAYERS) {
         if (map.getLayer(layerId)) map.removeLayer(layerId);
       }
@@ -399,6 +505,32 @@ export function RouteOverviewLayer() {
       if (map.hasImage("route-arrow")) {
         map.removeImage("route-arrow");
       }
+    };
+    return () => {
+      const layers: { id: string; prop: "line-opacity" | "icon-opacity" }[] =
+        OVERVIEW_LAYERS.map((id) => ({
+          id,
+          prop: id.startsWith("overview-lines-")
+            ? "line-opacity"
+            : "icon-opacity",
+        }));
+      const cancel = fadeOutLayers(
+        map,
+        layers,
+        OVERVIEW_FADE_MS,
+        () => {
+          teardownFadeCancelRef.current = null;
+          removeAll();
+        },
+        // Abort the fade-out the moment a newer mount claims the map (fast
+        // Back / StrictMode re-mount) — its opacity writes must never fight
+        // the new mount's fade-in, and the delayed removal must never delete
+        // the new mount's layers.
+        () =>
+          (map as MapLibreMap & { __komyuterOverviewMount?: object })
+            .__komyuterOverviewMount !== myToken,
+      );
+      teardownFadeCancelRef.current = cancel;
     };
   }, [map]);
 
@@ -464,10 +596,12 @@ export function RouteOverviewLayer() {
   }, [map, setOverviewRouteId]);
 
   // Apply hover/focus emphasis: the active route at full opacity, every other
-  // route receded once anything is active.
+  // route dimmed via a numeric `dim` feature-state — 0.5 while hovering,
+  // 0.15 while focused (focus takes precedence), null at rest.
   useEffect(() => {
     if (!map || !map.getSource("overview-lines")) return;
-    const anythingActive = hoveredRouteId !== null || overviewRouteId !== null;
+    const dim =
+      overviewRouteId !== null ? 0.15 : hoveredRouteId !== null ? 0.2 : null;
     for (const feature of featuresRef.current) {
       const isHovered = feature.routeId === hoveredRouteId;
       const isFocused = feature.routeId === overviewRouteId;
@@ -476,7 +610,7 @@ export function RouteOverviewLayer() {
         {
           hovered: isHovered,
           focused: isFocused,
-          emphasized: anythingActive && !isHovered && !isFocused,
+          dim: !isHovered && !isFocused ? dim : null,
         },
       );
     }
