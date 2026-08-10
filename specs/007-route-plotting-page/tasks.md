@@ -165,11 +165,11 @@ description: "Task list for the Route Plotting Page feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories.
 
-- [ ] T050 [P] WCAG AA pass across the page: contrast, visible focus, keyboard operability for every control in `PlotActionBar`, `PropertiesPanel`, `RouteList`, dialogs (FR-020)
-- [ ] T051 [P] Route Sign visual compliance audit (FR-025): pure white ground, cerulean identity, amber reserved for attention, ≤4px corners, no shadows; no new visual system introduced
-- [ ] T052 [P] ADR-0009 regression guard: grep the admin feature for any travel-time/ETA/duration display; the snap response must never surface `duration` (FR-021)
-- [ ] T053 [P] Write canonical ADR files `docs/adr/0011-auto-derived-return.md` and `docs/adr/0013-admin-maplibre-mapbox.md` and reconcile the stale "Leaflet exception / converter (ADR-0007)" text in `AGENTS.md` + constitution spatial section (research R6)
-- [ ] T054 Run the full quickstart validation (`specs/007-route-plotting-page/quickstart.md` scenarios 1–3) + quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server test`
+- [x] T050 [P] WCAG AA pass across the page: contrast, visible focus, keyboard operability for every control in `PlotActionBar`, `PropertiesPanel`, `RouteList`, dialogs (FR-020)
+- [x] T051 [P] Route Sign visual compliance audit (FR-025): pure white ground, cerulean identity, amber reserved for attention, ≤4px corners, no shadows; no new visual system introduced
+- [x] T052 [P] ADR-0009 regression guard: grep the admin feature for any travel-time/ETA/duration display; the snap response must never surface `duration` (FR-021)
+- [x] T053 [P] Write canonical ADR files `docs/adr/0011-auto-derived-return.md` and `docs/adr/0013-admin-maplibre-mapbox.md` and reconcile the stale "Leaflet exception / converter (ADR-0007)" text in `AGENTS.md` + constitution spatial section (research R6)
+- [x] T054 Run the full quickstart validation (`specs/007-route-plotting-page/quickstart.md` scenarios 1–3) + quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server test`
 
 ---
 

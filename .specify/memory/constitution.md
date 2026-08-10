@@ -77,9 +77,10 @@ cannot be validated.
 ## Additional Constraints: Domain & Spatial
 
 - Spatial data uses coordinate order `[longitude, latitude]` everywhere (GeoJSON, PostGIS
-  `ST_MakePoint`, Mapbox GL). Leaflet (`[lat, lng]`) is the only exception, converted at the
-  admin boundary by the single tested converter module (ADR-0007). A swapped pair puts stops
-  in the ocean — the single most dangerous pitfall in the project.
+  `ST_MakePoint`, MapLibre/Mapbox GL). `[lng, lat]` is the sole format in the admin UI —
+  MapLibre consumes it natively, so there is no conversion layer (ADR-0013 supersedes
+  ADR-0007's Leaflet exception). A swapped pair puts stops in the ocean — the single most
+  dangerous pitfall in the project.
 - Meter-based PostGIS distance math MUST cast `::geography`; raw geometry returns degrees.
 - Fare is the LTFRB formula — `base_fare + max(0, dist_km - base_dist_km) * rate_per_km`
   (defaults ₱13 / 4 km / ₱1.80; 20% student/senior) — owned by `fareCalculator` in
