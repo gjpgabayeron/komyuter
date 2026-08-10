@@ -334,6 +334,20 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                           setDropIndex(null);
                         }}
                         onClick={() => setSelection(selectStop(stop.id))}
+                        onKeyDown={(event) => {
+                          if (event.key === "ArrowUp" && index > 0) {
+                            event.preventDefault();
+                            reorderStop(index, index - 1);
+                          } else if (
+                            event.key === "ArrowDown" &&
+                            index < stops.length - 1
+                          ) {
+                            // reorderStop inserts BEFORE the target row, so a
+                            // down-move needs target = index + 2.
+                            event.preventDefault();
+                            reorderStop(index, index + 2);
+                          }
+                        }}
                         aria-label={`Select ${stop.name}`}
                         className={cn(
                           "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
@@ -341,7 +355,7 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                             ? "border-primary/50 bg-primary/5"
                             : "hover:bg-muted border-transparent",
                           isDragging && "opacity-40",
-                          isDropTarget && "shadow-[inset_0_2px_0_0_#1B6DB2]",
+                          isDropTarget && "border-t-primary border-t-2",
                         )}
                       >
                         <span
@@ -369,11 +383,14 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                           {stop.name}
                         </span>
                         <Badge
-                          variant="outline"
-                          className="h-4 shrink-0 px-1 text-[10px] font-medium"
+                          className="h-4 shrink-0 border px-1 text-[10px] font-medium"
                           style={{
+                            backgroundColor: shape.color,
                             borderColor: shape.color,
-                            color: shape.color,
+                            color:
+                              stop.type === "waiting_area"
+                                ? "#201A10"
+                                : "#ffffff",
                           }}
                         >
                           {STOP_TYPE_LABELS[stop.type]}
@@ -393,7 +410,7 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                           type="button"
                           aria-label={`Insert stop after ${stop.name}`}
                           onClick={() => insertAfter(stop.id)}
-                          className="text-muted-foreground/40 hover:text-primary flex w-full items-center justify-center py-0.5"
+                          className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
                         >
                           <Plus className="size-3" />
                         </button>

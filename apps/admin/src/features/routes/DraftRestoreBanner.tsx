@@ -31,7 +31,7 @@ export function DraftRestoreBanner({
   return (
     <div
       role="status"
-      className="border-primary/30 bg-background absolute top-3 left-1/2 z-20 flex max-w-md -translate-x-1/2 items-center gap-2 rounded-lg border px-3 py-2 text-sm shadow-sm"
+      className="border-primary/30 bg-background absolute top-3 left-1/2 z-20 flex max-w-md -translate-x-1/2 items-center gap-2 rounded-lg border px-3 py-2 text-sm"
     >
       <History className="text-primary size-4 shrink-0" aria-hidden />
       <span className="min-w-0 flex-1">

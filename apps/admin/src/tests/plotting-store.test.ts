@@ -303,6 +303,20 @@ describe("plottingStore", () => {
     expect(reorderStops(["A", "B", "C"], 0, 0)).toEqual(["A", "B", "C"]);
   });
 
+  it("reorderStops down-move needs target = index + 2 (insert-before semantics)", () => {
+    // reorderStop inserts BEFORE the target row, so moving an item down one
+    // slot requires passing index + 2; index + 1 is a no-op (T050 keyboard
+    // reorder regression guard).
+    expect(reorderStops(["A", "B", "C"], 0, 2)).toEqual(["B", "A", "C"]);
+    expect(reorderStops(["A", "B", "C"], 0, 1)).toEqual(["A", "B", "C"]);
+    expect(reorderStops(["A", "B", "C", "D"], 2, 4)).toEqual([
+      "A",
+      "B",
+      "D",
+      "C",
+    ]);
+  });
+
   it("reorderStop reorders the draft and re-requests the snap preview", async () => {
     vi.useFakeTimers();
     const fetcher = vi.fn(

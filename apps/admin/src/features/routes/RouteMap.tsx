@@ -531,7 +531,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
           {poi && (
             <Marker longitude={poi[0]} latitude={poi[1]}>
               <div className="flex flex-col items-center gap-0.5">
-                <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#C98A1B] text-[#201A10] shadow-[0_1px_2px_rgba(0,0,0,0.3)] ring-2 ring-white">
+                <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#C98A1B] text-[#201A10] ring-2 ring-white">
                   <MapPin className="size-4" />
                 </span>
                 <span className="rounded-xs border border-[#C98A1B] bg-white px-1 text-[10px] leading-4 font-medium text-[#201A10]">
@@ -570,10 +570,11 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     className={[
                       // Filled type-colour plate + white border + white halo for
                       // contrast against any basemap; selection adds a dark outline.
-                      "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums shadow-[0_1px_2px_rgba(0,0,0,0.3)] ring-2 ring-white transition-colors",
+                      "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
                       SHAPE_CLASS[shape.shape],
                       selected &&
                         "outline-foreground outline-2 outline-offset-1",
+                      "focus-visible:outline-foreground focus-visible:outline-2 focus-visible:outline-offset-1",
                       canDrag
                         ? "cursor-grab active:cursor-grabbing"
                         : "cursor-pointer",

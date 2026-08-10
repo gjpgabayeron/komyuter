@@ -629,10 +629,13 @@ export function RouteOverviewLayer() {
             <div className="flex flex-col items-center gap-0.5">
               <span
                 className={[
-                  "flex size-6 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums shadow-[0_1px_2px_rgba(0,0,0,0.3)] ring-2 ring-white",
+                  "flex size-6 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-2 ring-white",
                   SHAPE_CLASS[shape.shape],
                 ].join(" ")}
-                style={{ backgroundColor: shape.color, color: "#ffffff" }}
+                style={{
+                  backgroundColor: shape.color,
+                  color: stop.type === "waiting_area" ? "#201A10" : "#ffffff",
+                }}
               >
                 {shape.shape === "diamond" ? (
                   <span className="-rotate-45">{index + 1}</span>
