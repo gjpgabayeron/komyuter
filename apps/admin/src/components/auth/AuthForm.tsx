@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NoticePlate } from "@/components/shared/NoticePlate";
 import { ApiError } from "@/lib/api";
 
 export interface LoginFormData {
@@ -14,6 +15,8 @@ export interface LoginFormData {
 
 interface AuthFormProps {
   onSubmit: (data: LoginFormData) => Promise<void>;
+  /** True when the user was redirected here because their session expired. */
+  sessionExpired?: boolean;
 }
 
 interface FieldErrors {
@@ -40,7 +43,7 @@ function messageForError(error: unknown): string {
   return "Something went wrong. Please try again.";
 }
 
-export function AuthForm({ onSubmit }: AuthFormProps) {
+export function AuthForm({ onSubmit, sessionExpired = false }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -79,6 +82,16 @@ export function AuthForm({ onSubmit }: AuthFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
+      {sessionExpired ? (
+        <NoticePlate
+          noticeRole="alert"
+          className="border-warning bg-warning/10 text-warning-foreground"
+        >
+          <TriangleAlert className="size-4 shrink-0" />
+          <span>Your session expired. Sign in again to continue working.</span>
+        </NoticePlate>
+      ) : null}
+
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-foreground text-2xl font-semibold tracking-tight lg:text-3xl">
           Sign in to Komyuter

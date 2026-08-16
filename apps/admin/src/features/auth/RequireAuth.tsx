@@ -1,9 +1,10 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/features/auth/auth";
+import { BackendUnreachable } from "@/features/auth/BackendUnreachable";
 
 export function RequireAuth() {
-  const { status } = useAuth();
+  const { status, sessionExpired } = useAuth();
   const location = useLocation();
 
   if (status === "loading") {
@@ -15,12 +16,19 @@ export function RequireAuth() {
     );
   }
 
+  if (status === "unreachable") {
+    return <BackendUnreachable />;
+  }
+
   if (status !== "authenticated") {
     return (
       <Navigate
         to="/login"
         replace
-        state={{ returnTo: location.pathname + location.search }}
+        state={{
+          returnTo: location.pathname + location.search,
+          sessionExpired,
+        }}
       />
     );
   }

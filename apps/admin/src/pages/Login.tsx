@@ -6,7 +6,12 @@ import { BrandPanel } from "@/components/auth/BrandPanel";
 import { ConnectionBanner } from "@/components/shared/ConnectionBanner";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { useAuth } from "@/features/auth/auth";
-import { getReturnPath } from "@/features/auth/redirect";
+import {
+  clearSavedReturnPath,
+  getReturnPath,
+  getSessionExpired,
+  readSavedReturnPath,
+} from "@/features/auth/redirect";
 import { useOnline } from "@/lib/useOnline";
 
 export default function Login() {
@@ -16,11 +21,16 @@ export default function Login() {
   const online = useOnline();
 
   const returnTo = getReturnPath(location.state);
+  const sessionExpired = getSessionExpired(location.state);
 
   const handleSubmit = async ({ email, password }: LoginFormData) => {
     await signIn(email, password);
     toast.success("Signed in");
-    navigate(returnTo, { replace: true });
+    // A saved sessionStorage return path (from the 401 interceptor) wins over
+    // location.state — it survives a full reload of the login screen.
+    const savedPath = getReturnPath({ returnTo: readSavedReturnPath() });
+    clearSavedReturnPath();
+    navigate(savedPath !== "/" ? savedPath : returnTo, { replace: true });
   };
 
   return (
@@ -32,7 +42,7 @@ export default function Login() {
             <BrandMark />
           </div>
           <div className="w-full max-w-sm">
-            <AuthForm onSubmit={handleSubmit} />
+            <AuthForm onSubmit={handleSubmit} sessionExpired={sessionExpired} />
           </div>
         </div>
         <div className="hidden h-full py-2 xl:flex xl:pr-4">
