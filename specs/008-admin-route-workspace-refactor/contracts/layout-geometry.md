@@ -13,7 +13,7 @@ Fixed geometry that makes collision impossible at the 1024 px floor. No responsi
 
 ```ts
 export const WORKSPACE_GEOMETRY = {
-  gutter: 16, // px — white desk, only BETWEEN plates (no outer margins)
+  gutter: 0, // px — NO gutter track: the 12 px `p-3` inset padding on each column cell is the spacing (an extra gutter would double-space)
   leftCol: 256, // px — constant across overview/focus/edit (floating left plate)
   rightCol: 336, // px — ONE width across focus and edit (floating right plate)
   minMapWidth: 400, // px — gate invariant, not a viewport class
@@ -23,12 +23,12 @@ export const WORKSPACE_GEOMETRY = {
 
 **Free-map-region formulas** (rail collapsed; `railW` = persisted shell-rail width). The map itself spans the whole workspace (ADR-0015); these compute the strip NOT covered by the floating plates — the region the user actually interacts with. Hover mode uses the **collapsed** figures: the rail overlays the workspace at `z-30` without changing its width, so the free region is unaffected by hover-expand.
 
-| State            | Free map region                                    |
-| ---------------- | -------------------------------------------------- |
-| `overview`       | `viewport − railW − leftCol − gutter`              |
-| `focus` / `edit` | `viewport − railW − leftCol − rightCol − 2·gutter` |
+| State            | Free map region                         |
+| ---------------- | --------------------------------------- |
+| `overview`       | `viewport − railW − leftCol`            |
+| `focus` / `edit` | `viewport − railW − leftCol − rightCol` |
 
-Reference (rail collapsed): overview @ 1024 = **752**; focus @ 1024 = **400** (floor), @ 1440 = **816**, @ 1920 = **1296**. These are **workspace-width** figures (the strip right of the shell rail): at a literal 1024 px window the 48 px collapsed rail leaves 976 px of workspace, so the focus region is 352 and the gate guards — the floor is effectively ~1056 px with the rail collapsed, ~1264 expanded.
+Reference (rail collapsed): overview @ 1024 = **768**; focus @ 1024 = **432**, @ 1440 = **848**, @ 1920 = **1328**. These are **workspace-width** figures (the strip right of the shell rail): at a literal 1024 px window the 48 px collapsed rail leaves 976 px of workspace, so the focus region is 384 and the gate guards — the floor is effectively ~1024 px of workspace with the rail collapsed, ~1072 px of window.
 
 ## 2. Gate contract (`NarrowWindowGate`)
 

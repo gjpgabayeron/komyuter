@@ -33,7 +33,7 @@ Verified against code:
 
 **Performance Goals**: State transitions are instant snaps (no tween/slide; reduced-motion default); empty-veil fade ≤ 120 ms; focus framing ≤ 400 ms; the GL canvas resizes at most **twice** in the whole journey (`empty→overview`, `overview→focus`); `focus ⇄ edit` resizes nothing. No network/latency targets — zero new requests.
 
-**Constraints**: `[lng, lat]` sole coordinate format (ADR-0013 — MapLibre native, no conversion layer); **no ETA anywhere** (ADR-0009); API envelope `{ success, data | error }` (untouched); strict TS via shared config; single root ESLint flat config; prettier `format:check`; commitlint conventional commits; **Route Sign grammar** binding (white plates, 1 px border, ≤ 4 px corners, no shadows, 16 px gutters — DESIGN.md); **one GL instance, forever** (never unmount/re-init from a state transition); center column is a one-hit-target region (no `stopPropagation` on `pointerdown`; `pointer-events: auto` opt-in only on search/status/action bars); right column has **one width** (336 px) across focus/edit.
+**Constraints**: `[lng, lat]` sole coordinate format (ADR-0013 — MapLibre native, no conversion layer); **no ETA anywhere** (ADR-0009); API envelope `{ success, data | error }` (untouched); strict TS via shared config; single root ESLint flat config; prettier `format:check`; commitlint conventional commits; **Route Sign grammar** binding (white plates, 1 px border, ≤ 4 px corners, no shadows — DESIGN.md; in the workspace the spacing between plates is the 12 px `p-3` column inset, not a gutter track — `gutter: 0`); **one GL instance, forever** (never unmount/re-init from a state transition); center column is a one-hit-target region (no `stopPropagation` on `pointerdown`; `pointer-events: auto` opt-in only on search/status/action bars); right column has **one width** (336 px) across focus/edit.
 
 **Scale/Scope**: Single Administrator; tens of routes; ~10–40 stops per direction; a handful of workspace files re-homed across 5 phases (see Project Structure).
 
@@ -65,7 +65,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 │  │ stops    │  │  status (TR)         │  │ property     │  │
 │  │ search   │  │  action bar (B)      │  │ panel        │  │
 │  └──────────┘  └──────────────────────┘  └──────────────┘  │
-│  16px gutter between all plates (white desk)               │
+│  no gutter track — 12px p-3 column inset (spacing)     │
 ├────────────────────────────────────────────────────────────┤
 │  LAYER 2 · POLYLINE ROUTES — MapLibre layers on the ONE    │
 │  instance: base/draft/return polylines, stop markers,      │
@@ -116,14 +116,14 @@ Keyboard (FR-008): Esc dismisses in `focus`; Esc returns to `overview` from `edi
 
 | Token         |            Value | Notes                                                                                                                                            |
 | ------------- | ---------------: | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Gutter        |            16 px | white desk between plates                                                                                                                        |
+| Gutter        |             0 px | **no gutter track** — the 12 px `p-3` inset padding on each column cell is the spacing (an extra gutter would double-space)                      |
 | Left column   |           256 px | constant across overview/focus/edit                                                                                                              |
 | Right column  |           336 px | **one width across focus and edit** (content swap, no resize)                                                                                    |
 | Center column |        remainder | the map region; never scrolls                                                                                                                    |
 | Shell rail    |  user preference | persisted `sidebarMode` honored; expanded **docks/pushes**; collapsed stays icon-width; hover **overlays** the content (D1, reversed 2026-08-16) |
 | Floor         | 1024 px viewport | below → NarrowWindowGate plate; the gate guards **map width ≥ 400 px**, not a viewport class (works for both rail states)                        |
 
-Canvas resize moments in the whole journey: **zero** — the map spans the full workspace as a backdrop (ADR-0015), so plate mounting never changes the canvas size. Reference free-map-region figures (workspace-width, rail collapsed): overview @ 1024 ≈ 752 px; focus @ 1024 ≈ 400 px, 1440 ≈ 816 px, 1920 ≈ 1296 px. With the rail collapsed at a literal 1024 px window the workspace is 976 px, so the focus region is 352 px and the map-width gate takes over whenever the free region would fall below 400 px.
+Canvas resize moments in the whole journey: **zero** — the map spans the full workspace as a backdrop (ADR-0015), so plate mounting never changes the canvas size. Reference free-map-region figures (workspace-width, rail collapsed): overview @ 1024 ≈ 768 px; focus @ 1024 ≈ 432 px, 1440 ≈ 848 px, 1920 ≈ 1328 px. With the rail collapsed at a literal 1024 px window the workspace is 976 px, so the focus region is 384 px and the map-width gate takes over whenever the free region would fall below 400 px.
 
 ### Invariants (do not break)
 
@@ -131,7 +131,7 @@ Canvas resize moments in the whole journey: **zero** — the map spans the full 
 2. **The center column is a one-hit-target region.** Transparent, never scrolls, no `touch-action` override, no `stopPropagation` on `pointerdown`. The canvas is the default hit target; `pointer-events: auto` is opt-in **only** on search/status/action bars.
 3. **Right column has one width** across focus/edit. Changing the panel's _content_, never its footprint.
 4. **Reduced-motion snap.** Mounts are instant; no slide/tween; veil fade ≤ 120 ms; framing ≤ 400 ms. Gate any motion behind `prefers-reduced-motion`.
-5. **Plate grammar.** White plates, 1 px border, ≤ 4 px corners, no shadows, 16 px gutter. The map itself is a plate (white 1 px border, square corners) — "plates on a white desk".
+5. **Plate grammar.** White plates, 1 px border, ≤ 4 px corners, no shadows. The workspace's inter-plate spacing is the 12 px `p-3` column inset (`gutter: 0` — no gutter track, which would double-space). The map itself is a plate (white 1 px border, square corners) — "plates on a white desk".
 6. **No responsive system.** `min-width: 1024px` gate plate is the _only_ width behavior. No breakpoints, no sheets, no icon-rail collapses.
 7. **A11y not waived by desktop-only.** Named landmarks (`<nav aria-label="Routes">`, `<aside aria-label="Route properties">`), keyboard paths (Esc, CTA autofocus, stop cycling), focus management, and ≥ AA text sizes still apply (FR-009).
 8. **The safety net is sacred.** Draft (24 h TTL, debounced), undo/redo, `beforeunload` + `pushState` guards, atomic save: re-homed, not re-designed (FR-010).
@@ -174,7 +174,7 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 | --- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | M   | `pages/RouteWorkspace.tsx`                       | Becomes the state-machine orchestrator: derives `empty`, owns transitions and keyboard, renders per-state column set. Deletes the overlay-positioning absolutes (`left-3`/`right-3`/`z-*` panels). |
 | M   | `lib/plottingStore.ts`                           | Add derived `uiState` selector (pure, unit-tested); add `focusedRouteId` (selection without edit).                                                                                                 |
-| A   | `features/routes/workspace/WorkspaceColumns.tsx` | The three-column layout shell with fixed tokens (256/336/remainder, 16 px gutters), per-state mounts.                                                                                              |
+| A   | `features/routes/workspace/WorkspaceColumns.tsx` | The three-column layout shell with fixed tokens (256/336/remainder, no gutter track — 12 px `p-3` column inset is the spacing), per-state mounts.                                                  |
 | M   | `lib/selection.ts`                               | Map polyline click sets **focus** (metadata), not edit.                                                                                                                                            |
 
 #### Phase 3 — Columns and chrome

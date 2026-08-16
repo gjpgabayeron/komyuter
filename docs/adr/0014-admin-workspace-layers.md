@@ -12,7 +12,7 @@ Rationale: the map interactions, multilayered UI, and column layout would not tr
 
 1. **Basemap** — one persistent MapLibre GL instance (ADR-0013), mounted once, **never unmounted or re-initialized** across states.
 2. **Polyline Routes** — all route/stop/draft geometry as MapLibre layers on that single instance (never DOM, never a second canvas).
-3. **Floating UI** — DOM plates above the canvas: left column (routes/stops nav, 240px), center column (the map region + per-state chrome: search top-left, status top-right, action bar bottom), right column (contextual properties, 336px), with 16px gutters ("plates on a white desk").
+3. **Floating UI** — DOM plates above the canvas: left column (routes/stops nav, 256px), center column (the map region + per-state chrome: search top-left, status top-right, action bar bottom), right column (contextual properties, 336px), with no gutter track — the 12 px `p-3` column inset is the inter-plate spacing ("plates on a white desk").
 
 ## Four states
 

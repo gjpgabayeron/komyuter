@@ -3,17 +3,23 @@
  * (plan.md Geometry table; REFACTOR.md "no outer margins, gutters only
  * between plates"). Under the ADR-0015 layering the plates FLOAT over a
  * full-bleed map; these tokens fix their widths, so they still describe the
- * free map region that stays visible between them.
+ * free map region that stays visible between them. There is NO gutter track
+ * (`gutter: 0`) — the visual spacing between plates and map is the 12 px
+ * `p-3` inset padding on each column cell, so the free region is simply
+ * viewport − plate widths.
  *
- * Reference figures (rail collapsed): overview @ 1024 = 752; focus/edit
- * @ 1024 = 400 (floor), @ 1440 = 816, @ 1920 = 1296 — **workspace-width**
+ * Reference figures (rail collapsed): overview @ 1024 = 768; focus/edit
+ * @ 1024 = 432, @ 1440 = 848, @ 1920 = 1328 — **workspace-width**
  * math (the strip right of the 48 px collapsed rail); at a literal 1024 px
- * window the workspace is 976 px, so the focus region is 352 and the gate
+ * window the workspace is 976 px, so the focus region is 384 and the gate
  * correctly guards (FR-004).
  */
 export const WORKSPACE_GEOMETRY = {
   leftCol: 256,
   rightCol: 336,
+  // No gutter track: the visual spacing between the floating plates and the
+  // map comes from the 12 px `p-3` inset padding on each column cell — an
+  // extra gutter would double-space the layout (see WorkspaceColumns).
   gutter: 0,
   minMapWidth: 400,
 } as const;

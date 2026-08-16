@@ -53,24 +53,24 @@ uiState(routes, routeId, focusedRouteId) =
 
 Fixed, declarative, no responsive system (spec FR-001; ADR-0014):
 
-| Token         |                        Value | Role                                                                                  |
-| ------------- | ---------------------------: | ------------------------------------------------------------------------------------- |
-| `gutter`      |                        16 px | white desk between plates                                                             |
-| `leftCol`     |                       256 px | constant across overview/focus/edit                                                   |
-| `rightCol`    |                       336 px | one width across focus and edit                                                       |
-| `centerCol`   | `100% − 256 − 336 − gutters` | the FREE map region between the floating plates (ADR-0015); never scrolls             |
-| `rail`        |      persisted `sidebarMode` | expanded docks/pushes; collapsed icon-width; hover overlays (D1, reversed 2026-08-16) |
-| `minMapWidth` |                       400 px | gate invariant (not a viewport class)                                                 |
-| `minViewport` |                      1024 px | declared desktop floor                                                                |
+| Token         |                   Value | Role                                                                                   |
+| ------------- | ----------------------: | -------------------------------------------------------------------------------------- |
+| `gutter`      |                    0 px | no gutter track — the 12 px `p-3` column inset is the spacing (double-spacing avoided) |
+| `leftCol`     |                  256 px | constant across overview/focus/edit                                                    |
+| `rightCol`    |                  336 px | one width across focus and edit                                                        |
+| `centerCol`   |      `100% − 256 − 336` | the FREE map region between the floating plates (ADR-0015); never scrolls              |
+| `rail`        | persisted `sidebarMode` | expanded docks/pushes; collapsed icon-width; hover overlays (D1, reversed 2026-08-16)  |
+| `minMapWidth` |                  400 px | gate invariant (not a viewport class)                                                  |
+| `minViewport` |                 1024 px | declared desktop floor                                                                 |
 
 **Canvas resize moments in the whole journey: zero** — the map spans the full workspace as a backdrop (ADR-0015), so plate mounting never changes the canvas size. (SC-002)
 
-**Map-width arithmetic (rail collapsed, gutters only _between_ plates — no outer margins)** — these are **workspace-width** figures (the strip right of the 48 px shell rail):
+**Map-width arithmetic (rail collapsed, no gutter track — the 12 px `p-3` column inset is the spacing)** — these are **workspace-width** figures (the strip right of the 48 px shell rail):
 
-- `overview`: region = viewport − 256 − 16 → at 1024 px: **752 px**
-- `focus`: region = viewport − 256 − 336 − 2·16 → at 1024 px: **400 px** (floor), at 1440 px: **816 px**, at 1920 px: **1296 px** (REFACTOR.md reference figures)
+- `overview`: region = viewport − 256 → at 1024 px: **768 px**
+- `focus`: region = viewport − 256 − 336 → at 1024 px: **432 px**, at 1440 px: **848 px**, at 1920 px: **1328 px** (REFACTOR.md reference figures)
 
-The gate triggers on `free region < 400 px` regardless of rail state. At a literal 1024 px window the collapsed rail leaves 976 px of workspace, so the focus region is 976 − 624 = **352 < 400 and the gate fires** — the effective floor is ~1056 px (collapsed rail) / ~1264 px (expanded). That is correct — the **free map region, not the viewport, is the invariant** (SC-001, FR-004).
+The gate triggers on `free region < 400 px` regardless of rail state. At a literal 1024 px window the collapsed rail leaves 976 px of workspace, so the focus region is 976 − 592 = **384 < 400 and the gate fires** — the effective floor is ~1024 px of workspace (collapsed rail) / ~1072 px of window. That is correct — the **free map region, not the viewport, is the invariant** (SC-001, FR-004).
 
 ## 4. Non-goals (explicitly out of model scope)
 

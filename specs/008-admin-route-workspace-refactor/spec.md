@@ -148,7 +148,7 @@ Editing affordances are explicit: Add/Select mode is visibly indicated, invalid 
 - **FR-008**: Keyboard operation MUST cover the full workflow: Esc dismisses in focus / steps back in edit (styled confirm when dirty), Ctrl/Cmd+S saves in edit, and the primary action autofocuses in the empty mode.
 - **FR-009**: Accessibility MUST be preserved: named regions for the route list and the properties plate, every core action keyboard-reachable, focus management across mode transitions, and AA text sizes.
 - **FR-010**: The draft safety net MUST behave exactly as before: debounced auto-save with 24-hour retention, restore banner, undo/redo, and leave/reload guards.
-- **FR-011**: The visual identity MUST remain the Route Sign grammar: white plates, 1 px borders, corners ≤ 4 px, no shadows, 16 px gutters; mounts are decisive snaps, veil fade ≤ 120 ms, framing ≤ 400 ms, honoring the reduced-motion preference.
+- **FR-011**: The visual identity MUST remain the Route Sign grammar: white plates, 1 px borders, corners ≤ 4 px, no shadows (inter-plate spacing in the workspace is the 12 px `p-3` column inset, not a gutter track); mounts are decisive snaps, veil fade ≤ 120 ms, framing ≤ 400 ms, honoring the reduced-motion preference.
 - **FR-012**: Displayed values MUST be unchanged by the refactor: route/stop names, colors, and distances render identically to the current page.
 - **FR-013**: Editing feedback MUST be explicit: Add/Select mode visibly indicated; invalid color values and empty stop names show inline validation hints instead of silent behavior; all copy uses plain operational language without developer jargon.
 

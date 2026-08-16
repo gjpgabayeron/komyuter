@@ -82,7 +82,7 @@ The critique scored the page 30/40 (Nielsen) with the layout as its weakest syst
 │  │ stops    │  │  status (TR)         │  │ property     │  │
 │  │ search   │  │  action bar (B)     │  │ panel        │  │
 │  └──────────┘  └──────────────────────┘  └──────────────┘  │
-│  16px gutter between all plates (white desk)               │
+│  no gutter track — 12px p-3 column inset (spacing)      │
 ├────────────────────────────────────────────────────────────┤
 │  LAYER 2 · POLYLINE ROUTES — MapLibre layers on the ONE    │
 │  instance: base/draft/return polylines, stop markers,      │
@@ -131,16 +131,16 @@ Keyboard: Esc dismisses in `focus`; Esc returns to `focus` in `edit` (styled con
 
 ### Geometry (fixed tokens)
 
-| Token         |            Value | Notes                                                                                                                    |
-| ------------- | ---------------: | ------------------------------------------------------------------------------------------------------------------------ |
-| Gutter        |            16 px | white desk between plates                                                                                                |
-| Left column   |           240 px | constant across overview/focus/edit                                                                                      |
-| Right column  |           336 px | **one width across focus and edit** (content swap, no resize)                                                            |
-| Center column |        remainder | the map region; never scrolls                                                                                            |
-| Shell rail    |  user preference | `sidebarMode` from `uiStore` is honored; the rail **pushes** layout, never overlays (decision D1, see Open decisions)    |
-| Floor         | 1024 px viewport | below → NarrowWindowGate plate; the gate guards **map width ≥ 400px**, not a viewport class (works for both rail states) |
+| Token         |            Value | Notes                                                                                                                          |
+| ------------- | ---------------: | ------------------------------------------------------------------------------------------------------------------------------ |
+| Gutter        |             0 px | no gutter track — the 12 px `p-3` column inset is the spacing (double-spacing avoided)                                         |
+| Left column   |           256 px | constant across overview/focus/edit                                                                                            |
+| Right column  |           336 px | **one width across focus and edit** (content swap, no resize)                                                                  |
+| Center column |        remainder | the map region; never scrolls                                                                                                  |
+| Shell rail    |  user preference | `sidebarMode` from `uiStore` is honored; expanded docks/pushes, collapsed icon-width, hover overlays (D1, reversed 2026-08-16) |
+| Floor         | 1024 px viewport | below → NarrowWindowGate plate; the gate guards **map width ≥ 400px**, not a viewport class (works for both rail states)       |
 
-Canvas resize moments in the whole journey: **zero** — the map spans the full workspace as a backdrop (ADR-0015; plates float above it), so plate mounting never changes the canvas size. Reference free-map-region figures (workspace-width, rail collapsed): overview @ 1024 ≈ 768 px; focus @ 1024 ≈ 416 px, 1440 ≈ 832 px, 1920 ≈ 1312 px. With the rail collapsed at a literal 1024 px window the workspace is 976 px, so the focus region is 368 px and the map-width gate takes over — it appears whenever the free region would fall below 400 px.
+Canvas resize moments in the whole journey: **zero** — the map spans the full workspace as a backdrop (ADR-0015; plates float above it), so plate mounting never changes the canvas size. Reference free-map-region figures (workspace-width, rail collapsed): overview @ 1024 ≈ 768 px; focus @ 1024 ≈ 432 px, 1440 ≈ 848 px, 1920 ≈ 1328 px. With the rail collapsed at a literal 1024 px window the workspace is 976 px, so the focus region is 384 px and the map-width gate takes over — it appears whenever the free region would fall below 400 px.
 
 ---
 
@@ -150,7 +150,7 @@ Canvas resize moments in the whole journey: **zero** — the map spans the full 
 2. **The center column is a one-hit-target region.** Transparent, never scrolls, no `touch-action` override, no `stopPropagation` on `pointerdown`. The canvas is the default hit target; `pointer-events: auto` is opt-in **only** on search/status/action bars.
 3. **Right column has one width** across focus/edit. Changing the panel's _content_, never its footprint.
 4. **Reduced-motion snap.** Mounts are instant; no slide/tween; veil fade ≤120 ms; framing ≤400 ms. Gate any motion behind `prefers-reduced-motion`.
-5. **Plate grammar.** White plates, 1px border, ≤4px corners, no shadows, 16px gutter. The map itself is a plate (white 1px border, square corners) — "plates on a white desk".
+5. **Plate grammar.** White plates, 1px border, ≤4px corners, no shadows. Inter-plate spacing in the workspace is the 12 px `p-3` column inset (`gutter: 0` — no gutter track). The map itself is a plate (white 1px border, square corners) — "plates on a white desk".
 6. **No responsive system.** `min-width: 1024px` gate plate is the _only_ width behavior. No breakpoints, no sheets, no icon-rail collapses.
 7. **A11y not waived by desktop-only.** Named landmarks (`<nav aria-label="Routes">`, `<aside aria-label="Route properties">`), keyboard paths (Esc, CTA autofocus, stop cycling), focus management, and ≥AA text sizes still apply.
 8. **The safety net is sacred.** Draft (24h TTL, debounced), undo/redo, `beforeunload` + `pushState` guards, atomic save: re-homed, not re-designed.
@@ -184,7 +184,7 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 | --- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | M   | `pages/RouteWorkspace.tsx`                       | Becomes the state-machine orchestrator: derives `empty`, owns transitions and keyboard, renders per-state column set. Deletes the overlay-positioning absolutes (`left-3`/`right-3`/`z-*` panels). |
 | M   | `lib/plottingStore.ts`                           | Add derived `uiState` selector (pure, unit-tested); add `focusedRouteId` (selection without edit).                                                                                                 |
-| A   | `features/routes/workspace/WorkspaceColumns.tsx` | The three-column layout shell with fixed tokens (240/336/remainder, 16 px gutters), per-state mounts.                                                                                              |
+| A   | `features/routes/workspace/WorkspaceColumns.tsx` | The three-column layout shell with fixed tokens (256/336/remainder, no gutter track — 12 px `p-3` column inset is the spacing), per-state mounts.                                                  |
 | M   | `lib/selection.ts`                               | Map polyline click sets **focus** (metadata), not edit.                                                                                                                                            |
 
 #### Phase 3 — Columns and chrome
@@ -230,7 +230,7 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 
 ## Acceptance Criteria
 
-1. At 1024, 1440, and 1920 px (rail collapsed) the floating plates never collide; the free map region is ≥ 400 px at the floor (reference figure 416 px at a 1024 px workspace). With the rail expanded, the map-width gate appears instead of letting the free region drop below 400 px.
+1. At 1024, 1440, and 1920 px (rail collapsed) the floating plates never collide; the free map region is ≥ 400 px at the floor (reference figure 432 px at a 1024 px workspace). With the rail expanded, the map-width gate appears instead of letting the free region drop below 400 px.
 2. The GL canvas element identity and camera survive all four states — the full-bleed map never resizes (ADR-0015).
 3. All eight transitions in the table behave; Esc / mod+s / CTA autofocus work.
 4. No `window.confirm` remains; no "MAPBOX_SECRET_TOKEN" copy remains; no banner stacking (draft + conflict never overlap).
