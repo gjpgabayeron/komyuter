@@ -32,6 +32,8 @@ import {
   updateRoute,
 } from "./routesApi";
 
+/** Route summary list (listRoutes). Refetched on window focus so remote
+ *  (multi-admin) changes surface without push infrastructure. */
 export function useRoutesQuery() {
   return useQuery({
     queryKey: routeKeys.all,
@@ -44,6 +46,8 @@ export function useRoutesQuery() {
   });
 }
 
+/** Overview geometry (all routes' polylines/stops for the overview map),
+ *  warmed from the localStorage overview cache for instant reloads. */
 export function useOverviewQuery() {
   const query = useQuery({
     queryKey: routeKeys.overview,
@@ -67,6 +71,8 @@ export function useOverviewQuery() {
   return query;
 }
 
+/** Single route detail (heaviest payload — 30 s stale, 5 min cache).
+ *  Disabled until routeId is set. */
 export function useRouteQuery(routeId: string | null) {
   return useQuery<RouteDetail>({
     queryKey: routeKeys.detail(routeId ?? ""),
@@ -80,6 +86,7 @@ export function useRouteQuery(routeId: string | null) {
   });
 }
 
+/** A route's directions list. Disabled until routeId is set. */
 export function useDirectionsQuery(routeId: string | null) {
   return useQuery<DirectionEntity[]>({
     queryKey: routeKeys.directions(routeId ?? ""),
@@ -89,6 +96,7 @@ export function useDirectionsQuery(routeId: string | null) {
   });
 }
 
+/** A direction's stops list. Disabled until directionId is set. */
 export function useDirectionStopsQuery(directionId: string | null) {
   return useQuery<StopEntity[]>({
     queryKey: routeKeys.directionStops(directionId ?? ""),
@@ -98,6 +106,7 @@ export function useDirectionStopsQuery(directionId: string | null) {
   });
 }
 
+/** Create a route; patches the route-list cache and toasts success. */
 export function useCreateRouteMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -112,6 +121,7 @@ export function useCreateRouteMutation() {
   });
 }
 
+/** Delete a route; patches the route-list cache and toasts success. */
 export function useDeleteRouteMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -126,6 +136,7 @@ export function useDeleteRouteMutation() {
   });
 }
 
+/** Update route metadata; patches the cache and toasts success. */
 export function useUpdateRouteMutation(routeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -141,6 +152,8 @@ export function useUpdateRouteMutation(routeId: string) {
   });
 }
 
+/** Save a new direction (stops + path) for a route; patches the cache.
+ *  CONFLICT errors are surfaced as an inline banner, not a toast. */
 export function useSaveDirectionMutation(routeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -157,6 +170,8 @@ export function useSaveDirectionMutation(routeId: string) {
   });
 }
 
+/** Replace an existing direction (stops + path); patches the cache.
+ *  CONFLICT errors are surfaced as an inline banner, not a toast. */
 export function useReplaceDirectionMutation(directionId: string) {
   const queryClient = useQueryClient();
   return useMutation({
