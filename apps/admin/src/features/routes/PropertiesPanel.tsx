@@ -34,16 +34,10 @@ import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "./routeColors";
 import { STOP_TYPE_LABELS } from "./stopLabels";
 import { useRouteQuery, useRoutesQuery } from "./useRouteQueries";
 import { cn } from "@/lib/utils";
+import { Plate } from "@/components/shared/Plate";
+import { SectionLabel } from "@/components/shared/SectionLabel";
 
 const STOP_TYPES: StopType[] = ["terminal", "major_stop", "waiting_area"];
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <h3 className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-      {children}
-    </h3>
-  );
-}
 
 /**
  * Right-side properties plate (focus / edit states) — one of the two
@@ -61,16 +55,21 @@ export function PropertiesPanel() {
     return (
       <aside
         aria-label="Route properties"
-        className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-3"
+        className="flex min-h-0 w-full flex-col overflow-hidden"
       >
-        <header className="flex shrink-0 items-center justify-between gap-2">
-          <h2 className="font-display text-foreground text-sm font-semibold">
-            Properties
-          </h2>
-        </header>
-        <div className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto">
-          {selection.type === "stop" ? <StopGroup /> : <RouteGroup />}
-        </div>
+        <Plate
+          padded="md"
+          className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+        >
+          <header className="flex shrink-0 items-center justify-between gap-2">
+            <h2 className="font-display text-foreground text-sm font-semibold">
+              Properties
+            </h2>
+          </header>
+          <div className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto">
+            {selection.type === "stop" ? <StopGroup /> : <RouteGroup />}
+          </div>
+        </Plate>
       </aside>
     );
   }
@@ -97,59 +96,62 @@ function FocusPlate({ routeId }: { routeId: string }) {
   return (
     <aside
       aria-label={`Focused route — ${route?.name ?? "route"}`}
-      className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-3"
+      className="flex min-h-0 w-full flex-col overflow-hidden"
     >
-      <header className="flex shrink-0 items-center justify-between gap-2">
-        <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
-          Route
-        </span>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          aria-label="Close focus plate"
-          onClick={() => setFocusedRouteId(null)}
-        >
-          <X className="size-3.5" />
-        </Button>
-      </header>
-      <h2 className="font-display text-foreground mt-1 truncate text-base font-semibold">
-        {route?.name ?? "…"}
-      </h2>
-      <div className="mt-0.5 flex items-center gap-1.5">
-        {route?.short_name && (
-          <span className="text-muted-foreground text-xs">
-            {route.short_name}
-          </span>
-        )}
-        {route && (
-          <Badge
-            variant={route.is_active ? "default" : "outline"}
-            className="h-4 px-1 text-[10px] font-medium"
+      <Plate
+        padded="md"
+        className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+      >
+        <header className="flex shrink-0 items-center justify-between gap-2">
+          <SectionLabel as="span">Route</SectionLabel>
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label="Close focus plate"
+            onClick={() => setFocusedRouteId(null)}
           >
-            {route.is_active ? "Active" : "Inactive"}
-          </Badge>
-        )}
-      </div>
-      <dl className="mt-3 space-y-1.5 text-sm">
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground text-xs">Stops</dt>
-          <dd className="tabular-nums">{stopCount ?? "—"}</dd>
+            <X className="size-3.5" />
+          </Button>
+        </header>
+        <h2 className="font-display text-foreground mt-1 truncate text-base font-semibold">
+          {route?.name ?? "…"}
+        </h2>
+        <div className="mt-0.5 flex items-center gap-1.5">
+          {route?.short_name && (
+            <span className="text-muted-foreground text-xs">
+              {route.short_name}
+            </span>
+          )}
+          {route && (
+            <Badge
+              variant={route.is_active ? "default" : "outline"}
+              className="h-4 px-1 text-[10px] font-medium"
+            >
+              {route.is_active ? "Active" : "Inactive"}
+            </Badge>
+          )}
         </div>
-        <div className="flex items-center justify-between">
-          <dt className="text-muted-foreground text-xs">Directions</dt>
-          <dd className="tabular-nums">{route?.direction_count ?? "—"}</dd>
+        <dl className="mt-3 space-y-1.5 text-sm">
+          <div className="flex items-center justify-between">
+            <dt className="text-muted-foreground text-xs">Stops</dt>
+            <dd className="tabular-nums">{stopCount ?? "—"}</dd>
+          </div>
+          <div className="flex items-center justify-between">
+            <dt className="text-muted-foreground text-xs">Directions</dt>
+            <dd className="tabular-nums">{route?.direction_count ?? "—"}</dd>
+          </div>
+        </dl>
+        <div className="mt-auto pt-4">
+          <Button
+            autoFocus
+            className="w-full"
+            onClick={() => usePlottingStore.getState().openRoute(routeId)}
+          >
+            <Pencil className="size-3.5" />
+            Edit route
+          </Button>
         </div>
-      </dl>
-      <div className="mt-auto pt-4">
-        <Button
-          autoFocus
-          className="w-full"
-          onClick={() => usePlottingStore.getState().openRoute(routeId)}
-        >
-          <Pencil className="size-3.5" />
-          Edit route
-        </Button>
-      </div>
+      </Plate>
     </aside>
   );
 }

@@ -1,6 +1,7 @@
 import { History, RotateCcw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DraftPayload } from "@/lib/draft";
+import { NoticePlate } from "@/components/shared/NoticePlate";
 
 /** Formats a timestamp as a short relative "saved X ago" string. */
 function formatDraftAge(savedAt: number, now = Date.now()): string {
@@ -30,10 +31,7 @@ export function DraftRestoreBanner({
   onDiscard: () => void;
 }) {
   return (
-    <div
-      role="status"
-      className="border-primary/30 bg-background flex max-w-lg items-center gap-2 rounded-lg border px-3 py-2 text-sm"
-    >
+    <NoticePlate className="border-primary/30 bg-background max-w-lg">
       <History className="text-primary size-4 shrink-0" aria-hidden />
       <span className="min-w-0 flex-1">
         <span className="text-foreground font-medium">
@@ -60,6 +58,6 @@ export function DraftRestoreBanner({
         <Trash2 className="size-3" />
         Discard
       </Button>
-    </div>
+    </NoticePlate>
   );
 }

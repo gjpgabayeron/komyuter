@@ -2,6 +2,7 @@ import { CircleCheck, TriangleAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { DraftPayload } from "@/lib/draft";
 import { DraftRestoreBanner } from "./DraftRestoreBanner";
+import { NoticePlate } from "@/components/shared/NoticePlate";
 
 interface StatusBarProps {
   /** Unsaved plotting/metadata edits exist. */
@@ -87,9 +88,9 @@ export function StatusBar({
       )}
 
       {conflict ? (
-        <div
-          role="alert"
-          className="border-destructive/40 flex max-w-md items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm"
+        <NoticePlate
+          noticeRole="alert"
+          className="border-destructive/40 bg-white"
         >
           <TriangleAlert
             className="text-destructive size-4 shrink-0"
@@ -118,7 +119,7 @@ export function StatusBar({
           >
             <X className="size-3.5" />
           </Button>
-        </div>
+        </NoticePlate>
       ) : draft ? (
         <DraftRestoreBanner
           draft={draft}
@@ -126,10 +127,7 @@ export function StatusBar({
           onDiscard={onDiscardDraft}
         />
       ) : restored ? (
-        <div
-          role="status"
-          className="border-primary/30 bg-background flex max-w-md items-center gap-2 rounded-lg border px-3 py-2 text-sm"
-        >
+        <NoticePlate className="border-primary/30 bg-background">
           <CircleCheck className="text-primary size-4 shrink-0" aria-hidden />
           <span className="min-w-0 flex-1">
             <span className="text-foreground font-medium">Draft restored.</span>{" "}
@@ -137,7 +135,7 @@ export function StatusBar({
               Your unsaved changes are back.
             </span>
           </span>
-        </div>
+        </NoticePlate>
       ) : null}
     </div>
   );

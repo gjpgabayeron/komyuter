@@ -10,6 +10,7 @@ import {
 import { usePlottingStore, type BaseMapStyle } from "@/lib/plottingStore";
 import { canRedo, canUndo } from "@/lib/plottingHistory";
 import { cn } from "@/lib/utils";
+import { Plate } from "@/components/shared/Plate";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
 import type { StopType } from "@komyuter/shared";
 import {
@@ -284,7 +285,7 @@ export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
 
   return (
     <TooltipProvider>
-      <div className="flex items-center gap-0.5 rounded-lg border bg-white px-1.5 py-1">
+      <Plate className="flex items-center gap-0.5 px-1.5 py-1">
         <ToolToggle disabled={saving} />
 
         <Separator orientation="vertical" className="mx-1 h-5" />
@@ -299,7 +300,7 @@ export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
         <Separator orientation="vertical" className="mx-1 h-5" />
 
         <LayerToggles />
-      </div>
+      </Plate>
     </TooltipProvider>
   );
 }

@@ -36,6 +36,7 @@ import { usePlottingStore } from "@/lib/plottingStore";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { pathFromConnections } from "@/lib/connections";
 import { cn } from "@/lib/utils";
+import { Plate } from "@/components/shared/Plate";
 import {
   useDeleteRouteMutation,
   useRouteQuery,
@@ -226,186 +227,192 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
       {detail ? (
         <nav
           aria-label="Route stops"
-          className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-2"
+          className="flex min-h-0 w-full flex-col overflow-hidden"
         >
-          <div className="flex shrink-0 items-center gap-1.5 px-1 pb-1.5">
-            <button
-              type="button"
-              aria-label="Back to routes"
-              onClick={
-                onCloseEdit ??
-                (() => usePlottingStore.getState().openRoute(null))
-              }
-              className={cn(
-                buttonVariants({ variant: "ghost", size: "icon-xs" }),
-              )}
-            >
-              <ArrowLeft className="size-3.5" />
-            </button>
-            <div className="min-w-0 flex-1">
-              <h2 className="text-foreground truncate text-sm font-semibold">
-                {routeQuery.data?.name ?? "Route"}
-              </h2>
-              <div className="flex items-center gap-1.5">
-                {routeQuery.data?.short_name && (
-                  <span className="text-muted-foreground text-xs">
-                    {routeQuery.data.short_name}
-                  </span>
+          <Plate
+            padded="sm"
+            className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+          >
+            <div className="flex shrink-0 items-center gap-1.5 px-1 pb-1.5">
+              <button
+                type="button"
+                aria-label="Back to routes"
+                onClick={
+                  onCloseEdit ??
+                  (() => usePlottingStore.getState().openRoute(null))
+                }
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "icon-xs" }),
                 )}
-                {routeQuery.data && (
-                  <Badge
-                    variant={routeQuery.data.is_active ? "default" : "outline"}
-                    className="h-4 px-1 text-[10px] font-medium"
-                  >
-                    {routeQuery.data.is_active ? "Active" : "Inactive"}
-                  </Badge>
-                )}
+              >
+                <ArrowLeft className="size-3.5" />
+              </button>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-foreground truncate text-sm font-semibold">
+                  {routeQuery.data?.name ?? "Route"}
+                </h2>
+                <div className="flex items-center gap-1.5">
+                  {routeQuery.data?.short_name && (
+                    <span className="text-muted-foreground text-xs">
+                      {routeQuery.data.short_name}
+                    </span>
+                  )}
+                  {routeQuery.data && (
+                    <Badge
+                      variant={
+                        routeQuery.data.is_active ? "default" : "outline"
+                      }
+                      className="h-4 px-1 text-[10px] font-medium"
+                    >
+                      {routeQuery.data.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Switch
+                  checked={
+                    routeMeta?.isActive ?? routeQuery.data?.is_active ?? false
+                  }
+                  onCheckedChange={(checked) =>
+                    setRouteMeta({ isActive: checked })
+                  }
+                  disabled={saving}
+                  aria-label="Active route"
+                  className="scale-90"
+                />
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              <Switch
-                checked={
-                  routeMeta?.isActive ?? routeQuery.data?.is_active ?? false
-                }
-                onCheckedChange={(checked) =>
-                  setRouteMeta({ isActive: checked })
-                }
-                disabled={saving}
-                aria-label="Active route"
-                className="scale-90"
-              />
-            </div>
-          </div>
 
-          <div className="flex min-h-0 flex-1 flex-col border-t pt-1.5">
-            <div className="flex shrink-0 items-center justify-between px-1 pb-1">
-              <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                Stops
-              </span>
-              <span className="flex items-center gap-1.5">
-                {closedLoop && (
-                  <span
-                    className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
-                    title="Last stop connects back to the first — circular route"
-                  >
-                    Loop
-                  </span>
-                )}
-                <span className="text-muted-foreground text-xs tabular-nums">
-                  {stops.length}
+            <div className="flex min-h-0 flex-1 flex-col border-t pt-1.5">
+              <div className="flex shrink-0 items-center justify-between px-1 pb-1">
+                <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                  Stops
                 </span>
-              </span>
-            </div>
-            {stops.length === 0 ? (
-              <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
-                <p className="text-sm font-medium">No stops yet</p>
-                <p className="text-muted-foreground max-w-52 text-xs">
-                  Switch to the Add tool and click the map to place stops.
-                </p>
+                <span className="flex items-center gap-1.5">
+                  {closedLoop && (
+                    <span
+                      className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
+                      title="Last stop connects back to the first — circular route"
+                    >
+                      Loop
+                    </span>
+                  )}
+                  <span className="text-muted-foreground text-xs tabular-nums">
+                    {stops.length}
+                  </span>
+                </span>
               </div>
-            ) : (
-              <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
-                {stops.map((stop, index) => {
-                  const selected = isStopSelected(selection, stop.id);
-                  const shape = getStopShape(stop.type);
-                  const isDragging = dragIndex === index;
-                  const isDropTarget =
-                    dropIndex === index && dragIndex !== null && !isDragging;
-                  return (
-                    <div className="group" key={stop.id}>
-                      <button
-                        type="button"
-                        draggable
-                        onDragStart={(event) => {
-                          event.dataTransfer.effectAllowed = "move";
-                          event.dataTransfer.setData(
-                            "text/plain",
-                            String(index),
-                          );
-                          setDragIndex(index);
-                        }}
-                        onDragOver={(event) => {
-                          event.preventDefault();
-                          event.dataTransfer.dropEffect = "move";
-                          setDropIndex(index);
-                        }}
-                        onDrop={(event) => {
-                          event.preventDefault();
-                          const from = Number(
-                            event.dataTransfer.getData("text/plain"),
-                          );
-                          if (Number.isFinite(from)) reorderStop(from, index);
-                          setDragIndex(null);
-                          setDropIndex(null);
-                        }}
-                        onDragEnd={() => {
-                          setDragIndex(null);
-                          setDropIndex(null);
-                        }}
-                        onClick={() => setSelection(selectStop(stop.id))}
-                        onKeyDown={(event) => {
-                          if (event.key === "ArrowUp" && index > 0) {
+              {stops.length === 0 ? (
+                <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
+                  <p className="text-sm font-medium">No stops yet</p>
+                  <p className="text-muted-foreground max-w-52 text-xs">
+                    Switch to the Add tool and click the map to place stops.
+                  </p>
+                </div>
+              ) : (
+                <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
+                  {stops.map((stop, index) => {
+                    const selected = isStopSelected(selection, stop.id);
+                    const shape = getStopShape(stop.type);
+                    const isDragging = dragIndex === index;
+                    const isDropTarget =
+                      dropIndex === index && dragIndex !== null && !isDragging;
+                    return (
+                      <div className="group" key={stop.id}>
+                        <button
+                          type="button"
+                          draggable
+                          onDragStart={(event) => {
+                            event.dataTransfer.effectAllowed = "move";
+                            event.dataTransfer.setData(
+                              "text/plain",
+                              String(index),
+                            );
+                            setDragIndex(index);
+                          }}
+                          onDragOver={(event) => {
                             event.preventDefault();
-                            reorderStop(index, index - 1);
-                          } else if (
-                            event.key === "ArrowDown" &&
-                            index < stops.length - 1
-                          ) {
-                            // reorderStop inserts BEFORE the target row, so a
-                            // down-move needs target = index + 2.
+                            event.dataTransfer.dropEffect = "move";
+                            setDropIndex(index);
+                          }}
+                          onDrop={(event) => {
                             event.preventDefault();
-                            reorderStop(index, index + 2);
-                          }
-                        }}
-                        aria-label={`Select ${stop.name}`}
-                        className={cn(
-                          "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
-                          selected
-                            ? "border-primary/50 bg-primary/5"
-                            : "hover:bg-muted border-transparent",
-                          isDragging && "opacity-40",
-                          isDropTarget && "border-t-primary border-t-2",
-                        )}
-                      >
-                        <span
+                            const from = Number(
+                              event.dataTransfer.getData("text/plain"),
+                            );
+                            if (Number.isFinite(from)) reorderStop(from, index);
+                            setDragIndex(null);
+                            setDropIndex(null);
+                          }}
+                          onDragEnd={() => {
+                            setDragIndex(null);
+                            setDropIndex(null);
+                          }}
+                          onClick={() => setSelection(selectStop(stop.id))}
+                          onKeyDown={(event) => {
+                            if (event.key === "ArrowUp" && index > 0) {
+                              event.preventDefault();
+                              reorderStop(index, index - 1);
+                            } else if (
+                              event.key === "ArrowDown" &&
+                              index < stops.length - 1
+                            ) {
+                              // reorderStop inserts BEFORE the target row, so a
+                              // down-move needs target = index + 2.
+                              event.preventDefault();
+                              reorderStop(index, index + 2);
+                            }
+                          }}
+                          aria-label={`Select ${stop.name}`}
                           className={cn(
-                            "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
-                            SHAPE_CHIP[shape.shape],
-                            selected &&
-                              "outline-foreground outline-2 outline-offset-1",
+                            "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
+                            selected
+                              ? "border-primary/50 bg-primary/5"
+                              : "hover:bg-muted border-transparent",
+                            isDragging && "opacity-40",
+                            isDropTarget && "border-t-primary border-t-2",
                           )}
-                          style={{
-                            backgroundColor: shape.color,
-                            color:
-                              stop.type === "waiting_area"
-                                ? "#201A10"
-                                : "#ffffff",
-                          }}
                         >
-                          {shape.shape === "diamond" ? (
-                            <span className="-rotate-45">{index + 1}</span>
-                          ) : (
-                            index + 1
-                          )}
-                        </span>
-                        <span className="text-foreground min-w-0 flex-1 truncate text-sm">
-                          {stop.name}
-                        </span>
-                        <Badge
-                          className="h-4 shrink-0 border px-1 text-[11px] font-medium"
-                          style={{
-                            backgroundColor: shape.color,
-                            borderColor: shape.color,
-                            color:
-                              stop.type === "waiting_area"
-                                ? "#201A10"
-                                : "#ffffff",
-                          }}
-                        >
-                          {STOP_TYPE_LABELS[stop.type]}
-                        </Badge>
-                      </button>
-                      {/* Insert-after indicator: the wrapper collapses to zero
+                          <span
+                            className={cn(
+                              "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
+                              SHAPE_CHIP[shape.shape],
+                              selected &&
+                                "outline-foreground outline-2 outline-offset-1",
+                            )}
+                            style={{
+                              backgroundColor: shape.color,
+                              color:
+                                stop.type === "waiting_area"
+                                  ? "#201A10"
+                                  : "#ffffff",
+                            }}
+                          >
+                            {shape.shape === "diamond" ? (
+                              <span className="-rotate-45">{index + 1}</span>
+                            ) : (
+                              index + 1
+                            )}
+                          </span>
+                          <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                            {stop.name}
+                          </span>
+                          <Badge
+                            className="h-4 shrink-0 border px-1 text-[11px] font-medium"
+                            style={{
+                              backgroundColor: shape.color,
+                              borderColor: shape.color,
+                              color:
+                                stop.type === "waiting_area"
+                                  ? "#201A10"
+                                  : "#ffffff",
+                            }}
+                          >
+                            {STOP_TYPE_LABELS[stop.type]}
+                          </Badge>
+                        </button>
+                        {/* Insert-after indicator: the wrapper collapses to zero
                           height when hidden (max-h-0 + overflow-hidden) so the
                           list stays compact. The appear is DELIBERATE: the
                           hover state carries a 400 ms transition-delay, so the
@@ -414,167 +421,174 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                           the base state has zero delay, so it disappears
                           immediately on leave (Pasted #42/#43/#44). The icon
                           is centered via flex on a full-width button. */}
-                      <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
-                        <button
-                          type="button"
-                          aria-label={`Insert stop after ${stop.name}`}
-                          onClick={() => insertAfter(stop.id)}
-                          className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
-                        >
-                          <Plus className="size-3" />
-                        </button>
+                        <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
+                          <button
+                            type="button"
+                            aria-label={`Insert stop after ${stop.name}`}
+                            onClick={() => insertAfter(stop.id)}
+                            className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
+                          >
+                            <Plus className="size-3" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-                {stops.length > 0 && (
-                  <div
-                    className={cn(
-                      "h-1 rounded",
-                      dropIndex === stops.length
-                        ? "bg-primary/40"
-                        : "bg-transparent",
-                    )}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      event.dataTransfer.dropEffect = "move";
-                      setDropIndex(stops.length);
-                    }}
-                    onDrop={(event) => {
-                      event.preventDefault();
-                      const from = Number(
-                        event.dataTransfer.getData("text/plain"),
-                      );
-                      if (Number.isFinite(from)) {
-                        reorderStop(from, stops.length);
-                      }
-                      setDragIndex(null);
-                      setDropIndex(null);
-                    }}
-                  />
-                )}
-              </div>
-            )}
-          </div>
+                    );
+                  })}
+                  {stops.length > 0 && (
+                    <div
+                      className={cn(
+                        "h-1 rounded",
+                        dropIndex === stops.length
+                          ? "bg-primary/40"
+                          : "bg-transparent",
+                      )}
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        event.dataTransfer.dropEffect = "move";
+                        setDropIndex(stops.length);
+                      }}
+                      onDrop={(event) => {
+                        event.preventDefault();
+                        const from = Number(
+                          event.dataTransfer.getData("text/plain"),
+                        );
+                        if (Number.isFinite(from)) {
+                          reorderStop(from, stops.length);
+                        }
+                        setDragIndex(null);
+                        setDropIndex(null);
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          </Plate>
         </nav>
       ) : (
         <nav
           aria-label="Routes"
-          className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-2"
+          className="flex min-h-0 w-full flex-col overflow-hidden"
         >
-          {/* Row 1: search + filter */}
-          <div className="flex items-center gap-1.5">
-            <div className="relative min-w-0 flex-1">
-              <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
-              <Input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search routes"
-                aria-label="Search routes"
-                className="h-8 pr-2 pl-7"
-              />
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={(props) => (
-                  <button
-                    {...props}
-                    type="button"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "icon-sm" }),
-                    )}
-                    aria-label="Filter routes by status"
-                  >
-                    <SlidersHorizontal className="size-3.5" />
-                  </button>
-                )}
-              />
-              <DropdownMenuContent align="end" className="w-40 p-1">
-                <DropdownMenuRadioGroup
-                  value={statusFilter}
-                  onValueChange={(value) =>
-                    setStatusFilter(value as RouteStatusFilter)
-                  }
-                >
-                  {STATUS_FILTER_OPTIONS.map((option) => (
-                    <DropdownMenuRadioItem
-                      key={option.value}
-                      value={option.value}
-                      className="gap-2 py-1.5 pr-8"
-                    >
-                      <span className="text-sm">{option.label}</span>
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          {/* Row 2: create */}
-          <Button size="sm" className="mt-1.5 w-full" onClick={onCreateRoute}>
-            <Plus className="size-3.5" />
-            New Route
-          </Button>
-
-          {/* List / states */}
-          <div className="overlay-scrollbar mt-1.5 min-h-0 flex-1 space-y-1 overflow-y-auto">
-            {routesQuery.isLoading && (
-              <>
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-                <Skeleton className="h-12 w-full" />
-              </>
-            )}
-            {routesQuery.isError && (
-              <div className="space-y-1.5 px-1 py-2">
-                <p className="text-muted-foreground text-xs">
-                  Could not load routes.
-                </p>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  onClick={() => void routesQuery.refetch()}
-                >
-                  Retry
-                </Button>
-              </div>
-            )}
-            {empty && (
-              <div className="flex flex-col items-center gap-2 px-2 py-6 text-center">
-                <div className="bg-muted text-foreground flex size-8 items-center justify-center rounded-lg">
-                  <RouteIcon className="size-4" />
-                </div>
-                <p className="text-sm font-medium">No routes yet</p>
-                <p className="text-muted-foreground text-xs">
-                  Create your first route, then plot it stop by stop on the map.
-                </p>
-                <Button size="sm" className="mt-1" onClick={onCreateRoute}>
-                  <Plus className="size-3.5" />
-                  Create first route
-                </Button>
-              </div>
-            )}
-            {!empty &&
-              !routesQuery.isLoading &&
-              !routesQuery.isError &&
-              filtered.map((route) => (
-                <RouteRow
-                  key={route.route_id}
-                  route={route}
-                  active={route.route_id === routeId}
-                  onOpen={() => selectRoute(route)}
-                  onDelete={() => setDeleteTarget(route)}
+          <Plate
+            padded="sm"
+            className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+          >
+            {/* Row 1: search + filter */}
+            <div className="flex items-center gap-1.5">
+              <div className="relative min-w-0 flex-1">
+                <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
+                <Input
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search routes"
+                  aria-label="Search routes"
+                  className="h-8 pr-2 pl-7"
                 />
-              ))}
-            {!empty &&
-              !routesQuery.isLoading &&
-              !routesQuery.isError &&
-              filtered.length === 0 && (
-                <p className="text-muted-foreground px-1 py-2 text-xs">
-                  No routes match this search.
-                </p>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={(props) => (
+                    <button
+                      {...props}
+                      type="button"
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "icon-sm" }),
+                      )}
+                      aria-label="Filter routes by status"
+                    >
+                      <SlidersHorizontal className="size-3.5" />
+                    </button>
+                  )}
+                />
+                <DropdownMenuContent align="end" className="w-40 p-1">
+                  <DropdownMenuRadioGroup
+                    value={statusFilter}
+                    onValueChange={(value) =>
+                      setStatusFilter(value as RouteStatusFilter)
+                    }
+                  >
+                    {STATUS_FILTER_OPTIONS.map((option) => (
+                      <DropdownMenuRadioItem
+                        key={option.value}
+                        value={option.value}
+                        className="gap-2 py-1.5 pr-8"
+                      >
+                        <span className="text-sm">{option.label}</span>
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Row 2: create */}
+            <Button size="sm" className="mt-1.5 w-full" onClick={onCreateRoute}>
+              <Plus className="size-3.5" />
+              New Route
+            </Button>
+
+            {/* List / states */}
+            <div className="overlay-scrollbar mt-1.5 min-h-0 flex-1 space-y-1 overflow-y-auto">
+              {routesQuery.isLoading && (
+                <>
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </>
               )}
-          </div>
+              {routesQuery.isError && (
+                <div className="space-y-1.5 px-1 py-2">
+                  <p className="text-muted-foreground text-xs">
+                    Could not load routes.
+                  </p>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    onClick={() => void routesQuery.refetch()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
+              {empty && (
+                <div className="flex flex-col items-center gap-2 px-2 py-6 text-center">
+                  <div className="bg-muted text-foreground flex size-8 items-center justify-center rounded-lg">
+                    <RouteIcon className="size-4" />
+                  </div>
+                  <p className="text-sm font-medium">No routes yet</p>
+                  <p className="text-muted-foreground text-xs">
+                    Create your first route, then plot it stop by stop on the
+                    map.
+                  </p>
+                  <Button size="sm" className="mt-1" onClick={onCreateRoute}>
+                    <Plus className="size-3.5" />
+                    Create first route
+                  </Button>
+                </div>
+              )}
+              {!empty &&
+                !routesQuery.isLoading &&
+                !routesQuery.isError &&
+                filtered.map((route) => (
+                  <RouteRow
+                    key={route.route_id}
+                    route={route}
+                    active={route.route_id === routeId}
+                    onOpen={() => selectRoute(route)}
+                    onDelete={() => setDeleteTarget(route)}
+                  />
+                ))}
+              {!empty &&
+                !routesQuery.isLoading &&
+                !routesQuery.isError &&
+                filtered.length === 0 && (
+                  <p className="text-muted-foreground px-1 py-2 text-xs">
+                    No routes match this search.
+                  </p>
+                )}
+            </div>
+          </Plate>
         </nav>
       )}
 
