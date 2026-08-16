@@ -140,7 +140,7 @@ Keyboard: Esc dismisses in `focus`; Esc returns to `focus` in `edit` (styled con
 | Shell rail    |  user preference | `sidebarMode` from `uiStore` is honored; the rail **pushes** layout, never overlays (decision D1, see Open decisions)    |
 | Floor         | 1024 px viewport | below → NarrowWindowGate plate; the gate guards **map width ≥ 400px**, not a viewport class (works for both rail states) |
 
-Canvas resize moments in the whole journey: exactly two — `empty→overview` (left mounts) and `overview→focus` (right mounts). `focus ⇄ edit` resizes nothing. With the rail collapsed at 1024 px the map is ≥ 416 px (1440 px ≈ 832 px; 1920 px ≈ 1312 px). With the rail expanded, the map-width gate takes over: it appears whenever the map would fall below 400 px.
+Canvas resize moments in the whole journey: **zero** — the map spans the full workspace as a backdrop (ADR-0015; plates float above it), so plate mounting never changes the canvas size. Reference free-map-region figures (workspace-width, rail collapsed): overview @ 1024 ≈ 768 px; focus @ 1024 ≈ 416 px, 1440 ≈ 832 px, 1920 ≈ 1312 px. With the rail collapsed at a literal 1024 px window the workspace is 976 px, so the focus region is 368 px and the map-width gate takes over — it appears whenever the free region would fall below 400 px.
 
 ---
 
@@ -230,8 +230,8 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 
 ## Acceptance Criteria
 
-1. At 1024, 1440, and 1920 px (rail collapsed) the three columns never collide; the center map is ≥ 416 px at the floor. With the rail expanded, the map-width gate appears instead of letting the map drop below 400 px.
-2. The GL canvas element identity and camera survive all four states and both resize moments.
+1. At 1024, 1440, and 1920 px (rail collapsed) the floating plates never collide; the free map region is ≥ 400 px at the floor (reference figure 416 px at a 1024 px workspace). With the rail expanded, the map-width gate appears instead of letting the free region drop below 400 px.
+2. The GL canvas element identity and camera survive all four states — the full-bleed map never resizes (ADR-0015).
 3. All eight transitions in the table behave; Esc / mod+s / CTA autofocus work.
 4. No `window.confirm` remains; no "MAPBOX_SECRET_TOKEN" copy remains; no banner stacking (draft + conflict never overlap).
 5. Draft restore, undo/redo, save validation, and atomic save behave exactly as before (regression checklist against current behavior).

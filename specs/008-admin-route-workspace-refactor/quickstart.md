@@ -28,31 +28,31 @@ Expected: all green; the detector (`detect.mjs` — see §4) stays at exit 0 on 
 
 ## 2. Manual validation matrix
 
-Run through the workspace in a desktop browser at **1024, 1440, and 1920 px** (rail collapsed) and with the **rail expanded**.
+Run through the workspace in a desktop browser at **1024, 1440, and 1920 px** (rail collapsed) and with the **rail expanded**. In hover mode the rail overlays the content at `z-30` — the workspace never shifts on hover-expand (expanded mode is the only one that pushes).
 
-### 2.1 SC-001 — No collisions, map never below 400 px
+### 2.1 SC-001 — No collisions, free map region never below 400 px (ADR-0015: plates float over a full-bleed map)
 
-1. At all three widths and both rail states: left column, center map, right column (when present) **never overlap** and never collide with the shell rail.
-2. Focus state at 1024 px rail-collapsed: map = 416 px; rail-expanded: the **wider-window gate plate** appears instead of a < 400 px map.
+1. At all three widths and both rail states: the floating left plate, the free map region, and the right plate (when present) **never overlap** and never collide with the shell rail.
+2. Focus state at 1024 px rail-collapsed: free map region = 400 px _(workspace-width figure — at a literal 1024 px window the 48 px rail leaves 976 px, so the region is 352 and the gate guards)_; rail-expanded: the **wider-window gate plate** appears instead of a < 400 px region.
 3. Below 1024 px: the gate plate shows the "wider window" message and the workspace is unreachable. No partial layouts, no horizontal scroll.
 
 ### 2.2 SC-002 — One map, forever
 
-Smoke check: with the DevTools console open, enter **empty → overview → focus → edit → focus → overview** and confirm:
+Smoke check: with the DevTools console open, enter **empty → overview → focus → edit → overview** and confirm:
 
 - the GL canvas element is the **same DOM node** throughout (no remount, no flicker);
-- camera (center/zoom) persists across `overview→focus→edit` and back;
-- the canvas resizes at exactly two moments: `empty→overview` and `overview→focus` (`focus ⇄ edit` resizes nothing).
+- camera (center/zoom) persists across `overview→focus→edit` and back to `overview`;
+- the canvas **never resizes** — the map spans the full workspace in every state (ADR-0015; the two resize moments of the grid layout are gone), and even the gate keeps the map mounted under its plate.
 
 ### 2.3 SC-003 — All eight transitions behave
 
-Walk the full [transition table](../plan.md#transition-table): empty→edit (CTA), overview→focus (map click), overview→edit (list click), focus→edit (Edit CTA), edit→focus (Back/Esc), focus→overview (Esc/X/empty click), edit→overview (save/discard), *→empty (delete last route with styled confirm). Verify each trigger, each side effect, and that **no intermediate states** appear.
+Walk the full [transition table](../plan.md#transition-table): empty→edit (CTA), overview→focus (map click), overview→edit (list click), focus→edit (Edit CTA), edit→overview (Back/Esc — clean idle slate, no focus restore), focus→overview (Esc/X/empty click), edit→overview (save/discard), *→empty (delete last route with styled confirm). Verify each trigger, each side effect, and that **no intermediate states** appear.
 
 ### 2.4 SC-004 — Safety net preserved (regression checklist)
 
 Compare against current behavior, unchanged:
 
-- Draft: edit a route, wait for the debounced draft, reload — restore banner appears in the StatusBar slot; 24 h TTL intact.
+- Draft: edit a route, wait for the debounced draft, reload — restore banner appears in the StatusBar slot; restoring shows a transient "Draft restored" confirmation that auto-dismisses; 24 h TTL intact.
 - Undo/redo: plotting history behaves exactly as before.
 - Save: validation (empty stop names, invalid hex, LTFRB fare) and atomic save behave identically; conflict banner appears alone in the slot — **draft + conflict never stack**.
 - `beforeunload` + `pushState` guards still protect dirty state.
@@ -61,12 +61,12 @@ Compare against current behavior, unchanged:
 
 - No `window.confirm` anywhere (`Ctrl+Shift+F` in the workspace bundle); dirty exits use the styled AlertDialog.
 - No "MAPBOX_SECRET_TOKEN"/"out of sync" copy remains.
-- Save status is visible: unsaved → saving → "Saved just now" in the StatusBar.
+- Save status is visible on change: unsaved → saving → transient "Saved just now" (auto-dismisses; the slot is empty when clean and idle).
 - POI search is anchored to the center-column edge — resize the window and confirm the search bar tracks the column, not a fixed offset from the left.
 
 ### 2.6 SC-006 — Keyboard & a11y
 
-- Esc in `focus` → overview; Esc in `edit` (dirty) → styled confirm, then back to `focus`; CTA autofocus in `empty`; `Ctrl/Cmd+S` saves.
+- Esc in `focus` → overview; Esc in `edit` (dirty) → styled confirm, then back to `overview`; CTA autofocus in `empty`; `Ctrl/Cmd+S` saves.
 - Landmarks: `<nav aria-label="Routes">` and `<aside aria-label="Route properties">` present; focus lands on the newly mounted plate's primary action.
 - `prefers-reduced-motion: reduce` disables the veil fade; polyline dim ≥ 0.3 with hover lift; stop chips ≥ 11–12 px; text ≥ AA.
 
@@ -80,7 +80,7 @@ Re-run `detect.mjs` on the refactored files (`RouteWorkspace.tsx`, new `workspac
 
 ## 3. Key scenarios (end-to-end story)
 
-**The editing journey** — from the left list, click a route (T3 → edit directly). Plot/add stops with Add mode, watch the StatusBar flip unsaved→saving→"Saved just now". Press Esc — styled confirm since dirty → back to focus on the same route, highlight persists → Esc → overview, camera unchanged. This single journey exercises T3, T4→edit chrome, T5, T6 and SC-002/003/004/006 together.
+**The editing journey** — from the left list, click a route (T3 → edit directly). Plot/add stops with Add mode, watch the StatusBar flip unsaved→saving→"Saved just now". Press Esc — styled confirm since dirty → back to a clean `overview` (focus cleared, no restore) → Esc → overview, camera unchanged. This single journey exercises T3, T4→edit chrome, T5, T6 and SC-002/003/004/006 together.
 
 **The peek journey** — in overview, click a route's polyline (T2): the FocusPlate mounts, the route frames in ≤ 400 ms, and the map keeps its place on dismiss (T6). This exercises the two-resize-moments invariant (SC-002).
 

@@ -1,4 +1,4 @@
-# ADR-0014: Admin Route Workspace is desktop-only, three-layer, column-based (ACCEPTED)
+# ADR-0014: Admin Route Workspace is desktop-only, three-layer, column-based (ACCEPTED, shell-rail section amended 2026-08-16)
 
 The Route Workspace (`apps/admin/src/pages/RouteWorkspace.tsx`) started as floating overlay panels over a full-bleed MapLibre canvas. A design critique (2026-08-10) scored it 30/40 (Nielsen) with the layout as the weakest system: fixed-width absolutes collide below ~964px, the shell NavRail hover-expand swallows the route list, two banners share one top-center slot, and POI search is coupled to panel width by a magic number. We chose a structural rebuild instead of cosmetic patches:
 
@@ -22,7 +22,15 @@ Rationale: the map interactions, multilayered UI, and column layout would not tr
 
 ## Shell rail
 
-The workspace **respects the admin's persisted `sidebarMode` preference**; the rail always _pushes_ layout on the workspace and never hover-expands over it (fixing the "rail swallows the route list" defect). The map-width gate absorbs the expanded-rail case.
+The workspace **respects the admin's persisted `sidebarMode` preference**. Per the 2026-08-16 reversal of the original D1, the rail behaves by mode:
+
+- **expanded** — the rail docks and _pushes_ the layout: `AppShell` pads the content by the full rail width.
+- **collapsed** — the rail sits at icon width and never covers the page's left panel.
+- **hover** — the rail is a pure overlay: `AppShell` keeps the content at icon width and the expanding rail (absolute, `z-30`) slides over the page without shifting it. The 2026-08-10 critique's "rail swallows the route list" defect was a _push_ defect (hover-expand shoved the workspace); the chosen reversal trades the always-push for a transient overlay — the workspace never moves, at the cost of the rail briefly covering the left plate while hovered.
+
+The rail is a **full-height rail** (top-to-bottom): it stretches the full page height as the consistent visual anchor on the left of the interface, and the footer sits at the bottom of that column. (A brief 2026-08-16 intermediate version made it content-height; that was reversed the same day per the admin's preference for a stable full-height anchor.)
+
+The map-width gate (`NarrowWindowGate`) passes `railW = 0` — the workspace already sits right of the rail — so the gate absorbs only the real expanded-rail case.
 
 ## Non-goals
 

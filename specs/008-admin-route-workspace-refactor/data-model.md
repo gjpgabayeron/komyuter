@@ -10,13 +10,13 @@
 
 The workspace already loads and saves these through the existing plotting flow (`apps/admin/src/lib/` + `apps/admin/src/api/`); this refactor only _reads_ the same data the current page already has in hand.
 
-| Entity                         | Source of truth                         | Used for                                                   | Changed?                                                |
-| ------------------------------ | --------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
-| Route                          | loaded via API → `plottingStore.routes` | Left-column list, polyline layers, focus plate, edit panel | No                                                      |
-| Direction (×2 per route)       | part of a route's payload               | Polyline rendering, stop ordering (ADR-0008)               | No                                                      |
-| Stop                           | part of a direction's ordered stops     | Stop markers, stop list, stop editing context              | No                                                      |
-| Draft (24 h TTL, localStorage) | existing draft module                   | Unsaved-state restore + `beforeunload` guard               | No (re-homed banner only)                               |
-| `sidebarMode` (shell rail)     | `uiStore` (persisted)                   | Layout width decision (D1)                                 | No (now honored on the workspace instead of overridden) |
+| Entity                         | Source of truth                         | Used for                                                                               | Changed?                                                |
+| ------------------------------ | --------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Route                          | loaded via API → `plottingStore.routes` | Left-column list, polyline layers, focus plate, edit panel                             | No                                                      |
+| Direction (×2 per route)       | part of a route's payload               | Polyline rendering, stop ordering (ADR-0008)                                           | No                                                      |
+| Stop                           | part of a direction's ordered stops     | Stop markers, stop list, stop editing context                                          | No                                                      |
+| Draft (24 h TTL, localStorage) | existing draft module                   | Unsaved-state restore + `beforeunload` guard                                           | No (re-homed banner only)                               |
+| `sidebarMode` (shell rail)     | `uiStore` (persisted)                   | Layout width decision (D1, reversed 2026-08-16: expanded docks/pushes, hover overlays) | No (now honored on the workspace instead of overridden) |
 
 Validation rules (LTFRB fare, stop name non-empty, coordinate format `[lng, lat]`) live in the existing save path and are **untouched** (FR-012 behavior freeze).
 
@@ -34,15 +34,15 @@ uiState(routes, routeId, focusedRouteId) =
   overview otherwise
 ```
 
-- `focusedRouteId` is the **only new store field** (in `lib/plottingStore.ts`): the id of the route selected on the map for inspection. It is cleared on entering `edit` of a different route, on `focus→overview`, and on route deletion.
+- `focusedRouteId` is the **only new store field** (in `lib/plottingStore.ts`): the id of the route selected on the map for inspection. It is cleared on entering `edit` (any route), on `focus→overview`, **on leaving the editor** (`edit→overview`, clean idle slate), and on route deletion.
 
 **Transitions** (8, all via explicit triggers — full table with triggers and side effects in [contracts/workspace-state-machine.md](./contracts/workspace-state-machine.md)):
 
-`empty→edit`, `overview→focus`, `overview→edit`, `focus→edit`, `edit→focus`, `focus→overview`, `edit→overview`, `*→empty`.
+`empty→edit`, `overview→focus`, `overview→edit`, `focus→edit`, `edit→overview` (Back/Esc), `focus→overview`, `edit→overview` (save/discard), `*→empty`.
 
 **State → DOM model** (what each state renders):
 
-| State      | Left column (240) |           Center chrome            |                      Right column (336)                       |           Map            |
+| State      | Left column (256) |           Center chrome            |                      Right column (336)                       |           Map            |
 | ---------- | :---------------: | :--------------------------------: | :-----------------------------------------------------------: | :----------------------: |
 | `empty`    |         —         |                 —                  |                               —                               |  full-bleed under veil   |
 | `overview` |  RouteList (nav)  |                 —                  |                               —                               |         maximal          |
@@ -53,24 +53,24 @@ uiState(routes, routeId, focusedRouteId) =
 
 Fixed, declarative, no responsive system (spec FR-001; ADR-0014):
 
-| Token         |                        Value | Role                                  |
-| ------------- | ---------------------------: | ------------------------------------- |
-| `gutter`      |                        16 px | white desk between plates             |
-| `leftCol`     |                       240 px | constant across overview/focus/edit   |
-| `rightCol`    |                       336 px | one width across focus and edit       |
-| `centerCol`   | `100% − 240 − 336 − gutters` | the map region; never scrolls         |
-| `rail`        |      persisted `sidebarMode` | pushes layout (D1)                    |
-| `minMapWidth` |                       400 px | gate invariant (not a viewport class) |
-| `minViewport` |                      1024 px | declared desktop floor                |
+| Token         |                        Value | Role                                                                                  |
+| ------------- | ---------------------------: | ------------------------------------------------------------------------------------- |
+| `gutter`      |                        16 px | white desk between plates                                                             |
+| `leftCol`     |                       256 px | constant across overview/focus/edit                                                   |
+| `rightCol`    |                       336 px | one width across focus and edit                                                       |
+| `centerCol`   | `100% − 256 − 336 − gutters` | the FREE map region between the floating plates (ADR-0015); never scrolls             |
+| `rail`        |      persisted `sidebarMode` | expanded docks/pushes; collapsed icon-width; hover overlays (D1, reversed 2026-08-16) |
+| `minMapWidth` |                       400 px | gate invariant (not a viewport class)                                                 |
+| `minViewport` |                      1024 px | declared desktop floor                                                                |
 
-**Canvas resize moments in the whole journey: exactly two** — `empty→overview` (left column mounts) and `overview→focus` (right column mounts). `focus ⇄ edit` resizes nothing.
+**Canvas resize moments in the whole journey: zero** — the map spans the full workspace as a backdrop (ADR-0015), so plate mounting never changes the canvas size. (SC-002)
 
-**Map-width arithmetic (rail collapsed, gutters only _between_ plates — no outer margins):**
+**Map-width arithmetic (rail collapsed, gutters only _between_ plates — no outer margins)** — these are **workspace-width** figures (the strip right of the 48 px shell rail):
 
-- `overview`: map = viewport − 240 − 16 → at 1024 px: **768 px**
-- `focus`: map = viewport − 240 − 336 − 2·16 → at 1024 px: **416 px** (floor), at 1440 px: **832 px**, at 1920 px: **1312 px** (REFACTOR.md reference figures)
+- `overview`: region = viewport − 256 − 16 → at 1024 px: **752 px**
+- `focus`: region = viewport − 256 − 336 − 2·16 → at 1024 px: **400 px** (floor), at 1440 px: **816 px**, at 1920 px: **1296 px** (REFACTOR.md reference figures)
 
-The gate triggers on `centerCol < 400 px` regardless of rail state. With the rail collapsed, the map stays ≥ 416 px across the declared floor, so the gate only fires when the rail is expanded (or the viewport drops below the declared floor); that is correct — the **map width, not the viewport, is the invariant** (SC-001).
+The gate triggers on `free region < 400 px` regardless of rail state. At a literal 1024 px window the collapsed rail leaves 976 px of workspace, so the focus region is 976 − 624 = **352 < 400 and the gate fires** — the effective floor is ~1056 px (collapsed rail) / ~1264 px (expanded). That is correct — the **free map region, not the viewport, is the invariant** (SC-001, FR-004).
 
 ## 4. Non-goals (explicitly out of model scope)
 

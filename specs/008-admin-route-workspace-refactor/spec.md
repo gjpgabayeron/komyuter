@@ -64,7 +64,7 @@ Everything that protects the Administrator's work today — debounced draft auto
 
 **Acceptance Scenarios**:
 
-1. **Given** an unsaved draft from a previous session, **When** the Administrator opens the workspace, **Then** the restore banner appears in the status slot and restoring brings the draft back exactly.
+1. **Given** an unsaved draft from a previous session, **When** the Administrator opens the workspace, **Then** the restore banner appears in the status slot and restoring brings the draft back exactly — followed by a transient "Draft restored" confirmation that auto-dismisses (no manual dismissal).
 2. **Given** edits in progress, **When** the Administrator triggers undo and redo repeatedly, **Then** each step reverts and restores exactly as before the refactor.
 3. **Given** unsaved changes, **When** the Administrator tries to leave or reload, **Then** a styled in-app confirmation asks to keep or discard — the browser's default dialog is never used.
 4. **Given** a valid plotted route, **When** the Administrator saves, **Then** the direction and all its stops persist together in one atomic action.
@@ -73,7 +73,7 @@ Everything that protects the Administrator's work today — debounced draft auto
 
 ### User Story 4 - Read workspace mode and save status at a glance (Priority: P2)
 
-While editing, a status slot sits at the top of the editing chrome and shows the save lifecycle (unsaved → saving → "Saved just now"). Draft-restore and conflict notices share that slot one at a time — they never stack. The mode (overview / focus / edit) is always legible from the chrome that is mounted.
+While editing, a status slot sits at the top of the editing chrome and shows the save lifecycle (unsaved → saving → "Saved just now"). It is **context-sensitive**: the lifecycle plate renders only while there is something to say — a save in flight, an unsaved change, or a just-completed save (the "Saved just now" state is transient and auto-dismisses). Draft-restore and conflict notices share that slot one at a time — they never stack. The mode (overview / focus / edit) is always legible from the chrome that is mounted.
 
 **Why this priority**: The critique flagged banner collision and under-communicated save feedback as P2 issues; they directly affect whether the Administrator trusts that work is safe.
 
@@ -82,7 +82,7 @@ While editing, a status slot sits at the top of the editing chrome and shows the
 **Acceptance Scenarios**:
 
 1. **Given** unsaved edits, **When** the Administrator changes a value, **Then** the status slot immediately shows the unsaved state.
-2. **Given** a save in progress, **When** it completes, **Then** the status shows "Saved just now" and the saved route is framed and highlighted.
+2. **Given** a save in progress, **When** it completes, **Then** the status shows a transient "Saved just now" (auto-dismisses) and the saved route is framed and highlighted.
 3. **Given** a draft-restore condition and a conflict condition at the same time, **When** both hold, **Then** the notices appear one at a time in the single status slot, never overlapping.
 
 ---
@@ -125,7 +125,7 @@ Editing affordances are explicit: Add/Select mode is visibly indicated, invalid 
 
 - **Narrow window**: viewport below 1024 px → a single "wider window" notice plate; no broken or partially usable layout.
 - **Expanded shell rail at the floor**: the notice gate keys off the **map region** staying ≥ 400 px wide, not off a viewport class — so it correctly guards both rail states.
-- **Canvas resize moments**: exactly two in the whole journey — overview→focus (right column mounts) and empty→overview (left column mounts); focus ⇄ edit resizes nothing.
+- **Canvas resize moments**: zero — the map spans the full workspace as a backdrop in every state (ADR-0015), so plate mounting never changes the canvas size.
 - **Simultaneous restore + conflict**: both conditions true at once → the status slot sequences them; they never stack.
 - **Dirty exits**: Esc / Back / leave-navigation with unsaved changes → styled confirmation, never the browser dialog.
 - **Last route deleted**: columns unmount and the empty veil remounts over the warm canvas.
@@ -143,7 +143,7 @@ Editing affordances are explicit: Add/Select mode is visibly indicated, invalid 
 - **FR-004**: The map region MUST never be narrower than 400 px; when the shell's navigation rail is expanded and would push the map below that, the notice gate MUST appear.
 - **FR-005**: Clicking a route in the left list MUST open edit mode ("list-click = act"); clicking a route's line on the map MUST open focus mode ("map-click = peek").
 - **FR-005a**: The route/stop search MUST remain available in edit mode, anchored consistently to the workspace regardless of window width — its positioning MUST NOT depend on panel width.
-- **FR-006**: The workspace MUST show the save lifecycle in a fixed status slot (unsaved → saving → "Saved just now"); draft-restore and conflict notices MUST share that slot and MUST NOT display overlapping.
+- **FR-006**: The workspace MUST show the save lifecycle in a fixed status slot (unsaved → saving → "Saved just now") and the slot MUST be context-sensitive — the lifecycle plate appears only on an actual status change (saving, dirty, or a transient just-completed save that auto-dismisses); draft-restore, draft-restored, and conflict notices MUST share that slot one at a time and MUST NOT display overlapping.
 - **FR-007**: All confirmations for destructive or data-loss actions (discard, delete last route, leave with unsaved changes) MUST use the application's styled dialog — the browser's native dialog MUST NOT be used.
 - **FR-008**: Keyboard operation MUST cover the full workflow: Esc dismisses in focus / steps back in edit (styled confirm when dirty), Ctrl/Cmd+S saves in edit, and the primary action autofocuses in the empty mode.
 - **FR-009**: Accessibility MUST be preserved: named regions for the route list and the properties plate, every core action keyboard-reachable, focus management across mode transitions, and AA text sizes.
@@ -152,20 +152,20 @@ Editing affordances are explicit: Add/Select mode is visibly indicated, invalid 
 - **FR-012**: Displayed values MUST be unchanged by the refactor: route/stop names, colors, and distances render identically to the current page.
 - **FR-013**: Editing feedback MUST be explicit: Add/Select mode visibly indicated; invalid color values and empty stop names show inline validation hints instead of silent behavior; all copy uses plain operational language without developer jargon.
 
-_No [NEEDS CLARIFICATION] markers remain — all open layout decisions were resolved in conversation and recorded in ADR-0014 (shell rail respects the persisted preference and pushes layout; single right-column width across focus and edit; white veil with `@supports`-gated blur). Terminology normalized to the canonical state names empty / overview / focus / edit (formerly referred to as "browsing" / "inspection")._
+_No [NEEDS CLARIFICATION] markers remain — all open layout decisions were resolved in conversation and recorded in ADR-0014 (shell rail respects the persisted preference: expanded docks/pushes, hover overlays the content; single right-column width across focus and edit; white veil with `@supports`-gated blur). Terminology normalized to the canonical state names empty / overview / focus / edit (formerly referred to as "browsing" / "inspection")._
 
 ## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
-- **SC-001**: At 1024, 1440, and 1920 px viewport widths (rail collapsed) the three columns never collide and the map region is ≥ 400 px wide; with the rail expanded, the notice gate appears instead of letting the map drop below 400 px.
-- **SC-002**: The map surface identity and camera survive all four modes and both resize moments — verifiable by a smoke check that the map never re-initializes while the Administrator moves between modes.
+- **SC-001**: At 1024, 1440, and 1920 px viewport widths (rail collapsed) the floating plates never overlap and the free map region is ≥ 400 px wide; with the rail expanded, the notice gate appears instead of letting the free map region drop below 400 px. (ADR-0015: the map itself spans the full workspace behind the plates.)
+- **SC-002**: The map surface identity and camera survive all four modes — verifiable by a smoke check that the map never re-initializes while the Administrator moves between modes. (ADR-0015: the full-bleed map never resizes across states.)
 - **SC-003**: All eight documented mode transitions behave per the transition table; a reviewer can exercise each transition in under 5 seconds.
 - **SC-004**: 100% of draft-restore, undo/redo, save-validation, and atomic-save scenarios produce the identical outcome as before the refactor (regression pass against current behavior).
 - **SC-005**: Zero browser-native confirmation dialogs and zero developer-jargon strings remain in the workspace.
 - **SC-006**: The complete route-plotting workflow is completable with keyboard only, and a screen reader announces named regions for the route list and the properties plate.
 - **SC-007**: The project's lint, type-check, and format checks pass; all existing automated tests pass; new unit tests cover the mode-derivation logic, the layout geometry tokens, and the width gate.
-- **SC-008**: The five layout-related critique findings (panel collisions below ~964 px, rail swallowing the route list, banner stacking, POI search coupled to panel width, missing landmarks) are not reproducible after the refactor.
+- **SC-008**: The five layout-related critique findings (panel collisions below ~964 px, rail swallowing the route list, banner stacking, POI search coupled to panel width, missing landmarks) are not reproducible after the refactor. _Nuance (D1 reversal, 2026-08-16): in hover mode the rail briefly overlays the left plate while hovered — the critique's defect was the rail *shoving* the workspace, which no longer happens; the workspace never shifts._
 
 ## Assumptions
 

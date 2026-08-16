@@ -31,9 +31,9 @@ description: "Task list for Admin Route Workspace Refactor"
 
 **Purpose**: Establish a verified baseline so regressions are attributable, and confirm the zero-new-deps decision
 
-- [ ] T001 [P] Run baseline gates on apps/admin — `pnpm --filter admin lint`, `typecheck`, `test`, `build` — and record results (all must pass before any refactor work)
-- [ ] T002 [P] Run `detect.mjs` on the current RouteWorkspace files and save the output as the SC-008 baseline oracle (compare against in the Polish phase)
-- [ ] T003 Confirm the zero-new-dependencies decision from research.md against apps/admin/package.json and plan.md Technical Context; flag any discrepancy in plan.md
+- [x] T001 [P] Run baseline gates on apps/admin — `pnpm --filter admin lint`, `typecheck`, `test`, `build` — and record results (all must pass before any refactor work)
+- [x] T002 [P] Run `detect.mjs` on the current RouteWorkspace files and save the output as the SC-008 baseline oracle (compare against in the Polish phase)
+- [x] T003 Confirm the zero-new-dependencies decision from research.md against apps/admin/package.json and plan.md Technical Context; flag any discrepancy in plan.md
 
 ---
 
@@ -43,13 +43,13 @@ description: "Task list for Admin Route Workspace Refactor"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Write FAILING tests for `WORKSPACE_GEOMETRY` tokens, `mapWidth()` formulas (overview/focus), and the gate boundary (399/400/401 px) per contracts/layout-geometry.md §1–2 in apps/admin/src/tests/workspaceGeometry.test.ts (TDD — red first)
-- [ ] T005 [P] Write FAILING tests for `deriveUiState()` (all 5 rules) and the `focusedRouteId` lifecycle per contracts/workspace-state-machine.md §2–3 in apps/admin/src/tests/workspaceUiState.test.ts (TDD — red first)
-- [ ] T006 Implement `WORKSPACE_GEOMETRY` (gutter 16 / leftCol 240 / rightCol 336 / minMapWidth 400 / minViewport 1024) and pure `mapWidth(viewport, railW, state)` in apps/admin/src/features/routes/workspace/geometry.ts (makes T004 green)
-- [ ] T007 Implement `deriveUiState()` selector + `focusedRouteId` field per contracts/workspace-state-machine.md §2–3 in apps/admin/src/lib/plottingStore.ts (makes T005 green)
-- [ ] T008 Implement `features/routes/NarrowWindowGate.tsx`: one matchMedia-backed listener; recomputes map width via `mapWidth` (NOT a viewport class); renders the full-screen "wider window" plate when `mapWidth < 400`; must not flash on first paint; sits OUTSIDE `RouteMap` so toggling never touches the GL instance (contracts/layout-geometry.md §2)
-- [ ] T009 Implement `features/routes/workspace/WorkspaceColumns.tsx`: three-column shell with fixed tokens (240/336/remainder, 16 px gutters only BETWEEN plates), per-state column mounts, center column = one-hit-target region with no `stopPropagation` on `pointerdown` (contracts/layout-geometry.md §3)
-- [ ] T010 Add `prefers-reduced-motion` guard for the veil fade (≤ 120 ms) and framing (≤ 400 ms) in apps/admin/src/index.css; fix `DialogFooter` `rounded-b-xl` → 4 px radius token (critique P3)
+- [x] T004 [P] Write FAILING tests for `WORKSPACE_GEOMETRY` tokens, `mapWidth()` formulas (overview/focus), and the gate boundary (399/400/401 px) per contracts/layout-geometry.md §1–2 in apps/admin/src/tests/workspaceGeometry.test.ts (TDD — red first)
+- [x] T005 [P] Write FAILING tests for `deriveUiState()` (all 5 rules) and the `focusedRouteId` lifecycle per contracts/workspace-state-machine.md §2–3 in apps/admin/src/tests/workspaceUiState.test.ts (TDD — red first)
+- [x] T006 Implement `WORKSPACE_GEOMETRY` (gutter 16 / leftCol 240 / rightCol 336 / minMapWidth 400 / minViewport 1024) and pure `mapWidth(viewport, railW, state)` in apps/admin/src/features/routes/workspace/geometry.ts (makes T004 green)
+- [x] T007 Implement `deriveUiState()` selector + `focusedRouteId` field per contracts/workspace-state-machine.md §2–3 in apps/admin/src/lib/plottingStore.ts (makes T005 green)
+- [x] T008 Implement `features/routes/NarrowWindowGate.tsx`: one matchMedia-backed listener; recomputes map width via `mapWidth` (NOT a viewport class); renders the full-screen "wider window" plate when `mapWidth < 400`; must not flash on first paint; sits OUTSIDE `RouteMap` so toggling never touches the GL instance (contracts/layout-geometry.md §2)
+- [x] T009 Implement `features/routes/workspace/WorkspaceColumns.tsx`: three-column shell with fixed tokens (240/336/remainder, 16 px gutters only BETWEEN plates), per-state column mounts, center column = one-hit-target region with no `stopPropagation` on `pointerdown` (contracts/layout-geometry.md §3)
+- [x] T010 Add `prefers-reduced-motion` guard for the veil fade (≤ 120 ms) and framing (≤ 400 ms) in apps/admin/src/index.css; fix `DialogFooter` `rounded-b-xl` → 4 px radius token (critique P3)
 
 **Checkpoint**: Foundation ready — `workspaceUiState.test.ts` and `workspaceGeometry.test.ts` green, gate + shell render; user story implementation can begin
 
@@ -63,17 +63,17 @@ description: "Task list for Admin Route Workspace Refactor"
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Rewrite `pages/RouteWorkspace.tsx` as the state-machine orchestrator: derive `uiState` from the store, render per-state column sets, delete the overlay-positioning absolutes (`left-3`/`right-3`/`z-*` panels)
-- [ ] T012 [US1] Wire `overview→focus` (map polyline click → `focusedRouteId` set; right FocusPlate mounts; route framed ≤ 400 ms) and `focus→overview` (Esc / X / empty-map click; plate unmounts; camera unchanged) in `pages/RouteWorkspace.tsx`
-- [ ] T013 [US1] Wire `overview→edit` (route list item click — "list-click = act"), `focus→edit` (Edit CTA), `edit→focus` (Back / Esc), and `edit→overview` (save / discard) in `pages/RouteWorkspace.tsx`
-- [ ] T014 [P] [US1] Modify `lib/selection.ts`: map polyline click sets **focus** (metadata plate), not edit
-- [ ] T015 [US1] Modify `features/routes/RouteMap.tsx`: GL container = center column; ResizeObserver sizing; camera preserved across the two resize moments (`empty→overview`, `overview→focus`); **never re-initialize the GL instance from any state transition** (plan Invariant 1)
-- [ ] T016 [US1] Add polyline hover → route-name plate (mouse-first affordance) in `features/routes/RouteMap.tsx`
-- [ ] T017 [US1] Modify `features/routes/RouteList.tsx`: LeftColumn overview variant — list = navigation aid (`<nav>`), item click = edit; internal scroll; never overlays the map
-- [ ] T018 [US1] Modify `features/routes/PropertiesPanel.tsx`: add FocusPlate sub-state (route metadata + "Edit route" CTA + close); right column fixed at ONE width 336 px across focus and edit (content swap, no resize — plan Invariant 3)
-- [ ] T019 [US1] Fix `features/routes/RouteOverviewLayer.tsx`: overview dim 0.15 → ≥ 0.3 opacity with hover lift; route names remain accessible via the left column + plate (not tooltip-only)
-- [ ] T020 [US1] Bump stop label chips to ≥ 11–12 px in `lib/stopShapes.ts` / `features/routes/stopLabels.ts` (AA text legibility)
-- [ ] T021 [US1] Run the SC-002 smoke check (manual, quickstart.md §2.2): GL canvas is the same DOM node across all four states; exactly two resize moments; camera preserved
+- [x] T011 [US1] Rewrite `pages/RouteWorkspace.tsx` as the state-machine orchestrator: derive `uiState` from the store, render per-state column sets, delete the overlay-positioning absolutes (`left-3`/`right-3`/`z-*` panels)
+- [x] T012 [US1] Wire `overview→focus` (map polyline click → `focusedRouteId` set; right FocusPlate mounts; route framed ≤ 400 ms) and `focus→overview` (Esc / X / empty-map click; plate unmounts; camera unchanged) in `pages/RouteWorkspace.tsx`
+- [x] T013 [US1] Wire `overview→edit` (route list item click — "list-click = act"), `focus→edit` (Edit CTA), `edit→focus` (Back / Esc), and `edit→overview` (save / discard) in `pages/RouteWorkspace.tsx`
+- [x] T014 [P] [US1] Modify `lib/selection.ts`: map polyline click sets **focus** (metadata plate), not edit
+- [x] T015 [US1] Modify `features/routes/RouteMap.tsx`: GL container = center column; ResizeObserver sizing; camera preserved across the two resize moments (`empty→overview`, `overview→focus`); **never re-initialize the GL instance from any state transition** (plan Invariant 1)
+- [x] T016 [US1] Add polyline hover → route-name plate (mouse-first affordance) in `features/routes/RouteMap.tsx`
+- [x] T017 [US1] Modify `features/routes/RouteList.tsx`: LeftColumn overview variant — list = navigation aid (`<nav>`), item click = edit; internal scroll; never overlays the map
+- [x] T018 [US1] Modify `features/routes/PropertiesPanel.tsx`: add FocusPlate sub-state (route metadata + "Edit route" CTA + close); right column fixed at ONE width 336 px across focus and edit (content swap, no resize — plan Invariant 3)
+- [x] T019 [US1] Fix `features/routes/RouteOverviewLayer.tsx`: overview dim 0.15 → ≥ 0.3 opacity with hover lift; route names remain accessible via the left column + plate (not tooltip-only)
+- [x] T020 [US1] Bump stop label chips to ≥ 11–12 px in `lib/stopShapes.ts` / `features/routes/stopLabels.ts` (AA text legibility)
+- [x] T021 [US1] Run the SC-002 smoke check (manual, quickstart.md §2.2): GL canvas is the same DOM node across all four states; camera preserved (ADR-0015: zero resize moments — the map spans the full workspace)
 
 **Checkpoint**: At this point, User Story 1 is fully functional and testable independently (MVP)
 
@@ -87,9 +87,9 @@ description: "Task list for Admin Route Workspace Refactor"
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Rework `features/routes/EmptyState.tsx`: full-screen white veil over the warm canvas (Route Sign "fresh board"); CTA autofocused; subtle `backdrop-filter` blur only behind `@supports` with white-tint fallback; clarify the disabled Import JSON affordance (text + CTA per plan Phase 3)
-- [ ] T023 [US2] Wire `empty→edit` in `pages/RouteWorkspace.tsx`: CTA → New Route dialog → create (Enter or click); veil lifts with NO camera jump; Add-stop immediately active
-- [ ] T024 [US2] Wire `*→empty` in `pages/RouteWorkspace.tsx`: deleting the last remaining route (styled confirm) unmounts columns and remounts the veil over the warm canvas
+- [x] T022 [US2] Rework `features/routes/EmptyState.tsx`: full-screen white veil over the warm canvas (Route Sign "fresh board"); CTA autofocused; subtle `backdrop-filter` blur only behind `@supports` with white-tint fallback; clarify the disabled Import JSON affordance (text + CTA per plan Phase 3)
+- [x] T023 [US2] Wire `empty→edit` in `pages/RouteWorkspace.tsx`: CTA → New Route dialog → create (Enter or click); veil lifts with NO camera jump; Add-stop immediately active
+- [x] T024 [US2] Wire `*→empty` in `pages/RouteWorkspace.tsx`: deleting the last remaining route (styled confirm) unmounts columns and remounts the veil over the warm canvas
 
 **Checkpoint**: User Stories 1 AND 2 both work independently
 
@@ -105,10 +105,10 @@ description: "Task list for Admin Route Workspace Refactor"
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Regression audit: confirm draft (24 h TTL, debounced), undo/redo, `beforeunload` + `pushState` guards, and atomic save are untouched in `lib/plottingStore.ts` + the draft module — NO behavior edits in this story
-- [ ] T026 [US3] Re-home `features/routes/DraftRestoreBanner.tsx` into the status slot (provisional host until T030; copy unchanged — quickstart.md §2.4 scenario 1)
-- [ ] T027 [US3] Replace every `window.confirm()` (load-latest, leave-navigation, dirty exits) with the styled AlertDialog in `pages/RouteWorkspace.tsx` — the browser's default dialog is never used (FR-007)
-- [ ] T028 [US3] Verify the safety-net regression: restore brings the draft back exactly; undo/redo parity; atomic save persists direction + stops together (quickstart.md §2.4)
+- [x] T025 [US3] Regression audit: confirm draft (24 h TTL, debounced), undo/redo, `beforeunload` + `pushState` guards, and atomic save are untouched in `lib/plottingStore.ts` + the draft module — NO behavior edits in this story
+- [x] T026 [US3] Re-home `features/routes/DraftRestoreBanner.tsx` into the status slot (provisional host until T030; copy unchanged — quickstart.md §2.4 scenario 1)
+- [x] T027 [US3] Replace every `window.confirm()` (load-latest, leave-navigation, dirty exits) with the styled AlertDialog in `pages/RouteWorkspace.tsx` — the browser's default dialog is never used (FR-007)
+- [x] T028 [US3] Verify the safety-net regression: restore brings the draft back exactly; undo/redo parity; atomic save persists direction + stops together (quickstart.md §2.4)
 
 **Checkpoint**: Full safety-net regression passes on the new layout
 
@@ -122,11 +122,11 @@ description: "Task list for Admin Route Workspace Refactor"
 
 ### Implementation for User Story 4
 
-- [ ] T029 [US4] Create `features/routes/StatusBar.tsx`: status slot at the top-right of the center chrome (edit only) with the dirty → saving → "Saved just now" lifecycle
-- [ ] T030 [US4] Move `DraftRestoreBanner.tsx` into the StatusBar slot; add the conflict notice; single-slot sequencing — draft-restore and conflict NEVER stack (spec US4 scenario 3)
-- [ ] T031 [US4] On save complete, frame + highlight the saved route in the left list (`pages/RouteWorkspace.tsx` + `features/routes/RouteList.tsx` — spec US4 scenario 2)
-- [ ] T032 [US4] Modify `features/routes/PoiSearchBar.tsx`: anchor to the center-column edge (DELETE the `left-86` magic number — critique P2 / SC-008); cap the results list height with internal scroll; replace the "out of sync" dev copy
-- [ ] T033 [US4] Make mode legibility explicit in `features/routes/workspace/WorkspaceColumns.tsx`: overview / focus / edit are distinguishable from the chrome that is mounted
+- [x] T029 [US4] Create `features/routes/StatusBar.tsx`: status slot at the top-right of the center chrome (edit only) with the dirty → saving → "Saved just now" lifecycle
+- [x] T030 [US4] Move `DraftRestoreBanner.tsx` into the StatusBar slot; add the conflict notice; single-slot sequencing — draft-restore and conflict NEVER stack (spec US4 scenario 3)
+- [x] T031 [US4] On save complete, frame + highlight the saved route in the left list (`pages/RouteWorkspace.tsx` + `features/routes/RouteList.tsx` — spec US4 scenario 2)
+- [x] T032 [US4] Modify `features/routes/PoiSearchBar.tsx`: anchor to the center-column edge (DELETE the `left-86` magic number — critique P2 / SC-008); cap the results list height with internal scroll; replace the "out of sync" dev copy
+- [x] T033 [US4] Make mode legibility explicit in `features/routes/workspace/WorkspaceColumns.tsx`: overview / focus / edit are distinguishable from the chrome that is mounted
 
 **Checkpoint**: User Stories 1–4 all work independently
 
@@ -140,10 +140,10 @@ description: "Task list for Admin Route Workspace Refactor"
 
 ### Implementation for User Story 5
 
-- [ ] T034 [US5] Add landmarks: `<nav aria-label="Routes">` in `features/routes/RouteList.tsx`, `<aside aria-label="Route properties">` for the right plate in `features/routes/PropertiesPanel.tsx`, main map region in `pages/RouteWorkspace.tsx` (FR-009)
-- [ ] T035 [US5] Focus management in `pages/RouteWorkspace.tsx`: on state transition, focus moves to the newly mounted plate's primary action; verify the full keyboard contract end-to-end — Esc in focus → overview, Esc in dirty edit → styled confirm, Ctrl/Cmd+S saves, CTA autofocus in empty (FR-008)
-- [ ] T036 [US5] Add keyboard equivalents for every hover affordance — including keyboard-reachable stop cycling — in `features/routes/RouteList.tsx`, `features/routes/RouteMap.tsx`, `features/routes/PlotActionBar.tsx` (no hover-only traps)
-- [ ] T037 [US5] Screen-reader verification pass (quickstart.md §2.6): named regions announced, every core action reachable
+- [x] T034 [US5] Add landmarks: `<nav aria-label="Routes">` in `features/routes/RouteList.tsx`, `<aside aria-label="Route properties">` for the right plate in `features/routes/PropertiesPanel.tsx`, main map region in `pages/RouteWorkspace.tsx` (FR-009)
+- [x] T035 [US5] Focus management in `pages/RouteWorkspace.tsx`: on state transition, focus moves to the newly mounted plate's primary action; verify the full keyboard contract end-to-end — Esc in focus → overview, Esc in dirty edit → styled confirm, Ctrl/Cmd+S saves, CTA autofocus in empty (FR-008)
+- [x] T036 [US5] Add keyboard equivalents for every hover affordance — including keyboard-reachable stop cycling — in `features/routes/RouteList.tsx`, `features/routes/RouteMap.tsx`, `features/routes/PlotActionBar.tsx` (no hover-only traps)
+- [x] T037 [US5] Screen-reader verification pass (quickstart.md §2.6): named regions announced, every core action reachable
 
 **Checkpoint**: User Stories 1–5 all work independently
 
@@ -157,10 +157,11 @@ description: "Task list for Admin Route Workspace Refactor"
 
 ### Implementation for User Story 6
 
-- [ ] T038 [US6] Show Add/Select mode visibly in `features/routes/PlotActionBar.tsx` — the active mode is indicated, not implied (first-run "zero feedback" fix)
-- [ ] T039 [US6] Invalid hex color → inline validation hint in `features/routes/PropertiesPanel.tsx` (no silent ignore — heuristic 5)
-- [ ] T040 [US6] Empty stop name → inline hint prompting a name in `features/routes/PropertiesPanel.tsx`
-- [ ] T041 [US6] Replace dev jargon copy — "MAPBOX_SECRET_TOKEN", "out of sync" — with plain operational language in `pages/RouteWorkspace.tsx` (and `features/routes/PoiSearchBar.tsx` if any remains after T032) (critique P3, heuristic 2)
+- [x] T038 [US6] Show Add/Select mode visibly in `features/routes/PlotActionBar.tsx` — the active mode is indicated, not implied (first-run "zero feedback" fix)
+  - **Superseded (post-review)**: the text mode chip ("Add mode"/"Select mode") was removed from `PlotActionBar` — the Select/Add `ToolToggle` is now the sole mode indicator (its pressed state + tooltip carry the state; FR-013 still holds).
+- [x] T039 [US6] Invalid hex color → inline validation hint in `features/routes/PropertiesPanel.tsx` (no silent ignore — heuristic 5)
+- [x] T040 [US6] Empty stop name → inline hint prompting a name in `features/routes/PropertiesPanel.tsx`
+- [x] T041 [US6] Replace dev jargon copy — "MAPBOX_SECRET_TOKEN", "out of sync" — with plain operational language in `pages/RouteWorkspace.tsx` (and `features/routes/PoiSearchBar.tsx` if any remains after T032) (critique P3, heuristic 2)
 
 **Checkpoint**: All six user stories independently functional
 
@@ -170,13 +171,13 @@ description: "Task list for Admin Route Workspace Refactor"
 
 **Purpose**: Gate verification, regression oracle, and value fidelity across all stories
 
-- [ ] T042 [P] Run `pnpm --filter admin lint` and `pnpm format:check` on changed files (root flat ESLint config; prettier semicolons + double quotes)
-- [ ] T043 [P] Run `pnpm --filter admin typecheck` (strict, shared `@repo/typescript-config`)
-- [ ] T044 [P] Run `pnpm --filter admin test` — all existing admin tests AND the new `workspaceUiState` / `workspaceGeometry` suites green (SC-007)
-- [ ] T045 Run `pnpm --filter admin build` (production build passes)
-- [ ] T046 Run the full quickstart.md validation matrix SC-001…SC-008 (manual, at 1024/1440/1920 px + rail expanded)
-- [ ] T047 Run `detect.mjs` on the refactored files and diff against the T002 baseline — only the INTENDED findings may flip (layout collisions, rail swallow, banner collision, `left-86`, save status, a11y, copy, `window.confirm`); any new finding is a failure (SC-008)
-- [ ] T048 Value fidelity check: stop names, colors, and distances render identically to the pre-refactor page (spec Edge Cases — nothing displayed changes meaning)
+- [x] T042 [P] Run `pnpm --filter admin lint` and `pnpm format:check` on changed files (root flat ESLint config; prettier semicolons + double quotes)
+- [x] T043 [P] Run `pnpm --filter admin typecheck` (strict, shared `@repo/typescript-config`)
+- [x] T044 [P] Run `pnpm --filter admin test` — all existing admin tests AND the new `workspaceUiState` / `workspaceGeometry` suites green (SC-007)
+- [x] T045 Run `pnpm --filter admin build` (production build passes)
+- [x] T046 Run the full quickstart.md validation matrix SC-001…SC-008 (manual, at 1024/1440/1920 px + rail expanded)
+- [x] T047 Run `detect.mjs` on the refactored files and diff against the T002 baseline — only the INTENDED findings may flip (layout collisions, rail swallow, banner collision, `left-86`, save status, a11y, copy, `window.confirm`); any new finding is a failure (SC-008)
+- [x] T048 Value fidelity check: stop names, colors, and distances render identically to the pre-refactor page (spec Edge Cases — nothing displayed changes meaning)
 
 ---
 
@@ -284,3 +285,30 @@ With multiple developers:
 - Commit after each task or logical group (conventional commits, commitlint enforced)
 - Stop at any checkpoint to validate the story independently
 - Avoid: vague tasks, same-file conflicts, cross-story dependencies that break independence (US3→US4 StatusBar noted explicitly)
+
+---
+
+## Phase 10: Layering revision — floating plates over a full-bleed map (ADR-0015)
+
+**Goal**: Reversal of the three-column grid (ADR-0015): the map spans the full workspace as a seamless backdrop; the left/right plates and floating chrome sit above it; the empty state keeps the map visible; the gate guards the free map region.
+
+### Implementation for Phase 10
+
+- [x] T049 [US1] Revert `features/routes/RouteList.tsx` + `features/routes/PropertiesPanel.tsx` to floating plates (`absolute top-3 left-3/right-3 z-20`, token widths 240/336, `max-height` + internal scroll)
+- [x] T050 [US1] Render `RouteMap` full-bleed as the workspace backdrop in `pages/RouteWorkspace.tsx`; mount plates per state; move floating chrome (StatusBar, PlotActionBar, snap warning) to the workspace root at z-30; delete `features/routes/workspace/WorkspaceColumns.tsx`
+- [x] T051 [US1] Re-key `NarrowWindowGate` to the free map region: self-measuring `ResizeObserver`, plate overlays (never unmounts the map), covered chrome made `inert`; re-anchor `StatusBar` to top-center and `PoiSearchBar` to a token-derived offset (`leftCol + 24`)
+- [x] T052 [US2] Empty state: remove the full-cover veil — single centered plate over the warm map (ADR-0015)
+- [x] T053 [Docs] Record ADR-0015 (supersedes ADR-0014 layering); update `contracts/layout-geometry.md`, `quickstart.md` (SC-001/SC-002), `spec.md` (SC-001/SC-002); run all gates
+
+---
+
+## Phase 11: Hybrid grid — three-column skeleton over the full-bleed map (ADR-0015 revision)
+
+**Goal**: Reconcile the floating aesthetic with structural clarity: the map stays the full-bleed backdrop while a three-column grid lays full-height plates over it; the status indicator mirrors the POI search bar on the same top row of the center track; no magic offsets.
+
+### Implementation for Phase 11
+
+- [x] T054 [US1] Recreate `features/routes/workspace/WorkspaceColumns.tsx` as the grid skeleton over the map backdrop: 5-track grid `240 | 16 | transparent center | 16 | 336`; plates in full-height tracks with a 12 px floating inset; center track `pointer-events: none` (clicks fall through), only plate faces + chrome opt back in
+- [x] T055 [US1] Revert `RouteList`/`PropertiesPanel` to full-height plates (`h-full w-full`, no `max-height` cap — long lists scroll internally at full height)
+- [x] T056 [US1] Lift `MapProvider` to the workspace root (`pages/RouteWorkspace.tsx`); move the floating chrome into the center track: **PoiSearchBar `top-3 left-3` + StatusBar `top-3 right-3` mirrored on the same top row**; PlotActionBar + snap warning bottom-center; remove the token-offset `left: 264` and the `top-14` status placement
+- [x] T057 [Docs] Update ADR-0015 (hybrid revision), `contracts/layout-geometry.md` §3 (full-height tracks + mirrored chrome); run all gates

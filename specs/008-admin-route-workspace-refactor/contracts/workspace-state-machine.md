@@ -41,33 +41,33 @@ function deriveUiState(s: PlottingState): UiState {
 
 ## 3. Store-field contract for `focusedRouteId`
 
-- Set on: map polyline click (selection without edit), "Back" from `edit` when arriving from `focus`, save/discard landing back on a route.
-- Cleared on: entering `edit` of a different route, `focus→overview` (Esc/X/empty-map click), route deletion, and when the selected route no longer exists.
+- Set on: map polyline click (selection without edit).
+- Cleared on: entering `edit` (any route — `openRoute` clears focus/selection/tool), `focus→overview` (Esc/X/empty-map click), **leaving the editor** (Back/Esc → `edit→overview`, the clean idle slate), route deletion, and when the selected route no longer exists.
 - Never persisted; never leaves the store.
 
 ## 4. Transition table (8 transitions — the orchestrator's contract)
 
-| #   | From       | To         | Trigger                             | Side effects (must happen)                                                                 |
-| --- | ---------- | ---------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| T1  | `empty`    | `edit`     | CTA → New Route dialog → create     | Veil lifts; left column mounts; center chrome mounts; Add-stop active; camera unchanged    |
-| T2  | `overview` | `focus`    | Click polyline on map               | Right column mounts (FocusPlate); route framed (quick snap ≤ 400 ms); `focusedRouteId` set |
-| T3  | `overview` | `edit`     | Click route item in left list       | Direct to edit — **list-click = act, map-click = peek** (FR-005); camera unchanged         |
-| T4  | `focus`    | `edit`     | "Edit route" on plate               | Right column swaps FocusPlate → EditPanel **in place**; center chrome mounts; no resize    |
-| T5  | `edit`     | `focus`    | Back / Esc (dirty → styled confirm) | Right column swaps back; center chrome unmounts; highlight persists                        |
-| T6  | `focus`    | `overview` | Esc / X / click empty map           | Right plate unmounts; camera unchanged; `focusedRouteId` cleared                           |
-| T7  | `edit`     | `overview` | Save or discard                     | Route framed + highlighted in list; StatusBar shows success                                |
-| T8  | `*`        | `empty`    | Last route deleted (styled confirm) | Columns unmount; veil remounts over warm canvas                                            |
+| #   | From       | To         | Trigger                             | Side effects (must happen)                                                                                    |
+| --- | ---------- | ---------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| T1  | `empty`    | `edit`     | CTA → New Route dialog → create     | Veil lifts; left column mounts; center chrome mounts; Add-stop active; camera unchanged                       |
+| T2  | `overview` | `focus`    | Click polyline on map               | Right column mounts (FocusPlate); route framed (quick snap ≤ 400 ms); `focusedRouteId` set                    |
+| T3  | `overview` | `edit`     | Click route item in left list       | Direct to edit — **list-click = act, map-click = peek** (FR-005); camera unchanged                            |
+| T4  | `focus`    | `edit`     | "Edit route" on plate               | Right column swaps FocusPlate → EditPanel **in place**; center chrome mounts; no resize                       |
+| T5  | `edit`     | `overview` | Back / Esc (dirty → styled confirm) | Right plate unmounts; center chrome unmounts; focus + selection + tool cleared (idle slate); camera unchanged |
+| T6  | `focus`    | `overview` | Esc / X / click empty map           | Right plate unmounts; camera unchanged; `focusedRouteId` cleared                                              |
+| T7  | `edit`     | `overview` | Save or discard                     | Route framed + highlighted in list; StatusBar shows success                                                   |
+| T8  | `*`        | `empty`    | Last route deleted (styled confirm) | Columns unmount; veil remounts over warm canvas                                                               |
 
 **Invariant**: exactly one of the four states is active at any time; every side effect in the table is applied atomically with the state change (no intermediate states — transitions are snaps, FR-006).
 
 ## 5. Keyboard contract (FR-008)
 
-| Key          | State   | Behavior                                                                         |
-| ------------ | ------- | -------------------------------------------------------------------------------- |
-| `Esc`        | `focus` | T6 — dismiss to overview                                                         |
-| `Esc`        | `edit`  | T5 — back to focus (styled confirm if dirty; **never** `window.confirm`, FR-007) |
-| `Enter`      | `empty` | activates the autofocused CTA                                                    |
-| `Ctrl/Cmd+S` | `edit`  | save (preventDefault; no browser save dialog)                                    |
+| Key          | State   | Behavior                                                                            |
+| ------------ | ------- | ----------------------------------------------------------------------------------- |
+| `Esc`        | `focus` | T6 — dismiss to overview                                                            |
+| `Esc`        | `edit`  | T5 — back to overview (styled confirm if dirty; **never** `window.confirm`, FR-007) |
+| `Enter`      | `empty` | activates the autofocused CTA                                                       |
+| `Ctrl/Cmd+S` | `edit`  | save (preventDefault; no browser save dialog)                                       |
 
 ## 6. Validation notes (TDD)
 

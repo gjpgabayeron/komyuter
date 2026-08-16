@@ -60,7 +60,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 ┌────────────────────────────────────────────────────────────┐
 │  LAYER 3 · FLOATING UI (DOM, above the canvas)             │
 │  ┌──────────┐  ┌──────────────────────┐  ┌──────────────┐  │
-│  │ LEFT 240 │  │  CENTER (remainder)  │  │ RIGHT 336    │  │
+│  │ LEFT 256 │  │  CENTER (remainder)  │  │ RIGHT 336    │  │
 │  │ routes   │  │  chrome: search (TL) │  │ focus plate ⇄│  │
 │  │ stops    │  │  status (TR)         │  │ property     │  │
 │  │ search   │  │  action bar (B)      │  │ panel        │  │
@@ -105,25 +105,25 @@ All transitions are **snaps** (decisive mount, no slide/tween — Route Sign red
 | `overview` | `focus`    | Click polyline on map               | Right metadata plate mounts; route framed (quick snap, ≤ 400 ms)                 |
 | `overview` | `edit`     | Click route item in left list       | Direct to edit — **list-click = act, map-click = peek** (FR-005)                 |
 | `focus`    | `edit`     | "Edit route" on plate               | Right column swaps content in place; chrome mounts; no resize                    |
-| `edit`     | `focus`    | Back / Esc (dirty → styled confirm) | Right column swaps back; chrome unmounts; highlight persists                     |
+| `edit`     | `overview` | Back / Esc (dirty → styled confirm) | Right plate unmounts; chrome unmounts; focus + selection + tool cleared          |
 | `focus`    | `overview` | Esc / X / click empty map           | Right plate unmounts; camera unchanged                                           |
 | `edit`     | `overview` | Save or discard                     | Route framed + highlighted in list; success state shown                          |
 | `*`        | `empty`    | Last route deleted (styled confirm) | Columns unmount; veil remounts over warm canvas                                  |
 
-Keyboard (FR-008): Esc dismisses in `focus`; Esc returns to `focus` from `edit` (styled confirm if dirty — never `window.confirm`, FR-007); CTA autofocuses in `empty`; mod+s saves in `edit`.
+Keyboard (FR-008): Esc dismisses in `focus`; Esc returns to `overview` from `edit` (styled confirm if dirty — never `window.confirm`, FR-007); CTA autofocuses in `empty`; mod+s saves in `edit`.
 
 ### Geometry (fixed tokens)
 
-| Token         |            Value | Notes                                                                                                                     |
-| ------------- | ---------------: | ------------------------------------------------------------------------------------------------------------------------- |
-| Gutter        |            16 px | white desk between plates                                                                                                 |
-| Left column   |           240 px | constant across overview/focus/edit                                                                                       |
-| Right column  |           336 px | **one width across focus and edit** (content swap, no resize)                                                             |
-| Center column |        remainder | the map region; never scrolls                                                                                             |
-| Shell rail    |  user preference | persisted `sidebarMode` honored; the rail **pushes** layout, never overlays (decision D1)                                 |
-| Floor         | 1024 px viewport | below → NarrowWindowGate plate; the gate guards **map width ≥ 400 px**, not a viewport class (works for both rail states) |
+| Token         |            Value | Notes                                                                                                                                            |
+| ------------- | ---------------: | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Gutter        |            16 px | white desk between plates                                                                                                                        |
+| Left column   |           256 px | constant across overview/focus/edit                                                                                                              |
+| Right column  |           336 px | **one width across focus and edit** (content swap, no resize)                                                                                    |
+| Center column |        remainder | the map region; never scrolls                                                                                                                    |
+| Shell rail    |  user preference | persisted `sidebarMode` honored; expanded **docks/pushes**; collapsed stays icon-width; hover **overlays** the content (D1, reversed 2026-08-16) |
+| Floor         | 1024 px viewport | below → NarrowWindowGate plate; the gate guards **map width ≥ 400 px**, not a viewport class (works for both rail states)                        |
 
-Canvas resize moments in the whole journey: exactly two — `empty→overview` (left mounts) and `overview→focus` (right mounts). `focus ⇄ edit` resizes nothing. With the rail collapsed at 1024 px the map is ≥ 416 px (1440 px ≈ 832 px; 1920 px ≈ 1312 px). With the rail expanded, the map-width gate takes over whenever the map would fall below 400 px.
+Canvas resize moments in the whole journey: **zero** — the map spans the full workspace as a backdrop (ADR-0015), so plate mounting never changes the canvas size. Reference free-map-region figures (workspace-width, rail collapsed): overview @ 1024 ≈ 752 px; focus @ 1024 ≈ 400 px, 1440 ≈ 816 px, 1920 ≈ 1296 px. With the rail collapsed at a literal 1024 px window the workspace is 976 px, so the focus region is 352 px and the map-width gate takes over whenever the free region would fall below 400 px.
 
 ### Invariants (do not break)
 
@@ -160,13 +160,13 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 
 #### Phase 1 — Shell, gate, tokens
 
-| Op  | File                                   | Change                                                                                                                                                                                        |
-| --- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M   | `app/AppShell.tsx`                     | Workspace route renders honoring the admin's persisted `sidebarMode` (no forcing); mounts the NarrowWindowGate.                                                                               |
-| M   | `app/NavRail.tsx`                      | The rail always **pushes** layout on the workspace and never hover-expands over it — fixes critique P1 (rail swallowing the list) while respecting the saved preference.                      |
-| A   | `features/routes/NarrowWindowGate.tsx` | Full-screen "wider window" plate; one `matchMedia` listener; guards **map width ≥ 400 px** (works for both rail states), not a viewport class — one invariant check, not a responsive system. |
-| M   | `lib/uiStore.ts`                       | Workspace reads the persisted `sidebarMode` as-is; no per-route override.                                                                                                                     |
-| M   | `index.css`                            | Add `prefers-reduced-motion` guard; fix `DialogFooter` `rounded-b-xl` → 4px radius token (critique P3).                                                                                       |
+| Op  | File                                   | Change                                                                                                                                                                                                                        |
+| --- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M   | `app/AppShell.tsx`                     | Workspace route renders honoring the admin's persisted `sidebarMode` (no forcing); mounts the NarrowWindowGate.                                                                                                               |
+| M   | `app/NavRail.tsx`                      | Full-height rail (top-to-bottom visual anchor, footer at column bottom); respects the saved preference — expanded docks/pushes, collapsed stays icon-width, hover **overlays** (absolute z-30) without pushing the workspace. |
+| A   | `features/routes/NarrowWindowGate.tsx` | Full-screen "wider window" plate; one `matchMedia` listener; guards **map width ≥ 400 px** (works for both rail states), not a viewport class — one invariant check, not a responsive system.                                 |
+| M   | `lib/uiStore.ts`                       | Workspace reads the persisted `sidebarMode` as-is; no per-route override.                                                                                                                                                     |
+| M   | `index.css`                            | Add `prefers-reduced-motion` guard; fix `DialogFooter` `rounded-b-xl` → 4px radius token (critique P3).                                                                                                                       |
 
 #### Phase 2 — State machine + layer ownership
 
@@ -174,22 +174,22 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 | --- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | M   | `pages/RouteWorkspace.tsx`                       | Becomes the state-machine orchestrator: derives `empty`, owns transitions and keyboard, renders per-state column set. Deletes the overlay-positioning absolutes (`left-3`/`right-3`/`z-*` panels). |
 | M   | `lib/plottingStore.ts`                           | Add derived `uiState` selector (pure, unit-tested); add `focusedRouteId` (selection without edit).                                                                                                 |
-| A   | `features/routes/workspace/WorkspaceColumns.tsx` | The three-column layout shell with fixed tokens (240/336/remainder, 16 px gutters), per-state mounts.                                                                                              |
+| A   | `features/routes/workspace/WorkspaceColumns.tsx` | The three-column layout shell with fixed tokens (256/336/remainder, 16 px gutters), per-state mounts.                                                                                              |
 | M   | `lib/selection.ts`                               | Map polyline click sets **focus** (metadata), not edit.                                                                                                                                            |
 
 #### Phase 3 — Columns and chrome
 
-| Op  | File                                     | Change                                                                                                                                                                                                                                  |
-| --- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M   | `features/routes/RouteList.tsx`          | Becomes the LeftColumn content: `<nav aria-label="Routes">` landmark; overview variant (list = nav aid, click = edit) vs edit variant (stop list, reorder, insert-after affordance); internal scroll.                                   |
-| M   | `features/routes/PoiSearchBar.tsx`       | Mounts only in `edit`; anchored to the center column edge — **deletes the `left-86` magic number** (critique P2); cap results list height with scroll.                                                                                  |
-| A   | `features/routes/StatusBar.tsx`          | Top-right of center chrome in `edit`: dirty → saving → "Saved just now" state machine (critique P2); hosts the draft-restore and conflict banners in one slot (critique P2 banner collision).                                           |
-| M   | `features/routes/PlotActionBar.tsx`      | Bottom-center chrome in `edit`; hover-first affordances; visible Add/Select mode state (fixes first-run "zero feedback" red flag); persistent save status reference.                                                                    |
-| M   | `features/routes/PropertiesPanel.tsx`    | RightColumn content with two sub-states: **FocusPlate** (metadata + Edit CTA) and **EditPanel** (route / stop / direction contexts — the panel's own mini state machine). Retitle from generic "Properties".                            |
-| M   | `features/routes/DraftRestoreBanner.tsx` | Relocated into the StatusBar slot; copy unchanged.                                                                                                                                                                                      |
-| M   | `features/routes/EmptyState.tsx`         | Full-screen white veil over the warm canvas (Route Sign "fresh board"), subtle `backdrop-filter` blur only behind `@supports`, white-tint fallback; CTA autofocus; text + CTA per critique (Import JSON disabled affordance clarified). |
-| D   | `features/routes/OverviewRoutePanel.tsx` | Absorbed into the LeftColumn overview variant.                                                                                                                                                                                          |
-| M   | `features/routes/FareConfigSelect.tsx`   | Reused unchanged inside EditPanel.                                                                                                                                                                                                      |
+| Op  | File                                     | Change                                                                                                                                                                                                                                                                                                                                  |
+| --- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M   | `features/routes/RouteList.tsx`          | Becomes the LeftColumn content: `<nav aria-label="Routes">` landmark; overview variant (list = nav aid, click = edit) vs edit variant (stop list, reorder, insert-after affordance); internal scroll.                                                                                                                                   |
+| M   | `features/routes/PoiSearchBar.tsx`       | Mounts only in `edit`; anchored to the center column edge — **deletes the `left-86` magic number** (critique P2); cap results list height with scroll.                                                                                                                                                                                  |
+| A   | `features/routes/StatusBar.tsx`          | Top-right of center chrome in `edit`: context-sensitive save lifecycle — the plate renders only while saving, dirty, or a just-completed save (transient "Saved just now", auto-dismissed); hosts the draft-restore offer, a transient draft-restored confirmation, and the conflict banner in one slot (critique P2 banner collision). |
+| M   | `features/routes/PlotActionBar.tsx`      | Bottom-center chrome in `edit`; hover-first affordances; visible Add/Select mode state (fixes first-run "zero feedback" red flag); persistent save status reference.                                                                                                                                                                    |
+| M   | `features/routes/PropertiesPanel.tsx`    | RightColumn content with two sub-states: **FocusPlate** (metadata + Edit CTA) and **EditPanel** (route / stop / direction contexts — the panel's own mini state machine). Retitle from generic "Properties".                                                                                                                            |
+| M   | `features/routes/DraftRestoreBanner.tsx` | Relocated into the StatusBar slot; copy unchanged.                                                                                                                                                                                                                                                                                      |
+| M   | `features/routes/EmptyState.tsx`         | Full-screen white veil over the warm canvas (Route Sign "fresh board"), subtle `backdrop-filter` blur only behind `@supports`, white-tint fallback; CTA autofocus; text + CTA per critique (Import JSON disabled affordance clarified).                                                                                                 |
+| D   | `features/routes/OverviewRoutePanel.tsx` | Absorbed into the LeftColumn overview variant.                                                                                                                                                                                                                                                                                          |
+| M   | `features/routes/FareConfigSelect.tsx`   | Reused unchanged inside EditPanel.                                                                                                                                                                                                                                                                                                      |
 
 #### Phase 4 — Map layer (Layer 1 + 2)
 
@@ -223,8 +223,8 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 
 ## Acceptance Criteria
 
-1. At 1024, 1440, and 1920 px (rail collapsed) the three columns never collide; the center map is ≥ 416 px at the floor. With the rail expanded, the map-width gate appears instead of letting the map drop below 400 px (SC-001).
-2. The GL canvas element identity and camera survive all four states and both resize moments (SC-002).
+1. At 1024, 1440, and 1920 px (rail collapsed) the floating plates never collide; the free map region is ≥ 400 px at the floor (reference figure 400 px at a 1024 px workspace). With the rail expanded, the map-width gate appears instead of letting the free region drop below 400 px (SC-001).
+2. The GL canvas element identity and camera survive all four states — the full-bleed map never resizes (ADR-0015, SC-002).
 3. All eight transitions in the table behave; Esc / mod+s / CTA autofocus work (SC-003).
 4. No `window.confirm` remains; no "MAPBOX_SECRET_TOKEN" copy remains; no banner stacking (draft + conflict never overlap) (SC-005).
 5. Draft restore, undo/redo, save validation, and atomic save behave exactly as before (regression checklist against current behavior) (SC-004).
@@ -233,7 +233,7 @@ Conventions: `M` = modify · `A` = add · `D` = delete. Paths are relative to `a
 
 ## Resolved decisions
 
-- **D1 — Shell rail**: respects the admin's persisted `sidebarMode` (user preference, decided 2026-08-10); the rail pushes layout, never overlays; the map-width gate absorbs the expanded-rail case.
+- **D1 — Shell rail**: respects the admin's persisted `sidebarMode` (user preference, decided 2026-08-10); **reversed 2026-08-16** (ADR-0014, Shell rail section): expanded docks/pushes; collapsed stays icon-width; hover **overlays** the content (absolute z-30, AppShell keeps icon-width padding) instead of pushing; the map-width gate absorbs only the real expanded-rail case (it passes `railW = 0`).
 - **D2 — ADR**: written — `docs/adr/0014-admin-workspace-layers.md` (desktop-only constraint + three-layer/three-column/four-state architecture). ACCEPTED; no further ADR work.
 - **D3 — Empty-veil blur**: white veil mandatory; subtle `backdrop-filter` blur only behind `@supports`, white-tint fallback on weak GPUs.
 
