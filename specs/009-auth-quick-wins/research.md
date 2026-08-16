@@ -66,11 +66,13 @@ distributed-guess attack surfaces.
 `email_confirm: true` (`tests/integration/helpers.ts:63`). No app code calls
 `signUp` anywhere (zero grep hits in `apps/`).
 
-**Decision**: In `supabase/config.toml`: `enable_signup = false` (both sections),
+**Decision**: In `supabase/config.toml`: `enable_signup = false` in `[auth]` only
+(`[auth.email]` MUST stay `true` — that flag governs the email provider itself,
+and `false` disables logins for EXISTING admins with `Email logins are disabled`),
 `enable_confirmations = true`, `minimum_password_length = 8`. GoTrue then refuses
-public signups (`signup_disabled`) and unconfirmed sign-ins (`email_not_confirmed`),
-which the server maps to the unified denial (R1). Seed admin and test users are
-unaffected (all confirmed).
+public signups (`Signups not allowed for this instance`) and unconfirmed sign-ins
+(`email_not_confirmed`), which the server maps to the unified denial (R1). Seed
+admin and test users are unaffected (all confirmed).
 
 **Rationale**: Config-level enforcement with zero code drift and zero regressions —
 no signup code exists, all test users are confirmed.

@@ -55,3 +55,11 @@ _Avoid_: Trip, GPS log, recording
 **Trust Score**:
 A route reliability metric derived from comparing traces against the route's polyline via MHD. Informational only — displayed as a badge, never used in routing.
 _Avoid_: Trust, reliability score
+
+**Sign-in Attempt**:
+One `POST /api/auth/login` request from an admin identity (email + password), independent of outcome. Failures are counted per account and per source IP for throttling; a successful attempt clears both counters.
+_Avoid_: Login, login attempt, sign-in (when meaning the flow rather than one request)
+
+**Security Event**:
+A structured, grep-able pino log line emitted by the server for authentication outcomes: `security.sign_in_success`, `security.sign_in_failure`, `security.sign_in_throttled`, or `security.sign_out`. Carries `account`, `source` (request IP), and `outcome`; denial reasons appear ONLY here, never in HTTP responses.
+_Avoid_: Audit trail, event log, auth log

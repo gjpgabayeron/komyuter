@@ -121,7 +121,7 @@ apps/server/tests/
     └── helpers.ts           # (unchanged; already creates confirmed users, uses .env dev credential)
 
 supabase/
-├── config.toml              # enable_signup=false (x2), enable_confirmations=true, minimum_password_length=8
+├── config.toml              # enable_signup=false ([auth] — refuses public signups), enable_confirmations=true, minimum_password_length=8 (keep [auth.email] enable_signup=true so existing admin email logins stay enabled)
 └── seed.sql                 # (unchanged — admin already email_confirmed_at; DEV_CREDENTIAL constant mirrors it)
 
 apps/admin/src/
