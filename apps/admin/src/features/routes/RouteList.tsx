@@ -2,12 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { readOverviewCache } from "@/lib/overviewCache";
 import {
   ArrowLeft,
-  Pencil,
   Plus,
   Route as RouteIcon,
   Search,
   SlidersHorizontal,
-  Trash2,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -44,6 +42,8 @@ import {
 } from "./useRouteQueries";
 import type { RouteSummary } from "./routesApi";
 import { STOP_TYPE_LABELS } from "./stopLabels";
+import { useRouteFilter, type RouteStatusFilter } from "./useRouteFilter";
+import { RouteRow } from "./RouteRow";
 
 interface RouteListProps {
   onCreateRoute: () => void;
@@ -51,8 +51,6 @@ interface RouteListProps {
    *  a prior focus state (edit → focus, T5) instead of always overview. */
   onCloseEdit?: () => void;
 }
-
-type RouteStatusFilter = "all" | "active" | "inactive";
 
 const STATUS_FILTER_OPTIONS: { value: RouteStatusFilter; label: string }[] = [
   { value: "all", label: "All routes" },
@@ -76,8 +74,6 @@ const SHAPE_CHIP: Record<StopShape, string> = {
  *   the right-side properties panel).
  */
 export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
-  const [query, setQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<RouteStatusFilter>("all");
   const [deleteTarget, setDeleteTarget] = useState<RouteSummary | null>(null);
 
   const routesQuery = useRoutesQuery();
@@ -101,6 +97,8 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const [dropIndex, setDropIndex] = useState<number | null>(null);
 
   const routes = useMemo(() => routesQuery.data ?? [], [routesQuery.data]);
+  const { query, setQuery, statusFilter, setStatusFilter, filtered } =
+    useRouteFilter(routes);
   const detail = routeId !== null;
 
   // Load an existing plotted direction into the surface once its detail
@@ -164,21 +162,6 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
       })),
     });
   }, [routeId, routeQuery.data]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    let rows = routes;
-    if (statusFilter === "active")
-      rows = rows.filter((route) => route.is_active);
-    if (statusFilter === "inactive")
-      rows = rows.filter((route) => !route.is_active);
-    if (!q) return rows;
-    return rows.filter(
-      (route) =>
-        route.name.toLowerCase().includes(q) ||
-        route.short_name.toLowerCase().includes(q),
-    );
-  }, [query, statusFilter, routes]);
 
   const selectRoute = (selected: RouteSummary) => {
     if (selected.route_id === routeId) return;
@@ -618,78 +601,5 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
-}
-
-function RouteRow({
-  route,
-  active,
-  onOpen,
-  onDelete,
-}: {
-  route: RouteSummary;
-  active: boolean;
-  onOpen: () => void;
-  onDelete: () => void;
-}) {
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-1 rounded-lg border p-1.5 transition-colors",
-        active
-          ? "border-primary/50 bg-primary/5"
-          : "hover:bg-muted border-transparent",
-      )}
-    >
-      <button
-        type="button"
-        onClick={onOpen}
-        aria-label={`Open ${route.name}`}
-        className="min-w-0 flex-1 text-left"
-      >
-        <span className="text-foreground block truncate text-sm font-medium">
-          {route.name}
-        </span>
-        <span className="mt-0.5 flex items-center gap-1.5">
-          <Badge
-            variant={route.is_active ? "default" : "outline"}
-            className="h-4 px-1 text-[10px] font-medium"
-          >
-            {route.is_active ? "Active" : "Inactive"}
-          </Badge>
-          <span
-            className={cn(
-              "text-muted-foreground text-[11px] tabular-nums",
-              route.direction_count === 0 && "text-muted-foreground/70",
-            )}
-          >
-            {route.direction_count > 0
-              ? `${route.direction_count} direction${route.direction_count === 1 ? "" : "s"}`
-              : "Not plotted"}
-          </span>
-        </span>
-      </button>
-      <div className="flex shrink-0 items-center gap-0.5">
-        <button
-          type="button"
-          className={cn(buttonVariants({ variant: "ghost", size: "icon-xs" }))}
-          aria-label={`Edit ${route.name}`}
-          onClick={onOpen}
-        >
-          <Pencil className="size-3" />
-        </button>
-        <button
-          type="button"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "icon-xs" }),
-            "hover:bg-destructive/10 hover:text-destructive",
-          )}
-          aria-label={`Delete ${route.name}`}
-          onClick={onDelete}
-        >
-          <Trash2 className="size-3" />
-        </button>
-      </div>
-    </div>
   );
 }
