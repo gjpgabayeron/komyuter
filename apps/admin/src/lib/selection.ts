@@ -1,16 +1,17 @@
 /**
- * What the plot canvas currently has selected (Q3/A: the right-side properties
- * panel is visible only when an element is selected). Pure helpers — the store
- * just holds a Selection value.
+ * What the plot canvas currently has selected (the right-side properties
+ * plate shows the stop editor only when a stop is selected). Pure helpers —
+ * the store just holds a Selection value.
+ *
+ * NOTE: a map-polyline click is NOT a selection — it enters the workspace
+ * `focus` state (focusedRouteId in the plotting store), so this model only
+ * ever carries "none" or a stop.
  */
-export type Selection =
-  { type: "none" } | { type: "stop"; stopId: string } | { type: "polyline" };
+export type Selection = { type: "none" } | { type: "stop"; stopId: string };
 
 export function selectStop(stopId: string): Selection {
   return { type: "stop", stopId };
 }
-
-export const selectPolyline: Selection = { type: "polyline" };
 
 export const clearSelection: Selection = { type: "none" };
 

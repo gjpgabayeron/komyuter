@@ -17,11 +17,11 @@ export const OVERVIEW_FADE_MS = 250;
  *  - the hovered route stays at full opacity and every OTHER route dims to
  *    0.5 (attention without losing context);
  *  - clicking a route focuses it: the focused route stays at 1 and every
- *    OTHER route dims further to 0.15 (maximum emphasis, spatial context
- *    preserved);
+ *    OTHER route dims further to 0.3 (maximum emphasis, spatial context
+ *    preserved; the floor was raised from 0.15 for legibility);
  *  - with nothing hovered/focused, all routes render at full opacity.
  *  The "other routes" dim level is carried per feature via a numeric
- *  `dim` feature-state (0.5 or 0.15); the active route's own hovered/focused
+ *  `dim` feature-state (0.5 or 0.3); the active route's own hovered/focused
  *  state overrides it to 1. */
 const OVERVIEW_OPACITY: ExpressionSpecification = [
   "case",
@@ -111,7 +111,7 @@ function scalePaintValue(
  *  then invokes `onDone` — used for the crossfade-out tail (unmount fade-out,
  *  editor draft fade-out) so old geometry stays visible as an anchor while
  *  the new geometry takes over, then gets removed. The fade starts from each
- *  layer's CURRENT painted value — a focused/dimmed route (0.15/0.5 via the
+ *  layer's CURRENT painted value — a focused/dimmed route (0.3/0.5 via the
  *  hover expression) fades smoothly from where it is instead of jumping to
  *  full opacity first. Returns a cancel handle so a newer state can abort the
  *  fade (e.g. a fresh route opened mid-fade-out — otherwise the fade and the

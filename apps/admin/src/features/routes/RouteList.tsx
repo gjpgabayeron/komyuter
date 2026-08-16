@@ -46,6 +46,9 @@ import { STOP_TYPE_LABELS } from "./stopLabels";
 
 interface RouteListProps {
   onCreateRoute: () => void;
+  /** Leave the editor (Back) — wired by the orchestrator so it can restore
+   *  a prior focus state (edit → focus, T5) instead of always overview. */
+  onCloseEdit?: () => void;
 }
 
 type RouteStatusFilter = "all" | "active" | "inactive";
@@ -71,7 +74,7 @@ const SHAPE_CHIP: Record<StopShape, string> = {
  *   ordered stop list; clicking a stop selects it (highlighted on map + in
  *   the right-side properties panel).
  */
-export function RouteList({ onCreateRoute }: RouteListProps) {
+export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<RouteStatusFilter>("all");
   const [deleteTarget, setDeleteTarget] = useState<RouteSummary | null>(null);
@@ -221,12 +224,18 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
   return (
     <>
       {detail ? (
-        <aside className="absolute top-3 left-3 z-10 flex max-h-[calc(100dvh-9rem)] w-80 flex-col overflow-hidden rounded-lg border bg-white p-2">
+        <nav
+          aria-label="Route stops"
+          className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-2"
+        >
           <div className="flex shrink-0 items-center gap-1.5 px-1 pb-1.5">
             <button
               type="button"
               aria-label="Back to routes"
-              onClick={() => usePlottingStore.getState().openRoute(null)}
+              onClick={
+                onCloseEdit ??
+                (() => usePlottingStore.getState().openRoute(null))
+              }
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon-xs" }),
               )}
@@ -383,7 +392,7 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                           {stop.name}
                         </span>
                         <Badge
-                          className="h-4 shrink-0 border px-1 text-[10px] font-medium"
+                          className="h-4 shrink-0 border px-1 text-[11px] font-medium"
                           style={{
                             backgroundColor: shape.color,
                             borderColor: shape.color,
@@ -447,9 +456,12 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
               </div>
             )}
           </div>
-        </aside>
+        </nav>
       ) : (
-        <aside className="absolute top-3 left-3 z-10 flex max-h-[calc(100dvh-9rem)] w-80 flex-col rounded-lg border bg-white p-2">
+        <nav
+          aria-label="Routes"
+          className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-2"
+        >
           {/* Row 1: search + filter */}
           <div className="flex items-center gap-1.5">
             <div className="relative min-w-0 flex-1">
@@ -563,7 +575,7 @@ export function RouteList({ onCreateRoute }: RouteListProps) {
                 </p>
               )}
           </div>
-        </aside>
+        </nav>
       )}
 
       <AlertDialog

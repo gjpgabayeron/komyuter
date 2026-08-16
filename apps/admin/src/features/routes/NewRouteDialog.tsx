@@ -70,8 +70,11 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
         // Draft-first workflow: new routes start inactive for review (Pasted #42).
         is_active: false,
       });
-      // Select the new route as the active plotting surface (FR-002).
+      // Select the new route as the active plotting surface (FR-002) and put
+      // stop-adding immediately active (US2: "Creating lifts the veil, mounts
+      // the editing chrome, and puts stop-adding immediately active").
       usePlottingStore.getState().openRoute(route.route_id);
+      usePlottingStore.getState().setTool("add");
       onOpenChange(false);
       setName("");
       setShortName("");

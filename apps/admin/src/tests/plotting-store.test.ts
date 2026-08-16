@@ -5,12 +5,7 @@ import type {
   SnappedPath,
   StopType,
 } from "@komyuter/shared";
-import {
-  clearSelection,
-  isStopSelected,
-  selectPolyline,
-  selectStop,
-} from "@/lib/selection";
+import { clearSelection, isStopSelected, selectStop } from "@/lib/selection";
 import {
   bindSnapFetcher,
   cancelPendingSnap,
@@ -31,7 +26,7 @@ describe("selection helpers", () => {
     expect(isStopSelected(selection, "stop-1")).toBe(true);
     expect(isStopSelected(selection, "stop-2")).toBe(false);
     expect(isStopSelected(clearSelection, "stop-1")).toBe(false);
-    expect(isStopSelected(selectPolyline, "stop-1")).toBe(false);
+    expect(isStopSelected(selectStop("stop-2"), "stop-1")).toBe(false);
   });
 });
 
@@ -119,7 +114,7 @@ describe("plottingStore", () => {
     addStop([122.5, 10.6]);
     setPolyline({ type: "LineString", coordinates: [[122.5, 10.6]] });
     setSnap({ status: "applied" });
-    setSelection(selectPolyline);
+    setSelection(selectStop("stop-1"));
     setLayers({ routes: false });
     reset();
     const state = usePlottingStore.getState();
@@ -236,12 +231,12 @@ describe("plottingStore", () => {
     expect(usePlottingStore.getState().saving).toBe(false);
   });
 
-  it("overviewRouteId is cleared when a route is opened", () => {
-    const { setOverviewRouteId, openRoute } = usePlottingStore.getState();
-    setOverviewRouteId("route-9");
-    expect(usePlottingStore.getState().overviewRouteId).toBe("route-9");
+  it("focusedRouteId is cleared when a route is opened", () => {
+    const { setFocusedRouteId, openRoute } = usePlottingStore.getState();
+    setFocusedRouteId("route-9");
+    expect(usePlottingStore.getState().focusedRouteId).toBe("route-9");
     openRoute("route-1");
-    expect(usePlottingStore.getState().overviewRouteId).toBeNull();
+    expect(usePlottingStore.getState().focusedRouteId).toBeNull();
   });
 
   it("updateStop merges name, type, and notes into the draft stop", () => {

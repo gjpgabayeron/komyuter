@@ -15,9 +15,10 @@ interface EmptyStateProps {
 }
 
 /**
- * Guidance overlay shown when no Route is selected (FR-030): the map stays
- * visible behind a plate offering "Create new route" and the (out-of-scope)
- * "Import JSON dataset" action. No plotting controls are active.
+ * Guidance overlay shown when the workspace has zero routes (US2): the warm
+ * map canvas stays visible as the backdrop (ADR-0015) with a single centered
+ * plate whose create action is already focused — Enter activates it
+ * (keyboard contract). No plotting controls are active.
  */
 export function EmptyState({ onCreateRoute }: EmptyStateProps) {
   return (
@@ -37,7 +38,9 @@ export function EmptyState({ onCreateRoute }: EmptyStateProps) {
             new one.
           </EmptyDescription>
           <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-            <Button onClick={onCreateRoute}>Create new route</Button>
+            <Button autoFocus onClick={onCreateRoute}>
+              Create new route
+            </Button>
             <Button
               variant="outline"
               disabled

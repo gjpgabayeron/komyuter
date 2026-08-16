@@ -19,8 +19,10 @@ const MIN_QUERY_LENGTH = 3;
  * other map interaction dismisses.
  */
 export function PoiSearchBar() {
-  const { current: map } = useMap();
   const setPoi = usePlottingStore((s) => s.setPoi);
+  // Stable ref-like object from react-map-gl; `current` is read at event
+  // time (never captured at render) so a late-mounted map still flies.
+  const mapRef = useMap();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PoiResult[]>([]);
@@ -66,7 +68,7 @@ export function PoiSearchBar() {
 
   const select = (result: PoiResult) => {
     setPoi(result.location);
-    map?.flyTo({ center: result.location, zoom: 15, duration: 600 });
+    mapRef.current?.flyTo({ center: result.location, zoom: 15, duration: 600 });
     setQuery(result.name);
     setOpen(false);
     inputRef.current?.blur();
@@ -84,7 +86,7 @@ export function PoiSearchBar() {
   const firstResult = results[0];
 
   return (
-    <div className="absolute top-3 left-86 z-10 w-72">
+    <div className="pointer-events-auto z-30 w-72">
       <div className="bg-background relative">
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
         <Input
@@ -120,7 +122,7 @@ export function PoiSearchBar() {
       </div>
 
       {open && (
-        <ul className="mt-1 overflow-hidden rounded-lg border bg-white">
+        <ul className="overlay-scrollbar mt-1 max-h-80 overflow-y-auto rounded-lg border bg-white">
           {loading && (
             <li className="text-muted-foreground flex items-center gap-2 px-3 py-2 text-xs">
               <Loader2 className="size-3 animate-spin" />

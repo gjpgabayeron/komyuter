@@ -171,8 +171,8 @@ function fitToOverview(map: MapLibreMap, overview: OverviewRoute) {
 export function RouteOverviewLayer() {
   const map = useMap().current?.getMap();
 
-  const overviewRouteId = usePlottingStore((s) => s.overviewRouteId);
-  const setOverviewRouteId = usePlottingStore((s) => s.setOverviewRouteId);
+  const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
+  const setFocusedRouteId = usePlottingStore((s) => s.setFocusedRouteId);
 
   // ONE request for every route's base/return polylines + stops (perf audit —
   // the old N+1 detail fetches delayed the first paint and churned the store).
@@ -200,6 +200,7 @@ export function RouteOverviewLayer() {
     x: number;
     y: number;
     name: string;
+    color: string;
   } | null>(null);
 
   // Draw the overview line source/layers via the SHARED lifecycle
@@ -564,13 +565,14 @@ export function RouteOverviewLayer() {
         x: event.point.x,
         y: event.point.y,
         name: String(feature.properties.name ?? ""),
+        color: String(feature.properties.color ?? "#1B6DB2"),
       });
     };
     const onClick = (event: MapLayerMouseEvent) => {
       const feature = event.features?.[0];
       const routeId = feature?.properties?.routeId;
       if (typeof routeId !== "string" || !feature) return;
-      setOverviewRouteId(routeId);
+      setFocusedRouteId(routeId);
       const overview = overviewRoutesRef.current.find(
         (route) => route.routeId === routeId,
       );
@@ -580,7 +582,7 @@ export function RouteOverviewLayer() {
       const hits = map.queryRenderedFeatures(event.point, {
         layers: OVERVIEW_LAYERS,
       });
-      if (hits.length === 0) setOverviewRouteId(null);
+      if (hits.length === 0) setFocusedRouteId(null);
     };
     map.on("mousemove", OVERVIEW_LAYERS, onMove);
     map.on("mouseleave", OVERVIEW_LAYERS, onMouseLeave);
@@ -593,18 +595,19 @@ export function RouteOverviewLayer() {
       map.off("click", onMapClick);
       clearHover();
     };
-  }, [map, setOverviewRouteId]);
+  }, [map, setFocusedRouteId]);
 
   // Apply hover/focus emphasis: the active route at full opacity, every other
   // route dimmed via a numeric `dim` feature-state — 0.5 while hovering,
-  // 0.15 while focused (focus takes precedence), null at rest.
+  // 0.3 while focused (focus takes precedence), null at rest. The floor was
+  // raised from 0.15/0.2 (critique: too dim to read).
   useEffect(() => {
     if (!map || !map.getSource("overview-lines")) return;
     const dim =
-      overviewRouteId !== null ? 0.15 : hoveredRouteId !== null ? 0.2 : null;
+      focusedRouteId !== null ? 0.3 : hoveredRouteId !== null ? 0.5 : null;
     for (const feature of featuresRef.current) {
       const isHovered = feature.routeId === hoveredRouteId;
-      const isFocused = feature.routeId === overviewRouteId;
+      const isFocused = feature.routeId === focusedRouteId;
       map.setFeatureState(
         { source: "overview-lines", id: feature.id },
         {
@@ -614,10 +617,10 @@ export function RouteOverviewLayer() {
         },
       );
     }
-  }, [map, hoveredRouteId, overviewRouteId, overviewRoutes]);
+  }, [map, hoveredRouteId, focusedRouteId, overviewRoutes]);
 
   const focused =
-    overviewRoutes.find((route) => route.routeId === overviewRouteId) ?? null;
+    overviewRoutes.find((route) => route.routeId === focusedRouteId) ?? null;
 
   return (
     <>
@@ -643,7 +646,7 @@ export function RouteOverviewLayer() {
                   index + 1
                 )}
               </span>
-              <span className="rounded-xs border border-[#1B6DB2] bg-white px-1 text-[10px] leading-4 font-medium text-[#1B6DB2]">
+              <span className="rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
                 {stop.name}
               </span>
             </div>
@@ -652,10 +655,16 @@ export function RouteOverviewLayer() {
       })}
       {hover && (
         <div
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-lg border bg-white px-2 py-1 text-xs font-medium"
+          role="status"
+          className="pointer-events-none absolute z-10 flex -translate-x-1/2 -translate-y-full items-center gap-1.5 rounded-lg border bg-white py-1 pr-2 pl-1 text-xs font-medium shadow-sm"
           style={{ left: hover.x, top: hover.y - 10 }}
         >
-          {hover.name}
+          <span
+            className="size-2.5 shrink-0 rounded-xs"
+            style={{ backgroundColor: hover.color }}
+            aria-hidden="true"
+          />
+          <span className="max-w-48 truncate">{hover.name}</span>
         </div>
       )}
     </>

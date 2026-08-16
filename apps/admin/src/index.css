@@ -118,17 +118,6 @@
   outline: 1px solid red;
 }
 
-/* Expand-on-hover sidebar: reserve only the collapsed rail width in flow; the
-   fixed sidebar panel expands over the content on hover (no content push).
-   The `data-sidebar-mode` attribute is spread onto the fixed panel
-   (`sidebar-container`), so the in-flow gap is pinned via its parent wrapper
-   (`data-slot="sidebar"`) using `:has()`. Pinned with !important so the
-   content area never reflows while the panel overlays it. */
-[data-slot="sidebar"]:has([data-sidebar-mode="hover"])
-  > [data-slot="sidebar-gap"] {
-  width: var(--sidebar-width-icon) !important;
-}
-
 /* Overlay-style scrollbars: reserve a stable gutter so content never shifts
    when a scrollbar appears/disappears, with a thin, unobtrusive thumb that
    reads as an overlay (macOS-like). */
@@ -149,5 +138,18 @@
   }
   &::-webkit-scrollbar-track {
     background: transparent;
+  }
+}
+
+/* Accessibility: honor reduced-motion. The workspace's plate slides,
+   focus framings, and pulse affordances all collapse to instant switches. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

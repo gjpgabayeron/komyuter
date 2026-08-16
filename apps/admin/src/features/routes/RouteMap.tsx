@@ -3,9 +3,7 @@ import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { MapPin } from "lucide-react";
 import type { GeoLineString } from "@komyuter/shared";
 import "maplibre-gl/dist/maplibre-gl.css";
-import Map, { MapProvider, Marker, useMap } from "react-map-gl/maplibre";
-
-import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
+import Map, { Marker, useMap } from "react-map-gl/maplibre";
 import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
 import {
   ensureGeoJsonSource,
@@ -501,108 +499,103 @@ export function RouteMap({ className, children }: RouteMapProps) {
       className={className}
       style={{ position: "relative", width: "100%", height: "100%" }}
     >
-      <MapProvider>
-        <Map
-          {...viewport}
-          onClick={handleMapClick}
-          onMove={(event) =>
-            setViewport({
-              longitude: event.viewState.longitude,
-              latitude: event.viewState.latitude,
-              zoom: event.viewState.zoom,
-              pitch: event.viewState.pitch ?? 0,
-              bearing: event.viewState.bearing ?? 0,
-            })
-          }
-          mapStyle={mapStyle}
-          style={{ width: "100%", height: "100%" }}
-        >
-          <RouteFitter />
-          <SelectionPanner />
-          <BasemapController />
-          <PerspectiveController />
-          <RouteLines
-            draft={layers.routes ? polyline : null}
-            connecting={layers.routes ? connectingLine : null}
-            color={routeColor ?? DRAFT_LINE}
-            routeId={routeId}
-          />
-          {routeId !== null && <PoiSearchBar />}
-          {poi && (
-            <Marker longitude={poi[0]} latitude={poi[1]}>
-              <div className="flex flex-col items-center gap-0.5">
-                <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#C98A1B] text-[#201A10] ring-2 ring-white">
-                  <MapPin className="size-4" />
-                </span>
-                <span className="rounded-xs border border-[#C98A1B] bg-white px-1 text-[10px] leading-4 font-medium text-[#201A10]">
-                  Place
-                </span>
-              </div>
-            </Marker>
-          )}
-          {visibleMarkers.map(({ stop, index }) => {
-            const selected = isStopSelected(selection, stop.id);
-            const shape = getStopShape(stop.type);
-            return (
-              <Marker
-                key={stop.id}
-                longitude={stop.location[0]}
-                latitude={stop.location[1]}
-                draggable={canDrag}
-                onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
-                  moveStop(stop.id, [event.lngLat.lng, event.lngLat.lat])
-                }
-              >
-                <div className="relative flex flex-col items-center">
-                  <button
-                    type="button"
-                    aria-label={`Stop ${index + 1}: ${stop.name} (${STOP_TYPE_LABELS[stop.type]})`}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      handleStopClick(stop.id);
-                    }}
-                    style={{
-                      backgroundColor: shape.color,
-                      borderColor: "#ffffff",
-                      color:
-                        stop.type === "waiting_area" ? "#201A10" : "#ffffff",
-                    }}
-                    className={[
-                      // Filled type-colour plate + white border + white halo for
-                      // contrast against any basemap; selection adds a dark outline.
-                      "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
-                      SHAPE_CLASS[shape.shape],
-                      selected &&
-                        "outline-foreground outline-2 outline-offset-1",
-                      "focus-visible:outline-foreground focus-visible:outline-2 focus-visible:outline-offset-1",
-                      canDrag
-                        ? "cursor-grab active:cursor-grabbing"
-                        : "cursor-pointer",
-                    ].join(" ")}
-                  >
-                    {shape.shape === "diamond" ? (
-                      <span className="-rotate-45">{index + 1}</span>
-                    ) : (
-                      index + 1
-                    )}
-                  </button>
-                  {/* Labels are absolutely positioned so the marker plate stays
+      <Map
+        {...viewport}
+        onClick={handleMapClick}
+        onMove={(event) =>
+          setViewport({
+            longitude: event.viewState.longitude,
+            latitude: event.viewState.latitude,
+            zoom: event.viewState.zoom,
+            pitch: event.viewState.pitch ?? 0,
+            bearing: event.viewState.bearing ?? 0,
+          })
+        }
+        mapStyle={mapStyle}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <RouteFitter />
+        <SelectionPanner />
+        <BasemapController />
+        <PerspectiveController />
+        <RouteLines
+          draft={layers.routes ? polyline : null}
+          connecting={layers.routes ? connectingLine : null}
+          color={routeColor ?? DRAFT_LINE}
+          routeId={routeId}
+        />
+        {poi && (
+          <Marker longitude={poi[0]} latitude={poi[1]}>
+            <div className="flex flex-col items-center gap-0.5">
+              <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#C98A1B] text-[#201A10] ring-2 ring-white">
+                <MapPin className="size-4" />
+              </span>
+              <span className="rounded-xs border border-[#C98A1B] bg-white px-1 text-[11px] leading-4 font-medium text-[#201A10]">
+                Place
+              </span>
+            </div>
+          </Marker>
+        )}
+        {visibleMarkers.map(({ stop, index }) => {
+          const selected = isStopSelected(selection, stop.id);
+          const shape = getStopShape(stop.type);
+          return (
+            <Marker
+              key={stop.id}
+              longitude={stop.location[0]}
+              latitude={stop.location[1]}
+              draggable={canDrag}
+              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+                moveStop(stop.id, [event.lngLat.lng, event.lngLat.lat])
+              }
+            >
+              <div className="relative flex flex-col items-center">
+                <button
+                  type="button"
+                  aria-label={`Stop ${index + 1}: ${stop.name} (${STOP_TYPE_LABELS[stop.type]})`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    handleStopClick(stop.id);
+                  }}
+                  style={{
+                    backgroundColor: shape.color,
+                    borderColor: "#ffffff",
+                    color: stop.type === "waiting_area" ? "#201A10" : "#ffffff",
+                  }}
+                  className={[
+                    // Filled type-colour plate + white border + white halo for
+                    // contrast against any basemap; selection adds a dark outline.
+                    "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
+                    SHAPE_CLASS[shape.shape],
+                    selected && "outline-foreground outline-2 outline-offset-1",
+                    "focus-visible:outline-foreground focus-visible:outline-2 focus-visible:outline-offset-1",
+                    canDrag
+                      ? "cursor-grab active:cursor-grabbing"
+                      : "cursor-pointer",
+                  ].join(" ")}
+                >
+                  {shape.shape === "diamond" ? (
+                    <span className="-rotate-45">{index + 1}</span>
+                  ) : (
+                    index + 1
+                  )}
+                </button>
+                {/* Labels are absolutely positioned so the marker plate stays
                     perfectly centered when a label appears (no perceived shift).
                     The marker-labels layer toggle controls the ACTUAL stop name
                     beneath every marker (the first keeps a "Start · " prefix
                     for orientation) — not just the Start chip (Pasted #42/#45). */}
-                  {layers.markerLabels && (
-                    <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[10px] leading-4 font-medium text-[#1B6DB2]">
-                      {index === 0 ? `Start · ${stop.name}` : stop.name}
-                    </span>
-                  )}
-                </div>
-              </Marker>
-            );
-          })}
-          {children}
-        </Map>
-      </MapProvider>
+                {layers.markerLabels && (
+                  <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+                    {index === 0 ? `Start · ${stop.name}` : stop.name}
+                  </span>
+                )}
+              </div>
+            </Marker>
+          );
+        })}
+        {children}
+      </Map>
     </div>
   );
 }

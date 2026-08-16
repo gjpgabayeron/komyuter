@@ -2,19 +2,29 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { toast } from "sonner";
-import { SaveIcon, X } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ApiError } from "@/lib/api";
 import {
   bindSnapFetcher,
   cancelPendingSnap,
+  deriveUiState,
   usePlottingStore,
   type RouteMetaDraft,
 } from "@/lib/plottingStore";
 import { clearSelection } from "@/lib/selection";
 import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
 import type { DraftPayload } from "@/lib/draft";
-import { DraftRestoreBanner } from "@/features/routes/DraftRestoreBanner";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
 import { pathFromConnections } from "@/lib/connections";
 import type { SaveDirectionPayload } from "@/features/routes/routesApi";
@@ -22,13 +32,17 @@ import { getRoute, snapPreview } from "@/features/routes/routesApi";
 import { queryClient } from "@/lib/queryClient";
 import { routeKeys } from "@/lib/queryKeys";
 import { RouteMap } from "@/features/routes/RouteMap";
+import { MapProvider } from "react-map-gl/maplibre";
 import { RouteList } from "@/features/routes/RouteList";
 import { RouteOverviewLayer } from "@/features/routes/RouteOverviewLayer";
-import { OverviewRoutePanel } from "@/features/routes/OverviewRoutePanel";
+import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
 import { EmptyState } from "@/features/routes/EmptyState";
+import { NarrowWindowGate } from "@/features/routes/NarrowWindowGate";
 import { NewRouteDialog } from "@/features/routes/NewRouteDialog";
 import { PlotActionBar } from "@/features/routes/PlotActionBar";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
+import { StatusBar } from "@/features/routes/StatusBar";
+import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
 import { ROUTE_COLORS } from "@/features/routes/routeColors";
 import {
   useReplaceDirectionMutation,
@@ -40,7 +54,7 @@ import {
 
 const SNAP_WARNING_COPY: Record<string, string> = {
   no_token:
-    "Road following is off — showing a straight line. Add a MAPBOX_SECRET_TOKEN to enable it.",
+    "Road following is off — showing a straight line. Add a public Mapbox token (MAPBOX_TOKEN) to enable it.",
   upstream_error:
     "Road following is unavailable right now — showing a straight line. Place another stop to retry.",
 };
@@ -64,10 +78,29 @@ function isRouteMetaDirty(
   );
 }
 
+/** How long the transient status notices stay visible before auto-dismissing
+ *  (the "Saved just now" lifecycle plate and the "Draft restored"
+ *  confirmation). 4 s matches the sonner toast default. */
+const STATUS_NOTICE_MS = 4_000;
+
+/**
+ * The Route Workspace — a three-column, four-state orchestrator (ADR-0014).
+ * It derives the single `uiState` (empty / overview / focus / edit) and
+ * renders the per-state column sets around one persistently-mounted map:
+ *
+ *   empty    → map + EmptyState veil
+ *   overview → RouteList + map (+ overview layer)
+ *   focus    → RouteList + map + FocusPlate (right column)
+ *   edit     → RouteList(stops) + map + PropertiesPanel + plot action bar
+ *
+ * All plotting behavior (draft, undo/redo, snapping, save, conflict recovery)
+ * is preserved and re-homed; the map never remounts (SC-002).
+ */
 export default function RouteWorkspace() {
   const { routeId: routeParam } = useParams<{ routeId: string }>();
   const routeId = usePlottingStore((s) => s.routeId);
   const directionId = usePlottingStore((s) => s.directionId);
+  const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
   const snap = usePlottingStore((s) => s.snap);
   const draftDirty = usePlottingStore((s) => s.draftDirty);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
@@ -76,19 +109,49 @@ export default function RouteWorkspace() {
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [conflict, setConflict] = useState(false);
   const [draftOffer, setDraftOffer] = useState<DraftPayload | null>(null);
+  const [justSaved, setJustSaved] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const [loadLatestOpen, setLoadLatestOpen] = useState(false);
+  const [navConfirmOpen, setNavConfirmOpen] = useState(false);
 
   const routeQuery = useRouteQuery(routeId);
   const routesQuery = useRoutesQuery();
 
   const routes = useMemo(() => routesQuery.data ?? [], [routesQuery.data]);
   const routesLoaded = !routesQuery.isLoading && !routesQuery.isError;
-  const noRoutes = routesLoaded && routes.length === 0;
-  const hasRoute = routeId !== null;
-  const overviewMode = !hasRoute && !noRoutes && routesLoaded;
-  // URL param seeds the store; the overlay is then the source of truth.
+
+  // --- The four-state machine (pure selector; contract §2) ---
+  const uiState = deriveUiState({
+    loaded: routesLoaded,
+    routeCount: routes.length,
+    routeId,
+    focusedRouteId,
+  });
+
+  // URL param seeds the store; the store is then the source of truth.
   useEffect(() => {
     usePlottingStore.getState().openRoute(routeParam ?? null);
   }, [routeParam]);
+
+  /** T5/T6/T7 — leave the editor (Esc / Back). Dirty edits ask first (styled
+   *  confirm, FR-007 — never window.confirm); clean edits snap back to a
+   *  clean overview (openRoute(null) clears focus, selection, and tool — the
+   *  idle slate; the draft safety net is untouched). */
+  const closeEdit = () => {
+    usePlottingStore.getState().openRoute(null);
+  };
+  const requestCloseEdit = () => {
+    if (showSave) {
+      setLeaveConfirmOpen(true);
+      return;
+    }
+    closeEdit();
+  };
+  const confirmLeaveEdit = () => {
+    setLeaveConfirmOpen(false);
+    closeEdit();
+  };
 
   // Bind the snap network call once (the store owns the debounce orchestration).
   useEffect(() => {
@@ -156,11 +219,23 @@ export default function RouteWorkspace() {
     if (draft) setDraftOffer(draft);
   }, [routeQuery.data, routeId]);
 
+  // Auto-dismiss the transient status notices ("Saved just now" after a save,
+  // "Draft restored" after a restore) — no manual dismissal (US4 refinement).
+  useEffect(() => {
+    if (!justSaved && !draftRestored) return;
+    const t = window.setTimeout(() => {
+      setJustSaved(false);
+      setDraftRestored(false);
+    }, STATUS_NOTICE_MS);
+    return () => window.clearTimeout(t);
+  }, [justSaved, draftRestored]);
+
   const restoreDraft = (draft: DraftPayload) => {
     restoredRef.current = `${draft.routeId}/${draft.directionId}`;
     usePlottingStore.getState().restoreDraft(draft);
     clearDraft(draft.routeId, draft.directionId);
     setDraftOffer(null);
+    setDraftRestored(true);
   };
 
   const discardDraft = (draft: DraftPayload) => {
@@ -233,7 +308,7 @@ export default function RouteWorkspace() {
       !pathStopIds.every((id, i) => id === saveStops[i].id)
     ) {
       toast.error(
-        "The road-following path is out of sync with the stops — undo or wait for the path to update, then save again.",
+        "The path hasn't caught up with your latest stop order yet — wait a moment, then save again.",
       );
       return false;
     }
@@ -312,13 +387,7 @@ export default function RouteWorkspace() {
    *  effect uses, so the surface returns to a consistent, saved state. */
   const loadLatest = async () => {
     if (routeId === null) return;
-    if (
-      !window.confirm(
-        "Discard your unsaved changes and load the latest version?",
-      )
-    ) {
-      return;
-    }
+    setLoadLatestOpen(false);
     const detail = await queryClient.fetchQuery({
       queryKey: routeKeys.detail(routeId),
       queryFn: () => getRoute(routeId as string),
@@ -371,22 +440,50 @@ export default function RouteWorkspace() {
 
   // In-app navigation (sidebar links, navigate()): BrowserRouter's history
   // calls the patched pushState/replaceState at click time, so intercepting
-  // them asks before leaving. Back/forward buttons bypass this — the draft
-  // keeps the work recoverable either way.
+  // them asks before leaving — via the styled dialog (FR-007), never the
+  // browser's default confirm. Back/forward buttons bypass this — the draft
+  // keeps the work recoverable either way. Tab close still uses the native
+  // beforeunload prompt (it cannot be styled).
+  const originalNavRef = useRef<{
+    push: typeof window.history.pushState;
+    replace: typeof window.history.replaceState;
+  } | null>(null);
+  const pendingNavRef = useRef<{
+    push: boolean;
+    data: unknown;
+    url?: string | URL | null;
+  } | null>(null);
+  const confirmLeaveNav = () => {
+    setNavConfirmOpen(false);
+    const pending = pendingNavRef.current;
+    pendingNavRef.current = null;
+    const original = originalNavRef.current;
+    if (!pending || !original) return;
+    (pending.push ? original.push : original.replace).call(
+      window.history,
+      pending.data,
+      "",
+      pending.url,
+    );
+  };
+  const cancelLeaveNav = () => {
+    pendingNavRef.current = null;
+    setNavConfirmOpen(false);
+  };
   useEffect(() => {
-    const confirmLeave = () =>
-      !dirtyRef.current ||
-      window.confirm(
-        "You have unsaved route changes. Leave anyway? Your work is kept as a draft on this device.",
-      );
     const originalPush = window.history.pushState;
     const originalReplace = window.history.replaceState;
+    originalNavRef.current = { push: originalPush, replace: originalReplace };
     window.history.pushState = ((
       data: unknown,
       unused: string,
       url?: string | URL | null,
     ) => {
-      if (!confirmLeave()) return;
+      if (dirtyRef.current) {
+        pendingNavRef.current = { push: true, data, url };
+        setNavConfirmOpen(true);
+        return;
+      }
       originalPush.call(window.history, data, unused, url);
     }) as typeof window.history.pushState;
     window.history.replaceState = ((
@@ -394,12 +491,17 @@ export default function RouteWorkspace() {
       unused: string,
       url?: string | URL | null,
     ) => {
-      if (!confirmLeave()) return;
+      if (dirtyRef.current) {
+        pendingNavRef.current = { push: false, data, url };
+        setNavConfirmOpen(true);
+        return;
+      }
       originalReplace.call(window.history, data, unused, url);
     }) as typeof window.history.replaceState;
     return () => {
       window.history.pushState = originalPush;
       window.history.replaceState = originalReplace;
+      originalNavRef.current = null;
     };
   }, []);
 
@@ -427,12 +529,41 @@ export default function RouteWorkspace() {
         });
       }
       usePlottingStore.getState().setDraftDirty(false);
+      // US4 scenario 2: a completed save frames the route on the map (the
+      // left column already shows the open route as the active one) and shows
+      // a transient "Saved just now" confirmation (auto-dismisses).
+      usePlottingStore.getState().requestFit();
+      setJustSaved(true);
+    } catch (error) {
+      // The metadata save can conflict just like the plotting save — surface
+      // the same conflict notice in the status slot (never an unhandled
+      // rejection that silently skips it).
+      if (error instanceof ApiError && error.code === "CONFLICT") {
+        setConflict(true);
+        toast.error(
+          "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again.",
+        );
+      } else {
+        toast.error(error instanceof Error ? error.message : "Save failed.");
+      }
     } finally {
       usePlottingStore.getState().setSaving(false);
     }
   };
 
   const showSnapWarning = !snap.snapped && snap.warning !== null;
+  const hasRoute = routeId !== null;
+
+  // While any dialog is open, Esc belongs to the dialog (it closes itself);
+  // the workspace's Esc steps back only when nothing else claims it. Child
+  // dialogs (route delete, stop delete) are detected via the DOM — any open
+  // role=dialog/alertdialog owns Esc.
+  const anyDialogOpen =
+    leaveConfirmOpen || loadLatestOpen || navConfirmOpen || newRouteOpen;
+  const childDialogOpen = () =>
+    document.querySelector(
+      '[role="dialog"], [role="alertdialog"], [role="menu"]',
+    ) !== null;
 
   useHotkeys("mod+s", () => void saveAll(), {
     enabled: hasRoute && !saving,
@@ -449,87 +580,169 @@ export default function RouteWorkspace() {
     preventDefault: true,
   });
 
+  // Keyboard contract (FR-008): Esc dismisses the focus plate (T6) or leaves
+  // the editor back to focus (T5, styled confirm when dirty). Typing inside a
+  // form field keeps Esc for its native purpose (blur / close a popover) —
+  // never steps the workspace back.
+  useHotkeys(
+    "esc",
+    () => {
+      if (childDialogOpen()) return;
+      const el = document.activeElement;
+      if (
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement ||
+        el instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+      if (hasRoute) {
+        requestCloseEdit();
+      } else if (focusedRouteId !== null) {
+        usePlottingStore.getState().setFocusedRouteId(null);
+      }
+    },
+    { enabled: !anyDialogOpen },
+  );
+
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      <RouteMap className="absolute inset-0">
-        {overviewMode && <RouteOverviewLayer />}
-      </RouteMap>
+    <MapProvider>
+      <div className="relative h-full w-full overflow-hidden">
+        <NarrowWindowGate mode={uiState === "empty" ? "overview" : uiState}>
+          {/* The map is the full-bleed backdrop behind the grid (ADR-0015):
+              it spans the whole workspace and never resizes or remounts, so
+              the plates float over a consistent, seamless canvas. */}
+          <main aria-label="Route map" className="absolute inset-0">
+            <RouteMap className="h-full w-full">
+              {(uiState === "overview" || uiState === "focus") && (
+                <RouteOverviewLayer />
+              )}
+            </RouteMap>
+          </main>
 
-      {!noRoutes && <RouteList onCreateRoute={() => setNewRouteOpen(true)} />}
-      <PropertiesPanel />
-      {overviewMode && <OverviewRoutePanel />}
+          {/* Three-column shell over the map: full-height plates in inset
+              tracks + a transparent center track hosting the chrome. */}
+          <WorkspaceColumns
+            mode={uiState}
+            left={
+              <RouteList
+                onCreateRoute={() => setNewRouteOpen(true)}
+                onCloseEdit={requestCloseEdit}
+              />
+            }
+            right={<PropertiesPanel />}
+            empty={<EmptyState onCreateRoute={() => setNewRouteOpen(true)} />}
+            chrome={
+              hasRoute ? (
+                <div className="flex h-full flex-col justify-between py-3">
+                  <div className="flex w-full justify-between">
+                    <PoiSearchBar />
+                    <StatusBar
+                      dirty={showSave}
+                      saving={saving}
+                      justSaved={justSaved}
+                      restored={draftRestored}
+                      draft={draftOffer}
+                      conflict={conflict}
+                      onRestoreDraft={() =>
+                        draftOffer && restoreDraft(draftOffer)
+                      }
+                      onDiscardDraft={() =>
+                        draftOffer && discardDraft(draftOffer)
+                      }
+                      onLoadLatest={() => setLoadLatestOpen(true)}
+                      onDismissConflict={() => setConflict(false)}
+                    />
+                  </div>
+                  <div className="pointer-events-auto z-30 flex items-center justify-center gap-2">
+                    <PlotActionBar
+                      onUndo={() => usePlottingStore.getState().undo()}
+                      onRedo={() => usePlottingStore.getState().redo()}
+                    />
+                    {showSave && (
+                      <Button
+                        size="icon"
+                        onClick={() => void saveAll()}
+                        disabled={saving}
+                        aria-label={saving ? "Saving changes" : "Save changes"}
+                      >
+                        <SaveIcon />
+                      </Button>
+                    )}
+                  </div>
+                  {showSnapWarning && snap.warning && (
+                    <div
+                      role="status"
+                      className="border-warning/60 bg-warning text-foreground pointer-events-auto absolute bottom-16 left-1/2 z-30 w-max max-w-sm -translate-x-1/2 rounded-lg border px-3 py-1.5 text-xs"
+                    >
+                      {SNAP_WARNING_COPY[snap.warning] ?? snap.warning}
+                    </div>
+                  )}
+                </div>
+              ) : null
+            }
+          />
+        </NarrowWindowGate>
 
-      {hasRoute ? (
-        <>
-          {draftOffer && (
-            <DraftRestoreBanner
-              draft={draftOffer}
-              onRestore={() => restoreDraft(draftOffer)}
-              onDiscard={() => discardDraft(draftOffer)}
-            />
-          )}
-          <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
-            <PlotActionBar
-              onUndo={() => usePlottingStore.getState().undo()}
-              onRedo={() => usePlottingStore.getState().redo()}
-            />
-            {showSave && (
-              <Button
-                size="icon"
-                onClick={() => void saveAll()}
-                disabled={saving}
-                aria-label={saving ? "Saving changes" : "Save changes"}
-              >
-                <SaveIcon />
-              </Button>
-            )}
-          </div>
-          {showSnapWarning && snap.warning && (
-            <div
-              role="status"
-              className="border-warning/60 bg-warning text-foreground absolute bottom-16 left-1/2 z-10 w-max max-w-sm -translate-x-1/2 rounded-lg border px-3 py-1.5 text-xs"
-            >
-              {SNAP_WARNING_COPY[snap.warning] ?? snap.warning}
-            </div>
-          )}
-        </>
-      ) : noRoutes ? (
-        <>
-          <div className="bg-background/60 absolute inset-0 z-5 backdrop-blur-sm" />
-          <EmptyState onCreateRoute={() => setNewRouteOpen(true)} />
-        </>
-      ) : null}
+        <AlertDialog open={leaveConfirmOpen} onOpenChange={setLeaveConfirmOpen}>
+          <AlertDialogContent className="sm:max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Leave unsaved changes?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Your edits are kept as a draft on this device and can be
+                restored the next time you open the route. You can also leave
+                them in place and come back to save.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep editing</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmLeaveEdit}>
+                Leave
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {conflict && (
-        <div
-          role="alert"
-          className="border-destructive/40 absolute top-3 left-1/2 z-20 flex max-w-md -translate-x-1/2 items-center gap-2 rounded-lg border bg-white px-3 py-2 text-sm"
-        >
-          <span className="text-destructive font-medium">Save conflict</span>
-          <span className="text-muted-foreground">
-            Another Administrator edited this route. Your work is still here —
-            reload to see the latest, or adjust and save again.
-          </span>
-          <Button
-            size="sm"
-            variant="outline"
-            className="h-7 shrink-0 px-2 text-xs"
-            onClick={() => void loadLatest()}
-          >
-            Load latest
-          </Button>
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            aria-label="Dismiss conflict notice"
-            onClick={() => setConflict(false)}
-          >
-            <X className="size-3.5" />
-          </Button>
-        </div>
-      )}
+        <AlertDialog open={loadLatestOpen} onOpenChange={setLoadLatestOpen}>
+          <AlertDialogContent className="sm:max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Loading the latest version replaces your unsaved edits. Your
+                current work is kept as a draft on this device.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Keep editing</AlertDialogCancel>
+              <AlertDialogAction onClick={() => void loadLatest()}>
+                Load latest
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      <NewRouteDialog open={newRouteOpen} onOpenChange={setNewRouteOpen} />
-    </div>
+        <AlertDialog open={navConfirmOpen} onOpenChange={setNavConfirmOpen}>
+          <AlertDialogContent className="sm:max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Leave unsaved changes?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You have unsaved route changes. Your work is kept as a draft on
+                this device and can be restored when you return.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={cancelLeaveNav}>
+                Stay
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={confirmLeaveNav}>
+                Leave anyway
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <NewRouteDialog open={newRouteOpen} onOpenChange={setNewRouteOpen} />
+      </div>
+    </MapProvider>
   );
 }

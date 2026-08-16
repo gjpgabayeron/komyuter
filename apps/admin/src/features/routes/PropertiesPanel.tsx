@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ChevronDown, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, Pencil, Trash2, X } from "lucide-react";
 import type { StopType } from "@komyuter/shared";
 import {
   AlertDialog,
@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { usePlottingStore } from "@/lib/plottingStore";
+import { readOverviewCache } from "@/lib/overviewCache";
 import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
 import { formatTimestamp } from "./format";
 import { pathFromConnections } from "@/lib/connections";
@@ -31,7 +32,7 @@ import { useFareConfigsQuery } from "@/features/fares/queries";
 import { FareConfigSelect } from "./FareConfigSelect";
 import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "./routeColors";
 import { STOP_TYPE_LABELS } from "./stopLabels";
-import { useRouteQuery } from "./useRouteQueries";
+import { useRouteQuery, useRoutesQuery } from "./useRouteQueries";
 import { cn } from "@/lib/utils";
 
 const STOP_TYPES: StopType[] = ["terminal", "major_stop", "waiting_area"];
@@ -45,31 +46,109 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Right-side floating properties panel — visible by default whenever a route
- * is open, height-constrained to the main content area with scrolling for
- * overflow. Two contextual groups:
- * 1. Route — route-level metadata (name, code, colour incl. custom hex,
- *    status, fare config), edited into the store's routeMeta draft; the
- *    shared Save button persists it.
- * 2. Stop — context-sensitive: the focused stop's editable fields (adapting
- *    to its type) plus a confirmed delete action.
- * Distance supports an m/km toggle. No travel-time/ETA data (ADR-0009).
+ * Right-side properties plate (focus / edit states) — one of the two
+ * right-column variants:
+ * - focus: the FocusPlate — a read-only peek at a route picked from the map.
+ * - edit: the editable Properties panel (route metadata + stop editor).
+ * Returns null in overview/empty (the column track is hidden then).
  */
 export function PropertiesPanel() {
   const routeId = usePlottingStore((s) => s.routeId);
+  const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
   const selection = usePlottingStore((s) => s.selection);
-  if (routeId === null) return null;
+
+  if (routeId !== null) {
+    return (
+      <aside
+        aria-label="Route properties"
+        className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-3"
+      >
+        <header className="flex shrink-0 items-center justify-between gap-2">
+          <h2 className="font-display text-foreground text-sm font-semibold">
+            Properties
+          </h2>
+        </header>
+        <div className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto">
+          {selection.type === "stop" ? <StopGroup /> : <RouteGroup />}
+        </div>
+      </aside>
+    );
+  }
+  if (focusedRouteId !== null) return <FocusPlate routeId={focusedRouteId} />;
+  return null;
+}
+
+/**
+ * The focus plate (T2/T12) — a read-only peek at a route picked from the
+ * map, in the right column. Never enters edit mode; "Edit route" is the
+ * single entry point. Data comes from the already-loaded route list + the
+ * overview cache — no extra network fetch, so the plate appears instantly.
+ */
+function FocusPlate({ routeId }: { routeId: string }) {
+  const setFocusedRouteId = usePlottingStore((s) => s.setFocusedRouteId);
+  const routesQuery = useRoutesQuery();
+  const route =
+    routesQuery.data?.find((row) => row.route_id === routeId) ?? null;
+  const stopCount = useMemo(() => {
+    const row = readOverviewCache()?.find((r) => r.route_id === routeId);
+    return row?.stops.length ?? null;
+  }, [routeId]);
 
   return (
     <aside
-      aria-label="Properties"
-      className="absolute top-3 right-3 z-10 flex max-h-[calc(100dvh-9rem)] w-80 flex-col rounded-lg border bg-white p-3"
+      aria-label={`Focused route — ${route?.name ?? "route"}`}
+      className="flex min-h-0 w-full flex-col overflow-hidden rounded-lg border bg-white p-3"
     >
-      <h2 className="font-display text-foreground text-sm font-semibold">
-        Properties
+      <header className="flex shrink-0 items-center justify-between gap-2">
+        <span className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+          Route
+        </span>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          aria-label="Close focus plate"
+          onClick={() => setFocusedRouteId(null)}
+        >
+          <X className="size-3.5" />
+        </Button>
+      </header>
+      <h2 className="font-display text-foreground mt-1 truncate text-base font-semibold">
+        {route?.name ?? "…"}
       </h2>
-      <div className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto">
-        {selection.type === "stop" ? <StopGroup /> : <RouteGroup />}
+      <div className="mt-0.5 flex items-center gap-1.5">
+        {route?.short_name && (
+          <span className="text-muted-foreground text-xs">
+            {route.short_name}
+          </span>
+        )}
+        {route && (
+          <Badge
+            variant={route.is_active ? "default" : "outline"}
+            className="h-4 px-1 text-[10px] font-medium"
+          >
+            {route.is_active ? "Active" : "Inactive"}
+          </Badge>
+        )}
+      </div>
+      <dl className="mt-3 space-y-1.5 text-sm">
+        <div className="flex items-center justify-between">
+          <dt className="text-muted-foreground text-xs">Stops</dt>
+          <dd className="tabular-nums">{stopCount ?? "—"}</dd>
+        </div>
+        <div className="flex items-center justify-between">
+          <dt className="text-muted-foreground text-xs">Directions</dt>
+          <dd className="tabular-nums">{route?.direction_count ?? "—"}</dd>
+        </div>
+      </dl>
+      <div className="mt-auto pt-4">
+        <Button
+          autoFocus
+          className="w-full"
+          onClick={() => usePlottingStore.getState().openRoute(routeId)}
+        >
+          <Pencil className="size-3.5" />
+          Edit route
+        </Button>
       </div>
     </aside>
   );
@@ -131,6 +210,7 @@ function RouteGroup() {
         <div className="space-y-1.5">
           <SectionLabel>Route name</SectionLabel>
           <Input
+            autoFocus
             value={routeMeta?.name ?? ""}
             onChange={(event) => setRouteMeta({ name: event.target.value })}
             aria-label="Route name"
@@ -178,10 +258,16 @@ function RouteGroup() {
               }}
               disabled={saving}
               aria-label="Route colour (hex)"
+              aria-invalid={!isValidHexColor(hexText) && hexText.trim() !== ""}
               spellCheck={false}
               className="h-8 font-mono tabular-nums"
             />
           </div>
+          {!isValidHexColor(hexText) && hexText.trim() !== "" && (
+            <p role="alert" className="text-destructive text-xs">
+              Not a valid colour — use six hex digits, e.g. #1B6DB2.
+            </p>
+          )}
         </div>
         <div className="space-y-1.5">
           <SectionLabel>Fare config</SectionLabel>
@@ -386,9 +472,15 @@ function StopEditor({
             updateStop(stop.id, { name: event.target.value })
           }
           aria-label="Stop name"
+          aria-invalid={stop.name.trim() === ""}
           disabled={disabled}
           className="h-8"
         />
+        {stop.name.trim() === "" && (
+          <p role="alert" className="text-destructive text-xs">
+            Give this stop a name so riders recognize it.
+          </p>
+        )}
       </div>
 
       <div className="space-y-1.5">

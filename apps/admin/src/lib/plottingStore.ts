@@ -36,6 +36,40 @@ import {
  *  the map to insert new stops). */
 export type EditTool = "select" | "add";
 
+/**
+ * The four workspace states (canonical terms — constitution Principle IV).
+ * `deriveUiState` is the pure selector that maps store/query inputs onto
+ * them; components never hold a uiState of their own.
+ */
+export type WorkspaceUiState = "empty" | "overview" | "focus" | "edit";
+
+/** Structural inputs the derivation reads (no store/query coupling). */
+export interface UiStateInput {
+  /** True once the route list query has resolved. */
+  loaded: boolean;
+  /** Number of loaded routes (not the array — keeps the selector pure). */
+  routeCount: number;
+  /** Opened route (edit state); null outside editing. */
+  routeId: string | null;
+  /** Route focused from the map (focus state); null otherwise. */
+  focusedRouteId: string | null;
+}
+
+/**
+ * The five rules of the workspace state machine:
+ * 1. loaded && no routes → empty
+ * 2. a route is opened → edit (wins over focus)
+ * 3. a route is focused from the map → focus
+ * 4. otherwise → overview
+ * 5. not loaded → overview (the empty state is never flashed)
+ */
+export function deriveUiState(s: UiStateInput): WorkspaceUiState {
+  if (s.loaded && s.routeCount === 0) return "empty";
+  if (s.routeId !== null) return "edit";
+  if (s.focusedRouteId !== null) return "focus";
+  return "overview";
+}
+
 /** Editable route-level metadata draft (persisted via PUT /routes/:routeId). */
 export interface RouteMetaDraft {
   name: string;
@@ -228,7 +262,7 @@ export interface PlottingState {
   /** True while a save is in flight — interactive actions are locked. */
   saving: boolean;
   /** Route focused in overview mode (clicked on the map); null otherwise. */
-  overviewRouteId: string | null;
+  focusedRouteId: string | null;
   /** Incremented whenever the map should reframe to the whole route. */
   fitCounter: number;
   /** Ordered draft stops (placement order = stop_order). */
@@ -278,7 +312,7 @@ export interface PlottingState {
   /** Locks/unlocks interactions while a save is in flight. */
   setSaving: (saving: boolean) => void;
   /** Focuses/clears a route in overview mode. */
-  setOverviewRouteId: (routeId: string | null) => void;
+  setFocusedRouteId: (routeId: string | null) => void;
   /** Opens a route for viewing (default), clearing any draft edits. */
   openRoute: (routeId: string | null) => void;
   /** Asks the map to fit the whole route into view. */
@@ -521,7 +555,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     connections: [],
     draftDirty: false,
     saving: false,
-    overviewRouteId: null,
+    focusedRouteId: null,
     fitCounter: 0,
     stops: [],
     polyline: null,
@@ -551,7 +585,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
       })),
     setDraftDirty: (draftDirty) => set({ draftDirty }),
     setSaving: (saving) => set({ saving }),
-    setOverviewRouteId: (overviewRouteId) => set({ overviewRouteId }),
+    setFocusedRouteId: (focusedRouteId) => set({ focusedRouteId }),
 
     openRoute: (routeId) => {
       // No request from the previous route may land on this one.
@@ -577,7 +611,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         connections: [],
         draftDirty: false,
         saving: false,
-        overviewRouteId: null,
+        focusedRouteId: null,
         seedSource: null,
         history: emptyHistory(),
         savedBaseline: null,
@@ -1176,7 +1210,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         connections: [],
         draftDirty: false,
         saving: false,
-        overviewRouteId: null,
+        focusedRouteId: null,
         fitCounter: 0,
         stops: [],
         polyline: null,
