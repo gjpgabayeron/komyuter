@@ -2,6 +2,7 @@ node_modules
 dist
 .turbo
 pnpm-lock.yaml
+supabase/.temp
 
 # Root design docs use table/bold formatting that Prettier would mangle
 /OVERVIEW.md
