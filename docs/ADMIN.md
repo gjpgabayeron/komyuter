@@ -1,448 +1,431 @@
-# ADMIN — Komyuter Admin Dashboard: Rebuild Guide & Feature Reference
+# ADMIN — Komyuter Admin Dashboard: Feature Reference & Rebuild Guide
 
-**Purpose**: Self-contained handoff document for re-implementing the Komyuter admin dashboard from a clean branch. A fresh AI agent should be able to rebuild the admin from this document plus the existing source files, with no prior context and **no dependency on any `specs/` directory files** (which may not exist on a new branch). All requirements, success criteria, data-model, contracts, and task plans are inlined below.
+**Status:** this document is the single source of truth for what the admin dashboard IS, what it DOES, and what it is PLANNED to do. It is a handoff document: a new contributor can rebuild the dashboard from this file alone, and the "Planned / Upcoming" markers keep the roadmap honest.
 
-**Scope**: Everything in `apps/admin` (frontend), the admin-facing surface of `apps/server` (the `/api/admin/*` Fastify API), and the shared types/schemas in `packages/shared`. It covers (a) what exists today, (b) the re-planned target scope, and (c) the map-stack decision (ADR-0013, MapLibre GL + Mapbox services).
+**Document scope:** the dashboard's route workspace, routes/fares/export surfaces, server API, data model, and design decisions. The companion docs are:
 
-**Branch strategy**: Create a fresh branch cut from the base branch (`main`/`dev`) so the git timeline is clean. Commit conventionally (`type(scope): description`, enforced by commitlint).
+- `docs/ADMIN.md` — this file.
+- `docs/adr/*` — design decisions (see Appendix F).
+- `specs/008-admin-route-workspace-refactor/` — the active spec (plan, tasks, contracts) behind the current workspace. The root `REFACTOR.md` is superseded by this spec's plan.
 
----
+## 1. TL;DR
 
-## 1. TL;DR — What the admin is
+- **Product:** Komyuter's admin dashboard — a desktop web app for maintaining the Iloilo PUJ transit dataset (routes, stops, fares) and the map data that feeds the commuter app.
+- **Current centerpiece:** a **map-first route workspace** with **four derived states** (empty / overview / focus / edit). Three fixed columns: left route/stops list (256 px), center full-bleed map (one persistent MapLibre GL instance), right properties panel (336 px). Floating plates sit over the map (ADR-0015).
+- **Plotting model:** **single-mode "auto" plotting.** The `Select` / `Add` pointer-tool toggles; in Add mode, every stop placed in click order forms a **connection** to the previous stop (chain). The polyline is derived from the connection chain. No "Automatic vs Manual" mode switch — the previous design's Automatic/Manual split was superseded by this one chain-based model.
+- **Snap:** debounced road-following via a Mapbox Directions proxy; snap auto-commits into undo history (no manual Apply/Revert — that is a deliberate re-design, see FR-013).
+- **Safety net:** drafts (24 h local storage), undo/redo (5 history kinds), styled confirm dialogs, connection-banner + session-expiry handling, atomic save with conflict recovery.
+- **Auth:** single admin account, email + password over `POST /api/auth/login`; token kept in `localStorage`; `GET /api/auth/me` re-validates on boot; global revocation on logout.
+- **Design language:** The Route Sign — flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4 px corners, no shadows (see `DESIGN.md`, Appendix E).
+- **Not yet built (roadmap):** detour + restriction **editing UI**, detour **conditional triggers** (server work, ADR-0012), no-stop segments, Mapbox geocoding proxy, shared fare calculator, Overview + Export pages (currently placeholders), dataset import. Each is marked `Planned` in the FR/SC tables and expanded in §6.
 
-A **map-first web dashboard** for transit curators to maintain the Iloilo PUJ (public utility jeepney) dataset: routes, directions, stops, detours, restrictions, and fare configurations. React 18 + Vite + TypeScript (strict), MapLibre GL for the map, Mapbox services for snapping/geocoding (server-proxied), backend-proxied Supabase Auth (Fastify login/session endpoints, ADR-0006), and a Fastify admin API backed by Postgres/PostGIS (ADR-0013).
+## 2. Repo layout & how the admin fits
 
-Two users exist in the product: **commuters** (mobile app, `apps/mobile`) and **administrators** (this dashboard). This document is only about the administrator surface.
-
----
-
-## 2. Repo layout & how the admin fits in
-
-```text
-apps/admin/             # THIS document's focus — React 18 + Vite + TS admin dashboard
-apps/server/            # Fastify v5 admin API (+ routing/detour-resolution engine)
-apps/mobile/            # Expo commuter app (out of scope here)
-packages/shared/        # @komyuter/shared — canonical domain types, zod schemas, fareCalculator
-packages/ui/            # @repo/ui — shared UI primitives (largely unused by admin; admin has its own)
-packages/typescript-config/ # @repo/typescript-config — strict shared TS configs
-docs/                   # DESIGN.md, PRODUCT.md (design/product systems), CONTEXT.md (glossary), adr/
+```
+komyuter/
+├─ apps/
+│  ├─ admin/            # THIS document's subject — React 18 + Vite 5 + TS dashboard
+│  └─ server/           # Fastify v5 admin API (ADR-0004), TDD'd against local Supabase
+├─ packages/
+│  ├─ shared/           # @komyuter/shared — types + zod schemas shared by admin & server
+│  ├─ ui/               # @repo/ui — shared UI kit (admin largely self-contained today)
+│  ├─ eslint-config/    # @repo/eslint-config (removed; single root flat config — do not recreate)
+│  └─ typescript-config/# @repo/typescript-config — strict shared tsconfig base
+├─ docs/
+│  ├─ ADMIN.md          # this file
+│  └─ adr/              # design decisions (Appendix F)
+├─ specs/               # per-feature specs; 008 = admin route workspace (current)
+├─ supabase/            # local Supabase stack config (docker)
+├─ DESIGN.md            # visual system — wins on visual decisions
+└─ PRODUCT.md           # product strategy/voice — wins on strategic decisions
 ```
 
-Key architectural rules (from the project constitution, mirrored in `AGENTS.md`):
+**Architectural rules that apply to the admin:**
 
-- **Presentation-only where possible**: geometry, coordinates, route/direction/stop/detour/restriction data, and API behavior should not change for UI work.
-- **Coordinate order `[lng, lat]` everywhere** now the sole format in the admin UI (ADR-0013 supersedes the old Leaflet exception in ADR-0007). A swapped pair puts stops in the ocean — the single most dangerous pitfall (ADR-0007).
-- **No ETA anywhere** (ADR-0009) — navigation output is distances, fare, transfers, walk distance only.
-- Two **Directions per Route** (ADR-0008); plot one base path and auto-derive the return (ADR-0011).
-- `@komyuter/shared` owns `fareCalculator` and the canonical types — never reimplement fare or types.
-- Strict TS via `@repo/typescript-config`; single root ESLint flat config; prettier `format:check`.
-- Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server typecheck`, `pnpm --filter server test`.
-
----
+1. **`[lng, lat]` coordinate order everywhere** — GeoJSON, PostGIS `ST_MakePoint`, MapLibre. There is **no conversion layer** (ADR-0013 superseded the old Leaflet exception). A swapped pair puts stops in the ocean.
+2. **No ETA anywhere** — navigation output is distances, fare, transfers, walk distance only (ADR-0009). The mapbox proxy strips `duration`.
+3. **Desktop-only** — the admin is a desktop app. Workspace width gates: right column hides below 1024 px viewport; the map keeps a ≥400 px floor (`WORKSPACE_GEOMETRY.minMapWidth`).
+4. **One persistent MapLibre instance** — the map never unmounts or re-creates while the app runs (ADR-0013).
+5. **Floating plates over a full-bleed map** — the left/right columns and the action bar are plates that float over the basemap; there is no solid header above the map (ADR-0015).
+6. **Strict TypeScript, single root ESLint flat config** — extend `@repo/typescript-config`; never recreate per-package lint configs.
+7. **API envelope** `{ success, data | error }` and `error` codes from `apps/server/src/api/errors.ts` — every admin call goes through `lib/api.ts`, which unwraps the envelope.
+8. **Server is the authority** — the admin never computes its own fare or geometry truth that the server would disagree with (except ephemeral UI state like drafts and pending snap).
 
 ## 3. Technology stack
 
-### Frontend (`apps/admin`)
+| Layer             | Choice                                                                     | Notes                                                                        |
+| ----------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Framework         | React 18 + Vite 5 + TypeScript (strict)                                    | `apps/admin`, turbo-pipelined at root                                        |
+| Router            | react-router v7 (declarative mode)                                         | `app/router.tsx`                                                             |
+| Server state      | @tanstack/react-query v5                                                   | `useRoutesQuery`, `useRouteQuery`, `useDirectionQuery`, fare/network queries |
+| UI primitives     | @base-ui/react                                                             | Menus, dialogs, dropdowns — headless, Route-Sign styled                      |
+| Styling           | Tailwind CSS + `class-variance-authority` + `clsx`/`tailwind-merge` (`cn`) | tokens in `index.css` (oklch, Appendix E)                                    |
+| Icons             | lucide-react                                                               |                                                                              |
+| Map               | **maplibre-gl + react-map-gl v8** (ADR-0013)                               | one instance; vector styles from **OpenFreeMap** (OSM data, keyless)         |
+| Tiles             | `lib/tiles.ts` — OpenFreeMap `bright` / `positron` / `liberty` styles      | no Mapbox token for tiles                                                    |
+| Road snapping     | Mapbox Directions **via server proxy**                                     | `GET /api/admin/mapbox/directions`; duration stripped                        |
+| POI search        | **client-side Nominatim** (`lib/poiSearch.ts`)                             | Mapbox Geocoding proxy is a planned swap (§6 R4)                             |
+| Forms             | controlled React state + local validation                                  | fare + route/stop editors; no form library                                   |
+| Reorder           | native HTML5 drag-and-drop                                                 | stop reorder in the edit column; no dnd-kit                                  |
+| Keyboard          | react-hotkeys-hook                                                         | `mod+z` / `mod+shift+z`, `Esc`, `mod+s`                                      |
+| Toasts            | sonner                                                                     |                                                                              |
+| Client store      | zustand                                                                    | `plottingStore`, `uiStore` (sidebar mode)                                    |
+| HTTP              | axios                                                                      | envelope unwrap, token header, session expiry, connection banner             |
+| State persistence | localStorage                                                               | admin session token + route **drafts** (24 h TTL)                            |
+| Tests             | Vitest (node env, no jsdom)                                                | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
+| Build             | `tsc && vite build`                                                        |                                                                              |
 
-| Concern       | Choice                                                                                                      | Notes                                                                                                    |
-| ------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Framework     | React 18.3 + Vite 5 + TypeScript 5.5 (strict)                                                               | `@repo/typescript-config/vite.json`                                                                      |
-| Routing       | `react-router-dom` 6                                                                                        | `/login`, `/` (Overview), `/routes` → workspace, `/routes/:routeId` → workspace, `/fares`, `/export`     |
-| Data fetching | `@tanstack/react-query` 5                                                                                   | query hooks in `features/*/use*Queries.ts`; keys in `lib/queryKeys.ts`                                   |
-| API client    | `axios` via `lib/api.ts`                                                                                    | envelope-aware, Bearer token, connection-banner + unauthorized handling                                  |
-| Auth          | Backend-proxied: `features/auth/api.ts` → `POST /api/auth/login` + `GET /api/auth/me` on the Fastify server | Supabase Auth behind the server (ADR-0006), no DIY JWT; Bearer token kept in localStorage (`lib/api.ts`) |
-| Map           | **MapLibre GL JS** via `react-map-gl` (maplibre entry)                                                      | Vector tiles when `MAPBOX_PUBLIC_TOKEN` set; falls back to OSM raster tiles (`lib/tiles.ts`)             |
-| Geocoder      | **Mapbox Geocoding API**, proxied server-side                                                               | small search-input component calling `/api/admin/mapbox/geocode`                                         |
-| Road snapping | **Mapbox Directions API** (`driving`), proxied server-side                                                  | `/api/admin/mapbox/directions`; full-path snap preview (ADR-0013)                                        |
-| State (UI)    | `zustand`                                                                                                   | `lib/uiStore.ts` (nav rail toggle)                                                                       |
-| Forms/UI      | `@base-ui/react` wrapped in `components/ui/*` (shadcn-style), `cva`/`clsx`/`tailwind-merge`                 | Route Sign grammar: ≤4px corners, no shadows, amber only for attention (no pill shapes)                  |
-| Styling       | Tailwind CSS 4 + `@tailwindcss/postcss`                                                                     | brand tokens in the CSS entry                                                                            |
-| Icons         | `lucide-react`                                                                                              |                                                                                                          |
-| Toasts        | `sonner`                                                                                                    | toast helper wraps every mutation                                                                        |
-| Drag reorder  | `@dnd-kit/core` + `@dnd-kit/sortable`                                                                       | stop reorder                                                                                             |
-| Hotkeys       | `react-hotkeys-hook`                                                                                        | `mod+s` save, `mod+z` undo snap, `1`/`2` focus direction, `Tab` cycle stops                              |
-| Drafts        | localStorage, 24h TTL, debounced                                                                            | draft helper + restore banner                                                                            |
-| Tests         | Vitest (`pnpm --filter admin test`)                                                                         | unit tests in `apps/admin/src/tests/`                                                                    |
-| Fonts         | Nunito (display) + Geist (body)                                                                             |                                                                                                          |
+**Server surface (what the dashboard talks to):**
 
-### Backend surface the admin uses (`apps/server`)
+- Fastify v5 + `@fastify/type-provider-zod`, drizzle-orm on Postgres/PostGIS, Supabase Auth for the admin account.
+- Auth: `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout` (outside the admin guard) — see Appendix G.
+- Admin CRUD: routes (hard delete), directions/stops/detours/restrictions (soft delete via `is_active`), fare configs (soft deactivate + guards), dataset export, mapbox directions proxy.
+- Envelope + error codes everywhere; origin guard (`ADMIN_ORIGINS`), login throttle (account + source blocks), security-events audit trail.
+- Env vars (`apps/server/src/config/env.ts`): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `PORT` (default 3000), `MAPBOX_SECRET_TOKEN` (optional — directions proxy falls back to mock), `ALLOW_DEV_CREDENTIAL` (default false), `ADMIN_ORIGINS`.
 
-- Fastify v5, `@fastify/type-provider-zod`, drizzle-orm against Postgres/PostGIS, Supabase Auth guard.
-- `buildApp({ db, supabase })` with `AppDeps`/`AppInstance` types in `src/api/app.ts`.
-- Routes registered under `/api/admin/*`; admin auth guard on all admin CRUD.
-- Envelope `{ success, data | error }`; error codes: `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `CONFLICT`, `INTERNAL`.
-- Geometry read/write via `src/db/queries.ts` (`ST_GeomFromGeoJSON` / `ST_AsGeoJSON`); validation in `src/domain/validation.ts`; dataset export in `src/domain/export.ts`.
-- **Mapbox proxy** (ADR-0013): `/api/admin/mapbox/*` endpoints forward Directions / Geocoding (and future Matching) to Mapbox using the server-side secret token, strip `duration` (ADR-0009), and keep the admin auth guard + envelope. Missing token → mock straight-line for snapping, empty for geocoding, with a logged warning.
+**Admin env:** `VITE_API_URL` (axios base; the Vite build injects a CSP for this origin — specs/009).
 
-### Shared (`packages/shared`)
+## 4. Data model
 
-- `types/domain.ts` — `Route`, `Direction`, `Stop` (type: `terminal|major_stop|waiting_area`), `NotableStop`, `Detour`, `Restriction` (reason: `no_stopping_zone|contraflow|pedestrian_hostile`; affects: `boarding|alighting|both`), `FareConfiguration`.
-- `types/geometry.ts` — `CoordinatePair = [number, number]` (`[lng, lat]`), `GeoPoint`, `GeoLineString`.
-- `schemas/domain.ts` — zod schemas mirroring the types (`routeIdSchema` = lowercase slug).
-- `fareCalculator` (`calculateFare`, `applyDiscount`) — the LTFRB formula, single source.
+Full zod schemas live in `@komyuter/shared` (`schemas/domain.ts`) and the drizzle tables in `apps/server/src/db/schema.ts`. Summary:
 
----
+### 4.1 Entities
 
-## 4. Data model (inlined)
+| Entity              | Key fields                                                                                                                                                                                           | Notes                                                                                                                                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Route`             | `route_id` (slug), `name`, `short_name`, `color \| null`, `is_active`, `fare_config_id \| null`                                                                                                      | one route = two directions (base + return). **Delete = hard cascade**                                                                                                  |
+| `Direction`         | `direction_id`, `route_id`, `label`, `base_polyline` (LineString), `origin_stop_id \| null`, `destination_stop_id \| null`                                                                           | DB row also carries `direction_kind` (`base`/`return`) to order loading; return is auto-derived (ADR-0011), never hand-drawn                                           |
+| `Stop`              | `stop_id`, `direction_id`, `stop_order`, `name`, `type` (`terminal` / `major_stop` / `waiting_area`), `location` (Point), `is_guaranteed_service`, `ar_marker_enabled`, `landmark_hint`, `notes`     | soft delete via `is_active`; terminal rows are guarded (409 on delete)                                                                                                 |
+| `Detour`            | `detour_id`, `direction_id`, `label`, `entry` (Point), `exit` (Point), `detour_polyline` (LineString), `additional_distance_meters`, `commuter_instruction`, `driver_instruction`, `notable_stops[]` | ADR-0008 replacement model — geometry entry/exit points + notable stops, NOT stop-id nesting. **UI not yet built — see §5.10, §6**                                     |
+| `Restriction`       | `restriction_id`, `direction_id`, `from_coord_index`, `to_coord_index`, `reason` (`no_stopping_zone` / `contraflow` / `pedestrian_hostile`), `affects`, `note`                                       | a restriction is a **coordinate-index range** into the base polyline; `affects = boarding \| alighting \| both` (**no-stop segment** = `both`). Data-ready, UI unbuilt |
+| `FareConfiguration` | `fare_config_id`, `label`, `base_fare`, `base_distance_km`, `rate_per_km`, `student_discount_pct`, `senior_discount_pct`, `is_default`                                                               | exactly one default at a time (server-enforced); DB row also has `is_active` (soft deactivate)                                                                         |
 
-### Entities
+### 4.2 Validation rules (`apps/server/src/domain/validation.ts`)
 
-| Entity                | Key fields                                                                                                                                                                                                                                                                      | Notes                                                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **Route**             | `route_id` (slug), `name`, `short_name`, `color`, `is_active`, `fare_config_id`, timestamps                                                                                                                                                                                     | The list rows + editing target.                                                                                            |
-| **Direction**         | `direction_id`, `route_id`, `label`, `base_polyline` (LineString), `origin_stop_id`, `destination_stop_id`, `is_active`                                                                                                                                                         | Two per Route; admin plots one base path and the return is auto-derived (ADR-0011).                                        |
-| **Stop**              | `stop_id`, `direction_id`, `name`, `stop_order` (unique per direction), `type`, `location` (Point), `is_guaranteed_service`, `ar_marker_enabled`, `landmark_hint`, `notes`, `is_active`                                                                                         | Chronological order; connected to the polyline. `Terminals` layer = `type="terminal"`.                                     |
-| **Detour**            | `detour_id`, `direction_id`, `label`, `entry` (Point), `exit` (Point), `detour_polyline` (LineString), `additional_distance_meters`, `commuter_instruction`, `driver_instruction`, `notable_stops`, `is_active`, **`active_timeframes`** (new), **`condition`** (new, optional) | Nested under the parent route; created by start-stop/end-stop with auto-snapped polyline. Conditional triggers (ADR-0012). |
-| **Restriction**       | `restriction_id`, `direction_id`, `from_coord_index`, `to_coord_index`, `reason`, `affects`, `note`, `is_active`                                                                                                                                                                | Index range on the polyline. No-stop segments reuse it with `affects = both`.                                              |
-| **FareConfiguration** | `fare_config_id`, `label`, `base_fare`, `base_distance_km`, `rate_per_km`, `student_discount_pct`, `senior_discount_pct`, `is_default`, `is_active`                                                                                                                             | The fare type label on each route row.                                                                                     |
+- `route_id` is a **lowercase slug** (`^[a-z0-9]+(?:-[a-z0-9]+)*$`); route `name` and `short_name` required.
+- Direction: `pathEndsOnStops` and `pathCoversStops` — the polyline must start/end on the first/last stop and pass every stop; `label` required.
+- Stops: `name` required; `location` a `[lng, lat]` pair; `type` from the enum (`terminal` / `major_stop` / `waiting_area`); at least 2 stops to save a direction.
+- Closed loops are legal (start == end stop).
+- Numeric columns (fares, distances) are **string mode** in drizzle — handlers `Number()` them.
 
-### Relationships
+### 4.3 Client-only state (never persisted server-side)
 
-- `Route 1──* Direction` (exactly two per route; return auto-derived — ADR-0011).
-- `Direction 1──* Stop` (ordered by `stop_order`, unique per direction).
-- `Direction 1──* Detour` (direction-scoped; "nested under the parent route" is the UI structure, not a new relation).
-- `Direction 1──* Restriction` (index ranges into the direction's `base_polyline`).
-- `Route *──1 FareConfiguration` (via `fare_config_id`).
-
-### Validation rules
-
-- Route code is a lowercase slug.
-- A plotted route **must start on a stop and end on a stop**; may end on the start stop (a loop).
-- Stops are connected to the polyline (not floating points).
-- Detour entry/exit map to selected stops; the detour polyline must have ≥ 2 snapped points.
-- Detour conditional triggers: `active_timeframes` must be well-formed (day indices 0–6, valid `HH:MM` windows); invalid triggers are rejected and not persisted.
-- Restriction indices refer to the current polyline; a stale range degrades gracefully and can be re-selected.
-
-### Client-only workspace state (not persisted)
-
-- **Selection** (none / stop / detour-stop / polyline) — drives the properties panel.
-- **Active tool** (plot / add-alternative / add-restriction / select).
-- **Plotting mode** (Automatic / Manual).
-- **Undo/redo history**.
-- **Layer visibility** (Stops / Terminals / Routes).
-- **Working polyline** (draft) — persisted in localStorage, 24h TTL.
-- **Snap state** (pending preview).
-- **List filters** (status / fare type).
-
----
+- **Drafts** — in-progress plotted stops for a route, saved to `localStorage` (`komyuter.draft.*`, 24 h TTL).
+- **Undo/redo history** — in-memory, per editing session.
+- **Virtual snap state** — pending/auto-committed snap results; never sent as data, only as `GET .../mapbox/directions` requests.
+- POI search results, map viewport/perspective, layer toggles — zustand UI state.
 
 ## 5. What's implemented today
 
-### 5.1 Overview page (`/`, `routes/Overview.tsx` + `features/network/NetworkMap.tsx`)
+### 5.1 App shell & auth
 
-- Map-first page: full-bleed `NetworkMap` (all route polylines + circle-marker stops), hover dimming of non-selected routes, click-to-open a route, a "counts plate" overlay (routes/directions/stops/active).
-- `NetworkMap` consumes `lib/tiles.ts` (OSM Standard) and `features/network/networkApi.ts` (`GET /api/admin/network`).
+- **`/login`** — `AuthForm` with brand panel. Calls `POST /api/auth/login`; on success stores `access_token` in `localStorage` (`komyuter.admin.token`) and redirects to the saved return path.
+- **`RequireAuth`** — blocks the four app sections while unauthenticated; on boot calls `GET /api/auth/me` to re-validate the token. A `401` anywhere clears the token, records the intended path (`getReturnPath`/`saveReturnPath`), and redirects with a "Your session expired" flag.
+- **`AppShell`** — skip-to-content link, `ConnectionBanner` (shows when the API is unreachable), `NavRail` (Overview / Routes / Fares / Export; expanded ↔ collapsed ↔ hover via `uiStore.sidebarMode`), `Header` (section title + user menu + sign-out → `POST /api/auth/logout`, global revocation).
+- `app.tsx` composition: `AuthProvider → QueryClientProvider → BrowserRouter → Toaster`.
+- Server side of auth: unified denial message, ~250 ms fake delay, account-block after 5 failed attempts, source-IP block, `ALLOW_DEV_CREDENTIAL` dev gate, origin guard, security-events audit.
 
-### 5.2 Routes list → consolidated into the workspace
+### 5.2 The Route Workspace — core surface (`pages/RouteWorkspace.tsx`)
 
-- The standalone `/routes` page is **redirected into the Route Workspace** (single surface).
-- `features/routes/RouteList.tsx` is a compact presentational list: search input + filter icon (status popover), a **New route** button, rows showing name / code / status / fare-type badge, and per-row **Edit** + **More** (context menu: Edit route, Edit name, Modify status, Delete route). Wired to `RouteForm`, route update, and route delete with confirm dialogs + toasts.
+The workspace is a **four-state machine** derived from (selection, draft):
 
-### 5.3 Route Workspace (`routes/RouteWorkspace.tsx`) — the core surface
+| State      | When                        | What you see                                                                                                                                           |
+| ---------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `empty`    | no route selected, no draft | left column list + **EmptyState veil** over the map (blurred basemap, guidance, **Create new route** + **Import JSON dataset** disabled "Coming soon") |
+| `overview` | route selected              | left column = **route list**; map = **RouteOverviewLayer** (all routes' polylines, fade-in, click = act); **no right column**                          |
+| `focus`    | route selected, not editing | map = single route polyline; right column = **FocusPlate** (read-only peek: "Edit route" button, "Plot route" button)                                  |
+| `edit`     | editing route/stops         | left column = **ordered stops list**; map = editable plotting surface; right column = **route/stop editors**                                           |
 
-3-part layout:
+- Layout: three fixed columns over a full-bleed map — left **256 px**, center transparent, right **336 px**, gutter 0 (12 px plate padding provides spacing), via a five-track grid (`workspace/WorkspaceColumns.tsx`, `WORKSPACE_GEOMETRY` in `workspace/geometry.ts`).
+- **NarrowWindowGate**: viewport < 1024 px or map width < 400 px renders a centered guidance plate instead of the workspace.
+- Data flows through `RouteWorkspaceProvider` (fetch route + directions + stops via react-query, drafts, save orchestration, conflict recovery) and `lib/plottingStore.ts` (zustand).
 
-- **Left sidebar (compact, `w-56`)**: when a route is active, shows the route's **ordered stops list** (`StopsEditor`) with an "All routes" back button; when no route is selected, shows the compact `RouteList`.
-- **Main content**: headerless map (`RouteMap`); no-route empty state (blurred map + guidance + Create new route / Import JSON dataset); centered **floating action bar** (Plot route / Add alternative route / Add restriction).
-- **Right sidebar**: contextual **properties panel** (`PropertiesPanel`) shown only when a stop, detour stop, or polyline is selected; renders the matching editor.
+### 5.3 Route list (overview) & stops (edit) — left column
 
-Key behaviors implemented:
+- **Overview variant** (`RouteList.tsx`): search input ("Search routes"), status filter (`SlidersHorizontal` — All / Active / Inactive), **New Route** button, then rows. Each row (`RouteRow.tsx`): name, Active/Inactive badge, direction count ("1 direction" / "Not plotted"), pencil (open/edit) and trash (delete → styled `AlertDialog` — hard delete warning). Skeleton + retry + empty states included.
+- **Edit variant**: back button, route name + short code + Active/Inactive badge + **Active switch**, then the ordered **stops list**: drag to reorder (native HTML5 DnD), "insert after" affordance on hover, closed-loop badge, delete per stop; empty-stops guidance when nothing is plotted.
 
-- **One-base-path plotting** (ADR-0011): single connected base path; on save the return Direction's polyline is auto-derived (reversed) and remains distinct + editable.
-- **Plot click auto-creates a stop**: clicking in plot mode places a stop (persisted when a direction is selected; materialized from the draft when the direction is created). Draft stops render as numbered markers during plotting.
-- **Full-path road snap with preview/Apply/Revert**: `RouteMap` routes the whole polyline via the proxied Mapbox Directions endpoint (`/api/admin/mapbox/directions`), draws a dashed preview, and the workspace commits or reverts — one-way detours explicit before committing (ADR-0013).
-- **Stops draggable anytime**; dragging persists the new position.
-- **Distinct stop-type shapes**: terminal = square, major stop = circle, waiting area = diamond.
-- **Detours**: created by picking a **start stop** and an **end stop**; the detour polyline is auto-snapped between them; nested under the parent route.
-- **Restrictions**: selected by a polyline portion, stored as index ranges.
-- **Drafts, confirm dialogs, toasts, navigation guards, snap preview/undo** all preserved.
-- **Geocoder** on the map search bar (Mapbox Geocoding via the proxy; OSM/Nominatim removed under ADR-0013).
+### 5.4 Plotting model: Select/Add, connections, snap, undo/redo, drafts, save
 
-### 5.4 Fares (`/fares`, `routes/Fares.tsx` + `features/fares/`)
+**Tool (`PlotActionBar` ToolToggle).** `Select` (default; click stop = select + fly) vs `Add` (every click places a stop; if a stop is already selected, the new stop is inserted after it). A placed stop gets a "focus" ring until deselected.
 
-- List + create/edit fare configurations; exactly-one-default enforcement; guarded fare-config delete.
+**Connections (`lib/connections.ts`).** In Add mode, every new stop is **connected to the previously placed stop** — a `from`/`to` pair. The polyline is derived from the chain of connections (`buildChainPath`). Stop reorder re-links connections; loop closure is allowed (FR-015). The chain model replaced the earlier "Automatic / Manual + Connect" design (FR-022/023/024 → superseded).
 
-### 5.5 Export (`/export`, `routes/Export.tsx` + export helper)
+**Snap (`lib/plottingStore.ts` + `mapbox` proxy).** After a stop is placed/dragged, the derived polyline is snapped through `GET /api/admin/mapbox/directions` (debounced 300 ms). A successful snap **auto-commits into undo history** (merged with the triggering edit) — no manual Apply/Revert (deliberate re-design of FR-013). The straight-line fallback is **never committed**; it renders dashed with a warning. Statuses: `idle | pending | applied | no_token | upstream_error`; warning copy lives in the store.
 
-- Downloads the full dataset as JSON from `GET /api/admin/export/dataset`.
+**Undo/redo (`lib/plottingHistory.ts`).** Five history kinds: `stop_placed`, `stop_deleted`, `stop_dragged`, `stop_props_changed`, `snap_applied`. Coalescing for drag/props; reorder and connection-link edits are outside history. Hotkeys `mod+z` / `mod+shift+z`; bar buttons.
 
-### 5.6 Auth & shell
+**Drafts (`lib/draft.ts`).** Editing state (stops, connections, tool) persists to `localStorage` (24 h TTL, 500 ms debounce). On revisit, a restore banner appears in the status slot ("Keep editing this draft?"). Saving/loading a route always reconciles against the server; a 409 (`version mismatch`) opens the styled **Load Latest** dialog that replaces the draft with server truth.
 
-- `App.tsx`: `AuthProvider` → `QueryClientProvider` → `BrowserRouter` (`AppRoutes`) → `Toaster`. No `ConnectionBanner` at root — it lives inside `AppShell`.
-- `RequireAuth` wraps the shell routes: unauthenticated → `<Navigate to="/login" state={{ returnTo }}>`; after sign-in `Login` redirects back via `getReturnPath` (deep-link return, SC-004).
-- `AppShell`: skip-to-content link (`#main-content`), `ConnectionBanner` (browser offline, SC-006), `NavRail` (collapsible Overview/Routes/Fares/Export; three modes expanded/collapsed/hover via `lib/uiStore.ts`), `Header` (page title + user menu with sign-out).
-- Sign-in flow (`components/auth/AuthForm`): calls backend `POST /api/auth/login`; on 401 shows a non-technical inline error + toast; success toast "Signed in" fired from `Login`. Session token stored in `localStorage` by `lib/api.ts`; `/me` re-validates on boot (ADR-0006, backend-proxied — no `supabase-js` in the admin app).
-- Accessibility (WCAG AA, FR-013): visible focus rings on every control (brand `--ring` color ≥3:1), skip link, keyboard-operable menus (Base UI), WCAG AA token contrast. Validated with an automated axe scan (0 violations) and a numeric contrast audit of the token palette (text ≥4.5:1, focus ≥3:1).
+**Save (`RouteWorkspaceProvider`).** Save is **atomic** — `saveDirection` (`POST /api/admin/routes/:routeId/directions`) creates the base direction (label + base polyline + stops + origin/destination stop ids) and derives the return in one transaction; `replaceDirection` (`PUT /api/admin/directions/:directionId`) replaces and re-derives. Guards before save: ≥ 2 stops, polyline exists, `pathEndsOnStops`, `pathCoversStops`, sequence-consistent. The auto-generated label is "To <last stop>" (FR-012). `saveAll` = plot save + route meta patch + `requestFit` + "Saved just now" toast. Navigation is guarded with a patched `pushState` + `beforeunload`; styled `LeaveConfirm` / `LoadLatest` / `NavConfirm` / `NewRoute` dialogs replace `window.confirm` (FR-007/FR-020).
 
-### 5.7 Pure helpers (tested)
+### 5.5 Properties panel — right column (`features/routes/properties/`)
 
-- Coordinate helpers: pure `[lng,lat]` utilities incl. `nearestCoordIndex` (restriction picking). The Leaflet `[lat,lng]` converters were removed under ADR-0013 (MapLibre uses `[lng,lat]` natively).
-- Selection→properties-panel tool mapping (pure).
-- Stop-type→shape mapping (pure).
-- Tile config (`lib/tiles.ts`): Mapbox vector tiles when token present, OSM raster fallback.
-- Draft helper, API client, toast helper, query keys, UI store, `cn` util.
+- **FocusPlate** (focus state): read-only peek — name, code, color chip, active badge, direction count; "Edit route" and "Plot route" buttons. Never enters edit mode.
+- **RouteGroup** (edit): route name, short code, color swatch.
+- **StopGroup / StopEditor**: name, type select (`terminal` / `major_stop` / `waiting_area`), editable `[lng, lat]` inputs, **Connected from/to** dropdowns (the manual rewire affordance that replaced the old "Connect" action — FR-024 superseded; closed loops wrap around), guaranteed-service switch (hidden for `waiting_area`), landmark hint, notes.
 
----
+### 5.6 Status bar, POI search, action bar, layers, empty state
 
-## 6. Re-planned scope — the target state for the rebuild
+- **`StatusBar`** (floating plate, bottom-center over the map): save lifecycle ("Saved just now" transient / "Saving…" / "Unsaved changes") **plus one contextual notice at a time** — priority: conflict > draft restore > draft restored.
+- **`PoiSearchBar`** (floating pill, top-center): **client-side Nominatim** (`lib/poiSearch.ts`, 350 ms debounce, ≥ 3 chars, `buildNominatimUrl`/`parseNominatimResults`), result dropdown, "fly to + place stop at POI" (in Add tool). No Mapbox geocode today — R4.
+- **`PlotActionBar`** (floating, left edge): ToolToggle ("Select stops" / "Add stops"), Undo/Redo, **LayerToggles**:
+  - Basemap style radio (**Default** / **Minimalist** / **3D** → OpenFreeMap `bright` / `positron` / `liberty`) + opacity slider;
+  - per-stop-type **marker checkboxes** (terminal, major stop, waiting area) + "Stop names" label toggle;
+  - **Route visibility** switch.
+- **`EmptyState`** veil: blurred basemap, "Plan the route" guidance, **Create new route** (focused), **Import JSON dataset** (disabled — "Coming soon" placeholder, FR-019).
+- **`RouteMap`** (`features/routes/RouteMap.tsx` + `map/`): one persistent MapLibre instance; hover dimming; `RouteOverviewLayer` (overview), `RouteLines` (base/return/draft), stop shapes (terminal = square, major stop = circle, waiting area = amber diamond — selection is **never color-only**), fit-to-route, perspective controller (3D tilt), selection panner; `z-` stack constants in `map/constants.ts`.
 
-This is the intended end-state. Implement all of it on the rebuild.
+### 5.7 Fares (`pages/Fares.tsx` + `features/fares/`)
 
-### 6.1 Smart route plotting — dual modes + snap + undo/redo
+- `FareConfigTable` — list of fare configs: name, base fare, base distance, rate per km, default badge, active state.
+- `FareConfigForm` — create/edit with local validation (`validation.ts`: name/base/rate > 0, base distance ≥ 0, **exactly one default** enforced — `validateDefaultUnset`); currency formatting in `format.ts`.
+- `DeleteFareConfigDialog` — styled confirm; server guards (cannot deactivate/delete a fare config that would leave no default, or one still in use by active routes).
+- Server: full CRUD in `api/fare-configs.ts`, default enforcement + guards, react-query keys in `features/fares/queries.ts`.
 
-- **UI toggle** selecting **Automatic** (click → stop + instant road-snapped connecting line) or **Manual** (drop all stops first, then a **Connect** action links them in placement order into the route loop).
-- **Full-path snap with preview/Apply/Revert** (already implemented).
-- **Undo/Redo** for stop placement, deletions, and snap applications.
-- Route must start/end on a stop (loop allowed).
+### 5.8 Export (`pages/Export.tsx`)
 
-### 6.2 Layered workspace
+- **Placeholder** — "Nothing to export yet — dataset export arrives in a later milestone."
+- The **server endpoint is complete** (`GET /api/admin/export/dataset`, assembled in `apps/server/src/domain/export.ts` — routes, directions, stops, detours, restrictions, fare configs). Wiring the UI is R7.
 
-- Independent **Stops**, **Terminals**, and **Routes** map layers, each with a visibility toggle.
-- **Terminals is a sub-filter of Stops** by `type = "terminal"` — no new data.
-- Client-side visibility only.
+### 5.9 Overview (`pages/Overview.tsx`)
 
-### 6.3 Detour conditional triggers — SERVER WORK
+- **Placeholder** — "Welcome to the network — Overview will show every route, direction, and stop across Iloilo. Route plotting arrives in a later milestone." A `NetworkMap`/network stats page is R6. (The read-only per-route overview you see in the workspace is `RouteOverviewLayer`, which is implemented.)
 
-- `Detour` gains `active_timeframes?: ActiveTimeframe[]` and `condition?: string | null`.
-- `ActiveTimeframe = { days: number[] (0–6), start_time: "HH:MM", end_time: "HH:MM" }`.
-- Validation in `@komyuter/shared` (single source); admin API create/update/read; server-side **active-detour resolution** at request time (apply ADR-0008 replacement for active detours).
-- **Never** emit travel-time estimates (ADR-0009).
+### 5.10 Detours & restrictions — backend complete, UI planned
 
-### 6.4 No-stop loading/unloading segments
+- **Server:** full CRUD for both (`api/detours.ts`, `api/restrictions.ts`) against the local Supabase stack; zod schemas in `@komyuter/shared`; soft delete. **Detour** = entry/exit points + detour polyline + instructions + notable stops (ADR-0008); **Restriction** = a coordinate-index range of the base polyline with a `reason` (`no_stopping_zone` / `contraflow` / `pedestrian_hostile`) and `affects` (`boarding | alighting | both`).
+- **Admin UI: none.** There is no "Add alternative route", no "Add restriction", no detour/restriction editor in the workspace. This is roadmap **R1** (data + API ready).
+- **Conditional triggers** (`active_timeframes` / `condition`) are **not in the shared types or server** — that is roadmap **R2** (ADR-0012).
 
-- Reuse the **Restriction** entity with `affects = both`. No new entity.
+### 5.11 Pure helpers & tests
 
-### 6.5 Explicitly out of scope
+Pure logic lives in `lib/` and is unit-tested: `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
 
-- **Vehicle-specific restricted zones** and **multi-vehicle-type routing** (dropped).
-- **Predictive travel-time adjustment / ETA** (dropped; ADR-0009 retained).
+**Tests:** 21 Vitest suites in `apps/admin/src/tests` (node env). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
 
----
+## 6. Roadmap — planned & upcoming
 
-## 7. Functional Requirements (FR-001 … FR-029)
+Everything below is **not yet implemented**. It is the documented intent so the team has a roadmap.
 
-- **FR-001**: The Route Workspace MUST present a 3-part layout: a compact left sidebar (route list), the main map editor, and a right-side properties panel.
-- **FR-002**: The left sidebar MUST be compact (narrower than the current route workspace sidebar).
-- **FR-003**: The left sidebar header MUST be a row containing a search bar and a filter icon on the right, with a "New route" button directly below it; the card-style header UI on route edit MUST be removed.
-- **FR-004**: Below the left sidebar header, the full list of routes MUST be shown; each route row MUST display route name, route code, status, and fare type.
-- **FR-005**: Each route row MUST offer **Edit** and **More** actions; the **More** context menu MUST offer _Edit route_, _Edit name_, _Modify status_, and _Delete route_.
-- **FR-006**: The map route editor MUST have no header bar above the map (the map fills the main column).
-- **FR-007**: When no route is selected, the main content MUST show a blurred map background with guidance text ("Pick a route from the list, or create a new one to plot stops and configure a distance-based fare matrix.") and buttons **Create new route** and **Import a JSON dataset**.
-- **FR-008**: When there is no active route to edit, the right sidebar MUST be completely hidden.
-- **FR-009**: The right sidebar MUST be a contextual properties panel that appears only when an element (stop, detour stop, or polyline route) is active for editing and MUST show the tools appropriate to that element.
-- **FR-010**: A floating action bar centered below the map MUST provide: **Plot route** (adding stops), **Add alternative route** (start at an existing stop, end at another existing stop), and **Add restriction** (select a portion of the polyline route).
-- **FR-011**: Stops MUST be shown in the chronological order the administrator placed them (editable order preserved).
-- **FR-012**: Each stop MUST be connected to the polyline route (not a floating point).
-- **FR-013**: The polyline MUST snap to the road network as a **full-path route** (respecting one-ways), shown as a preview with **Apply/Revert**; no separate manual re-snap step remains.
-- **FR-014**: The bidirectional base-path plot flow MUST be removed; the administrator plots the route as a single connected base path, and the return direction's polyline MUST be auto-derived from it and remain a distinct, freely editable Direction (ADR-0011).
-- **FR-015**: The route MUST start on a stop and MUST end on a stop; it MAY end on the starting stop (a loop).
-- **FR-016**: Alternate routes (detours) MUST be nested under the parent route in the workspace structure; an alternate route MUST be created by selecting a start stop (entry) and an end stop (exit), with its polyline auto-snapped between them (no hand-typed coordinates).
-- **FR-017**: Different stop types MUST have unique visual indicators (different shapes).
-- **FR-018**: Alternate (detour) routes MUST have a distinct visual style from the base route path.
-- **FR-019**: The **Import a JSON dataset** button MUST be present in the empty state and MUST show a validation placeholder ("coming soon") when used; the actual import capability is out of scope.
-- **FR-020**: All existing safety behaviors MUST be preserved: confirm dialogs on destructive/status changes, success/error toasts on mutations, draft persistence and navigation guards, and snap preview/undo.
-- **FR-021**: The design MUST follow the established visual language (pill shapes, cerulean/amber meanings, pure white ground, no state conveyed by color alone).
-- **FR-022**: The administrator MUST be able to choose between **Automatic** and **Manual** plotting modes via a UI toggle.
-- **FR-023**: In **Automatic** mode, each placed stop MUST immediately draw a road-snapped connecting line from the previous stop.
-- **FR-024**: In **Manual** mode, placed stops MUST show no connecting lines until a **Connect** action links them in placement order into the route loop.
-- **FR-025**: The workspace MUST provide **Undo/Redo** for recent actions (stop placement, deletions, snap applications) across both plotting modes.
-- **FR-026**: The map MUST expose independent **Stops**, **Terminals**, and **Routes** layers, each with a visibility toggle; **Terminals** MUST be a sub-filter of Stops by `type = "terminal"`.
-- **FR-027**: A detour MUST support **conditional triggers** (timeframes/conditions) that define when it is active; the trigger MUST be persisted via the API and returned on read (server work required).
-- **FR-028**: No-stop loading/unloading segments MUST be marked by selecting a portion of the polyline and MUST be stored using the existing **Restriction** entity with `affects = both`.
-- **FR-029**: Conditional detour triggers MUST affect only which path is used (ADR-0008); the system MUST NOT display travel-time estimates (ADR-0009).
+| ID     | Item                                                                                                                                                                                                                                                                                                                                                                                               | Status / dependency                            |
+| ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| **R1** | **Detour & restriction editing UI** in the workspace — "Add alternative route" and "Add restriction" actions (FR-010), detour editor with entry/exit points + instructions + notable stops (ADR-0008), restriction editor marking a polyline index range with reason + affects, auto-snapped detour geometry, distinct detour visual style (FR-016/FR-018). Data layer + server CRUD are **ready** | blocked on admin UI work only                  |
+| **R2** | **Detour conditional triggers** — `active_timeframes` + `condition` on `Detour` (ADR-0012), added to shared types/schemas and `api/detours.ts`, plus **server-side active-detour resolution** at request time; triggers affect the path only (FR-027/FR-029)                                                                                                                                       | server + shared work                           |
+| **R3** | **No-stop loading/unloading segments** — surface `Restriction.affects = both` (+ `reason = no_stopping_zone`) in the UI: select a polyline index range of a direction and mark it no-stop for boarding/alighting/both (FR-028)                                                                                                                                                                     | builds on R1; data/API ready                   |
+| **R4** | **Mapbox Geocoding proxy** — replace client-side Nominatim with `/api/admin/mapbox/geocode` behind the same token/strip pattern as directions; keep the debounced pill UX                                                                                                                                                                                                                          | server + admin                                 |
+| **R5** | **Shared fare calculator** — extract the LTFRB fare rule into `@komyuter/shared` (`fareCalculator`, ADR-0001) and consume it from the admin fare validators + the mobile app; today the rule exists only in admin `features/fares/format.ts`/`validation.ts` and the mobile side (Appendix D)                                                                                                      | refactor                                       |
+| **R6** | **Overview / network page** — replace `pages/Overview.tsx` placeholder with a read-only network map (all routes) + stats                                                                                                                                                                                                                                                                           | new UI; `/routes/overview` data already exists |
+| **R7** | **Export UI** — wire `pages/Export.tsx` to `GET /api/admin/export/dataset` (download + maybe copy-to-clipboard JSON)                                                                                                                                                                                                                                                                               | endpoint ready                                 |
+| **R8** | **Dataset import** — replace the disabled "Import JSON dataset" placeholder in the empty state with a real import flow (validation + dry-run preview)                                                                                                                                                                                                                                              | later                                          |
 
----
+**Superseded (no longer planned as specified):**
 
-## 8. Success Criteria (SC-001 … SC-019)
+- **Automatic/Manual plotting modes + Connect action (FR-022/023/024)** — replaced by the single-mode chain model: Select/Add tool + consecutive-stop connections + manual rewire via "Connected from/to" (FR-012 FR text updated). This is now the intended design.
+- **Mapbox vector tiles / OSM raster** — tiles are OpenFreeMap vector styles, keyless (ADR-0013, `lib/tiles.ts`).
+- **Apply/Revert buttons on snap preview (old FR-013 shape)** — snap auto-commits; the old doc's step-by-step Apply/Revert flow was replaced.
 
-- **SC-001**: 100% of reviewers (≥ 5) can find a specific route by name or code using search and open it in the editor without guidance.
-- **SC-002**: 100% of route rows display route name, route code, status, and fare type simultaneously.
-- **SC-003**: 100% of reviewers can perform all four **More** context-menu actions (Edit route, Edit name, Modify status, Delete route) without guidance.
-- **SC-004**: With no route selected, the right sidebar is hidden; with a stop, detour stop, or polyline selected, the right sidebar appears with the matching tools — confirmed by 100% of reviewers.
-- **SC-005**: 100% of reviewers correctly understand the no-route empty state (blurred map, guidance text, Create new route / Import JSON dataset buttons) and can trigger both buttons.
-- **SC-006**: The map editor displays with no header bar, a centered floating action bar with all three actions, and the Stops/Terminals/Routes layer toggles — confirmed by 100% of reviewers.
-- **SC-007**: 100% of reviewers can plot a multi-stop route and confirm the stops appear in the chronological order they placed them, with the route starting on a stop and ending on a stop (a loop ending on the start stop is allowed).
-- **SC-008**: 100% of reviewers confirm the plotted polyline follows the road network via a full-path snap preview they can Apply or Revert.
-- **SC-009**: 100% of reviewers can create an alternate route by selecting a start stop and an end stop, and it appears nested under the parent route.
-- **SC-010**: 100% of reviewers can select a portion of a polyline and mark it as a no-stop loading/unloading segment (stored as a Restriction with `affects = both`).
-- **SC-011**: ≥ 5 reviewers correctly identify each stop type by its unique shape on the map.
-- **SC-012**: ≥ 5 reviewers can distinguish the alternate (detour) route from the base route path by visual style alone.
-- **SC-013**: Existing safety behaviors (confirm dialogs, toasts, draft persistence, snap undo) show no regression in the redesigned workspace.
-- **SC-014**: The **Import a JSON dataset** button is present in the empty state and shows a validation placeholder when used; no backend import is required.
-- **SC-015**: 100% of reviewers can switch between Automatic and Manual plotting modes and complete a route in each.
-- **SC-016**: 100% of reviewers can use Undo and Redo to reverse and reapply a stop placement, deletion, and snap application without starting over.
-- **SC-017**: 100% of reviewers can toggle each of the Stops, Terminals, and Routes layers and confirm only that layer's data is shown/hidden.
-- **SC-018**: 100% of reviewers can set a conditional trigger on a detour in the properties panel; a round-trip through the API persists and returns the trigger.
-- **SC-019**: No displayed travel-time estimate is introduced anywhere (ADR-0009 regression guard).
+**Out of scope (per ADR-0012/ADR-0009):** vehicle-specific restricted zones, multi-vehicle routing, ETA anywhere.
 
----
+## 7. Functional requirements (with status)
 
-## 9. Map stack decision (ADR-0013 — ACCEPTED)
+Status: ✅ implemented · 🟡 partial · 🚧 planned · ⛔ superseded. "Planned" items are detailed in §6.
 
-**Decision**: Split renderer/services architecture:
+| FR     | Requirement                                                                        | Status                                                                                                                                        |
+| ------ | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| FR-001 | Three-part layout: left sidebar, center map, right contextual panel                | ✅ — three-column four-state workspace (left 256 / map / right 336), ADR-0015                                                                 |
+| FR-002 | Compact left sidebar                                                               | ✅ — 256 px fixed Plate column                                                                                                                |
+| FR-003 | Sidebar header: search + filter + "New Route"                                      | ✅ — Search routes, status filter, New Route                                                                                                  |
+| FR-004 | Route rows show name, code, status, fare type                                      | 🟡 — name + Active/Inactive + direction count; short code in edit header; fare type not shown on rows                                         |
+| FR-005 | Row actions via Edit + More menu (Edit route / Edit name / Modify status / Delete) | ⛔ — replaced by inline pencil + trash (delete = styled confirm); status Active switch in edit header; name edited in right-column RouteGroup |
+| FR-006 | No header above the map                                                            | ✅                                                                                                                                            |
+| FR-007 | Empty state: blurred map, guidance, Create new route + Import JSON                 | ✅ — Import JSON disabled placeholder                                                                                                         |
+| FR-008 | Right sidebar hidden when no route is active                                       | ✅ — derived state hides it in empty/overview                                                                                                 |
+| FR-009 | Contextual properties panel                                                        | ✅ — FocusPlate / RouteGroup / StopGroup / StopEditor                                                                                         |
+| FR-010 | Floating action bar: Plot route / Add alternative route / Add restriction          | 🟡 — bar exists (tool + undo/redo + layers); detour/restriction actions are **R1**                                                            |
+| FR-011 | Stops in chronological order                                                       | ✅ — chain + reorder + insert-after                                                                                                           |
+| FR-012 | Stops connected to the polyline                                                    | ✅ — `pathCoversStops` / `pathEndsOnStops`; auto label "To <last stop>"                                                                       |
+| FR-013 | Full-path snap preview with Apply / Revert                                         | ✅ (re-designed) — debounced auto-commit snap; straight-line fallback never committed; warning states                                         |
+| FR-014 | One base path; return auto-derived                                                 | ✅ — ADR-0011, `domain/derive.ts`                                                                                                             |
+| FR-015 | Path starts/ends on a stop; closed loops allowed                                   | ✅                                                                                                                                            |
+| FR-016 | Detours nested in a direction, entry/exit points, auto-snapped                     | 🚧 — **R1**                                                                                                                                   |
+| FR-017 | Distinct stop shapes                                                               | ✅ — terminal square / major-stop circle / waiting-area amber diamond; selection never color-only                                             |
+| FR-018 | Detour distinct visual style                                                       | 🚧 — **R1**                                                                                                                                   |
+| FR-019 | Import JSON placeholder in empty state                                             | ✅ — disabled "Coming soon" (real import = **R8**)                                                                                            |
+| FR-020 | Safety behaviors (drafts, styled confirms, toasts, undo)                           | ✅                                                                                                                                            |
+| FR-021 | Design language: The Route Sign                                                    | ✅ — ≤4 px corners, no shadows, oklch tokens                                                                                                  |
+| FR-022 | Plotting-mode toggle (Automatic / Manual)                                          | ⛔ — superseded by single-mode chain model (Select/Add)                                                                                       |
+| FR-023 | Automatic mode: instant road-snapped line per click                                | 🟡 — folded into the chain model + debounced snap                                                                                             |
+| FR-024 | Manual mode: place all stops, then "Connect"                                       | ⛔ — rewire via StopEditor "Connected from/to"                                                                                                |
+| FR-025 | Undo / redo                                                                        | ✅ — 5 history kinds, coalescing, `mod+z`/`mod+shift+z`                                                                                       |
+| FR-026 | Layer toggles: Stops / Terminals / Routes                                          | ✅ — per-stop-type markers (incl. terminal), route visibility, basemap style/opacity, marker labels (shape differs from the trio spec)        |
+| FR-027 | Detour conditional triggers (server)                                               | 🚧 — **R2**, ADR-0012                                                                                                                         |
+| FR-028 | No-stop loading/unloading segments                                                 | 🚧 — **R3** (`Restriction.affects = both`, `reason = no_stopping_zone`; data/API ready)                                                       |
+| FR-029 | Triggers affect path only; no ETA                                                  | 🚧 — **R2/R3**; the no-ETA constraint already holds everywhere                                                                                |
 
-- **Map renderer**: **MapLibre GL JS** (open-source, BSD-3) via `react-map-gl` (maplibre entry), used in both dev and prod.
-- **Tiles**: Mapbox **vector tiles** when `MAPBOX_PUBLIC_TOKEN` is set; otherwise fall back to **OSM raster** tiles (`https://tile.openstreetmap.org/{z}/{x}/{y}.png`) with a "Dev Mode - No Mapbox Token" indicator.
-- **Road snapping**: Mapbox **Directions API** (`driving` profile), proxied server-side.
-- **Geocoding**: Mapbox **Geocoding API**, proxied server-side.
-- **Future map-matching**: Mapbox **Matching API**, server-side only (does NOT affect the renderer choice).
+## 8. Success criteria (with status)
 
-**Why**: Mapbox is already the de-facto standard across the product — the mobile app uses `@rnmapbox/maps` (Mapbox GL), and the backend/PostGIS use GeoJSON `[lng, lat]` which Mapbox natively consumes. This decision keeps the admin renderer open-source while aligning its _services_ with the vendor the rest of the product already uses.
+| SC     | Criterion                                                          | Status                                                          |
+| ------ | ------------------------------------------------------------------ | --------------------------------------------------------------- |
+| SC-001 | Admin finds any route by name or code                              | ✅ — search + status filter                                     |
+| SC-002 | Route rows show all four facts                                     | 🟡 — see FR-004                                                 |
+| SC-003 | Four row actions (Edit route / Edit name / Modify status / Delete) | 🟡 — inline pencil/trash + Active switch + RouteGroup name edit |
+| SC-004 | Right panel is contextual                                          | ✅                                                              |
+| SC-005 | Empty state is understood                                          | ✅                                                              |
+| SC-006 | Map editor: no header, action bar, all three actions               | 🟡 — bar present; two actions planned (**R1**)                  |
+| SC-007 | Multi-stop route, chronological, start/end on stop, loop OK        | ✅                                                              |
+| SC-008 | Full-path snap preview with Apply/Revert                           | ✅ — auto-commit variant (FR-013)                               |
+| SC-009 | Create a nested detour                                             | 🚧 — **R1**                                                     |
+| SC-010 | Create a no-stop segment                                           | 🚧 — **R3**                                                     |
+| SC-011 | Stop shapes differ by type                                         | ✅                                                              |
+| SC-012 | Detour visually distinct                                           | 🚧 — **R1**                                                     |
+| SC-013 | Safety-net regression: nothing lost on refresh/crash               | ✅ — drafts + undo + conflict recovery                          |
+| SC-014 | Import JSON placeholder present                                    | ✅ — **R8** for real import                                     |
+| SC-015 | Automatic/Manual switch visible                                    | ⛔ — superseded design                                          |
+| SC-016 | Undo/redo restores any edit                                        | ✅                                                              |
+| SC-017 | Layer toggles hide/show each layer                                 | ✅                                                              |
+| SC-018 | Conditional trigger round-trips server                             | 🚧 — **R2**                                                     |
+| SC-019 | No ETA anywhere                                                    | ✅ — duration stripped at proxy; none displayed                 |
 
-**Key constraints**:
+## 9. Map stack (ADR-0013 + today's reality)
 
-- All Mapbox API calls MUST be proxied through the Fastify backend (`/api/admin/mapbox/*`) using a **server-side secret token**; the browser token (tiles) is restrictively scoped to the admin domain.
-- `[lng, lat]` is the **sole** format in the admin UI — no conversion layer (supersedes ADR-0007's Leaflet rationale; the coordinate rule is retained/strengthened).
-- `duration` from Directions is **stripped at the proxy** — never displayed (ADR-0009).
-- Directions waypoint limit: 25 (`optimize=false`); longer routes chunk the preview request. Snap-preview calls are debounced 500ms; Map Matching is capped at 50/day/admin (soft).
-- **Dev fallback**: missing tokens → mock straight-line snapping + empty geocoding + logged warning, so `pnpm dev` works without a Mapbox account.
-- Supersedes ADR-0007 (the "no API key" justification); requires doc reconciliation in `AGENTS.md`, `CONTEXT.md`, `ADMIN.md`, and the constitution's spatial-constraints section.
+- **Renderer:** MapLibre GL via react-map-gl v8. **One persistent instance** for the app lifetime (created once in `MapProvider`).
+- **Tiles:** OpenFreeMap vector styles (`bright`, `positron`, `liberty`) — OSM data, **no key** (`lib/tiles.ts`). The old "Mapbox vector vs OSM raster" split is obsolete.
+- **Directions proxy:** `GET /api/admin/mapbox/directions` (server, `api/mapbox.ts`) — takes ordered `[lng, lat]` coordinates, returns `SnappedPath` (`polyline`, `distanceMeters`, `snapped`, `warning`). **Duration is stripped** (ADR-0009). Requires `MAPBOX_SECRET_TOKEN`; without it the server returns a mock path so the UI degrades gracefully (warning banner, straight-line never committed).
+- **Geocoding:** none server-side today; POI search is client-side Nominatim (R4 to replace with a Mapbox proxy).
+- **Coordinate order:** `[lng, lat]` only — no conversion layer.
 
-> **Rebuild consequence**: use MapLibre GL + Mapbox services. Remove `leaflet`, `leaflet-control-geocoder`, `facilmap-client`; add `maplibre-gl` (+ optional `react-map-gl/maplibre`). The map search bar becomes a small component calling `/api/admin/mapbox/geocode`. Keep `lib/tiles.ts` as the single tile-source abstraction (vector vs raster fallback).
+## 10. Architecture (current file map)
 
----
-
-## 10. Recommended target architecture for the rebuild
-
-### 10.1 File/folder structure (target)
-
-```text
+```
 apps/admin/src/
-├── app/                     # app shell: App, AppShell, NavRail, Header, router
-├── pages/                   # one file per route: Overview, RouteWorkspace, Fares, Export, Login
-├── features/
-│   ├── auth/                # auth context, login
-│   ├── network/             # NetworkMap + network API (Overview)
-│   ├── routes/              # list, workspace, map, editors, queries, api
-│   ├── fares/               # list/form + queries
-│   └── export/              # export page + helper
-├── lib/                     # pure/tested: coords, selection, stopShapes, plottingHistory, tiles, drafts, api, toast, queryKeys, uiStore, utils
-├── components/
-│   ├── ui/                  # base-ui wrappers (button, dialog, dropdown, select, ...)
-│   └── shared/              # ConfirmDialog, StatusBadge, EmptyState, ErrorState, Loader, ConnectionBanner, DraftRestoreBanner, PageHeader
-└── tests/                   # vitest unit tests
+├─ app/                  # app composition: AppShell, NavRail, Header, router, providers
+│  ├─ app.tsx            # AuthProvider → QueryClientProvider → BrowserRouter → Toaster
+│  ├─ router.tsx         # /login, / (Overview), /routes, /routes/:routeId, /fares, /export, 404
+│  ├─ AppShell.tsx       # skip link, ConnectionBanner, NavRail, Header, Outlet
+│  ├─ NavRail.tsx        # sections (Overview/Routes/Fares/Export), collapsed/hover modes
+│  └─ Header.tsx         # section title, user menu, sign-out
+├─ pages/
+│  ├─ RouteWorkspace.tsx # the core surface — four-state machine (empty/overview/focus/edit)
+│  ├─ Fares.tsx          # fares section (table + form + delete dialog)
+│  ├─ Login.tsx          # auth form
+│  ├─ Overview.tsx       # placeholder (R6)
+│  ├─ Export.tsx         # placeholder (R7)
+│  └─ NotFound.tsx
+├─ features/
+│  ├─ auth/              # AuthForm, RequireAuth, AuthProvider (context), api (login/me), session, sessionExpired, redirect, restore, BackendUnreachable
+│  ├─ routes/            # THE workspace:
+│  │  ├─ RouteWorkspace.tsx            # state derivation + orchestration
+│  │  ├─ workspace/                     # WorkspaceColumns, RouteWorkspaceProvider, geometry, NarrowWindowGate
+│  │  ├─ RouteList.tsx / RouteRow.tsx   # left column (overview + edit variants)
+│  │  ├─ PropertiesPanel.tsx            # right column (FocusPlate / RouteGroup / StopGroup / StopEditor)
+│  │  ├─ properties/                    # FocusPlate, RouteGroup, StopGroup, StopEditor, ConnectionSelect
+│  │  ├─ StatusBar.tsx                  # save lifecycle + one contextual notice
+│  │  ├─ PoiSearchBar.tsx               # Nominatim pill (debounced)
+│  │  ├─ PlotActionBar.tsx              # ToolToggle, Undo/Redo, LayerToggles
+│  │  ├─ EmptyState.tsx                 # veil: Create new route + Import JSON placeholder
+│  │  ├─ stopLabels.ts                  # STOP_TYPE_LABELS (terminal / major stop / waiting area)
+│  │  ├─ RouteMap.tsx + map/            # one MapLibre instance, RouteOverviewLayer, RouteLines, BasemapController, PerspectiveController, RouteFitter, SelectionPanner, constants
+│  │  └─ routesApi.ts                   # admin → server calls (list/overview/create/get/patch/delete, directions, stops, snap)
+│  ├─ fares/             # FareConfigTable, FareConfigForm, DeleteFareConfigDialog, api, queries, format, validation
+│  └─ network/           # (planned for R6 — networkApi/NetworkMap not yet implemented)
+├─ lib/
+│  ├─ plottingStore.ts   # zustand: tool, stops, connections, polyline, snap state, layers, selection
+│  ├─ connections.ts     # chain building, rewire, loop closure
+│  ├─ plottingHistory.ts # undo/redo (5 kinds, coalescing)
+│  ├─ draft.ts           # localStorage drafts (24 h TTL, 500 ms debounce)
+│  ├─ coords.ts          # [lng, lat] math, segment helpers
+│  ├─ stopShapes.ts      # type → shape/label mapping (selection never color-only)
+│  ├─ overlap.ts         # draft-vs-saved stop matching
+│  ├─ routeColors.ts     # palette + text-color contrast
+│  ├─ tiles.ts           # OpenFreeMap styles
+│  ├─ poiSearch.ts       # Nominatim URL builder + parser
+│  ├─ uiStore.ts         # sidebar mode (expanded/collapsed/hover)
+│  ├─ sections.ts        # nav sections registry
+│  ├─ queryKeys.ts       # react-query keys
+│  ├─ api.ts             # axios envelope client, token, connection banner, session expiry
+│  ├─ toast.ts           # sonner helper
+│  └─ utils.ts           # cn()
+├─ tests/                # 21 Vitest suites (pure logic, node env)
+└─ main.tsx, index.css   # entry; oklch tokens (Appendix E)
 ```
 
-### 10.2 Key data flow (route workspace)
+**Key flows:**
 
-1. `RouteWorkspace` reads `:routeId`; queries route + directions.
-2. Auto-selects the first direction; queries stops/detours/restrictions.
-3. `RouteMap` renders tiles via `lib/tiles.ts` (Mapbox vector or OSM raster fallback), the direction polyline, stop markers (shapes), detours, restrictions, and the plotting/snap UI; emits selection + snap events.
-4. `selection` (a `SelectionState`) drives `PropertiesPanel` visibility + tools.
-5. Mutations via the route query hooks (axios → admin API), each wrapped in toast meta + cache invalidation (including the network query).
-6. Drafts persist working polylines to localStorage; snap preview/undo via history.
-7. Snap + geocoding calls go to the `/api/admin/mapbox/*` proxy (server token); `duration` is stripped server-side (ADR-0009).
+- _Boot:_ `App → RequireAuth → me() → AppShell → router → section`.
+- _Edit route:_ `RouteList (open) → focus state (FocusPlate) → Edit → edit state → Add tool places stops → connections chain → debounced snap → drafts persist → Save = atomic PUT (stops + polyline + derived return) → conflict? LoadLatest`.
+- _All API calls:_ `lib/api.ts` unwraps `{ success, data }`, maps error codes, sets the token header, detects `401` (session expiry) and network failure (ConnectionBanner).
 
-### 10.3 Conventions to preserve (non-negotiables)
+## 11. Known limitations & gotchas
 
-- Strict TS; single root ESLint; prettier `format:check`; Vitest for admin + server.
-- `[lng, lat]` is the **sole** format in the admin UI — no conversion layer (ADR-0013 supersedes ADR-0007's Leaflet rationale; coordinate rule retained).
-- No ETA (ADR-0009); no multi-vehicle routing; no vehicle-specific zones.
-- Two Directions per route; one base path + auto-derived return (ADR-0011); detours replace base segment when active (ADR-0008).
-- Detour trigger fields in `@komyuter/shared` only (ADR-0012).
-- Brand: pill shapes, cerulean/amber meanings, pure white ground, no state by color alone (DESIGN.md/BRAND.md).
-- `{ success, data | error }` envelope; admin auth guard on the API.
+1. **`[lng, lat]` everywhere** — a swapped pair puts stops in the ocean; there is no converter (ADR-0013).
+2. **No ETA** — do not "helpfully" surface `duration`; the proxy strips it (ADR-0009).
+3. **Numeric columns are strings** in drizzle — `Number()` at the handler layer.
+4. **Route delete is a hard cascade**; directions/stops/detours/restrictions/fare-configs are **soft** (except fare-config default/active guards). The delete confirm text must stay honest about this.
+5. **One MapLibre instance** — never mount a second map; reset viewport/perspective rather than re-creating (ADR-0013).
+6. **Workspace width gates** — right column hides < 1024 px; map floor 400 px; `NarrowWindowGate` owns the fallback UI.
+7. **Snap straight-line fallback is never committed** — committing it would silently corrupt geometry; it renders dashed + warning.
+8. **Undo does not cover reorder/link edits** — documented in `plottingHistory.ts`; keep it that way or extend deliberately.
+9. **Drafts are single-slot** — editing a second route overwrites the first draft; the restore banner is the only recovery.
+10. **Detours/restrictions have no UI yet** — the admin's `routesApi` does not call `detours`/`restrictions` endpoints; adding UI is R1.
+11. **Server auth hardening** — login is throttled (5-failure account/source blocks) and origin-guarded (`ADMIN_ORIGINS`); do not bypass for local dev except via `ALLOW_DEV_CREDENTIAL`.
+12. **`/routes/overview` is a reserved slug** — the overview endpoint coexists with `/routes/:routeId`; keep the guard.
+13. **Fare configs: exactly one default** — enforced server-side; the form pre-validates `validateDefaultUnset`.
+14. **Prettier** — this file is formatted by Prettier (`pnpm format:check`); keep tables/pipes Prettier-clean.
 
----
+## 12. Roadmap task plan
 
-## 11. Known limitations & gotchas (rebuild checklist)
+Current workspace (ADR-0014/0015) is **done**. Remaining, in order:
 
-- **`[lng, lat]` order** — the sole format in the admin UI (MapLibre native); no conversion layer. Keep the pure `nearestCoordIndex` helper for restriction picking.
-- **Restriction index ranges break on polyline edit** — restrictions are index-bound to the current polyline; a stale range must degrade gracefully.
-- **Snapping/geocoding depend on the Mapbox proxy** — offline/slow or missing-token snap must be best-effort (mock straight-line / connection-banner fallback), never block placing the next point.
-- **Draft persistence** must survive navigation/beforeunload (localStorage, 24h TTL).
-- **Route update takes `{ routeId, body }`**; route code is immutable on edit; lowercase slug validation.
-- **Base UI triggers use `render={<Button/>}`**, not `asChild` (the @base-ui wrappers do not support `asChild`).
-- **Terminals = stops of `type="terminal"`** — a layer filter, never a new entity.
-- **No displayed ETA** anywhere (ADR-0009) — `duration` is stripped at the Mapbox proxy, even with detour triggers.
-- **Detour trigger validation** must live in `@komyuter/shared` and be reused by both the server validation and the admin form.
-- **Server tests** require the local Supabase stack + `apps/server/.env`.
-- **Mapbox tokens**: `MAPBOX_SECRET_TOKEN` (server proxy) and `MAPBOX_PUBLIC_TOKEN` (client tiles, domain-scoped); dev works without them via OSM-raster fallback + mock snap/geocode.
+1. **R1** Detour + restriction editing UI (workspace actions, nested editor, snapping, visual style) — FR-010/016/018, SC-009/010/012.
+2. **R2** Detour conditional triggers: shared schemas + `api/detours.ts` + active-detour resolution — FR-027/029, SC-018 (ADR-0012).
+3. **R3** No-stop segments UI on top of R1 — FR-028, SC-010.
+4. **R4** Mapbox geocoding proxy replacing Nominatim.
+5. **R5** Extract `fareCalculator` into `@komyuter/shared`; rewire admin + mobile.
+6. **R6** Overview/network page (replace placeholder).
+7. **R7** Export UI (endpoint ready).
+8. **R8** Dataset import (replace placeholder).
 
----
+Each roadmap item must land with its Vitest coverage + docs updated here (status flip from 🚧 to ✅).
 
-## 12. Suggested task plan (inlined; ~50 tasks across phases)
+## 13. Reference index
 
-### Phase 1 — Setup
+| Need                       | Where                                                                        |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| Workspace spec / tasks     | `specs/008-admin-route-workspace-refactor/`                                  |
+| Design decisions           | `docs/adr/` (Appendix F)                                                     |
+| Shared types & zod schemas | `packages/shared/src/{types,schemas}/`                                       |
+| DB schema (drizzle)        | `apps/server/src/db/schema.ts`                                               |
+| Server routes              | `apps/server/src/api/*.ts`                                                   |
+| Validation rules           | `apps/server/src/domain/validation.ts`                                       |
+| Export assembler           | `apps/server/src/domain/export.ts`                                           |
+| Env vars                   | `apps/server/src/config/env.ts`                                              |
+| Admin API client           | `apps/admin/src/lib/api.ts`                                                  |
+| Plotting store             | `apps/admin/src/lib/plottingStore.ts`                                        |
+| History                    | `apps/admin/src/lib/plottingHistory.ts`                                      |
+| Drafts                     | `apps/admin/src/lib/draft.ts`                                                |
+| Design tokens              | `apps/admin/src/index.css` (Appendix E)                                      |
+| Visual system              | `DESIGN.md`, `PRODUCT.md`, `apps/mobile/.impeccable/surfaces/apps-mobile.md` |
 
-- Confirm baseline gates are green before changes (`pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server typecheck`, `pnpm --filter server test`); record the baseline.
-- Confirm the ADR decisions (0006 auth, 0008 detours, 0009 no-ETA, 0011 one-base-path, 0012 detour triggers, 0013 MapLibre/Mapbox) are understood.
+## 14. Getting started
 
-### Phase 2 — Foundational (blocks all stories)
+```bash
+pnpm install
+# local Supabase (backend only): see specs/001-local-supabase-backend
+cd apps/server && cp .env.example .env   # DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, ADMIN_PASSWORD, optional MAPBOX_SECRET_TOKEN
+pnpm dev                                  # turbo: runs server + admin
+```
 
-- Pure helpers + tests: selection→tool mapping, stop-type→shape mapping, plotting undo/redo history.
-- Server: extend `Detour` schema (active_timeframes/condition) in shared; add server tests first (TDD); implement validation; update the admin detour API; implement active-detour resolution.
-- **Mapbox proxy (ADR-0013)**: add `/api/admin/mapbox/*` endpoints (directions, geocode) using the server secret token, strip `duration`, enforce the admin guard + envelope, provide mock straight-line/empty fallbacks when the token is missing.
-- **Map renderer (ADR-0013)**: add `maplibre-gl` (+ `react-map-gl/maplibre`); `lib/tiles.ts` selects Mapbox vector tiles vs OSM raster fallback; replace the geocoder with a small search-input calling the proxy.
-- Components: `PropertiesPanel`, `FloatingActionBar`, `LayerToggles`, `PlotModeToggle`, `UndoRedoBar`.
+Open `http://localhost:5173`, sign in with the admin credential. Without `MAPBOX_SECRET_TOKEN`, plotting works but snapping shows the degraded mock-path warning.
 
-### Phase 3 — US1: compact route list (MVP)
-
-- Compact `RouteList` (search + filter + New route + rows + Edit/More context menu).
-- `More` context menu (Edit route / Edit name / Modify status / Delete route).
-- Wire to `RouteForm` (edit / edit-name focus) and activate/deactivate flow.
-- `/routes` renders the workspace (no `:routeId` → empty state); remove the standalone list page.
-- Restructure `RouteWorkspace` into the 3-part layout.
-
-### Phase 4 — US2: contextual properties panel
-
-- `selection` state driving `PropertiesPanel`; refit stops/detours/restrictions editors as panel tools (detours include conditional-trigger fields; restrictions support `affects = both`); emit selection from the map.
-
-### Phase 5 — US3: map-first editor + layers
-
-- Headerless map; no-route empty state; import placeholder; floating action bar; layer toggles (Stops/Terminals/Routes).
-
-### Phase 6 — US4: smart plotting
-
-- Plot mode toggle (Automatic/Manual) + Connect; full-path snap preview/Apply/Revert; undo/redo; one-base-path plot + auto-derived return; start/end-on-stop enforcement.
-
-### Phase 7 — US5: detours + no-stop segments
-
-- Start-stop/end-stop detour creation; conditional-trigger editing; nest detours; no-stop segments via `affects = both`.
-
-### Phase 8 — US6: distinct visuals
-
-- Distinct stop-type shapes; distinct detour style; selection never by shape alone.
-
-### Phase 9 — Polish
-
-- Full gates; quickstart validation (SC-001…SC-019, ≥5 reviewers for the visual ones); scope check (only admin/server/shared touched); no-ETA regression; safety regression.
+Quality gates before commit: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server typecheck`, `pnpm --filter server test` (integration suite needs the local stack up). Tests are written first per `specs/001-local-supabase-backend/tasks.md` (TDD: red before implementation).
 
 ---
 
-## 13. Reference index (source files, not specs)
-
-| Topic                         | Where                                                                                                                              |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| This document                 | `docs/ADMIN.md`                                                                                                                    |
-| Product strategy + voice      | `PRODUCT.md`                                                                                                                       |
-| Design system (visual)        | `DESIGN.md`, `BRAND.md`                                                                                                            |
-| Glossary (canonical terms)    | `docs/CONTEXT.md`                                                                                                                  |
-| Decisions (ADRs)              | `docs/adr/0001…0013`                                                                                                               |
-| Admin API client              | `apps/admin/src/features/routes/routesApi.ts`, `lib/api.ts`                                                                        |
-| Server admin routes           | `apps/server/src/api/` (`routes`, `directions`, `stops`, `detours`, `restrictions`, `fare-configs`, `network`, `export`, `status`) |
-| Shared domain types/schemas   | `packages/shared/src/types/domain.ts`, `schemas/domain.ts`                                                                         |
-| Admin app entry + routes      | `apps/admin/src/App.tsx`, `apps/admin/src/routes/`                                                                                 |
-| Admin components/features/lib | `apps/admin/src/{components,features,lib}/`                                                                                        |
-| Admin unit tests              | `apps/admin/src/tests/`                                                                                                            |
-
----
-
-## 14. Getting started (for the next agent)
-
-1. Create a fresh branch from the base branch (`main`/`dev`).
-2. `pnpm install` (workspace, `auto-install-peers = true`).
-3. Read, in order: `docs/ADMIN.md` (this), `PRODUCT.md`, `DESIGN.md`, `BRAND.md`, `docs/CONTEXT.md`, `docs/adr/0006…0013`.
-4. Bring up the local stack for the admin API (Supabase + `apps/server/.env`). Mapbox tokens are optional for dev (see §9).
-5. Run the gates before starting: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server typecheck`, `pnpm --filter server test`.
-6. Implement per the task plan in §12 (start Phase 2 — pure helpers + shared/server detour-trigger groundwork + Mapbox proxy). Commit conventionally after each task/logical group.
-
----
-
-# Appendix A — Embedded shared domain types (`packages/shared/src/types/domain.ts`)
+## Appendix A — Domain types (`packages/shared/src/types/domain.ts`)
 
 ```ts
-import type { GeoPoint, GeoLineString } from "./geometry";
+// Route/Stop/etc. as defined in packages/shared/src/types/domain.ts
 
 export const STOP_TYPE_VALUES = [
   "terminal",
@@ -522,17 +505,10 @@ export interface Detour {
   driver_instruction: string | null;
   notable_stops: NotableStop[];
   is_active: boolean;
-  // ADR-0012 additions (re-planned scope):
-  active_timeframes?: ActiveTimeframe[];
-  condition?: string | null;
   created_at: string;
   updated_at: string;
-}
-
-export interface ActiveTimeframe {
-  days: number[]; // 0 (Sunday) .. 6 (Saturday)
-  start_time: string; // "HH:MM" 24h
-  end_time: string; // "HH:MM" 24h
+  // ADR-0012 additions (planned, R2 — NOT in the schema today):
+  // active_timeframes: ActiveTimeframe[];  condition: Condition | null;
 }
 
 export interface Restriction {
@@ -557,298 +533,121 @@ export interface FareConfiguration {
   student_discount_pct: number;
   senior_discount_pct: number;
   is_default: boolean;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
 ```
 
-# Appendix B — Embedded geometry types (`packages/shared/src/types/geometry.ts`)
+## Appendix B — Geometry types (`packages/shared/src/types/geometry.ts`)
 
 ```ts
-export type CoordinatePair = [number, number]; // [lng, lat] everywhere (ADR-0007)
+/** [lng, lat] — the only coordinate order in the system (ADR-0013). */
+export type CoordinatePair = [number, number];
+
 export interface GeoPoint {
   type: "Point";
   coordinates: CoordinatePair;
 }
+
 export interface GeoLineString {
   type: "LineString";
   coordinates: CoordinatePair[];
 }
 ```
 
-# Appendix C — Embedded zod schemas (`packages/shared/src/schemas/domain.ts`)
+## Appendix C — Zod schemas (`packages/shared/src/schemas/`)
 
-```ts
-import { z } from "zod";
-import { geoPointSchema, geoLineStringSchema } from "./geometry";
+- `domain.ts`: `routeIdSchema` (lowercase slug), `createRouteSchema`, `updateRouteSchema`, `createDirectionSchema` (label + base polyline + origin/destination stop ids + stops), `updateDirectionSchema`, `createStopSchema`, `updateStopSchema`, `overviewStopSchema`, `overviewRouteSchema`, `overviewRoutesSchema`, `notableStopSchema`, `createDetourSchema` (entry/exit points + detour polyline + instructions + notable stops), `updateDetourSchema`, `createRestrictionSchema` (`from_coord_index`/`to_coord_index` + `reason` + `affects` + note), `updateRestrictionSchema`, `createFareConfigSchema`, `updateFareConfigSchema`, plus enums `stopTypeSchema` (`terminal`/`major_stop`/`waiting_area`), `restrictionReasonSchema`, `restrictionAffectsSchema`.
+- `geometry.ts`: `coordinatePairSchema`, `geoPointSchema`, `geoLineStringSchema` — validate `[lng, lat]` and bounded coordinates.
+- `envelope.ts`: `successResponseSchema`, `errorResponseSchema` — the `{ success, data | error }` wire contract.
+- `export-dataset.ts`: `exportDatasetSchema` — the dataset export shape.
+- `mapbox.ts`: `snapCoordinatesSchema`, `mapboxDirectionsResponseSchema` (wire), plus the `SnappedPath`/`SnapCoordinates` types in `types/mapbox.ts`.
 
-export const stopTypeSchema = z.enum([
-  "terminal",
-  "major_stop",
-  "waiting_area",
-]);
-export const restrictionReasonSchema = z.enum([
-  "no_stopping_zone",
-  "contraflow",
-  "pedestrian_hostile",
-]);
-export const restrictionAffectsSchema = z.enum([
-  "boarding",
-  "alighting",
-  "both",
-]);
+**Planned (R2, ADR-0012):** `activeTimeframeSchema`, `conditionSchema` + their inclusion in `createDetourSchema`/`updateDetourSchema`.
 
-export const notableStopSchema = z.object({
-  stop_id: z.string().min(1),
-  name: z.string().min(1),
-  is_detour_only: z.boolean(),
-});
+## Appendix D — Fare rule (ADR-0001)
 
-export const routeIdSchema = z
-  .string()
-  .min(1)
-  .max(100)
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "route_id must be a lower-case slug");
+> **Note:** the shared `fareCalculator` does **not exist yet** (R5). Today the rule is implemented twice: admin formatters/validators in `apps/admin/src/features/fares/{format,validation}.ts` and the mobile side. The rule below is the single intended truth.
 
-export const createRouteSchema = z.object({
-  route_id: routeIdSchema.optional(),
-  name: z.string().min(1),
-  short_name: z.string().min(1),
-  color: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/)
-    .nullable()
-    .optional(),
-  fare_config_id: z.string().min(1).nullable().optional(),
-});
-export const updateRouteSchema = createRouteSchema
-  .partial()
-  .extend({ is_active: z.boolean().optional() });
+LTFRB fare formula (defaults ₱13 / 4 km / ₱1.80 per km; `student_discount_pct` and `senior_discount_pct` default 20):
 
-export const createStopSchema = z.object({
-  name: z.string().min(1),
-  type: stopTypeSchema,
-  location: geoPointSchema,
-  stop_order: z.number().int().min(1).optional(),
-  is_guaranteed_service: z.boolean().optional(),
-  landmark_hint: z.string().nullable().optional(),
-  notes: z.string().nullable().optional(),
-});
-
-export const createDirectionSchema = z.object({
-  label: z.string().min(1),
-  base_polyline: geoLineStringSchema,
-  origin_stop_id: z.string().min(1).nullable().optional(),
-  destination_stop_id: z.string().min(1).nullable().optional(),
-  stops: z.array(createStopSchema).optional(),
-});
-export const updateDirectionSchema = createDirectionSchema
-  .partial()
-  .extend({ is_active: z.boolean().optional() });
-
-export const updateStopSchema = createStopSchema
-  .partial()
-  .extend({ is_active: z.boolean().optional() });
-
-export const createDetourSchema = z.object({
-  label: z.string().min(1),
-  entry: geoPointSchema,
-  exit: geoPointSchema,
-  detour_polyline: geoLineStringSchema,
-  additional_distance_meters: z.number().int().min(0).nullable().optional(),
-  commuter_instruction: z.string().min(1),
-  driver_instruction: z.string().nullable().optional(),
-  notable_stops: z.array(notableStopSchema).optional(),
-});
-export const updateDetourSchema = createDetourSchema
-  .partial()
-  .extend({ is_active: z.boolean().optional() });
-// ADR-0012: add activeTimeframeSchema { days: number[] (0-6), start_time/end_time: HH:MM } and
-// condition: lowercase-slug string; reject invalid timeframes with VALIDATION_ERROR.
-
-export const createRestrictionSchema = z.object({
-  from_coord_index: z.number().int().min(0),
-  to_coord_index: z.number().int().min(0),
-  reason: restrictionReasonSchema,
-  affects: restrictionAffectsSchema,
-  note: z.string().nullable().optional(),
-});
-export const updateRestrictionSchema = createRestrictionSchema
-  .partial()
-  .extend({ is_active: z.boolean().optional() });
-
-export const createFareConfigSchema = z.object({
-  label: z.string().min(1),
-  base_fare: z.number().nonnegative(),
-  base_distance_km: z.number().nonnegative(),
-  rate_per_km: z.number().nonnegative(),
-  student_discount_pct: z.number().min(0).max(100),
-  senior_discount_pct: z.number().min(0).max(100),
-  is_default: z.boolean().optional(),
-});
-export const updateFareConfigSchema = createFareConfigSchema
-  .partial()
-  .extend({ is_active: z.boolean().optional() });
+```
+fare = base_fare + max(0, dist_km - base_distance_km) × rate_per_km
+discounted = fare × (1 - discount_rate)
 ```
 
-# Appendix D — Embedded fare calculator (`packages/shared/src/fares/fare-calculator.ts`)
+- The **displayed** fare is always the exact per-leg total.
+- The Dijkstra **internal** cost is base-on-board + marginal ₱1.80/km — deliberately NOT the per-edge LTFRB formula. Do not "fix" it.
+- Planned: `@komyuter/shared` owns `fareCalculator` + shared types — reuse, never reimplement.
 
-```ts
-export const FARE_DEFAULT_BASE_FARE = 13;
-export const FARE_DEFAULT_BASE_DISTANCE_KM = 4;
-export const FARE_DEFAULT_RATE_PER_KM = 1.8;
-export const FARE_DEFAULT_STUDENT_DISCOUNT_PCT = 20;
-export const FARE_DEFAULT_SENIOR_DISCOUNT_PCT = 20;
+## Appendix E — Design tokens (`apps/admin/src/index.css`, Route Sign grammar)
 
-export interface CalculateFareInput {
-  base_fare: number;
-  base_distance_km: number;
-  rate_per_km: number;
-  distance_km: number;
-}
+- **Corners:** `--radius: 0.25rem` — **≤ 4 px**, flat enamel plates (the old "12 px pill-friendly" value is obsolete).
+- **Color:** oklch tokens — `background` (pure white ground), `foreground`, `primary` (signboard green-blue), `signal` (amber), `destructive`, `border`, `muted`, `card`, `popover`, `sidebar`-family.
+- **Type:** Geist Variable (body) + Baloo 2 Variable (display headings) — the Route Sign hand-painted lettering feel.
+- **Elevation:** no shadows — separation via borders, whitespace, and plate fills only.
+- **Icons:** lucide-react stroke style, consistent with the sign-plate linework.
 
-export function calculateFare({
-  base_fare,
-  base_distance_km,
-  rate_per_km,
-  distance_km,
-}: CalculateFareInput): number {
-  return base_fare + Math.max(0, distance_km - base_distance_km) * rate_per_km;
-}
+## Appendix F — ADR index (`docs/adr/`)
 
-export function applyDiscount(fare: number, discountPct: number): number {
-  return fare * (1 - discountPct / 100);
-}
-```
+| ADR  | Decision                                                                                     | Status                                              |
+| ---- | -------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 0001 | Fare-ranking cost = base-on-board + marginal ₱1.80/km                                        | live                                                |
+| 0002 | Per-edge-type normalization, clamped [0,1]; transfer distance 0                              | live (routing)                                      |
+| 0003 | Trace validity via max-speed discriminator (10–45 km/h)                                      | live (routing)                                      |
+| 0004 | Backend framework = Fastify v5                                                               | live                                                |
+| 0005 | No Redis — local Postgres state                                                              | live                                                |
+| 0006 | Supabase Auth — admin-gated CRUD, anonymous commuter                                         | live                                                |
+| 0007 | Admin Leaflet map                                                                            | **superseded by 0013** — never ship the Leaflet map |
+| 0008 | Detour replacement model (data model)                                                        | live                                                |
+| 0009 | No ETA anywhere                                                                              | live                                                |
+| 0010 | Single-region dataset (Iloilo)                                                               | live                                                |
+| 0011 | Auto-derived return direction (reverse of base)                                              | live                                                |
+| 0012 | Detour conditional triggers — **planned** (requirements in this doc, §6 R2; no ADR file yet) | planned                                             |
+| 0013 | Admin MapLibre + Mapbox directions proxy; `[lng, lat]`; one instance                         | live                                                |
+| 0014 | Admin workspace layers (fixed 256/336 columns, full-bleed map)                               | live                                                |
+| 0015 | Workspace floating plates over the map (five-track grid)                                     | live                                                |
 
-> **Fare rule (ADR-0001)**: displayed fare is ALWAYS the exact per-leg total from `calculateFare`; the Dijkstra internal cost is base-on-board + marginal ₱1.80/km (deliberate, bounded overestimate — do not "fix" it into per-edge LTFRB).
+## Appendix G — API surface (`apps/server/src/api/`)
 
-# Appendix E — Embedded design tokens (`apps/admin/src/index.css`)
+All responses use the `{ success, data | error }` envelope; error codes in `api/errors.ts` (`VALIDATION_ERROR`, `NOT_FOUND`, `CONFLICT`, `UNAUTHORIZED`, `FORBIDDEN`, `RATE_LIMITED`, `INTERNAL`, `UPSTREAM_ERROR`, `BACKEND_UNREACHABLE`). Admin routes sit under `/api/admin` behind the Supabase auth guard.
 
-```css
-:root {
-  /* Hail-and-Ride Mark: pure white ground, two cerulean blues, amber only for attention */
-  --background: 0 0% 100%;
-  --foreground: 230 8% 24%;
-  --card: 0 0% 100%;
-  --card-foreground: 230 8% 24%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 230 8% 24%;
-  --primary: 208 57% 42%; /* deep cerulean — primary actions, active route */
-  --primary-foreground: 0 0% 100%;
-  --hail: 205 60% 56%; /* brand cerulean */
-  --approach: 205 45% 78%; /* light cerulean */
-  --secondary: 205 45% 78%;
-  --secondary-foreground: 210 30% 20%;
-  --muted: 220 8% 96%;
-  --muted-foreground: 230 8% 40%;
-  --accent: 205 45% 78%;
-  --accent-foreground: 210 30% 20%;
-  --destructive: 0 84.2% 60.2%; /* red — restriction bands */
-  --destructive-foreground: 0 0% 100%;
-  --success: 152 60% 40%;
-  --success-foreground: 0 0% 100%;
-  --warning: 38 92% 50%; /* amber — attention, detours */
-  --warning-foreground: 38 80% 15%;
-  --border: 228 8% 88%;
-  --input: 228 8% 88%;
-  --ring: 205 60% 56%;
-  --radius: 12px; /* pill-friendly radius */
+**No guard:**
 
-  /* Route corridor polyline colors */
-  --route-blue: 221 83% 53%;
-  --route-green: 152 60% 42%;
-  --route-amber: 38 92% 50%;
-  --route-purple: 262 70% 58%;
-  --route-red: 0 72% 55%;
-  --route-teal: 180 60% 40%;
-}
-```
+| Method | Path               | Notes                                                                               |
+| ------ | ------------------ | ----------------------------------------------------------------------------------- |
+| POST   | `/api/auth/login`  | `{ email, password }` → `{ access_token, user }`; unified denial, ~250 ms, throttle |
+| GET    | `/api/auth/me`     | token → `user`                                                                      |
+| POST   | `/api/auth/logout` | 204; global revocation                                                              |
+| GET    | `/api/status`      | health/status                                                                       |
 
-Design rules: pill shapes, two cerulean blues carry identity, pure white ground, amber reserved for real attention only, no state conveyed by color alone (WCAG AA), Nunito display + Geist body.
+**Admin guard — routes:** `GET /api/admin/routes` (summary list) · `POST /api/admin/routes` · `GET /api/admin/routes/overview` (one-shot overview with polylines) · `GET /api/admin/routes/:routeId` · `PUT /api/admin/routes/:routeId` · `DELETE /api/admin/routes/:routeId` (hard cascade).
 
-# Appendix F — Embedded ADR summaries (decisions)
+**Directions:** `GET /api/admin/routes/:routeId/directions` · `POST /api/admin/routes/:routeId/directions` (`plotted` or `legacy` mode) · `GET /api/admin/directions/:directionId` · `PUT /api/admin/directions/:directionId` (atomic save: stops + polyline + derived return) · `DELETE /api/admin/directions/:directionId` (soft).
 
-- **ADR-0001 — Fare on graph edges**: internal Dijkstra cost = one-time base ₱13 on boarding + marginal ₱1.80/km; displayed fare recomputed exactly per leg via `calculateFare`. Rejected: exact leg-aware Dijkstra and per-edge independent fare.
-- **ADR-0002 — Normalization**: min-max per edge-type pool (distance/walk/fare/transfer), clamped to [0,1]; transfer-edge distance = 0.
-- **ADR-0003 — Trace validity**: maximum-instantaneous-speed discriminator (reject max < 10 km/h or > 45 km/h), not average-speed window; duration > 3 min; coverage ≥ 60%.
-- **ADR-0004 — Backend framework**: Fastify v5 (not Express); `@fastify/type-provider-zod`; Supabase Auth.
-- **ADR-0005 — No Redis**: graph built in-memory and rebuilt eagerly on mutation (thesis scale is tiny).
-- **ADR-0006 — Auth**: Supabase Auth; one admin role; commuter app anonymous with optional sign-in; admin CRUD gated by Supabase-signed token, commuter endpoints public.
-- **ADR-0007 — Admin map is Leaflet**: not Mapbox GL (no API key); Leaflet is the one `[lat,lng]` exception, converted at the admin boundary by a single tested converter. **SUPERSEDED by ADR-0013** (MapLibre uses [lng,lat] natively; the Leaflet exception is gone, but the coordinate rule is retained).
-- **ADR-0008 — Detour replacement**: an active detour REPLACES (not parallels) the base segment between its entry/exit nodes.
-- **ADR-0009 — No ETA**: navigation response carries no duration — only distance, fare, transfer count, walk distance.
-- **ADR-0010 — Single region**: one connected graph for Iloilo City Proper + Oton/Pavia/Leganes; no `city` column; multi-city is future work.
-- **ADR-0011 — One base path, auto-derived return**: admin plots a single base path; the return Direction's polyline is auto-derived (reversed), remains distinct and editable; route must start/end on a stop (loop allowed).
-- **ADR-0012 — Detour conditional triggers**: detours may carry `active_timeframes`/`condition` defining when active; active detours replace the base segment; NEVER emits travel-time estimates (ADR-0009 retained). Vehicle-specific zones + multi-vehicle routing dropped.
-- **ADR-0013 - MapLibre GL + Mapbox services (ACCEPTED)**: renderer is MapLibre GL JS (BSD-3, via react-map-gl/maplibre); tiles are Mapbox vector (or OSM raster dev fallback); Directions + Geocoding proxied server-side; future Matching server-only. All Mapbox calls go through /api/admin/mapbox/* with a server secret token; duration stripped (ADR-0009); [lng,lat] is the sole format (supersedes ADR-0007's Leaflet rationale). Mobile already uses Mapbox (@rnmapbox/maps).
+**Stops:** `GET /api/admin/directions/:directionId/stops` · `POST /api/admin/directions/:directionId/stops` · `PUT /api/admin/stops/:stopId` · `DELETE /api/admin/stops/:stopId` (soft; terminal guard 409).
 
-# Appendix G — Embedded admin API surface (`apps/server/src/api/*`, prefix `/api/admin`)
+**Detours (UI = R1):** `GET/POST /api/admin/directions/:directionId/detours` · `PUT/DELETE /api/admin/detours/:detourId` (soft). Payload: label, entry/exit points, detour polyline, instructions, notable stops (ADR-0008).
 
-| Method | Path                                              | Purpose                                                                                            |
-| ------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| GET    | `/api/admin/routes`                               | list routes                                                                                        |
-| POST   | `/api/admin/routes`                               | create route                                                                                       |
-| GET    | `/api/admin/routes/:routeId`                      | get route                                                                                          |
-| PUT    | `/api/admin/routes/:routeId`                      | update route                                                                                       |
-| DELETE | `/api/admin/routes/:routeId`                      | delete route (cascade)                                                                             |
-| GET    | `/api/admin/routes/:routeId/directions`           | list directions for a route                                                                        |
-| POST   | `/api/admin/routes/:routeId/directions`           | create direction                                                                                   |
-| GET    | `/api/admin/directions/:directionId`              | get direction                                                                                      |
-| PUT    | `/api/admin/directions/:directionId`              | update direction                                                                                   |
-| DELETE | `/api/admin/directions/:directionId`              | delete direction (cascade)                                                                         |
-| GET    | `/api/admin/directions/:directionId/stops`        | list stops for a direction                                                                         |
-| POST   | `/api/admin/directions/:directionId/stops`        | create stop                                                                                        |
-| PUT    | `/api/admin/stops/:stopId`                        | update stop                                                                                        |
-| DELETE | `/api/admin/stops/:stopId`                        | delete stop                                                                                        |
-| GET    | `/api/admin/directions/:directionId/detours`      | list detours                                                                                       |
-| POST   | `/api/admin/directions/:directionId/detours`      | create detour                                                                                      |
-| PUT    | `/api/admin/detours/:detourId`                    | update detour                                                                                      |
-| DELETE | `/api/admin/detours/:detourId`                    | delete detour                                                                                      |
-| GET    | `/api/admin/directions/:directionId/restrictions` | list restrictions                                                                                  |
-| POST   | `/api/admin/directions/:directionId/restrictions` | create restriction                                                                                 |
-| PUT    | `/api/admin/restrictions/:restrictionId`          | update restriction                                                                                 |
-| DELETE | `/api/admin/restrictions/:restrictionId`          | delete restriction                                                                                 |
-| GET    | `/api/admin/fare-configs`                         | list fare configurations                                                                           |
-| GET    | `/api/admin/fare-configs/:fareConfigId`           | get fare configuration                                                                             |
-| POST   | `/api/admin/fare-configs`                         | create fare configuration                                                                          |
-| PUT    | `/api/admin/fare-configs/:fareConfigId`           | update fare configuration                                                                          |
-| DELETE | `/api/admin/fare-configs/:fareConfigId`           | delete fare configuration                                                                          |
-| GET    | `/api/admin/network`                              | network overview (routes/directions/stops/active counts)                                           |
-| GET    | `/api/admin/export/dataset`                       | full dataset JSON export                                                                           |
-| GET    | `/api/status`                                     | status/latency endpoint                                                                            |
-| GET    | `/api/admin/mapbox/directions`                    | Mapbox Directions proxy (snapping); strips `duration`; mock straight-line when no token (ADR-0013) |
-| GET    | `/api/admin/mapbox/geocode`                       | Mapbox Geocoding proxy; empty + warning when no token (ADR-0013)                                   |
+**Restrictions (UI = R1):** `GET/POST /api/admin/directions/:directionId/restrictions` · `PUT/DELETE /api/admin/restrictions/:restrictionId` (soft). Payload: `from_coord_index`/`to_coord_index` range + `reason` + `affects` (incl. `both` = no-stop segment).
 
-**Envelope**: all responses are `{ success: true, data }` or `{ success: false, error: { code, message, details? } }`; codes `UNAUTHORIZED | FORBIDDEN | NOT_FOUND | VALIDATION_ERROR | CONFLICT | INTERNAL`. Admin routes require the Supabase admin token (`Authorization: Bearer <token>`).
+**Fare configs:** `GET /api/admin/fare-configs` · `GET /api/admin/fare-configs/:id` · `POST` · `PUT` · `DELETE` (soft deactivate with exactly-one-default and in-use guards).
 
-**Fare configurations API semantics (feature 006, reconciled)**:
+**Export:** `GET /api/admin/export/dataset` (assembler in `domain/export.ts`; UI = R7).
 
-- `GET /api/admin/fare-configs` list rows carry `active_route_count` (count of active Routes referencing the config via `routes.fare_config_id`) in addition to the `FareConfiguration` fields; `active_route_count` exists only in the list serializer.
-- `DELETE /api/admin/fare-configs/:fareConfigId` is a **soft deactivate** (`is_active = false`, never destroys). It returns `409 CONFLICT` when any active Route references the config ("Cannot deactivate fare configuration referenced by active Routes") or when it is the sole default config.
-- `PUT /api/admin/fare-configs/:fareConfigId` returns `409 CONFLICT` when the update would leave an **inactive default** (FR-015: `is_default === true && is_active === false` — e.g. `{ is_active: false }` on the default, or `{ is_default: true }` on an inactive config) or would leave **zero defaults**.
-- The admin UI mirrors these rules (delete disabled with explanatory label; inline "Reactivate before making default" check), but the guards live at the API boundary so direct API callers are protected too.
+**Mapbox:** `GET /api/admin/mapbox/directions` (snap proxy; `MAPBOX_SECRET_TOKEN`; duration stripped; mock fallback). **Geocode: planned (R4).**
 
-**Planned detour-trigger API change (ADR-0012)**: detour create/update bodies gain optional `active_timeframes` and `condition`; detour read responses include them; server resolves active detours at request time (replaces base segment when active, per ADR-0008).
+**Cross-cutting:** login throttle (`throttle.ts`: account-block after 5 failures, source-block) · origin guard (`origin-guard.ts`: `ADMIN_ORIGINS`) · `security-events.ts` audit log.
 
-# Appendix H — Embedded glossary (canonical terms)
+## Appendix H — Glossary
 
-- **Commuter**: a person who uses the mobile app to plan/execute a journey. _Avoid_: passenger, rider, user.
-- **Route**: a single PUJ franchise — the full bidirectional entity comprising two directions, terminal stops, base polyline, detours, fare configuration. _Avoid_: line, corridor.
-- **Stop**: a formal, admin-curated, named boarding/alighting point (terminal, major stop, or waiting area). Permanent graph node; AR marker target.
-- **Boarding Point**: any position along a valid polyline where boarding/alighting may occur, including hail-and-ride non-stop positions. Derived, not stored.
-- **Leg**: one ride on a single vehicle (boarding → alighting); the unit of fare computation.
-- **Step**: one element of navigation output (walk, board, ride, alight, transfer).
-- **Detour**: a demand-triggered, direction-specific loop that departs from and returns to the base polyline, serving stops not reachable on the base path. May carry conditional triggers (ADR-0012).
-- **Restriction**: a portion of a route's polyline where boarding/alighting is not permitted; affects boarding-point eligibility only; never part of the transit graph. No-stop segments use `affects = both`.
-- **Direction**: a directed service of a route ("To City Proper" / "To Calaparan"); own polyline + ordered stop list; graph edges run only in the direction of travel. In the workspace the admin plots one base path and the return is auto-derived (ADR-0011). _Avoid_: forward, reverse, inbound, outbound (as model entities).
-- **Draft**: unsaved plotted changes to a direction's working polyline, kept in localStorage (24h TTL), client-only until explicitly saved.
-- **Virtual Node / Board Edge**: request-time graph nodes/edges for hail-and-ride boarding at non-stop positions; never persisted.
-- **Trace**: a recorded GPS ride submitted by a commuter, tagged with a route and direction.
-- **Trust Score**: a route reliability metric from MHD trace comparison; informational badge only, never a Dijkstra weight.
-- **Landmark**: a notable named orientation point rendered by the base map tiles; presentation-only, never part of the transit graph.
-
----
-
-**End of ADMIN.md** — this document is self-contained; the appendices embed the shared types, schemas, fare formula, design tokens, ADR decisions, API surface, and glossary so an external agent (e.g. Deepseek Web Chat) can rebuild the admin without repo access.
+- **Administrator** — the single admin account (Supabase Auth) that can edit the dataset; commuters are anonymous.
+- **Route Sign** — the shared visual grammar of the admin + commuter app: flat enamel sign-plate, white ground, green-blue + amber, ≤ 4 px corners, no shadows.
+- **Workspace state** — `empty` / `overview` / `focus` / `edit`, derived from (selection, draft).
+- **Connection** — a `from`/`to` stop pair; the chain of connections produces the direction polyline.
+- **Draft** — in-progress plotted stops persisted to `localStorage` (24 h TTL).
+- **Snap** — road-following of the chain polyline via the Mapbox directions proxy; auto-committed into history.
+- **Detour** — a nested alternative path for a direction, defined by entry/exit points + a detour polyline + commuter/driver instructions + notable stops (ADR-0008); data + API exist, UI planned (R1).
+- **Restriction** — a **coordinate-index range** of a direction's base polyline with boarding/alighting rules (`reason` + `affects`); `affects = both` = no-stop segment (UI planned, R3).
+- **Fare configuration** — a named LTFRB fare table; exactly one default.
+- **Base / Return** — the two directions of a route; return is auto-derived from base (ADR-0011).
