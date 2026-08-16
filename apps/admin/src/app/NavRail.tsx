@@ -50,11 +50,14 @@ interface NavRailProps {
 /**
  * Overlay navigation rail.
  *
- * Unlike the stock shadcn `Sidebar`, this rail is a pure overlay: it never
- * pushes the content area (no sidebar-gap), so pages like the plotting
- * surface keep their own layout and the rail simply slides over them on
- * hover-expand. The content area offsets itself by the rail width in
- * `AppShell`, so the collapsed rail never covers the page's left panel.
+ * Full-height rail (top-to-bottom): it stretches the full page height as the
+ * consistent visual anchor on the left of the interface, and the footer sits
+ * at the bottom of that column. Unlike the stock shadcn `Sidebar`, this rail
+ * only docks/pushes in the persisted "expanded" mode; in "hover" mode it is
+ * a pure overlay — `AppShell` keeps the content at icon width and the rail
+ * simply slides over the page on hover-expand (absolute z-30), never shifting
+ * the layout. "Collapsed" mode stays at icon width and never covers the
+ * page's left panel.
  */
 export function NavRail({ onHoverChange }: NavRailProps) {
   const sidebarMode = useUiStore((s) => s.sidebarMode);

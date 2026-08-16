@@ -39,13 +39,14 @@ export function AppShell() {
           <SidebarInset
             className={cn(
               "min-h-0 transition-[padding] duration-150 ease-linear",
-              // The rail is a pure overlay: content offsets itself by the
-              // rail width so the collapsed rail never covers the page's left
-              // panel, while hover-expand overlays on top (z-30 in NavRail)
-              // without shifting the layout.
+              // Rail behavior (supersedes D1 in ADR-0014): the rail only
+              // docks/pushes in persisted "expanded" mode — hover-expand
+              // OVERLAYS the content instead of shifting it (the rail is
+              // absolute z-30; content keeps the icon-width padding). The
+              // workspace's map-width gate absorbs the expanded-rail case.
               sidebarMode === "expanded"
-                ? "md:pl-[var(--sidebar-width)]"
-                : "md:pl-[var(--sidebar-width-icon)]",
+                ? "md:pl-(--sidebar-width)"
+                : "md:pl-(--sidebar-width-icon)",
             )}
           >
             <Header />
