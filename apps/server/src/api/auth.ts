@@ -23,6 +23,20 @@ export function extractBearerToken(request: FastifyRequest): string | null {
   return token;
 }
 
+/**
+ * The single authorization rule (FR-011 / US4): is this user present in
+ * admin_users? Every admin-gated decision (auth guard, login, /me) funnels
+ * through here — no duplicate inline lookups.
+ */
+export async function isAdminUserId(db: Db, userId: string): Promise<boolean> {
+  const [admin] = await db
+    .select({ user_id: adminUsers.user_id })
+    .from(adminUsers)
+    .where(eq(adminUsers.user_id, userId))
+    .limit(1);
+  return Boolean(admin);
+}
+
 export function createAdminAuthGuard(supabase: SupabaseClient, db: Db) {
   return async function adminAuthGuard(request: FastifyRequest): Promise<void> {
     const token = extractBearerToken(request);
@@ -33,12 +47,7 @@ export function createAdminAuthGuard(supabase: SupabaseClient, db: Db) {
     if (error || !data.user) {
       throw unauthorized("Invalid or expired token");
     }
-    const [admin] = await db
-      .select({ user_id: adminUsers.user_id })
-      .from(adminUsers)
-      .where(eq(adminUsers.user_id, data.user.id))
-      .limit(1);
-    if (!admin) {
+    if (!(await isAdminUserId(db, data.user.id))) {
       throw forbidden("User is not an admin");
     }
     request.adminUserId = data.user.id;

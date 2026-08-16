@@ -31,11 +31,47 @@ export function createTestSupabase(): SupabaseClient {
   return createSupabaseAdmin(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
-export function buildTestApp(): FastifyInstance {
+export function buildTestApp(envOverride?: Env): FastifyInstance {
   return buildApp({
     db: createTestDb(),
     supabase: createTestSupabase(),
+    env: envOverride ?? env,
   });
+}
+
+/** An Env identical to the test env except for the given overrides. */
+export function envWith(overrides: Record<string, string>): Env {
+  return loadEnv({ ...process.env, ...overrides });
+}
+
+/**
+ * Creates a dedicated admin user (confirmed, present in admin_users) that the
+ * login tests can thrash without touching the seeded admin account.
+ */
+export async function createTestAdmin(
+  prefix = "admin",
+): Promise<{ email: string; password: string }> {
+  const supabase = createTestSupabase();
+  const email = `${prefix}-${randomUUID()}@komyuter.test`;
+  const password = "test-admin-password-1";
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true,
+    user_metadata: { full_name: "Test Admin" },
+  });
+  if (error || !data.user) {
+    throw error ?? new Error("createUser returned no user");
+  }
+  const pool = createTestPool();
+  try {
+    await pool.query("insert into admin_users (user_id) values ($1)", [
+      data.user.id,
+    ]);
+  } finally {
+    await pool.end();
+  }
+  return { email, password };
 }
 
 export async function signInAdmin(): Promise<string> {

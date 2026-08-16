@@ -14,6 +14,15 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   /** Optional: enables real road-network snapping via the Mapbox Directions proxy. Absent → straight-line fallback. */
   MAPBOX_SECRET_TOKEN: z.string().optional(),
+  /** Development credential gate: when false (default), the documented dev credential is refused at login. */
+  ALLOW_DEV_CREDENTIAL: z
+    .enum(["true", "false"])
+    .transform((v) => v === "true")
+    .default(false),
+  /** Comma-separated list of allowed Origin headers for the admin API. */
+  ADMIN_ORIGINS: z
+    .string()
+    .default("http://localhost:5173,http://127.0.0.1:5173"),
 });
 
 export type Env = z.infer<typeof envSchema>;
