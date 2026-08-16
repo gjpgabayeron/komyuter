@@ -32,7 +32,7 @@ import {
   updateRoute,
 } from "./routesApi";
 
-/** Route summary list (listRoutes). Refetched on window focus so remote
+/** Route summary list (listRoutes); refetched on window focus so remote
  *  (multi-admin) changes surface without push infrastructure. */
 export function useRoutesQuery() {
   return useQuery({
@@ -40,8 +40,6 @@ export function useRoutesQuery() {
     queryFn: listRoutes,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
-    // Cheap summary rows: refetch on tab focus so remote (multi-admin) route
-    // changes surface without any push infrastructure (manual freshness).
     refetchOnWindowFocus: true,
   });
 }

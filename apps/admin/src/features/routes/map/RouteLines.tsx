@@ -17,7 +17,7 @@ import { DRAFT_FADE_OUT_MS, DRAFT_LINE, PREVIEW_LINE } from "./constants";
  * across maplibre versions — addSource/addLayer/setData are the canonical
  * maplibre calls and always render once the style is loaded.
  */
-export interface RouteLineFeature {
+interface RouteLineFeature {
   type: "Feature";
   properties: { kind: "draft" | "connecting"; color: string };
   geometry: GeoLineString;

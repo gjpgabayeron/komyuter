@@ -570,6 +570,13 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const anyDialogOpen =
     leaveConfirmOpen || loadLatestOpen || navConfirmOpen || newRouteOpen;
 
+  // The value object is intentionally NOT memoized, unlike the AuthProvider
+  // pattern (features/auth/auth.tsx, which wraps its actions in useCallback
+  // and memoizes the value). Here the sole consumer is the provider's direct
+  // child (RouteWorkspaceInner), which re-renders on every provider state
+  // change regardless — so memoizing would buy nothing today. If a
+  // memoized/deep consumer ever appears, wrap the actions in useCallback and
+  // the value in useMemo as a unit.
   const value: RouteWorkspaceValue = {
     uiState,
     hasRoute,
