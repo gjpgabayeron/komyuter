@@ -36,7 +36,7 @@ Authorized administrator managing route data for the transit system.
 
 **Route Management**
 
-- Draw PUJ route polylines directly on map (Leaflet + Leaflet Draw + snap-to-road)
+- Draw PUJ route polylines directly on map (MapLibre GL JS + road snapping)
 - Set route metadata: name, short name, color, direction labels, terminal stops
 - Activate/deactivate routes
 - Configure detours (demand-triggered, direction-dependent)
@@ -146,7 +146,7 @@ Trust is **never** used as a Dijkstra weight. Informational only.
 | Layer    | Stack                                               |
 | -------- | --------------------------------------------------- |
 | Mobile   | Expo React Native + Mapbox GL + expo-sensors/camera |
-| Admin    | React + Vite + Leaflet                              |
+| Admin    | React + Vite + MapLibre GL JS                       |
 | Backend  | Node.js + Fastify + Drizzle ORM + Supabase Auth     |
 | Database | PostgreSQL 15+ + PostGIS via Supabase               |
 | Cache    | None — in-memory graph, eager rebuild (ADR-0005)    |
