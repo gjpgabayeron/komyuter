@@ -1,4 +1,4 @@
-# ADR-0016: Mapbox tokens required; remove mock/OSM fallbacks (PROPOSED)
+# ADR-0016: Require MAPBOX_SECRET_TOKEN; remove mock/OSM fallbacks (PROPOSED)
 
 - **Status**: PROPOSED — the direction is agreed and recorded, but **not yet implemented**
 - **Date**: 2026-08-19
@@ -15,7 +15,7 @@ So the straight-line mock still exists in the code today; the proposal below is 
 
 ## Context
 
-ADR-0013 let the admin dashboard run without a Mapbox account: missing tokens caused the road-snapping proxy to fall back to a **mock straight-line** result and the renderer to fall back to **OSM raster** tiles, with a warning.
+ADR-0013 let the road-snapping proxy run without a Mapbox account: a missing token caused it to fall back to a **mock straight-line** result, with a warning.
 
 Grilling the Route Plotting Page (`specs/007`) under the constitution principle **Precision Is Trust** surfaced a problem with that fallback. A straight-line "snap" is a chord across blocks — a path that does not exist on the road network and in places cannot be driven at all. If that fabricated geometry can reach a saved `Direction.base_polyline`, it pollutes the authoritative graph the commuter side routes on, and the only fix is an error-prone re-save. The same principle also forbids silently rounding or fabricating any distance (ADR-0009).
 
@@ -23,10 +23,10 @@ Separately, the mobile app already requires a Mapbox account (`@rnmapbox/maps` e
 
 ## Decision
 
-Obtain aligned with ADR-0013's existing split-renderer/services model, but **remove the fallbacks and make both tokens required**:
+Aligned with ADR-0013's split-renderer/services model, but **require the one Mapbox token the proxy needs and remove the fallback**:
 
-- **`MAPBOX_PUBLIC_TOKEN`** — required. Held by the **admin browser** for Mapbox vector tiles via MapLibre GL JS, scoped to the admin domain (Mapbox URL allowlist). The **OSM raster fallback is removed**; there is no tile path without this token.
-- **`MAPBOX_SECRET_TOKEN`** — **required at server startup** (fail-fast in `apps/server/src/config/env.ts`, same discipline as other required vars). Server-only: never shipped to the browser. Used by the `/api/admin/mapbox/*` proxy (Directions, Geocoding, Matching), behind the admin auth guard and the `{ success, data | error }` envelope.
+- **Tiles are not Mapbox.** The admin basemap is rendered by MapLibre GL JS using **keyless OpenFreeMap vector styles** (`lib/tiles.ts`: bright/positron/liberty) — no Mapbox tile token is involved, and there is no OSM-raster fallback to remove on the renderer side.
+- **`MAPBOX_SECRET_TOKEN`** — **required at server startup** (fail-fast in `apps/server/src/config/env.ts`, same discipline as other required vars). Server-only: never shipped to the browser. Used by the `/api/admin/mapbox/*` proxy (Directions, and later Geocoding, Matching), behind the admin auth guard and the `{ success, data | error }` envelope.
 - **The mock straight-line snapping fallback is deleted entirely.** No straight-line geometry is produced, previewed, or persisted, in any mode.
 - **No `manual` eye-trace tier.** All saved polyline geometry is road-snapped by construction, because real snapping is always available.
 - **Persisted geometry carries a `snapped: true` marker**, set by the proxy and re-checked server-side at save. It is the server's cheap independent assertion that the geometry it persists is road-verified rather than merely geometrically plausible.
@@ -34,12 +34,12 @@ Obtain aligned with ADR-0013's existing split-renderer/services model, but **rem
 
 ### Non-goals (explicit)
 
-- The server secret token is **never** exposed to the browser. The browser holds only the scoped public token (which is safe in a browser by design).
-- No offline / no-token mode. The project does not run without Mapbox tokens configured in the environment.
+- The server secret token is **never** exposed to the browser; the browser only ever talks to the `/api/admin/mapbox/*` proxy.
+- No offline / no-token mode for road snapping. The directions proxy does not run without `MAPBOX_SECRET_TOKEN` configured.
 
 ## Consequences
 
-- **Positive**: no fabricated geometry can ever enter the graph — the strongest possible alignment with _Precision Is Trust_; one snapping path instead of two; simpler server surface (no mock branch in the proxy, no OSM tile fallback).
-- **Positive**: developer setup is simpler to reason about (tokens required, same in dev and prod) and consistent with the mobile app's already-required token.
-- **Trade-off**: the admin dashboard cannot be developed or demoed without Mapbox tokens; a single-account free Mapbox token satisfies the thesis scale (single region, ~10–40 stops per direction).
-- **Documentation**: supersedes the dev-fallback text in ADR-0013 and the straight-line fallback in `specs/007` (FR-009, edge cases, assumptions). Requires reconciling `specs/007/plan.md` and `spec.md` to match.
+- **Positive**: no fabricated geometry can ever enter the graph — the strongest possible alignment with _Precision Is Trust_; one snapping path instead of two; simpler server surface (no mock branch in the proxy).
+- **Positive**: developer setup is simpler to reason about (one required secret, same in dev and prod) and consistent with the mobile app's already-required Mapbox account.
+- **Trade-off**: the admin directions proxy cannot be developed or demoed without `MAPBOX_SECRET_TOKEN`; a single-account free Mapbox token satisfies the thesis scale (single region, ~10–40 stops per direction). The basemap itself stays token-free via OpenFreeMap.
+- **Documentation**: supersedes the dev-fallback text in ADR-0013 and the straight-line fallback in `specs/007` (FR-009, edge cases, assumptions).
