@@ -1,8 +1,14 @@
 # Product
 
+<!-- impeccable:product-schema 1 -->
+
 ## Register
 
 product
+
+## Platform
+
+adaptive
 
 ## Users
 
@@ -17,7 +23,17 @@ Komyuter is an undergraduate thesis (ISATU) that builds the first digitized PUJ 
 
 ## Brand Personality
 
-Efficient, modern, helpful.
+Friendly & approachable — a helpful local companion, not a cold corporate entity. Dynamic & active — the striding form and raised hand convey action, movement, and efficiency. Authentically Filipino — rooted in the everyday Philippine commuting experience: reliable, adaptive, street-smart. Technologically modern — clean lines and flat color signal a digital-first, app-driven service.
+
+## Brand Commitments
+
+- **Name:** Komyuter (derived from "commuter").
+- **Logo:** a minimalist, abstract lowercase "k" constructed from three rounded, pill-shaped strokes in a single solid cerulean blue, separating the hailing passenger (top floating pill + central angular body) from the incoming vehicle or road (lower diagonal stroke) while unifying them in one color.
+- **Primary color:** `#4A90D9` — soft, trustworthy cerulean blue; conveys reliability, mobility, and modern tech.
+- **Background:** white (`#FFFFFF`) for maximum contrast and clarity.
+- **Logo geometry:** pill-shaped (capsule) ends with a consistent, uniform stroke width.
+- **Typography (implied):** clean, modern sans-serif to complement the rounded icon.
+- **Aesthetic:** minimalist, friendly, approachable, culturally resonant, and modern — never harsh or industrial.
 
 ## Anti-references
 

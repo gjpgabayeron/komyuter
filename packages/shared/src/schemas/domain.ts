@@ -41,6 +41,7 @@ export const createRouteSchema = z.object({
     .nullable()
     .optional(),
   fare_config_id: z.string().min(1).nullable().optional(),
+  is_active: z.boolean().optional(),
 });
 
 export const updateRouteSchema = createRouteSchema.partial().extend({
@@ -56,6 +57,34 @@ export const createStopSchema = z.object({
   landmark_hint: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 });
+
+/** Lean stop shape for the overview — enough to render markers + labels. */
+export const overviewStopSchema = z.object({
+  stop_id: z.string(),
+  name: z.string(),
+  type: stopTypeSchema,
+  location: geoPointSchema,
+});
+
+/**
+ * One route's overview rendering payload: its base (admin-plotted) polyline,
+ * the derived return (null for legacy single directions), and the base
+ * direction's stops. Fetched in a SINGLE request so the overview never
+ * fans out N detail calls (perf audit).
+ */
+export const overviewRouteSchema = z.object({
+  route_id: routeIdSchema,
+  name: z.string(),
+  color: z.string().nullable(),
+  is_active: z.boolean(),
+  base_polyline: geoLineStringSchema.nullable(),
+  return_polyline: geoLineStringSchema.nullable(),
+  stops: z.array(overviewStopSchema),
+});
+
+export const overviewRoutesSchema = z.array(overviewRouteSchema);
+
+export type OverviewRouteEntity = z.infer<typeof overviewRouteSchema>;
 
 export const createDirectionSchema = z.object({
   label: z.string().min(1),

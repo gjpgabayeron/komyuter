@@ -50,7 +50,8 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       .json()
       .data.find((r: { route_id: string }) => r.route_id === routeId);
     expect(listed).toBeTruthy();
-    expect(listed.is_active).toBe(true);
+    // Draft-first: new routes default to INACTIVE (Pasted #42).
+    expect(listed.is_active).toBe(false);
     expect(listed.direction_count).toBe(0);
 
     const update = await app.inject({
@@ -68,15 +69,15 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       headers: auth(),
     });
     expect(softDelete.statusCode).toBe(200);
-    expect(softDelete.json().data.is_active).toBe(false);
+    expect(softDelete.json().data.route_id).toBe(routeId);
 
+    // Hard delete: the route is gone, not just deactivated.
     const reRead = await app.inject({
       method: "GET",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(),
     });
-    expect(reRead.statusCode).toBe(200);
-    expect(reRead.json().data.is_active).toBe(false);
+    expect(reRead.statusCode).toBe(404);
   });
 
   it("creates a fare config, edits it, and reads the new value", async () => {
@@ -181,8 +182,9 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       url: `/api/admin/routes/${routeId}`,
       headers: auth(),
     });
-    expect(list.json().data.directions).toHaveLength(1);
+    expect(list.json().data.directions).toHaveLength(2);
     expect(list.json().data.directions[0].stops).toHaveLength(2);
+    expect(list.json().data.directions[1].stops).toHaveLength(2);
   });
 
   it("rejects deleting a stop referenced as a direction terminal with 409", async () => {
@@ -345,5 +347,252 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
     });
     expect(bad.statusCode).toBe(422);
     expect(bad.json().error.code).toBe("VALIDATION_ERROR");
+  });
+});
+
+describe("fare configuration lifecycle guards (feature 006)", () => {
+  let app: FastifyInstance;
+  let token = "";
+
+  beforeAll(async () => {
+    app = buildTestApp();
+    await app.ready();
+    token = await signInAdmin();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  const auth = () => ({ authorization: `Bearer ${token}` });
+
+  async function createFareConfig(
+    label: string,
+    extra: Record<string, unknown> = {},
+  ) {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/admin/fare-configs",
+      headers: auth(),
+      payload: {
+        label,
+        base_fare: 13,
+        base_distance_km: 4,
+        rate_per_km: 1.8,
+        student_discount_pct: 20,
+        senior_discount_pct: 20,
+        ...extra,
+      },
+    });
+    expect(res.statusCode).toBe(201);
+    return res.json().data as {
+      fare_config_id: string;
+      is_active: boolean;
+      is_default: boolean;
+    };
+  }
+
+  async function createRoute(
+    routeId: string,
+    fareConfigId: string | null,
+    isActive = true,
+  ) {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/admin/routes",
+      headers: auth(),
+      payload: {
+        route_id: routeId,
+        name: routeId,
+        short_name: "T",
+        fare_config_id: fareConfigId,
+        is_active: isActive,
+      },
+    });
+    expect(res.statusCode).toBe(201);
+    return res.json().data as { route_id: string; is_active: boolean };
+  }
+
+  async function getFareConfig(fareConfigId: string) {
+    const res = await app.inject({
+      method: "GET",
+      url: `/api/admin/fare-configs/${fareConfigId}`,
+      headers: auth(),
+    });
+    expect(res.statusCode).toBe(200);
+    return res.json().data as {
+      fare_config_id: string;
+      is_active: boolean;
+      is_default: boolean;
+    };
+  }
+
+  it("rejects deactivating a fare config referenced by an active route with 409", async () => {
+    const { fare_config_id } = await createFareConfig("Guard Active Ref");
+    const routeId = uniqueRouteId("ref-active");
+    await createRoute(routeId, fare_config_id);
+
+    const del = await app.inject({
+      method: "DELETE",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+    });
+    expect(del.statusCode).toBe(409);
+    expect(del.json().error.code).toBe("CONFLICT");
+
+    const read = await getFareConfig(fare_config_id);
+    expect(read.is_active).toBe(true);
+  });
+
+  it("allows deactivating a fare config referenced only by an inactive route", async () => {
+    const { fare_config_id } = await createFareConfig("Guard Inactive Ref");
+    const routeId = uniqueRouteId("ref-inactive");
+    await createRoute(routeId, fare_config_id);
+    const deactivateRoute = await app.inject({
+      method: "PUT",
+      url: `/api/admin/routes/${routeId}`,
+      headers: auth(),
+      payload: { is_active: false },
+    });
+    expect(deactivateRoute.statusCode).toBe(200);
+
+    const del = await app.inject({
+      method: "DELETE",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+    });
+    expect(del.statusCode).toBe(200);
+    expect(del.json().data.is_active).toBe(false);
+  });
+
+  it("rejects deactivating the sole default fare config with 409", async () => {
+    const { fare_config_id } = await createFareConfig("Guard Sole Default", {
+      is_default: true,
+    });
+
+    const del = await app.inject({
+      method: "DELETE",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+    });
+    expect(del.statusCode).toBe(409);
+    expect(del.json().error.code).toBe("CONFLICT");
+  });
+
+  it("reports active_route_count on the fare config list", async () => {
+    const { fare_config_id: unreferenced } = await createFareConfig(
+      "Guard Count Unreferenced",
+    );
+    const { fare_config_id: referenced } = await createFareConfig(
+      "Guard Count Referenced",
+    );
+
+    await createRoute(uniqueRouteId("count-active"), referenced);
+
+    const inactiveRouteId = uniqueRouteId("count-inactive");
+    await createRoute(inactiveRouteId, referenced, false);
+    const deactivateRoute = await app.inject({
+      method: "PUT",
+      url: `/api/admin/routes/${inactiveRouteId}`,
+      headers: auth(),
+      payload: { is_active: false },
+    });
+    expect(deactivateRoute.statusCode).toBe(200);
+
+    const list = await app.inject({
+      method: "GET",
+      url: "/api/admin/fare-configs",
+      headers: auth(),
+    });
+    const rows = list.json().data as Array<{
+      fare_config_id: string;
+      active_route_count: number;
+    }>;
+    const find = (id: string) => rows.find((r) => r.fare_config_id === id);
+    expect(find(unreferenced)?.active_route_count).toBe(0);
+    expect(find(referenced)?.active_route_count).toBe(1);
+  });
+
+  it("rejects an update that would leave the default fare config inactive with 409", async () => {
+    const { fare_config_id } = await createFareConfig(
+      "Guard Default Inactive",
+      {
+        is_default: true,
+      },
+    );
+
+    const res = await app.inject({
+      method: "PUT",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+      payload: { is_active: false },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error.code).toBe("CONFLICT");
+
+    const read = await getFareConfig(fare_config_id);
+    expect(read.is_active).toBe(true);
+    expect(read.is_default).toBe(true);
+  });
+
+  it("rejects making a non-default fare config an inactive default with 409", async () => {
+    const { fare_config_id } = await createFareConfig("Guard Inactive Default");
+
+    const res = await app.inject({
+      method: "PUT",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+      payload: { is_active: false, is_default: true },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error.code).toBe("CONFLICT");
+
+    const read = await getFareConfig(fare_config_id);
+    expect(read.is_active).toBe(true);
+    expect(read.is_default).toBe(false);
+  });
+
+  it("rejects setting an already-inactive fare config as default with 409", async () => {
+    const { fare_config_id } = await createFareConfig(
+      "Guard Inactive Set Default",
+    );
+    const deactivate = await app.inject({
+      method: "DELETE",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+    });
+    expect(deactivate.statusCode).toBe(200);
+
+    const res = await app.inject({
+      method: "PUT",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+      payload: { is_default: true },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error.code).toBe("CONFLICT");
+
+    const read = await getFareConfig(fare_config_id);
+    expect(read.is_active).toBe(false);
+    expect(read.is_default).toBe(false);
+  });
+
+  it("rejects an update that would leave zero default fare configs with 409", async () => {
+    const { fare_config_id } = await createFareConfig("Guard Zero Defaults", {
+      is_default: true,
+    });
+
+    const res = await app.inject({
+      method: "PUT",
+      url: `/api/admin/fare-configs/${fare_config_id}`,
+      headers: auth(),
+      payload: { is_active: false, is_default: false },
+    });
+    expect(res.statusCode).toBe(409);
+    expect(res.json().error.code).toBe("CONFLICT");
+
+    const read = await getFareConfig(fare_config_id);
+    expect(read.is_active).toBe(true);
+    expect(read.is_default).toBe(true);
   });
 });

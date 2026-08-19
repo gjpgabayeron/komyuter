@@ -14,9 +14,13 @@ export function uuidId(prefix: string): string {
 
 export function uniqueSlug(base: string, taken: Set<string>): string {
   const seed = slugify(base) || "item";
+  // "overview" is a reserved static route segment (GET /routes/overview) — a
+  // route slug must never shadow it (perf audit endpoint).
+  const reserved = new Set(taken);
+  reserved.add("overview");
   let candidate = seed;
   let counter = 2;
-  while (taken.has(candidate)) {
+  while (reserved.has(candidate)) {
     candidate = `${seed}-${counter}`;
     counter++;
   }

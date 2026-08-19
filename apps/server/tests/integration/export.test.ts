@@ -102,10 +102,23 @@ describe("export dataset (SC-004/SC-005)", () => {
       (r: { route_id: string }) => r.route_id === routeId,
     );
     expect(route).toBeTruthy();
-    expect(route.directions).toHaveLength(1);
-    expect(route.directions[0].stops).toHaveLength(2);
-    expect(route.directions[0].terminals.origin).toBe(originStopId);
-    expect(route.directions[0].terminals.destination).toBe(destinationStopId);
+    // Export has no ORDER BY — locate the base direction by its origin terminal.
+    const baseDir = route.directions.find(
+      (d: { terminals: { origin: string } }) =>
+        d.terminals.origin === originStopId,
+    );
+    expect(baseDir).toBeTruthy();
+    expect(baseDir.stops).toHaveLength(2);
+    expect(baseDir.terminals.destination).toBe(destinationStopId);
+    // Derived return: reversed geometry, auto label, terminals = its own stops
+    const returnData = createDirection.json().data.return_direction;
+    const returnDir = route.directions.find(
+      (d: { terminals: { origin: string } }) =>
+        d.terminals.origin === returnData.stops[0].stop_id,
+    );
+    expect(returnDir).toBeTruthy();
+    expect(returnDir.stops).toHaveLength(2);
+    expect(returnDir.terminals.destination).toBe(returnData.stops[1].stop_id);
 
     const problems = [] as string[];
     const stopIds = new Set<string>();

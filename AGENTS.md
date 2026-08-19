@@ -18,7 +18,7 @@
 
 - `pnpm dev` / `pnpm build` — turbo pipelines across all packages (see `turbo.json`).
 - `pnpm lint` — **single root ESLint 9 flat config** (`eslint.config.mjs`); runs `eslint .` repo-wide. Per-package lint scripts were removed; eslint lives only at root.
-- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/web`, `apps/mobile`, `apps/server`, and `packages/shared`.
+- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/admin`, `apps/mobile`, `apps/server`, and `packages/shared`. (The `apps/web` starter app was removed from the repo in commit `c9bf984`.)
 - `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five root design docs are in `.prettierignore`.
 - **Tests**: `pnpm --filter server test` runs Vitest on `apps/server` (unit + integration). The integration suite requires the local Supabase stack up and `apps/server/.env` present. `turbo.json` has no `test` task — there is no repo-wide `pnpm test`.
 - Hooks: `.husky/pre-commit` runs lint-staged (`eslint` + `prettier --check` on staged files, no auto-fix) and a warn-only branch-name check; `.husky/commit-msg` enforces conventional commits via commitlint (`commitlint.config.cjs`, scopes are warn-level).
@@ -28,7 +28,7 @@
 
 - TS is strict via shared `@repo/typescript-config` (`strict: true`). Extend it; don't redefine tsconfigs from scratch.
 - ESLint is a **single root flat config** (`eslint.config.mjs`): `@eslint/js` + `typescript-eslint` (non-type-aware), react-hooks/react-refresh rules, browser globals for `apps/web` + `packages/ui`, node globals for config files. `@repo/eslint-config` and all `.eslintrc.*` files were removed — do not recreate them.
-- **Spatial data — coordinate order `[longitude, latitude]` everywhere** (GeoJSON, PostGIS `ST_MakePoint`, Mapbox GL). Leaflet is the only `[lat, lng]` exception; convert at the admin boundary via the single tested converter module in `apps/admin` (ADR-0007). Docs call this the single most dangerous pitfall — a swapped pair puts stops in the ocean.
+- **Spatial data — coordinate order `[longitude, latitude]` everywhere** (GeoJSON, PostGIS `ST_MakePoint`, MapLibre/Mapbox GL). `[lng, lat]` is the sole format in the admin UI — MapLibre consumes it natively, so there is **no conversion layer** (ADR-0013 supersedes ADR-0007's old Leaflet exception, which never shipped a converter). Docs call this the single most dangerous pitfall — a swapped pair puts stops in the ocean.
 - For meter-based PostGIS math, always cast `::geography`; raw geometry returns degrees.
 - Fare is the LTFRB formula (`base_fare + max(0, dist_km - base_dist_km) × rate_per_km`; defaults ₱13 / 4km / ₱1.80, 20% student/senior). Planned shared package `@komyuter/shared` owns `fareCalculator` + shared types — reuse, never reimplement. The **displayed** fare is always the exact per-leg total; the Dijkstra **internal** cost is base-on-board + marginal ₱1.80/km (ADR-0001). Don't "fix" the internal cost into per-edge LTFRB — it's deliberate.
 - Routes are modeled as two **directions**, each with its own polyline and ordered stop list (`stop_{stopId}_direction_{directionId}` nodes). Never reverse one polyline for the return trip (ADR-0008).
@@ -53,4 +53,5 @@
 
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
+at specs/009-auth-quick-wins/plan.md
 <!-- SPECKIT END -->

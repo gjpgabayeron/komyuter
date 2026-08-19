@@ -12,6 +12,7 @@ async function main(): Promise<void> {
       env.SUPABASE_URL,
       env.SUPABASE_SERVICE_ROLE_KEY,
     ),
+    env,
   });
   try {
     await app.listen({ port: env.PORT, host: "0.0.0.0" });

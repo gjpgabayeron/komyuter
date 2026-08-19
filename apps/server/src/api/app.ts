@@ -13,12 +13,15 @@ import Fastify, {
 } from "fastify";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Db } from "../config/db";
+import type { Env } from "../config/env";
 import { ApiError } from "./errors";
 import { registerAdminRoutes } from "./index";
+import { createOriginGuard } from "./origin-guard";
 
 export interface AppDeps {
   db: Db;
   supabase: SupabaseClient;
+  env: Env;
 }
 
 export type AppInstance = FastifyInstance<
@@ -36,6 +39,10 @@ export function buildApp(deps: AppDeps): AppInstance {
   app.setSerializerCompiler(serializerCompiler);
 
   app.register(cors, { origin: true });
+
+  // US4: origin allowlist, registered right after CORS so preflight is handled
+  // first (T026).
+  app.addHook("onRequest", createOriginGuard(deps.env.ADMIN_ORIGINS));
 
   app.addHook("onResponse", async (request, reply) => {
     const adminId = request.adminUserId;
