@@ -53,5 +53,5 @@
 
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/009-auth-quick-wins/plan.md
+at specs/011-backend-language-migration/plan.md
 <!-- SPECKIT END -->
