@@ -13,3 +13,12 @@ public/dist
 # AI Related Files
 .opencode/*
 .reasonix/*
+
+# navbench — benchmark harness outputs (timings/artifacts, not source)
+navbench/results/
+navbench/rust/target/
+navbench/poc/target/
+navbench/go/bin/
+navbench/go/*.exe
+navbench/node/dist/
+navbench/*.log

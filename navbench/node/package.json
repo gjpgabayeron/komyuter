@@ -1,0 +1,13 @@
+{
+  "name": "navbench-node",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Node reference implementation + baseline runner for the navbench harness (outside the pnpm workspace by design). Runs plain JS (node 24), no build tooling.",
+  "scripts": {
+    "fixtures": "node ../fixtures/generate.js",
+    "oracle": "node ../oracle/generate-oracle.js",
+    "baseline": "node src/run.js",
+    "test": "node --test tests/parity.test.js"
+  }
+}
