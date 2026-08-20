@@ -40,6 +40,7 @@ export default tseslint.config(
       "**/.turbo/**",
       "**/public/**",
       "apps/mobile/.expo/**",
+      "navbench/**",
       "pnpm-lock.yaml",
     ],
   },
