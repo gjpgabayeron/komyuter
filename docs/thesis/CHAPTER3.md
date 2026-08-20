@@ -93,7 +93,7 @@ flowchart TD
 
     %% Data Stores
     DS1["DS1 Routes / stops / fare configs"]
-    DS2["DS2 Transit graph (Redis Cache)"]
+    DS2["DS2 Transit graph (in-memory cache)"]
     DS3["DS3 GPS Traces"]
 
     %% Connections - Admin to P1
@@ -109,7 +109,7 @@ flowchart TD
     DS1 -->|"fare config"| P3
 
     %% Connections - P2 to DS2
-    P2 -->|"serialize"| DS2
+    P2 -->|"rebuild"| DS2
 
     %% Connections - DS2 to P3
     DS2 -->|"read graph"| P3
@@ -131,11 +131,9 @@ flowchart TD
     class P1,P2,P3,P4 process;
 ```
 
-At Level 1 (System Diagram), four internal processes are exposed: P1 (Route and Fare Management), P2 (Graph Construction), P3 (Navigation and Pathfinding), and P4 (Trust Scoring). Three data stores support these processes: DS1 (Routes, Stops, and Fare Configs), DS2 (Transit Graph — Redis Cache), and DS3 (GPS Traces). Admin mutations to DS1 raise a dirty flag that invalidates DS2, triggering graph reconstruction by P2. Navigation requests to P3 consume the graph from DS2 and fare configuration from DS1 to produce route results for the Commuter. GPS Traces submitted by the Commuter are stored in DS3 and processed by P4 to update trust scores in DS1.
+At Level 1 (System Diagram), four internal processes are exposed: P1 (Route and Fare Management), P2 (Graph Construction), P3 (Navigation and Pathfinding), and P4 (Trust Scoring). Three data stores support these processes: DS1 (Routes, Stops, and Fare Configs), DS2 (Transit Graph — In-Memory Cache), and DS3 (GPS Traces). Admin mutations to DS1 raise a dirty flag that invalidates DS2, triggering graph reconstruction by P2. Navigation requests to P3 consume the graph from DS2 and fare configuration from DS1 to produce route results for the Commuter. GPS Traces submitted by the Commuter are stored in DS3 and processed by P4 to update trust scores in DS1.
 
-To ensure the backend server (apps/server) remains responsive during graph updates, Process P2 executes asynchronously via a background worker thread, utilizing the Stale-While-Revalidate pattern for cache management. When an admin update (DS1 mutation) invalidates the graph (DS2), the old graph is kept active for commuter navigation requests (P3).
-
-The time-intensive re-computation of the new graph is offloaded to a Node.js background worker (e.g., using Worker Threads or BullMQ), which pulls data from PostGIS. Once the new graph is computed and serialized, an atomic cache swap is performed in Redis (DS2), allowing the next commuter request to seamlessly receive the updated data.
+When an admin update (DS1 mutation) invalidates the graph (DS2), Process P2 immediately rebuilds the entire transit graph in memory from PostGIS and atomically swaps it into place, so the next commuter navigation request (P3) reads a consistent, up-to-date graph with no stale window. Because the transit network at this study's scale (10–12 routes) rebuilds in only milliseconds, a full eager rebuild is cheaper than any external cache round-trip, so no background worker or external cache is needed and no graph state is serialized outside the server's memory.
 
 ### DESIGN SPECIFICATION
 
@@ -143,13 +141,13 @@ The time-intensive re-computation of the new graph is offloaded to a Node.js bac
 
 Komyuter follows a three-tier client-server architecture organized as a Turborepo monorepo with pnpm workspaces. Three applications reside in the apps/ directory: the mobile commuter app (apps/mobile), the administrative web dashboard (apps/admin), and the backend API server (apps/server). A shared package at packages/shared houses TypeScript types, Zod schemas, and the LTFRB fare calculator, ensuring consistent data contracts across all three applications. Database migrations reside in supabase/migrations/ as SQL files managed by the Supabase CLI.
 
-The mobile app communicates with the backend exclusively through a REST API secured with JSON Web Tokens (JWT). The admin dashboard communicates with the same backend API using an admin-scoped JWT. The backend translates requests into SQL queries issued against a PostgreSQL 15+ database with the PostGIS spatial extension, hosted via the Supabase platform. A Redis cache (Upstash) stores the serialized transit graph to avoid rebuilding it on every navigation request.
+The mobile app communicates with the backend exclusively through a REST API secured with JSON Web Tokens (JWT). The admin dashboard communicates with the same backend API using an admin-scoped JWT. The backend translates requests into SQL queries issued against a PostgreSQL 15+ database with the PostGIS spatial extension, hosted via the Supabase platform. The computed transit graph is held in the server's in-memory cache and rebuilt eagerly on any administrative mutation, so it is never recomputed on a per-navigation-request basis.
 
 #### TRANSIT GRAPH MODEL
 
-The transit network is modeled as a weighted directed graph G=(V,E,W). Each stop on each route becomes a distinct node, identified by the composite key stop_{stopId}route{routeId}. This route-expanded representation is necessary because the same physical location served by two routes represents two distinct commuter states, one on each vehicle, and the algorithm must traverse a transfer edge to move between them.
+The transit network is modeled as a weighted directed graph G=(V,E,W). Every route is bidirectional, so each physical route is represented by two directions, each with its own polyline and ordered stop list; each stop on each direction becomes a distinct node, identified by the composite key stop_{stopId}_direction_{directionId}. This per-direction representation is necessary because the same physical location reached by two different routes, or by the two directions of one route, represents distinct commuter states — one on each vehicle, or traveling in each direction — and the algorithm must traverse a transfer edge to move between them.
 
-Two types of edges populate the graph. Route edges connect consecutive stops on the same route in the direction of travel, carrying four raw weight attributes: distance (meters, computed via haversine formula), fare (Philippine Pesos, computed using the LTFRB formula), transfer penalty (0, since no vehicle switch occurs), and walk distance (0, since the commuter is riding). Transfer edges connect stops of different routes within a 300-meter walkable radius, detected using the PostGIS ST_DWithin(::geography, 300) spatial query. Transfer edges carry zero fare, a transfer penalty value of 1, and a walk distance equal to the physical distance between the two stops. Detour stops (is_detour_only: true) are excluded from the default graph and injected as temporary nodes and edges only when a navigation request includes a detour-flagged destination.
+Two types of edges populate the graph. Route edges connect consecutive stops on the same route in the direction of travel, carrying four raw weight attributes: distance (meters, computed via haversine formula), fare (a ranking cost comprising a one-time base fare plus the marginal ₱1.80 per kilometer), transfer penalty (0, since no vehicle switch occurs), and walk distance (0, since the commuter is riding). Transfer edges connect stops of different routes within a 300-meter walkable radius, detected using the PostGIS ST_DWithin(::geography, 300) spatial query. Transfer edges carry zero fare, a transfer penalty value of 1, and a walk distance equal to the physical distance between the two stops. Detour stops, flagged inside a detour's notable_stops, are excluded from the default graph and injected as temporary nodes and edges only when a navigation request includes a detour-flagged destination.
 
 ##### TABLE 3: Graph Edge Types and Weight Attributes
 
@@ -160,9 +158,9 @@ Two types of edges populate the graph. Route edges connect consecutive stops on 
 
 #### ROUTE DATA SCHEMA
 
-Each PUJ route in the system is represented by a structured data object comprising route metadata, a base polyline, associated stops, detour segments, restricted boarding segments, and a fare configuration reference. Routes are stored in the PostgreSQL database with their polylines as PostGIS LINESTRING(4326) geometry, and stops as POINT(4326) geometry. All coordinate pairs follow the GeoJSON standard of [longitude, latitude] throughout the system (PostGIS ST_MakePoint(), GeoJSON, and Mapbox all share this convention), and conversions are performed only at the Leaflet-based admin map boundary, which uses the inverse [latitude, longitude] convention.
+Each PUJ route in the system is represented by a structured data object comprising route metadata, two travel directions, associated stops, detour segments, restricted boarding segments, and a fare configuration reference. Because franchises are bidirectional and share the same physical corridor, each route carries two directions; an administrator plots one base path, from which the return direction is automatically derived at save time and can then be edited independently. Direction geometries are stored in the PostgreSQL database as PostGIS LINESTRING(4326) geometry, and stops as POINT(4326) geometry. All coordinate pairs follow a single convention, [longitude, latitude], throughout the entire system — PostGIS ST_MakePoint(), GeoJSON, and the map renderer (MapLibre GL JS) all consume this format natively, so no coordinate conversion layer is required at any boundary.
 
-Stops are assigned a stop_order field that determines their sequence along the route for graph edge construction. Each stop carries an is_guaranteed_service flag distinguishing formally serviced stops (terminals, major waiting areas) from hail-and-ride corridor points. Commuters may board anywhere along the valid base polyline, not only at formal stops; the system uses PostGIS ST_ClosestPoint with a 25–50 meter snap tolerance to project a commuter's GPS position onto the nearest valid polyline segment, then validates the snapped point against any restricted_segments before confirming boarding eligibility.
+Stops are assigned a stop_order field that determines their sequence along the direction for graph edge construction. Each stop carries an is_guaranteed_service flag distinguishing formally serviced stops (terminals, major waiting areas) from hail-and-ride corridor points. Commuters may board anywhere along the valid direction polyline, not only at formal stops; the system uses PostGIS ST_ClosestPoint with a 25–50 meter snap tolerance to project a commuter's GPS position onto the nearest valid polyline segment, then validates the snapped point against the direction's restrictions before confirming boarding eligibility. A restriction is stored as a coordinate-index range along the polyline together with its reason (no-stopping zone, contraflow, or pedestrian-hostile) and whether it affects boarding or alighting.
 
 #### ALGORITHM DESIGN
 
@@ -176,9 +174,11 @@ The composite edge cost function is defined as:
 
 > Cost(e) = α · norm(distance) + β · norm(fare) + γ · norm(transfer) + δ · norm(walk)
 
-where α + β + γ + δ = 1.0, and all coefficients are non-negative. The norm() operator denotes Min-Max normalization, which scales each raw weight to the interval [0, 1] by the formula norm(x) = (x − min) / (max − min), where min and max are computed across all edges in the graph during a preprocessing pass. Because all normalized weights are bounded in [0, 1] and all coefficients are non-negative, all composite edge costs are guaranteed to be non-negative, preserving Dijkstra's optimality guarantee.
+where α + β + γ + δ = 1.0, and all coefficients are non-negative. The norm() operator denotes Min-Max normalization, which scales each raw weight to the interval [0, 1] by the formula norm(x) = (x − min) / (max − min). Rather than applying a single graph-wide scale, min and max are computed independently for each weight's own pool — distance over route edges, fare over boarding and marginal fares, walk over transfer and virtual walk edges, and transfer over {0, 1} — and each result is clamped to [0, 1]. This per-pool scaling keeps every dimension at full dynamic range instead of allowing one outlier edge to compress all other values toward zero. Transfer edges carry a distance of zero, since no vehicle travel occurs across a transfer. Because all normalized weights are bounded in [0, 1] and all coefficients are non-negative, all composite edge costs are guaranteed to be non-negative, preserving Dijkstra's optimality guarantee.
 
 The inclusion of transfer penalty (γ) and walking distance (δ) as supplementary weights beyond the panel's minimum specification of distance and fare is technically necessary. Under the LTFRB formula, fare is a direct monotone function of distance: fare = base_fare + max(0, distance − base_distance_km) × rate_per_km. On a single-route trip, minimizing distance and minimizing fare are therefore equivalent objectives, making a purely two-criterion model mathematically redundant for multi-modal routing. Transfer penalty and walking distance introduce independent dimensions of cost that enable the algorithm to differentiate between a shorter path requiring a vehicle transfer and a longer direct path, a distinction that is central to the commuter experience.
+
+The engine therefore distinguishes two fare notions. The displayed fare a commuter sees is the exact per-leg LTFRB total, re-computed from the cumulative distance traveled on each vehicle ride and re-based upon every transfer. Inside the cost function, however, fare is represented as a ranking cost — a one-time base fare charged upon boarding (₱13) plus a marginal ₱1.80 per kilometer along each route edge — because the LTFRB fare is non-additive and its fixed base cannot be charged per edge without double-counting. Because the marginal rate is constant, minimizing distance and minimizing fare are equivalent objectives on a single-route journey, so the Cheapest profile converges on the Shortest there and only diverges when candidate routes genuinely differ in total distance; usability task T3 therefore uses origin–destination pairs that admit such divergence so the profile's effect is observable.
 
 ###### TABLE 4: Preference Profile Weight Coefficients
 
@@ -193,9 +193,9 @@ The inclusion of transfer penalty (γ) and walking distance (δ) as supplementar
 
 Fare is computed using the LTFRB distance-based formula applicable to modernized PUJs under 2024 rates. The formula is defined as:
 
-> fare = base_fare + max(0, dist_km − base_dist_km) × rate_per_km
+> fare = base_fare + max(0, dist_km − base_distance_km) × rate_per_km
 
-Default parameters for modernized PUJs are: base_fare = ₱13.00, base_dist_km = 4.0 km, and rate_per_km = ₱1.80. A 20% discount applies to students and senior citizens. These parameters are stored in the fare_configs table and are configurable through the admin dashboard without requiring code changes, ensuring the system remains compliant with future LTFRB rate adjustments.
+Default parameters for modernized PUJs are: base_fare = ₱13.00, base_distance_km = 4.0 km, and rate_per_km = ₱1.80. A 20% discount applies to students and senior citizens. These parameters are stored in the fare_configs table and are configurable through the admin dashboard without requiring code changes, ensuring the system remains compliant with future LTFRB rate adjustments.
 
 Fares are calculated based on the total distance traveled per vehicle ride rather than independently for each route segment. This approach ensures transfer costs are calculated accurately, as boarding a new route resets the calculation and applies a new base fare.
 
@@ -235,25 +235,25 @@ The technology stack was selected to maximize type safety, spatial data support,
 
 ###### TABLE 5: Technology Stack Summary
 
-| Layer           | Technology                            | Purpose                                                   |
-| --------------- | ------------------------------------- | --------------------------------------------------------- |
-| Mobile App      | Expo SDK + React Native               | Managed workflow for iOS/Android (Android primary)        |
-| Mobile App      | Expo Router v3+                       | File-based navigation                                     |
-| Mobile App      | @rnmapbox/maps                        | Mapbox GL map rendering and route overlays                |
-| Mobile App      | expo-location                         | Foreground and background GPS                             |
-| Mobile App      | expo-camera + expo-sensors            | AR camera feed, compass, and device motion                |
-| Mobile App      | react-native-reanimated               | Smooth AR marker animation                                |
-| Mobile App      | expo-sqlite                           | Offline GPS trace caching                                 |
-| Admin           | React 18+ + Vite 5+                   | SPA UI library and build tool                             |
-| Admin Dashboard | Mapbox GL JS + @mapbox/mapbox-gl-draw | Route polyline drawing with snap-to-road                  |
-| Admin Dashboard | Zustand + TanStack Query              | Global state and server state management                  |
-| Backend Server  | Node.js 20 LTS + Fastify v5           | HTTP runtime and API framework                            |
-| Backend Server  | Drizzle ORM                           | Type-safe SQL with PostGIS raw SQL escape hatch           |
-| Backend Server  | ioredis (Upstash Redis)               | Serialized transit graph caching                          |
-| Database        | PostgreSQL 15+ + PostGIS              | Relational and spatial data storage                       |
-| Database        | Supabase                              | Managed Postgres hosting, auth, and local dev environment |
-| Shared Package  | Zod + TypeScript                      | Runtime validation schemas and shared types               |
-| Monorepo        | Turborepo + pnpm workspaces           | Build orchestration and package management                |
+| Layer           | Technology                  | Purpose                                                   |
+| --------------- | --------------------------- | --------------------------------------------------------- |
+| Mobile App      | Expo SDK + React Native     | Managed workflow for iOS/Android (Android primary)        |
+| Mobile App      | Expo Router v3+             | File-based navigation                                     |
+| Mobile App      | @rnmapbox/maps              | Mapbox GL map rendering and route overlays                |
+| Mobile App      | expo-location               | Foreground and background GPS                             |
+| Mobile App      | expo-camera + expo-sensors  | AR camera feed, compass, and device motion                |
+| Mobile App      | react-native-reanimated     | Smooth AR marker animation                                |
+| Mobile App      | expo-sqlite                 | Offline GPS trace caching                                 |
+| Admin           | React 18+ + Vite 5+         | SPA UI library and build tool                             |
+| Admin Dashboard | MapLibre GL JS              | Route polyline rendering and drawing                      |
+| Admin Dashboard | Zustand + TanStack Query    | Global state and server state management                  |
+| Backend Server  | Node.js 20 LTS + Fastify v5 | HTTP runtime and API framework                            |
+| Backend Server  | Drizzle ORM                 | Type-safe SQL with PostGIS raw SQL escape hatch           |
+| Backend Server  | In-memory graph store       | Eagerly rebuilt transit graph storage                     |
+| Database        | PostgreSQL 15+ + PostGIS    | Relational and spatial data storage                       |
+| Database        | Supabase                    | Managed Postgres hosting, auth, and local dev environment |
+| Shared Package  | Zod + TypeScript            | Runtime validation schemas and shared types               |
+| Monorepo        | Turborepo + pnpm workspaces | Build orchestration and package management                |
 
 #### TESTING AND EVALUATION
 

@@ -82,7 +82,7 @@ cannot be validated.
   ADR-0007's Leaflet exception). A swapped pair puts stops in the ocean — the single most
   dangerous pitfall in the project.
 - Meter-based PostGIS distance math MUST cast `::geography`; raw geometry returns degrees.
-- Fare is the LTFRB formula — `base_fare + max(0, dist_km - base_dist_km) * rate_per_km`
+- Fare is the LTFRB formula — `base_fare + max(0, dist_km - base_distance_km) * rate_per_km`
   (defaults ₱13 / 4 km / ₱1.80; 20% student/senior) — owned by `fareCalculator` in
   `@komyuter/shared`. The displayed fare is always the exact per-leg total; the Dijkstra
   internal cost is base-on-board plus marginal ₱1.80/km (ADR-0001). Never "fix" the internal

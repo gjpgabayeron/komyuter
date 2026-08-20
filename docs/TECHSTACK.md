@@ -46,19 +46,19 @@ komyuter/
 
 ## Admin Dashboard — `apps/admin`
 
-| Technology                 | Version | Purpose                                                                                    |
-| -------------------------- | ------- | ------------------------------------------------------------------------------------------ |
-| React                      | 18+     | UI library                                                                                 |
-| Vite                       | 5+      | Build tool / dev server                                                                    |
-| TypeScript                 | ~5.9    | Type safety                                                                                |
-| Leaflet.js + React-Leaflet | latest  | Interactive map rendering (the one `[lat, lng]` exception — convert at the admin boundary) |
-| Leaflet Draw               | latest  | Route polyline drawing tool                                                                |
-| `@tanstack/react-query`    | v5      | Server state, optimistic CRUD updates                                                      |
-| Zustand                    | latest  | Lightweight global state (route-building wizard)                                           |
-| Zod                        | latest  | Form + API response validation                                                             |
-| React Router               | v6+     | Client-side routing                                                                        |
+| Technology                             | Version | Purpose                                                        |
+| -------------------------------------- | ------- | -------------------------------------------------------------- |
+| React                                  | 18+     | UI library                                                     |
+| Vite                                   | 5+      | Build tool / dev server                                        |
+| TypeScript                             | ~5.9    | Type safety                                                    |
+| MapLibre GL JS + react-map-gl          | latest  | Interactive map rendering (native `[lng, lat]`, no conversion) |
+| Custom polyline drawing (react-map-gl) | —       | Route polyline drawing tool                                    |
+| `@tanstack/react-query`                | v5      | Server state, optimistic CRUD updates                          |
+| Zustand                                | latest  | Lightweight global state (route-building wizard)               |
+| Zod                                    | latest  | Form + API response validation                                 |
+| React Router                           | v6+     | Client-side routing                                            |
 
-> **Coordinate conversion (admin only):** Leaflet works in `[lat, lng]`; everything else (GeoJSON, PostGIS, Mapbox) is `[lng, lat]`. All conversions go through a single tested converter module in `apps/admin` (`toGeoJSONPoint`/`fromGeoJSONPoint`) — never handwritten (ADR-0007).
+> **Coordinate convention:** the entire system uses `[lng, lat]` — GeoJSON, PostGIS, and MapLibre GL JS all consume it natively. There is no conversion layer (ADR-0013). A swapped pair puts stops in the ocean.
 
 ---
 
@@ -139,11 +139,11 @@ jobs:
 
 ## Coordinate Convention
 
-| Context                    | Format                    | Note                        |
-| -------------------------- | ------------------------- | --------------------------- |
-| GeoJSON / PostGIS / Mapbox | `[lng, lat]`              | Standard GeoJSON spec       |
-| expo-location / geopy      | `{ latitude, longitude }` | Named object                |
-| Haversine (internal)       | `(lat, lng)`              | Conversion at boundary only |
+| Context                      | Format                    | Note                        |
+| ---------------------------- | ------------------------- | --------------------------- |
+| GeoJSON / PostGIS / MapLibre | `[lng, lat]`              | Standard GeoJSON spec       |
+| expo-location / geopy        | `{ latitude, longitude }` | Named object                |
+| Haversine (internal)         | `(lat, lng)`              | Conversion at boundary only |
 
 > Conversions happen **only** at explicit system boundaries. No silent lat/lng swaps inside services.
 
@@ -172,12 +172,12 @@ All normalized weights ∈ [0, 1] → all composite costs ≥ 0 → Dijkstra opt
 ### LTFRB Fare Formula
 
 ```
-fare = base_fare                                              if dist_km ≤ base_dist_km
-fare = base_fare + (dist_km - base_dist_km) × rate_per_km   otherwise
+fare = base_fare                                              if dist_km ≤ base_distance_km
+fare = base_fare + (dist_km - base_distance_km) × rate_per_km   otherwise
 
 Defaults (Modernized PUJ 2024):
   base_fare      = ₱13.00
-  base_dist_km   = 4.0 km
+  base_distance_km = 4.0 km
   rate_per_km    = ₱1.80
   student/senior = 20% discount
 ```

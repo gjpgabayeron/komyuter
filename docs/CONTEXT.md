@@ -8,6 +8,10 @@ A public transit navigation system for Iloilo City PUJ jeepneys: multi-criteria 
 A person who uses the mobile app to plan or execute a journey.
 _Avoid_: Passenger, rider, user
 
+**Administrator**:
+The sole human actor who manages the transit dataset — routes, directions, stops, detours, restrictions, and fare configuration — through the desktop admin dashboard. Authenticated via Supabase Auth.
+_Avoid_: Admin, user, operator
+
 **Route**:
 A single PUJ franchise: the full bidirectional entity comprising two directions, terminal stops, base polyline, detours, and fare configuration.
 _Avoid_: Line, jeepney line, corridor
@@ -39,6 +43,10 @@ _Avoid_: Restricted segment, no-stopping zone
 **Direction**:
 A directed service of a route — the "To City Proper" or "To Calaparan" journey. Each direction has its own polyline and ordered stop list; graph edges run only in the direction of travel. A physical stop served in both directions is referenced by each direction's list.
 _Avoid_: Forward, reverse, inbound, outbound (as model entities)
+
+**Draft**:
+The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage with a 24-hour time-to-live, never sent to the server, and offered for restore when the Administrator returns.
+_Avoid_: Working copy, pending route
 
 **Virtual Node**:
 A temporary graph node inserted per navigation request for a non-stop boarding or alighting position on a direction's polyline. Connected to the two nearest stops via board edges. Never persisted.

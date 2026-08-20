@@ -142,7 +142,7 @@ Mobile App (Expo) ←→ API (Fastify) ←→ Database (PostgreSQL + PostGIS)
 | Map Rendering      | Mobile App         | Display routes, stops, navigation results (Mapbox GL)               |
 | GPS Recording      | Mobile App         | Foreground + background location traces (expo-location)             |
 | AR Wayfinding      | Mobile App         | Camera + sensor overlay with 3D markers (expo-camera, expo-sensors) |
-| Route Drawing      | Admin Dashboard    | Polyline creation via map clicks (Leaflet Draw)                     |
+| Route Drawing      | Admin Dashboard    | Polyline creation via map clicks (MapLibre GL JS)                   |
 | Stop Placement     | Admin Dashboard    | Click-to-place stops along directions                               |
 | Fare Configuration | Admin Dashboard    | LTFRB fare structure CRUD                                           |
 | Route CRUD         | Backend API        | Create, read, update, delete routes with PostGIS                    |
@@ -173,18 +173,17 @@ Mobile App (Expo) ←→ API (Fastify) ←→ Database (PostgreSQL + PostGIS)
 
 ### Admin Dashboard (apps/admin)
 
-| Technology                 | Purpose                         |
-| -------------------------- | ------------------------------- |
-| React 18+                  | UI library                      |
-| Vite 5+                    | Build tool / dev server         |
-| TypeScript 5.5+            | Type safety                     |
-| Leaflet.js + React-Leaflet | Interactive maps                |
-| Leaflet Draw               | Route polyline drawing tool     |
-| Shadcn/ui                  | Component library               |
-| Tailwind CSS               | Utility-first styling           |
-| TanStack Table             | Data grids for route/stop lists |
-| React Hook Form + Zod      | Form management + validation    |
-| Axios                      | HTTP client for API calls       |
+| Technology                    | Purpose                              |
+| ----------------------------- | ------------------------------------ |
+| React 18+                     | UI library                           |
+| Vite 5+                       | Build tool / dev server              |
+| TypeScript 5.5+               | Type safety                          |
+| MapLibre GL JS + react-map-gl | Interactive maps (native [lng, lat]) |
+| Shadcn/ui                     | Component library                    |
+| Tailwind CSS                  | Utility-first styling                |
+| TanStack Table                | Data grids for route/stop lists      |
+| React Hook Form + Zod         | Form management + validation         |
+| Axios                         | HTTP client for API calls            |
 
 ### Backend Server (apps/server)
 
@@ -570,7 +569,7 @@ Design (1–2 days) → Implement (5–8 days) → Test (2–3 days) → Review 
 | ORM                      | Drizzle                                | Type-safe SQL + PostGIS raw SQL escape hatch (Prisma lacks PostGIS support)                                                                      |
 | Database                 | PostgreSQL + PostGIS via Supabase      | Spatial queries essential, Supabase provides free local dev + cloud deployment                                                                   |
 | Map SDK (Mobile)         | Mapbox GL (@rnmapbox/maps)             | Custom polyline styling, Expo plugin, free tier sufficient                                                                                       |
-| Map SDK (Admin)          | Leaflet.js + Leaflet Draw              | Lightweight, open source, no API key / freemium dependency (ADR-0007); lat/lng converted at a single tested boundary module                      |
+| Map SDK (Admin)          | MapLibre GL JS + react-map-gl          | OpenFreeMap vector tiles, no API key (ADR-0013); [lng, lat] consumed natively with no conversion layer                                           |
 | AR Approach              | Location-Based Geo-AR                  | GPS + compass sufficient for outdoor stops, avoids ARCore/ARKit dependency                                                                       |
 | Auth                     | Supabase Auth                          | Offloads JWT issuance/verification to a managed service; admin gating + optional commuter sign-in (ADR-0006)                                     |
 | Graph cache              | None (in-memory, eager rebuild)        | Rebuild at thesis scale is millisecond-range; an external cache adds infra with no correctness benefit (ADR-0005)                                |
@@ -656,7 +655,7 @@ When providing assistance on this project, follow these guidelines:
 1. ✅ Always use TypeScript with strict mode for any code generation
 2. ✅ Always use shared types from `@komyuter/shared` — never redefine Route, Stop, etc.
 3. ✅ Always use the shared fare calculator — never reimplement the LTFRB formula; the displayed fare is always the exact per-leg total (ADR-0001)
-4. ✅ GeoJSON uses `[longitude, latitude]` — verify this in every spatial operation (Leaflet admin is the one `[lat, lng]` exception; convert via the single tested converter module, ADR-0007)
+4. ✅ GeoJSON uses `[longitude, latitude]` — verify this in every spatial operation (the map renderer uses `[lng, lat]` natively; no conversion layer, ADR-0013)
 5. ✅ PostGIS `ST_MakePoint` takes `(longitude, latitude)` — NOT `(latitude, longitude)`
 6. ✅ Trust scoring is informational only — it does NOT affect Dijkstra's weights
 7. ✅ AR is Location-Based Geo-AR — NOT ARCore/ARKit. Uses expo-camera + expo-sensors
