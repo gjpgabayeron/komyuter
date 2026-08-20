@@ -44,11 +44,11 @@ description: "Task list for backend language migration feasibility study"
 
 **Purpose**: Scaffold the `navbench/` harness and verify the toolchain. Nothing here permutes the runtime decision; it just puts a clean, isolated workspace in place.
 
-- [ ] T001 Create `navbench/` directory tree (`node/ rust/ go/ poc/ fixtures/ oracle/ aggregate/ results/ shared/ scripts/`) and add `navbench/results/` plus generated fixtures to `.gitignore`
-- [ ] T002 [P] Initialize the Rust crate at `navbench/rust` via `cargo init` (package name `navbench-rust`); add serde/serde_json for fixture + result IO in `navbench/rust/Cargo.toml`
-- [ ] T003 [P] Initialize the Go module at `navbench/go` via `go mod init komyuter/navbench/go`; ensure `encoding/json` stdlib only for now
-- [ ] T004 [P] Initialize the Node reference package at `navbench/node` (package.json, TypeScript tsconfig, `tsx` for running TS) — NOT part of the root workspace, keep it standalone
-- [ ] T005 [P] Verify the toolchain (node, cargo, go) and record versions + availability in `navbench/results/env-notes.md`; if `go` is unavailable, record `"go": "not measured"` (per research R5 — Go absence must not block; allowed by SC-002)
+- [x] T001 Create `navbench/` directory tree (`node/ rust/ go/ poc/ fixtures/ oracle/ aggregate/ results/ shared/ scripts/`) and add `navbench/results/` plus generated fixtures to `.gitignore`
+- [x] T002 [P] Initialize the Rust crate at `navbench/rust` via `cargo init` (package name `navbench-rust`); add serde/serde_json for fixture + result IO in `navbench/rust/Cargo.toml`
+- [x] T003 [P] Initialize the Go module at `navbench/go` via `go mod init komyuter/navbench/go`; ensure `encoding/json` stdlib only for now
+- [x] T004 [P] Initialize the Node reference package at `navbench/node` (package.json, TypeScript tsconfig, `tsx` for running TS) — NOT part of the root workspace, keep it standalone
+- [x] T005 [P] Verify the toolchain (node, cargo, go) and record versions + availability in `navbench/results/env-notes.md`; if `go` is unavailable, record `"go": "not measured"` (per research R5 — Go absence must not block; allowed by SC-002)
 
 ---
 
@@ -58,10 +58,10 @@ description: "Task list for backend language migration feasibility study"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 Build the deterministic graph fixture generator `navbench/fixtures/generate.ts` → writes `navbench/fixtures/inputs/{small,medium,large,rush}.json` (seeded RNG; fixed sizes per research R1; entities: routes with two direction polylines, ordered stop lists, fare configs `base_fare`/`base_dist_km`/`rate_per_km`)
-- [ ] T007 Build the parity oracle generator `navbench/oracle/generate-oracle.ts` → writes expected-output fixtures `navbench/fixtures/oracle/*.json` for all three workloads; encode the canonical LTFRB fare formula `base_fare + max(0, dist_km - base_dist_km) × rate_per_km` per ADR-0001 (if `@komyuter/shared` later exposes a `fareCalculator`, import it here to avoid drift)
-- [ ] T008 [P] Define shared workload I/O types + workload definitions in `navbench/shared/types.ts` and `navbench/shared/workloads.ts` from `contracts/workloads.md` (the three workloads + parity-oracle contract FR-010)
-- [ ] T009 Define the benchmark-result JSON schema and an aggregator skeleton in `navbench/aggregate/schema.ts` and `navbench/aggregate/aggregate.ts` (consumes `navbench/results/*.json`, emits the comparison matrix) from `contracts/benchmark-format.md`
+- [x] T006 Build the deterministic graph fixture generator `navbench/fixtures/generate.ts` → writes `navbench/fixtures/inputs/{small,medium,large,rush}.json` (seeded RNG; fixed sizes per research R1; entities: routes with two direction polylines, ordered stop lists, fare configs `base_fare`/`base_dist_km`/`rate_per_km`)
+- [x] T007 Build the parity oracle generator `navbench/oracle/generate-oracle.ts` → writes expected-output fixtures `navbench/fixtures/oracle/*.json` for all three workloads; encode the canonical LTFRB fare formula `base_fare + max(0, dist_km - base_dist_km) × rate_per_km` per ADR-0001 (if `@komyuter/shared` later exposes a `fareCalculator`, import it here to avoid drift)
+- [x] T008 [P] Define shared workload I/O types + workload definitions in `navbench/shared/types.ts` and `navbench/shared/workloads.ts` from `contracts/workloads.md` (the three workloads + parity-oracle contract FR-010)
+- [x] T009 Define the benchmark-result JSON schema and an aggregator skeleton in `navbench/aggregate/schema.ts` and `navbench/aggregate/aggregate.ts` (consumes `navbench/results/*.json`, emits the comparison matrix) from `contracts/benchmark-format.md`
 
 **Checkpoint**: Foundation ready — all three runtimes can be implemented against the same fixtures, oracle, and result schema.
 
@@ -77,13 +77,13 @@ description: "Task list for backend language migration feasibility study"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Parity test `navbench/node/tests/parity.test.ts` asserting workload outputs === `navbench/fixtures/oracle/*.json` (run via `tsx --test`; must fail before workloads exist)
+- [x] T010 [P] [US1] Parity test `navbench/node/tests/parity.test.ts` asserting workload outputs === `navbench/fixtures/oracle/*.json` (run via `tsx --test`; must fail before workloads exist)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement the three Node reference workloads in `navbench/node/src/workloads/` (`graph.ts` Dijkstra on the two-direction graph, `snap.ts` polyline snapping in `[lng, lat]` order, `fare.ts` LTFRF fare batch)
-- [ ] T012 [US1] Implement the Node benchmark runner `navbench/node/src/run.ts` (load a fixture, execute each workload N iterations, emit metrics JSON to `navbench/results/node-baseline-<size>.json`)
-- [ ] T013 [US1] Build and record the Node baseline: run `navbench/node` at `small/medium/large/rush` and write `navbench/results/node-baseline-*.json` (SC-001/SC-002)
+- [x] T011 [US1] Implement the three Node reference workloads in `navbench/node/src/workloads/` (`graph.ts` Dijkstra on the two-direction graph, `snap.ts` polyline snapping in `[lng, lat]` order, `fare.ts` LTFRF fare batch)
+- [x] T012 [US1] Implement the Node benchmark runner `navbench/node/src/run.ts` (load a fixture, execute each workload N iterations, emit metrics JSON to `navbench/results/node-baseline-<size>.json`)
+- [x] T013 [US1] Build and record the Node baseline: run `navbench/node` at `small/medium/large/rush` and write `navbench/results/node-baseline-*.json` (SC-001/SC-002)
 
 **Checkpoint**: A reproducible Node baseline exists; US1 works and validates independently. This is the MVP increment.
 
@@ -99,20 +99,20 @@ description: "Task list for backend language migration feasibility study"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T014 [P] [US2] Rust parity tests `navbench/rust/tests/parity.rs` asserting workload outputs === oracle fixtures (run via `cargo test`; must fail first)
-- [ ] T015 [P] [US2] Go parity tests `navbench/go/parity_test.go` asserting workload outputs === oracle fixtures (run via `go test`; must fail first)
+- [x] T014 [P] [US2] Rust parity tests `navbench/rust/tests/parity.rs` asserting workload outputs === oracle fixtures (run via `cargo test`; must fail first)
+- [x] T015 [P] [US2] Go parity tests `navbench/go/parity_test.go` asserting workload outputs === oracle fixtures (run via `go test`; must fail first)
 
 ### Implementation for User Story 2
 
-- [ ] T016 [US2] Implement the Rust workloads in `navbench/rust/src/{graph,snap,fare}.rs` mirroring the Node reference semantics
-- [ ] T017 [US2] Implement the Rust runner `navbench/rust/src/main.rs` emitting `navbench/results/rust-<size>.json`
-- [ ] T018 [US2] Run the Rust harness at all four fixture sizes → `navbench/results/rust-*.json` (requires T016/T017 green)
-- [ ] T019 [US2] Implement the Go workloads in `navbench/go/{graph,snap,fare}.go` mirroring the Node reference semantics
-- [ ] T020 [US2] Implement the Go runner `navbench/go/main.go` emitting `navbench/results/go-<size>.json`
-- [ ] T021 [US2] Run the Go harness at all four fixture sizes → `navbench/results/go-*.json` (if `go` is unavailable, record `not measured` per R5/SC-002 and continue)
-- [ ] T022 [US2] Finish the aggregator `navbench/aggregate/aggregate.ts` → generate the comparison matrix (per-workload metrics per runtime, normalized against the Node baseline, vs thresholds) from `contracts/benchmark-format.md`
-- [ ] T023 [US2] Apply the decision gate (SC-003/SC-004): evaluate the matrix against thresholds and write the go/no-go recommendation to `navbench/results/recommendation.md` (if mid-study the evidence clearly favors one runtime, that selection is adopted)
-- [ ] T024 [US2] Write the decision ADR `docs/adr/0017-runtime-for-backend-navigation.md` (decision, evidence/citations to `navbench/results/*`, tradeoffs, and gradual-single-service-extraction vs full-rewrite advice) per Constitution Principle II
+- [x] T016 [US2] Implement the Rust workloads in `navbench/rust/src/{graph,snap,fare}.rs` mirroring the Node reference semantics
+- [x] T017 [US2] Implement the Rust runner `navbench/rust/src/main.rs` emitting `navbench/results/rust-<size>.json`
+- [x] T018 [US2] Run the Rust harness at all four fixture sizes → `navbench/results/rust-*.json` (requires T016/T017 green)
+- [x] T019 [US2] Implement the Go workloads in `navbench/go/{graph,snap,fare}.go` mirroring the Node reference semantics
+- [x] T020 [US2] Implement the Go runner `navbench/go/main.go` emitting `navbench/results/go-<size>.json`
+- [x] T021 [US2] Run the Go harness at all four fixture sizes → `navbench/results/go-*.json` (if `go` is unavailable, record `not measured` per R5/SC-002 and continue)
+- [x] T022 [US2] Finish the aggregator `navbench/aggregate/aggregate.ts` → generate the comparison matrix (per-workload metrics per runtime, normalized against the Node baseline, vs thresholds) from `contracts/benchmark-format.md`
+- [x] T023 [US2] Apply the decision gate (SC-003/SC-004): evaluate the matrix against thresholds and write the go/no-go recommendation to `navbench/results/recommendation.md` (if mid-study the evidence clearly favors one runtime, that selection is adopted)
+- [x] T024 [US2] Write the decision ADR `docs/adr/0017-runtime-for-backend-navigation.md` (decision, evidence/citations to `navbench/results/*`, tradeoffs, and gradual-single-service-extraction vs full-rewrite advice) per Constitution Principle II
 
 **Checkpoint**: An evidence-backed runtime decision exists as an ADR; both candidate harnesses are parity-verified.
 
@@ -128,14 +128,14 @@ description: "Task list for backend language migration feasibility study"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T025 [P] [US3] PoC parity tests asserting 100% parity vs `navbench/fixtures/oracle/*.json` for every `computeRoutes` case the PoC exposes (must fail first)
+- [x] T025 [P] [US3] PoC parity tests asserting 100% parity vs `navbench/fixtures/oracle/*.json` for every `computeRoutes` case the PoC exposes (must fail first)
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Scaffold the PoC navigation service in the winning candidate from T024 at `navbench/poc/` exposing the `contracts/navigation-api.md` seam (`computeRoutes` over a thin HTTP or CLI surface)
-- [ ] T027 [US3] Implement the realtime route-optimization capability (the most perf-critical workload) at `rush` fixture scale in `navbench/poc/src`
-- [ ] T028 [US3] Run the PoC performance threshold check: measure p95 latency + peak RSS against SC-006 thresholds and write `navbench/results/poc-*.json` (does NOT block the feasibility verdict if a threshold is missed — it informs the decision)
-- [ ] T029 [US3] Demonstrate the extraction seam: run the PoC standalone via the `contracts/navigation-api.md` contract and document (in `navbench/README.md`) how it would extract/co-locate with the Fastify server as a separate service
+- [x] T026 [US3] Scaffold the PoC navigation service in the winning candidate from T024 at `navbench/poc/` exposing the `contracts/navigation-api.md` seam (`computeRoutes` over a thin HTTP or CLI surface)
+- [x] T027 [US3] Implement the realtime route-optimization capability (the most perf-critical workload) at `rush` fixture scale in `navbench/poc/src`
+- [x] T028 [US3] Run the PoC performance threshold check: measure p95 latency + peak RSS against SC-006 thresholds and write `navbench/results/poc-*.json` (does NOT block the feasibility verdict if a threshold is missed — it informs the decision)
+- [x] T029 [US3] Demonstrate the extraction seam: run the PoC standalone via the `contracts/navigation-api.md` contract and document (in `navbench/README.md`) how it would extract/co-locate with the Fastify server as a separate service
 
 **Checkpoint**: A working PoC meets thresholds and 100% parity; the extraction path is proven.
 
@@ -149,9 +149,9 @@ description: "Task list for backend language migration feasibility study"
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] Run existing server regression: `pnpm --filter server test` (unit + integration) — zero failures (SC-007)
-- [ ] T031 [P] [US4] Run static gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check` — zero regressions
-- [ ] T032 [US4] Add new-term glossary entries to `CONTEXT.md` (e.g. candidate runtime, parity oracle, navbench, navigation service) per Constitution Principle IV
+- [x] T030 [US4] Run existing server regression: `pnpm --filter server test` (unit + integration) — zero failures (SC-007)
+- [x] T031 [P] [US4] Run static gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check` — zero regressions
+- [x] T032 [US4] Add new-term glossary entries to `CONTEXT.md` (e.g. candidate runtime, parity oracle, navbench, navigation service) per Constitution Principle IV
 
 **Checkpoint**: Zero regressions confirmed; terminology captured.
 
@@ -161,9 +161,9 @@ description: "Task list for backend language migration feasibility study"
 
 **Purpose**: Final validation, reproducibility, and documentation of the feasibility result.
 
-- [ ] T033 [P] Run the `quickstart.md` validation: all 5 scenarios mapped to SC-001…SC-007 pass
-- [ ] T034 [P] Finalize `navbench/README.md`: findings summary, reproducibility notes (seeded RNG, pinned toolchain versions recorded in `navbench/results/env-notes.md`), and link to `docs/adr/0017-*.md` + `navbench/results/recommendation.md`
-- [ ] T035 Update root design docs (`TECHSTACK.md` / `OVERVIEW.md`) with a pointer to ADR-0017 and the feasibility-study status (no production code touched)
+- [x] T033 [P] Run the `quickstart.md` validation: all 5 scenarios mapped to SC-001…SC-007 pass
+- [x] T034 [P] Finalize `navbench/README.md`: findings summary, reproducibility notes (seeded RNG, pinned toolchain versions recorded in `navbench/results/env-notes.md`), and link to `docs/adr/0017-*.md` + `navbench/results/recommendation.md`
+- [x] T035 Update root design docs (`TECHSTACK.md` / `OVERVIEW.md`) with a pointer to ADR-0017 and the feasibility-study status (no production code touched)
 
 **Checkpoint**: The feasibility study is complete, reproducible, and documented; the decision ADR and PoC stand as the deliverable.
 
