@@ -381,37 +381,6 @@ importers:
         specifier: ^2.1.9
         version: 2.1.9(@types/node@22.20.1)
 
-  apps/web:
-    dependencies:
-      '@repo/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
-    devDependencies:
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-      '@types/react':
-        specifier: ^19.0.1
-        version: 19.1.0
-      '@types/react-dom':
-        specifier: ^19.0.2
-        version: 19.1.1(@types/react@19.1.0)
-      '@vitejs/plugin-react':
-        specifier: ^5.1.4
-        version: 5.1.4(vite@5.4.17)
-      typescript:
-        specifier: 5.5.4
-        version: 5.5.4
-      vite:
-        specifier: ^5.1.4
-        version: 5.4.17(@types/node@22.20.1)
-
   packages/shared:
     dependencies:
       zod:
