@@ -4,168 +4,167 @@
 
 **Created**: 2026-08-27
 
-**Status**: Draft
+**Status**: Implemented (2026-08-27 — reconciled with the shipped branching-node model)
 
 **Input**: User description: "Let's implement a feature where admin is able to plot an alternative route from the main route."
 
-> **Canonical language note (Principle IV)**: The requested "alternative route from the main route" is the canonical **Detour** (`docs/CONTEXT.md`): _a demand-triggered, direction-specific loop that departs from and returns to a route's base polyline_. This spec uses Detour (and the ADMIN.md action label "Add alternative route") throughout. Detours belong to a **Direction** of a **Route**, never to the Route as a whole (ADR-0008).
+> **Canonical language note (Principle IV)**: The requested "alternative route from the main route" is the canonical **Detour** (`docs/CONTEXT.md`): _a demand-triggered, direction-specific loop that departs from and returns to a route's base polyline_. Detours belong to a **Direction** of a **Route**, never to the Route as a whole (ADR-0008).
+
+> **Revisions since Draft (2026-08-27)**: The shipped model is the **branching-node** flow: the Administrator drops two free-form **split/merge nodes** anywhere along the main route, then clicks to add **detour stops** (real stops, full base-stop parity, scoped to the detour) along the alternative path between them. Entry point: a dedicated **Alternative routes sidebar** at the bottom-left (the action-bar Detour _tool_ was removed). Notable stops were **removed entirely** (no consumer; see Clarifications). Detour lines use the **complement** of the main route's color, dashed, with per-piece **visibility toggles** under Map Layers → Markers; **inactive** detours fade and hide their nodes. **Activation** moved into the detour's properties (the list switch was removed). Deleting a detour is **permanent** (soft-delete removed). The integration test suite runs on a **dedicated test database** destroyed after each run.
 
 ## Clarifications
 
 ### Session 2026-08-27
 
-- Q: Where do the Detour's notable stops come from — only existing Stops, or can the editor create new detour-only Stops on the loop? → A: Existing Stops only — the Administrator marks already-created Stops (search by name, or pick from the Stops near the loop); `stop_id` always references a real Stop row and the Detour editor never creates new Stops.
-- Q: Should the server add structural validation for detour invariants (entry/exit on base polyline, loop endpoints, additional distance) or is UI-only enforcement enough? → A: Minimal server-side validation — the existing detour endpoints MUST reject, with the standard error envelope and nothing persisted, a Detour whose entry/exit lie off the owning Direction's base polyline (beyond tolerance), whose loop does not begin at entry / end at exit, or whose `additional_distance_meters` is negative; a few server tests cover these cases. No new endpoints.
+- Q: Where do the Detour's notable stops come from — only existing Stops, or can the editor create new detour-only Stops on the loop? → A: Existing Stops only … _(superseded 2026-08-27: the notable-stops feature was removed by product decision — no consumer existed; passenger messaging lives in label + commuter_instruction. Replaced by **detour stops**: points created by the detour tool are REAL stops with full base-stop parity, scoped to their detour only.)_
+- Q: Should the server add structural validation for detour invariants (entry/exit on base polyline, loop endpoints, additional distance) or is UI-only enforcement enough? → A: Minimal server-side validation — the existing detour endpoints MUST reject, with the standard error envelope and nothing persisted, a Detour whose entry/exit lie off the owning Direction's base polyline (beyond tolerance), whose loop does not begin at entry / end at exit, or whose `additional_distance_meters` is negative; server tests cover these cases. No new endpoints. _(Implemented: `assertDetourLoopEndpoints` / `assertPointOnLine` on POST+PUT, FR-023; detour labels are additionally unique per Direction.)_
+- Q: How should detour stops be modelled and managed? → A (product decision): dedicated `detour_stops` rows (ordered, cascade with the detour); splitting/merging is expressed as free-form nodes; the stops live in the left stops sidebar while a detour is focused and are fully editable.
 
 ## User Scenarios & Testing _(mandatory)_
 
-The **Administrator** is the only actor in this feature. Today the admin workspace plots the base path of each Direction and can manage Routes, Directions, Stops, and fare configuration — but there is **no way to add a Detour**: the "Add alternative route" action in the floating action bar is documented but not built (ADMIN.md FR-010, §5.10), and the detour data layer + server CRUD are already complete (`GET/POST /api/admin/directions/:directionId/detours`, `PUT/DELETE /api/admin/detours/:detourId`, ADMIN.md Appendix G). This feature delivers the Detour plotting surface in the workspace: the Administrator picks entry and exit points on a Direction's plotted base path, draws the alternative loop between them (road-following), describes it (label, instructions, notable stops), and saves — the Detour then appears nested under that Direction with a visually distinct style.
+The **Administrator** is the only actor. With a Direction's base path open, the Administrator creates an alternative route from the **Alternative routes sidebar** (bottom-left): **Add alternative route** → click the **split node** on the main route → click the **merge node** ahead of it → click to add **detour stops** along the path between them → label + instruction → **Save**. The main route stays solid and always visible as the reference; detours are dashed in the route color's complement.
 
 ### User Story 1 - Plot a detour from the main route (Priority: P1)
 
-With a Direction that already has a plotted base path open in the workspace, the Administrator starts the **Add alternative route** action, places the entry point and the exit point on the base path, draws the loop between them, and saves. The Detour is persisted under the Direction and survives a reload.
+With a Direction that already has a plotted base path open, the Administrator adds an alternative route from the sidebar, drops the split and merge nodes on the main route, places detour stops between them, and saves. The Detour persists under the Direction and survives a reload.
 
-**Why this priority**: Drawing the alternative path is the heart of this feature — every other capability (instructions, notable stops, management) hangs off a saved Detour. Without this story the feature delivers nothing, matching ADMIN.md SC-009 ("Create a nested detour").
-
-**Independent Test**: A reviewer can open a Direction with a plotted base path, mark entry and exit on it, draw an alternative loop between them, save, and confirm the Detour appears nested under the Direction after a reload — no other capability required.
+**Independent Test**: Open a Direction with a plotted base path → **Add alternative route** → click split node → click merge node → add ≥1 detour stop → save → the Detour appears in the Alternative routes sidebar and on the map after a reload.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Direction with a plotted base path is open in the workspace, **When** the Administrator chooses **Add alternative route**, **Then** the workspace enters Detour-plotting mode with instructions visible and the base path still fully rendered as the reference.
-2. **Given** Detour-plotting mode is active, **When** the Administrator places the entry point, **Then** the point is placed on the map at the clicked position and snapped onto the Direction's base polyline with the snapped result clearly shown.
-3. **Given** the entry point is placed, **When** the Administrator places the exit point, **Then** the exit point is likewise snapped onto the base polyline, and the system tells the Administrator whether the two points are in the correct travel order (entry before exit along the direction of travel) or whether they must be swapped.
-4. **Given** valid entry and exit points, **When** the Administrator draws the alternative loop, **Then** the loop is routed from the entry point to the exit point following the road network (same best-effort road-following used for the base path) and is offered as the detour path.
-5. **Given** the drawn loop, **When** the Administrator saves, **Then** one atomic save persists the Detour under the Direction, and after reload the Detour's loop, entry, and exit are still shown in the workspace.
-6. **Given** the Administrator tries to save an entry point that does not precede the exit point along the direction of travel, or a degenerate loop (entry at exit, zero-length), **When** they save, **Then** the save is refused with a clear explanation and nothing is saved.
+1. **Given** a Direction with a plotted base path is open, **When** the Administrator chooses **Add alternative route** in the Alternative routes sidebar, **Then** the editor opens with step-by-step instructions (split → merge → stops) and the base path fully rendered as the reference.
+2. **Given** the editor is open, **When** the Administrator clicks the **split node** position on the main route, **Then** the node is placed at the clicked position **snapped onto the base polyline** with the snap result shown; off-corridor clicks are refused with a recovery message.
+3. **Given** the split node is placed, **When** the Administrator clicks the **merge node** position, **Then** it is snapped onto the base polyline; placing the merge **before** the split (out of travel order) is refused with a **Swap split/merge** action; a merge within 30 m of the split (degenerate) is refused.
+4. **Given** valid nodes, **When** the Administrator clicks along the alternative path, **Then** each click adds a **detour stop** (a real stop with full base-stop parity, detour-scoped), and the loop is road-followed through `split → detour stops → merge`.
+5. **Given** the composition, **When** the Administrator saves, **Then** one atomic save persists the Detour (nodes, loop, detour stops) under the Direction; after reload everything is still rendered.
+6. **Given** the Administrator is focused on a Detour, **When** they tap the map on the **Select** tool (or the sidebar's back button), **Then** they return to the main route; detour placement only ever happens on the **Add** tool.
 
 ### User Story 2 - Describe the detour precisely (Priority: P2)
 
-After (or while) drawing the loop, the Administrator gives the Detour its identity and rider-facing content: a label, the commuter instruction (required), an optional driver instruction, and any notable stops served by the alternative path — each marked detour-only or not. The system shows the exact additional distance the Detour adds over the replaced base segment.
+The Administrator gives the Detour its identity and rider-facing content: an auto-labeled title, the required commuter instruction, an optional driver instruction, and its **detour stops** (renamed/typed/dragged like base stops). The system shows the exact additional distance over the replaced base segment.
 
-**Why this priority**: A Detour is only usable by Commuters if its instruction text is truthful and its notable stops are known; the exact additional distance is part of the fare/distance model (ADR-0008). This story makes the plotted Detour complete and consumable.
+**Why this priority**: A Detour is only usable by commuters if its instruction text is truthful and its stops are known; the exact additional distance is part of the fare/distance model (ADR-0008).
 
-**Independent Test**: A reviewer can open an existing (or freshly drawn) Detour editor, fill in or change the label, commuter instruction, driver instruction, and notable-stop marking, save, and confirm every value persists unchanged after a reload.
+**Independent Test**: Open a Detour editor, change label/commuter/driver instruction and a detour stop's name/type, save, and confirm every value persists unchanged after a reload.
 
 **Acceptance Scenarios**:
 
-1. **Given** a new Detour is being drawn, **When** it is first created, **Then** it receives an auto-generated default label (e.g. "Detour 1", "Detour 2", … in creation order within the Direction) which the Administrator can rename at any time.
-2. **Given** the Administrator intends to save, **When** the label or the commuter instruction is empty, **Then** the save is blocked with a clear explanation listing exactly which required field is missing.
-3. **Given** a drawn loop with valid entry/exit, **When** the Detour editor is shown, **Then** the additional distance (the alternative loop's length minus the replaced base-path segment's length) is computed from the geometry and displayed exactly — never fabricated, rounded-into-plausibility, or hand-entered — and it is ≥ 0.
-4. **Given** the loop geometry changes (re-drawn), **When** the change is applied, **Then** the displayed additional distance is recomputed from the new geometry and stays exact.
-5. **Given** notable stops are supported, **When** the Administrator marks an **existing** Stop served by the Detour as notable, **Then** it is added to the Detour's notable-stop list with an explicit **detour-only** flag (default off) that the Administrator can toggle; marking any stop as notable is optional.
-6. **Given** a saved Detour, **When** the Administrator reloads the workspace, **Then** the label, instructions, notable stops (with flags), and additional distance are all still present and unchanged.
+1. **Given** a new Detour is being drawn, **When** it is first created, **Then** it receives an auto-generated default label (e.g. "Detour 1", "Detour 2", … in creation order within the Direction), editable at any time.
+2. **Given** the Administrator intends to save, **When** the label or the commuter instruction is empty, **Then** the save is blocked with a clear explanation naming the missing field.
+3. **Given** nodes and a loop, **When** the editor is shown, **Then** the additional distance (loop length − replaced base-segment length) is computed exactly from geometry and displayed, ≥ 0.
+4. **Given** detour stops change (added, removed, or dragged), **When** the composition updates, **Then** the additional distance is recomputed exactly from the new geometry.
+5. **Given** the Detour's detour stops, **When** the Administrator clicks one on the map (or its row in the left stops sidebar), **Then** its properties editor opens (name, type, guaranteed service, landmark hint, notes) and it can be dragged to a new position.
+6. **Given** a saved Detour, **When** the Administrator reloads the workspace, **Then** the label, instructions, detour stops, and additional distance are all still present and unchanged.
 
 ### User Story 3 - Manage a direction's detours (Priority: P2)
 
-The Administrator sees every Detour of the current Direction in one place, opens any of them into the editor, re-plots or edits them, and removes one (soft) when it is no longer needed — without ever leaving the workspace.
+Every Detour of the current Direction is listed in the **bottom-left Alternative routes sidebar** (pinned below the stops sidebar). Focusing one (row click or a stop-marker click) loads it into the editor; while focused, the stops sidebar **swaps to that detour's stops** with matching marker designs. Activation is toggled in the detour's properties; removal is **permanent** with a styled confirm.
 
-**Why this priority**: A Direction can accrue several alternative paths over time; without a nested list and edit/remove paths the plotted Detours can never be corrected or retired, which makes the whole feature one-way.
-
-**Independent Test**: A reviewer can list the Detours of a Direction, open one in the editor, change its loop or text, save, and soft-delete another with a styled confirm — testable with two saved Detours alone.
+**Independent Test**: List the Detours of a Direction, focus one, change its stops/text, save; toggle its active state from the properties; permanently delete another with a styled confirm — testable with two saved Detours.
 
 **Acceptance Scenarios**:
 
-1. **Given** a Direction has one or more saved Detours, **When** the Administrator views the Direction's data, **Then** all Detours appear in a nested section under the Direction with their labels visible and the active state indicated.
-2. **Given** a Detour is shown in the list, **When** the Administrator opens it, **Then** the editor loads with its entry, exit, loop, instructions, and notable stops ready to edit, and the base path is again shown as reference.
-3. **Given** the Administrator edits a saved Detour, **When** they change the loop or any text field and save, **Then** the update is a single atomic action and the reloaded workspace shows the updated Detour.
-4. **Given** the Administrator removes a Detour, **When** they confirm the styled remove prompt, **Then** the Detour is deactivated softly: it stops appearing in the workspace (map and list), no hard delete occurs, and the other Detours of the Direction are unaffected.
-5. **Given** two Detours on the same Direction, **When** both are rendered, **Then** they are visually distinguishable from each other and from the base path.
+1. **Given** a Direction has saved Detours, **When** the Administrator views it, **Then** all Detours appear in the bottom-left sidebar (label + visibility eye + active indicator), pinned to the bottom regardless of stops-list height.
+2. **Given** a Detour in the list (or on the map), **When** the Administrator focuses it, **Then** the editor loads with nodes, loop, detour stops, and text ready to edit, the base path is shown as reference, and the left stops sidebar shows that detour's stops.
+3. **Given** the Administrator edits a saved Detour, **When** they change geometry or any field and save, **Then** the update is a single atomic action and the reloaded workspace shows the update.
+4. **Given** the Administrator removes a Detour, **When** they confirm the styled prompt, **Then** the Detour is **permanently deleted** (row removed; label freed; other Detours unaffected) — no soft-delete tier exists.
+5. **Given** two Detours on the same Direction, **When** both are visible, **Then** they are distinguishable from each other and from the base path (complement-family colors, dashed, per-detour variation).
+6. **Given** an inactive Detour, **When** rendered, **Then** its line renders at lowered opacity and its split/merge nodes are hidden; the **active** switch lives in the Detour's properties panel.
 
 ### User Story 4 - Fix mistakes and keep work safe (Priority: P3)
 
-While drawing or describing a Detour, the Administrator steps back through mistakes with Undo/Redo; if they navigate away with an unfinished Detour, the work is kept and offered on return; if another Administrator saves the same Detour concurrently, the conflict is surfaced without losing local work.
+Undo/Redo steps through every node/stop/text action; unfinished Detours are kept as 24 h client drafts and offered on return; concurrent-save conflicts surface without losing local work.
 
-**Why this priority**: Detour plotting is iterative, and ADMIN.md FR-020's safety behaviors (drafts, styled confirms, toasts, undo) already exist for the base path — an editor that dropped them would be the odd one out and would punish real plotting sessions.
-
-**Independent Test**: A reviewer can undo and redo Detour-plotting steps (entry placement, exit placement, loop draw, text changes), confirm an unfinished Detour is offered for restore after navigating away, and see a clear message on a simulated save conflict — no other capability required.
+**Independent Test**: Undo/redo detour-plotting steps (split, merge, stop adds, text), confirm restore is offered after navigating away, and see a clear conflict message on a simulated save conflict.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Administrator has placed points, drawn the loop, or edited Detour text, **When** they invoke Undo, **Then** the most recent Detour-plotting action is reversed; Redo re-applies it.
-2. **Given** an unfinished Detour with unsaved changes, **When** the Administrator navigates away, **Then** they are warned, and if they leave anyway the in-progress Detour is kept as a draft and offered for restore when they return.
-3. **Given** the Administrator saves a Detour another Administrator has concurrently changed, **When** the save is attempted, **Then** a clear conflict message is shown and the local work is not silently discarded.
+1. **Given** placed nodes/stops or edited text, **When** the Administrator invokes Undo, **Then** the most recent detour action is reversed (including the placement phase); Redo re-applies it.
+2. **Given** an unfinished Detour with unsaved changes, **When** the Administrator leaves, **Then** a beforeunload warning fires and the in-progress composition is kept as a draft and offered for restore on return.
+3. **Given** a save against a concurrently changed list, **When** attempted, **Then** a clear conflict message is shown, the list is refetched, and the local work is not silently discarded.
 
 ### Edge Cases
 
-- The Direction has **no plotted base path yet** — the **Add alternative route** action is unavailable (disabled with an explanation): a Detour has nothing to depart from and return to without a base path. The base path must be plotted first.
-- Entry and exit are placed **out of travel order** (exit before entry along the polyline) — the save is refused with an explanation and a way to swap the two points; nothing is saved.
-- Entry equals exit (or the loop is zero-length) — refused with a clear explanation: an alternative route must add a non-degenerate loop.
-- The road-following service is unavailable, slow, or has no token configured — the loop degrades to a straight line with a visible warning and the Administrator can still finish and save (best-effort, never blocking) — consistent with the base-path behavior.
-- The loop cannot avoid crossing the base path or another Detour — allowed at the data level (activation semantics are resolved server-side later, ADR-0012); the workspace still renders every path distinctly so nothing becomes ambiguous to read.
-- A click for entry or exit lands far off the base polyline — the point is still snapped onto the base polyline at the nearest position with the snapped result shown; a large snap distance is surfaced with a warning so the Administrator can confirm intent.
-- The Detour has no notable stops — allowed (notable stops are optional).
-- The Direction or its base path was deleted/soft-deactivated while the Administrator was editing — the load or save surfaces a clear error with a retry path and the local work is retained.
-- The Administrator starts a Detour and saves while another Administrator deletes the Direction — the save fails with a clear message; no partial Detour is created.
-- The commuter instruction references travel time — never displayed anywhere (ADR-0009): the Detour editor shows distances, not durations.
-- Coordinate-order regression — a placed entry, exit, or loop vertex appearing "in the ocean" (a swapped `[lng, lat]` pair) is treated as a release-blocking defect; points appear exactly where clicked.
-- More than a handful of Detours on one Direction — the list stays ordered and scannable (label + active state), and each loop remains distinguishable on the map.
-- A malformed Detour payload (entry/exit off the base polyline, loop not starting/ending at entry/exit, negative additional distance) reaches the server directly — the server rejects it with the standard error envelope and persists nothing (FR-023); the workspace UI already refuses these before sending.
+- The Direction has **no plotted base path** — **Add alternative route** is explained as unavailable; the base path must be plotted first.
+- The merge node is placed **before** the split (out of travel order) — refused with a **Swap split/merge**; nothing is saved.
+- Split and merge are **too close** (< 30 m) — refused with a clear explanation.
+- A node click lands far off the route — refused with a visible recovery message ("place the split/merge node near it"); a corridor cap (~5 km) guards sanity.
+- **No detour stops yet** — the save gate requires ≥1: "click along the path between the split and merge nodes".
+- Road-following is unavailable — the loop degrades to a straight line with a visible warning; saving still works (best-effort, never blocking).
+- **Select tool** while a Detour is focused — map taps return to the main route; placement only happens on the **Add** tool (no stray stops).
+- The loop crosses the base path or another Detour — allowed; every path renders distinctly.
+- The Direction/base path changed while editing — load/save surfaces a clear error with a retry path; local work retained.
+- The commuter instruction references travel time — never displayed anywhere (ADR-0009): the editor shows distances only.
+- Coordinate-order regression ("ocean" points) — release-blocking; points appear exactly where clicked (nodes, stops, loop, export).
+- A malformed payload (entry/exit off the polyline, loop endpoints drift, negative distance) reaches the server — rejected with the standard envelope, nothing persisted (FR-023); duplicate detour labels within a Direction are also rejected.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: The Administrator MUST be able to start plotting a Detour for the currently open Direction of a Route via an **Add alternative route** action in the workspace's floating action bar (ADMIN.md FR-010); the action MUST be unavailable, with a clear explanation, until that Direction has a plotted base polyline.
-- **FR-002**: A Detour MUST be nested under exactly one Direction of a Route; the workspace MUST make the owning Direction explicit while plotting and MUST NOT allow saving a Detour against the wrong Direction.
-- **FR-003**: The Administrator MUST place the Detour's **entry** and **exit** points on the map; each placement MUST be snapped onto the owning Direction's base polyline with the snapped result visibly shown (ADR-0008 geometry-point model — these are not stop references).
-- **FR-004**: The entry point MUST precede the exit point along the Direction's polyline (direction of travel); saving an out-of-order pair MUST be refused with a clear explanation and a swap action.
-- **FR-005**: The alternative loop MUST begin exactly at the entry point and end exactly at the exit point; a degenerate loop (entry at exit, or zero-length loop) MUST be refused with a clear explanation.
-- **FR-006**: The loop MUST be routed between entry and exit following the road network (the same best-effort road-following used for the base path), honor one-way travel constraints, and be offered as the Detour's path; when road-following is unavailable, the loop MUST degrade to a straight line with a visible warning and MUST never block the Administrator from finishing the Detour (FR-009 behavior of the base path, extended).
-- **FR-007**: Saving a Detour MUST be a single atomic action that persists the label, entry, exit, loop, instructions, notable stops (if any), and the computed additional distance together; after reload the Detour MUST appear nested under its Direction.
-- **FR-008**: A new Detour MUST receive an auto-generated default label in creation order within the Direction (e.g. "Detour 1", "Detour 2", …); the label MUST be editable and MUST be non-empty at save time.
+- **FR-001**: The Administrator MUST be able to start plotting a Detour for the open Direction of a Route via an **Add alternative route** action in the **bottom-left Alternative routes sidebar**; the action MUST be unusable, with a clear explanation, until that Direction has a plotted base polyline. (The action-bar Detour _tool_ was removed in favor of the sidebar.)
+- **FR-002**: A Detour MUST be nested under exactly one Direction of a Route; the owning Direction MUST be explicit while plotting.
+- **FR-003**: The Administrator MUST place the Detour's **split** and **merge** nodes on the map, each **snapped onto the base polyline** with the snapped result visibly shown (ADR-0008 geometry-point model — not stop references); nodes are freely placeable anywhere along the route.
+- **FR-004**: The **merge** node MUST be ahead of the **split** along the polyline (direction of travel); an out-of-order pair MUST be refused with a clear explanation and a **Swap split/merge** action.
+- **FR-005**: The alternative loop MUST begin exactly at the split node and end exactly at the merge node; a degenerate pair (nodes < 30 m apart) MUST be refused.
+- **FR-006**: The loop MUST be road-followed through `split → detour stops → merge` (same best-effort engine as the base path); when unavailable it MUST degrade to a straight line with a visible warning and MUST never block finishing the Detour.
+- **FR-007**: Saving MUST be a single atomic action persisting the label, split/merge nodes, loop, instructions, detour stops, and computed additional distance; after reload the Detour MUST appear under its Direction.
+- **FR-008**: A new Detour MUST receive an auto-generated default label in creation order within the Direction ("Detour 1", "Detour 2", …); editable and non-empty at save time.
 - **FR-009**: The **commuter instruction** MUST be non-empty at save time; the **driver instruction** MUST be optional.
-- **FR-010**: The Administrator MUST be able to mark **existing** Stops served by the Detour as **notable stops**, each with an explicit **detour-only** flag (default off); the notable-stop list MUST reference already-created Stops only (search by name, or pick from the Stops near the loop) — the Detour editor MUST NOT create new Stops; marking notable stops MUST be optional.
-- **FR-011**: The system MUST compute the Detour's **additional distance** exactly — alternative-loop length minus the replaced base-segment length — display it exactly, recompute it whenever the loop geometry changes, and never accept or display a hand-entered, estimated, or rounded-into-plausibility value (Principle I; ADR-0008 fare/distance model).
-- **FR-012**: The Detour MUST have a **distinct visual style** on the map: clearly different from the Direction's base path and from other Detours, legible even when Detours overlap or cross the base path, and consistent with the established visual language (The Route Sign); selection MUST never be conveyed by color or shape alone (ADMIN.md FR-018/SC-012).
-- **FR-013**: The workspace MUST show a **nested list of the Direction's Detours** (label and active state); opening one MUST load it into the editor with entry, exit, loop, instructions, and notable stops ready to edit.
-- **FR-014**: The Administrator MUST be able to **remove a Detour** through a styled confirm; removal MUST be a soft deactivation (the Detour stops appearing on the map and in the list, and no other Detour of the Direction is affected), never a hard delete.
-- **FR-015**: Detour-plotting edits (entry placement, exit placement, loop draw/re-draw, and text edits) MUST support **Undo** and **Redo** like the base-path editor.
-- **FR-016**: An unfinished Detour with unsaved changes MUST be kept as a **draft** (client-local, 24-hour time-to-live) when the Administrator leaves, warned on the way out, and offered for restore on return (the workspace's existing draft behavior, extended to Detours).
-- **FR-017**: A save conflict (another Administrator changed the same Detour or Direction) MUST surface a clear conflict message and MUST NOT silently discard the local work.
-- **FR-018**: The workspace MUST show loading, empty, and error states for the Detour list and editor (e.g. no Detours yet; load failure with retry; save failure) so the Administrator always understands the state of the data.
-- **FR-019**: The page MUST NOT display any travel-time estimate anywhere in the Detour workflows (ADR-0009 regression guard).
-- **FR-020**: Placed entry, exit, and loop vertices MUST appear exactly at the map positions the Administrator intended — a coordinate-order misplacement ("in the ocean") is a release-blocking defect.
-- **FR-021**: The Detour editor MUST be keyboard-operable and meet WCAG AA contrast and focus visibility, matching the rest of the workspace; shortcuts MUST complement, not replace, visible controls.
-- **FR-022**: All displayed distances (loop length, replaced base segment, additional distance) MUST be exact and legible; the workspace MUST NOT fabricate or round-into-plausibility any value (Principle I).
-- **FR-023**: The **server** MUST validate the structural Detour invariants on the **existing** detour endpoints (no new endpoints): it MUST reject, with the standard error envelope and nothing persisted, a Detour whose entry or exit lies off the owning Direction's base polyline (beyond a small tolerance), whose loop does not begin exactly at the entry point or end exactly at the exit point, or whose `additional_distance_meters` is negative. The workspace UI refuses these before sending (FR-004/FR-005); the server is the last gate for every consumer.
+- ~~**FR-010**~~ **REMOVED (2026-08-27)**: notable stops (no consumer; migration `0004_drop_detour_notable_stops`). Replaced by **detour stops** (below).
+- **FR-010a (detour stops)**: Points created by the detour tool MUST be real stops with full base-stop parity (name, type, guaranteed service, landmark hint, notes), stored as dedicated `detour_stops` rows scoped to their Detour only — never part of the base chain; ordered; draggable; editable via the stops sidebar and properties rail.
+- **FR-011**: The additional distance (loop length − replaced base-segment length) MUST be computed exactly from geometry, displayed exactly, recomputed on any geometry change, and never hand-entered or rounded-into-plausibility (ADR-0008).
+- **FR-012**: Detour lines MUST be visually distinct: **dashed** and colored as the **complement** of the owning route's color (with a small per-detour variation), so they contrast the solid base path while remaining distinguishable from one another. **Inactive** Detours render at lowered opacity with their nodes hidden. Every piece — detour lines, detour stop markers, detour stop names, split/merge nodes — has an independent visibility toggle (Map Layers → Markers → Alternative routes, all on by default); selection MUST never be conveyed by color alone.
+- **FR-013**: The workspace MUST show a **nested list of the Direction's Detours** in the bottom-left **Alternative routes sidebar** (loading/empty/error states); focusing one (row or stop-marker click) loads it into the editor, and while focused the **left stops sidebar swaps to that Detour's stops** with matching marker designs.
+- **FR-014**: Removing a Detour MUST be a **permanent delete** behind a styled confirm (soft-delete removed by product decision); other Detours must be unaffected and the removed label becomes reusable.
+- **FR-015**: Detour-plotting edits (split placement, merge placement, stop add/move/remove, text) MUST support **Undo/Redo** like the base editor (including the placement phase).
+- **FR-016**: An unfinished Detour MUST be kept as a **draft** (client-local, 24 h TTL), a warning shown on leaving, and an offer to restore made on return.
+- **FR-017**: A save conflict MUST surface clearly and MUST NOT silently discard local work (list refetched, message shown).
+- **FR-018**: Loading, empty, and error-with-retry states MUST exist for the Alternative routes sidebar and the editor.
+- **FR-019**: No travel-time estimate MUST be displayed anywhere in the Detour workflows (ADR-0009).
+- **FR-020**: Placed nodes, stops, and loop vertices MUST appear exactly at the intended map positions — a coordinate-order misplacement ("ocean") is release-blocking (also enforced in the export contract).
+- **FR-021**: The Detour surfaces MUST be keyboard-operable and meet WCAG AA contrast/focus, matching the workspace.
+- **FR-022**: All displayed distances (loop, replaced segment, additional distance) MUST be exact and legible.
+- **FR-023**: The **server** MUST validate the structural invariants on the existing detour endpoints (no new endpoints): reject with the standard envelope and nothing persisted a Detour whose entry/exit lie off the base polyline, whose loop does not start/end at entry/exit, whose `additional_distance_meters` is negative, or whose **label duplicates an existing detour label in the Direction** (POST and PUT).
 
 ### Key Entities
 
-- **Detour**: the alternative route entity being plotted — nested under one Direction (`direction_id`), defined by `label`, `entry` and `exit` points (geometry on the base polyline, ADR-0008), `detour_polyline` (the alternative loop), `additional_distance_meters` (exact, computed), `commuter_instruction` (required) and `driver_instruction` (optional), `notable_stops[]` (each `{ stop_id, name, is_detour_only }`), and `is_active` (soft delete). Server schema and CRUD already exist and are consumed as-is (ADMIN.md Appendix G).
-- **Direction**: the directed service the Detour is nested under; its `base_polyline` is the reference path and the source of the replaced segment between entry and exit.
-- **Notable Stop**: an **existing** Stop served by the Detour, carried as `{ stop_id, name, is_detour_only }`; optional, addable/removable in the editor. `stop_id` always references a real, already-created Stop row — the Detour editor does not create new Stops; pick candidates come from the Stops near the loop or a name search.
-- **Draft** (client-only, not persisted): the unsaved working state of an unfinished Detour — placed entry/exit, drawn loop, and editor history — kept locally for 24h and offered for restore, extending the existing base-path draft.
+- **Detour**: nested under one Direction (`direction_id`), defined by `label`, `entry`/`exit` (split/merge nodes — geometry on the base polyline), `detour_polyline` (the loop through `detour_stops`), `additional_distance_meters` (exact), `commuter_instruction` (required), `driver_instruction` (optional), `detour_stops[]`, and `is_active` (activation; no soft-delete).
+- **Detour Stop** (`detour_stops`): a real stop owned by a Detour — `detour_stop_id`, `detour_id` (cascade), `stop_order`, `name`, `location` (Point), `type` (`terminal`/`major_stop`/`waiting_area`), `is_guaranteed_service`, `landmark_hint`, `notes`. Never part of the base chain.
+- **Direction**: the directed service the Detour is nested under; `base_polyline` is the reference path and the replaced segment between split and merge.
+- **Draft** (client-only): the unsaved working state of an unfinished Detour — nodes, stops, loop, history — kept locally for 24 h and offered for restore.
+- **Layer visibility** (client-only): per-piece toggles for detour lines, detour stop markers, detour stop names, and split/merge nodes, plus per-detour eye toggles (session-scoped).
 
 ## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of reviewers (≥ 5) can plot a Detour (entry, exit, loop, save) on a Direction with a plotted base path in under 5 minutes on their first attempt, without guidance.
-- **SC-002**: 100% of reviewers confirm a saved Detour still appears nested under its Direction after a page reload, with loop, entry, exit, and all text content unchanged.
-- **SC-003**: 100% of reviewers confirm the alternative loop follows the road network between entry and exit (or, when road-following is unavailable, a visible straight-line-fallback warning is shown and the Detour still saves), and that entry and exit sit on the base polyline.
-- **SC-004**: 100% of reviewers confirm the Detour is visually distinct from the Direction's base path and from every other Detour on the same Direction, including overlapping/crossing cases.
-- **SC-005**: The displayed additional distance matches an independent geodesic measurement of (alternative-loop length − replaced base-segment length) for 100% of plotted Detours — exact, never estimated.
-- **SC-006**: 100% of reviewers can add and remove notable stops, toggle the detour-only flag, and write both instructions, and confirm all of it persists after reload.
-- **SC-007**: 100% of reviewers can undo and redo Detour-plotting steps, and confirm an unfinished Detour is offered for restore after navigating away and honored until its draft expires.
-- **SC-008**: 100% of reviewers can soft-remove a Detour with the styled confirm and confirm it disappears from the workspace while the Direction's other Detours remain untouched.
-- **SC-009**: 100% of reviewers who attempt **Add alternative route** on a Direction without a plotted base path see a clear explanation instead of an unusable editor.
-- **SC-010**: 100% of reviewers confirm out-of-order or degenerate entry/exit is refused with a clear explanation and that nothing is saved in those cases.
-- **SC-011**: On a simulated concurrent-save conflict, 100% of reviewers see a clear conflict message and their local work is still present afterwards.
-- **SC-012**: No travel-time estimate is displayed anywhere in the Detour workflows (ADR-0009 regression guard).
-- **SC-013**: 100% of reviewers confirm every entry, exit, and loop vertex they placed appears exactly where intended — no reviewer observes a coordinate-swapped ("ocean") point.
-- **SC-014**: Hand-crafted Detour payloads that violate the structural invariants (entry or exit off the base polyline, loop not starting/ending at entry/exit, negative additional distance) are rejected by the server with the standard error envelope and nothing persisted — demonstrated for each case via the existing endpoints.
+- **SC-001**: 100% of reviewers (≥ 5) can plot a Detour (split node, merge node, ≥1 stop, save) on a Direction with a plotted base path in under 5 minutes without guidance.
+- **SC-002**: 100% of reviewers confirm a saved Detour still appears under its Direction after reload, with nodes, loop, detour stops, and text unchanged.
+- **SC-003**: 100% of reviewers confirm the loop road-follows through the nodes and stops (with the visible straight-line fallback when unavailable) and that both nodes sit on the base polyline.
+- **SC-004**: 100% of reviewers confirm a Detour is visually distinct from the base path and from other Detours, and that inactive Detours are visibly faded with nodes hidden.
+- **SC-005**: The displayed additional distance matches an independent geodesic measurement of (loop − replaced segment) for 100% of plotted Detours.
+- **SC-006**: 100% of reviewers can add, rename, retype, drag, and remove detour stops, and confirm they persist after reload and render with the distinct hollow-dashed marker style.
+- **SC-007**: 100% of reviewers can undo/redo detour steps and confirm restore is offered after leaving.
+- **SC-008**: 100% of reviewers can permanently delete a Detour with the styled confirm and confirm the other Detours are untouched.
+- **SC-009**: Attempting **Add alternative route** without a plotted base path shows a clear explanation instead of an unusable editor.
+- **SC-010**: 100% of reviewers confirm out-of-order or degenerate split/merge is refused with a clear explanation and nothing is saved.
+- **SC-011**: On a simulated concurrent-save conflict, 100% of reviewers see a clear message and their local work remains.
+- **SC-012**: No travel-time estimate is displayed anywhere in the Detour workflows (ADR-0009).
+- **SC-013**: 100% of reviewers confirm every placed node/stop/vertex appears exactly where intended — no coordinate-swapped point (admin rendering and server export contract).
+- **SC-014**: Hand-crafted payloads violating the invariants (entry/exit off polyline, loop endpoints drift, negative distance, duplicate label) are rejected by the server with the standard envelope and nothing persisted.
 
 ## Assumptions
 
-- "Alternative route from the main route" is the canonical **Detour** (`docs/CONTEXT.md`, ADR-0008); this spec deliberately uses canonical language (Principle IV) and the ADMIN.md action label "Add alternative route".
-- **Scope**: Detour (alternative route) plotting UI only. The restriction editor ("Add restriction", no-stop segments) is a separate future feature (ADMIN.md R1/R3 items) and is **out of scope** here, matching the user request and spec-007's precedent that detours and restrictions are separate features.
-- **Out of scope (R2)**: Detour conditional triggers — `active_timeframes` and `condition` (ADR-0012) are neither in the shared types nor the server today, so this feature adds no trigger fields, no trigger UI, and no server-side active-detour resolution. The Detour model used is exactly the current one (ADR-0008 fields).
-- The detour data layer and server CRUD are **complete and correct** (`apps/server/src/api/detours.ts`, shared zod schemas); this feature consumes them and adds **no new server endpoints**. The existing detour endpoints gain **minimal structural validation** (no new endpoints, no schema change): the server MUST reject, with the standard error envelope and nothing persisted, a Detour whose entry or exit lies off the owning Direction's base polyline (beyond a small tolerance), whose loop does not begin exactly at the entry point or end exactly at the exit point, or whose `additional_distance_meters` is negative — covered by a few server tests. The workspace UI additionally refuses invalid saves with clear explanations before any request is sent (FR-004/FR-005).
-- A Detour can only be plotted on a Direction that already has a plotted base polyline; the workspace blocks the action with an explanation otherwise (FR-001) rather than auto-creating a base path.
-- Entry and exit are **geometry points on the base polyline** (ADR-0008), not stop references; notable stops are a separate, optional list referencing **existing** Stops (`notableStopSchema`) — the Detour editor never creates new Stops: the Administrator picks from already-created Stops (name search, or candidates near the loop) and marks them with a detour-only flag (FR-010).
-- **Additional distance** is computed exactly from geometry by the system (loop length − replaced base-segment length) and included in the save payload; Administrators do not hand-enter it (FR-011). It is ≥ 0 and displayed read-only as an exact value.
-- The Detour editor **reuses the workspace's existing safety behaviors** — 24h client-local drafts, Undo/Redo, styled confirms, toasts, conflict handling, keyboard paths, WCAG AA contrast (ADR-0014 non-goals) — extended to Detours, not re-designed.
-- **Visual style** follows the established design tokens (DESIGN.md, The Route Sign); the requirement is _distinctness_ from base path and other Detours, while the exact color/pattern treatment (with signal amber reserved for attention) is a design decision made at implementation time, consistent with ADMIN.md FR-018.
-- Multiple Detours per Direction are allowed and always rendered distinctly; no activation semantics are evaluated at data-editing time (that is R2 request-time resolution, ADR-0012).
-- No ETA anywhere (ADR-0009); the Detour workflows display distances only.
-- The workspace remains desktop-only (≥ 1024px), per ADR-0014; mobile is out of scope.
+- "Alternative route from the main route" is the canonical **Detour**; this spec uses canonical language and the "Add alternative route" label.
+- **Scope**: Detour plotting only. Restriction editing and ADR-0012 conditional triggers remain out of scope.
+- The detour data layer + server CRUD are consumed as-is; FR-023 adds minimal structural validation on the existing endpoints plus per-Direction label uniqueness. **No new server endpoints**.
+- A Detour requires an already-plotted base polyline.
+- Split/merge are **geometry points** on the base polyline (ADR-0008), not stop references; **detour stops are real rows** scoped to the Detour (this replaces the removed notable-stop annotation).
+- **Additional distance** is computed exactly from geometry by the system and is ≥ 0; never hand-entered.
+- The Detour editor **reuses the workspace's safety behaviors** (24 h drafts, undo/redo, styled confirms, conflict handling, keyboard paths, WCAG AA) extended to Detours.
+- **Visual style**: solid main route vs dashed/complement-colored detour lines; the exact design tokens follow DESIGN.md (The Route Sign); visibility toggles are on by default; node/stop indicators show as distinct plates.
+- Multiple Detours per Direction are allowed and always rendered distinctly; no activation semantics are evaluated at data-editing time (R2, ADR-0012).
+- No ETA anywhere (ADR-0009).
+- The workspace remains desktop-only (≥ 1024px, ADR-0014); mobile out of scope.
+- The integration test suite runs against a **dedicated `komyuter_test` database** (schema replayed from migrations, destroyed on teardown) with a main-DB sweep safeguard — CRUD tests never touch the live dev database.
