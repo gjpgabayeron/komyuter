@@ -21,6 +21,7 @@ import {
 } from "@/lib/plottingStore";
 import { clearSelection } from "@/lib/selection";
 import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
+import { useDetourStore } from "@/features/detours/detourStore";
 import type { DraftPayload } from "@/lib/draft";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
 import { pathFromConnections } from "@/lib/connections";
@@ -436,10 +437,16 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const dirtyRef = useRef(false);
   dirtyRef.current = showSave;
 
+  // The detour editor holds unsaved work too (US4): its composition is
+  // drafted to localStorage continuously, but the native prompt still
+  // protects the tab-close path on top of the restore offer.
+  const detourOpenRef = useRef(false);
+  detourOpenRef.current = useDetourStore.getState().open;
+
   // Tab close / refresh: ask before the page unloads.
   useEffect(() => {
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
-      if (!dirtyRef.current) return;
+      if (!dirtyRef.current && !detourOpenRef.current) return;
       event.preventDefault();
       event.returnValue = "";
     };

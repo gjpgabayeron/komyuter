@@ -12,16 +12,21 @@ import {
 } from "./routeCache";
 import type {
   CreateRoutePayload,
+  DetourEntity,
   DirectionEntity,
   DirectionSaveResult,
   RouteDetail,
   RouteSummary,
+  SaveDetourPayload,
   SaveDirectionPayload,
   StopEntity,
+  UpdateDetourPayload,
 } from "./routesApi";
 import {
+  createDetour,
   createRoute,
   deleteRoute,
+  listDetours,
   listOverview,
   getDirectionStops,
   getRoute,
@@ -29,6 +34,8 @@ import {
   listRoutes,
   replaceDirection,
   saveDirection,
+  deleteDetour,
+  updateDetour,
   updateRoute,
 } from "./routesApi";
 
@@ -180,6 +187,72 @@ export function useReplaceDirectionMutation(directionId: string) {
     },
     onError: (error: Error) => {
       if (error instanceof ApiError && error.code === "CONFLICT") return;
+      toast.error(error.message);
+    },
+  });
+}
+
+/** A direction's detours (alternative routes). Disabled until directionId. */
+export function useDetoursQuery(directionId: string | null) {
+  return useQuery<DetourEntity[]>({
+    queryKey: routeKeys.detours(directionId ?? ""),
+    queryFn: () => listDetours(directionId as string),
+    enabled: directionId !== null,
+    gcTime: 5 * 60_000,
+  });
+}
+
+/** Create a detour for a direction; invalidates the detours list. */
+export function useCreateDetourMutation(directionId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: SaveDetourPayload) =>
+      createDetour(directionId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: routeKeys.detours(directionId),
+      });
+      toast.success("Detour saved.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+/** Update a detour (metadata, geometry, notable stops, or activation). */
+export function useUpdateDetourMutation(directionId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (args: { detourId: string; patch: UpdateDetourPayload }) =>
+      updateDetour(args.detourId, args.patch),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: routeKeys.detours(directionId),
+      });
+      toast.success("Detour updated.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+/** Permanently delete a detour (destructive); invalidates the detours list. */
+export function useDeleteDetourMutation(directionId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (detourId: string) => deleteDetour(detourId),
+    onSuccess: (_result, detourId) => {
+      void queryClient.invalidateQueries({
+        queryKey: routeKeys.detours(directionId),
+      });
+      queryClient.removeQueries({
+        queryKey: routeKeys.detour(directionId, detourId),
+      });
+      toast.success("Detour deleted.");
+    },
+    onError: (error: Error) => {
       toast.error(error.message);
     },
   });

@@ -254,3 +254,372 @@ export function pathCoversStops(
     );
   });
 }
+
+/**
+ * Client-side snap tolerance for detour entry/exit — mirrors the server's
+ * DETOUR_ON_LINE_TOLERANCE_METERS (30 m) so a snapped point always passes the
+ * FR-023 gate (SC-014).
+ */
+export const DEFAULT_DETOUR_SNAP_TOLERANCE_METERS = 30;
+
+/** A point projected onto a polyline segment (FR-010/FR-018 snap result). */
+export interface ProjectedPoint {
+  coordinate: CoordinatePair;
+  /** Leading vertex index of the segment the point landed on; for a tap that
+   *  coincides with a vertex, that vertex's own index (so a replaced arc
+   *  starts exactly there and never over/under-counts a segment). */
+  index: number;
+  /** Clamped 0..1 position along the snapped segment (t), for ordering two
+   *  taps that land on the same segment. */
+  fraction: number;
+  distanceMeters: number;
+}
+
+/**
+ * Projection of a point onto the polyline using haversine point-to-segment
+ * math (mirrors the server's distanceToSegment engine). Returns the snapped
+ * coordinate, the leading vertex index of the snapped segment, and the true
+ * distance in meters — or null when every segment is farther than
+ * `maxDistanceMeters`. This is used to snap a detour's entry/exit from a map
+ * click; nearestCoordIndex is vertex-only and cannot express a point that
+ * falls along a segment.
+ */
+export function projectPointOnPolyline(
+  point: CoordinatePair,
+  line: readonly CoordinatePair[],
+  maxDistanceMeters = DEFAULT_DETOUR_SNAP_TOLERANCE_METERS,
+): ProjectedPoint | null {
+  let best: {
+    coordinate: CoordinatePair;
+    index: number;
+    fraction: number;
+    distanceMeters: number;
+  } | null = null;
+  for (let index = 1; index < line.length; index++) {
+    const { coordinate, fraction, distanceMeters } = distanceToSegment(
+      point,
+      line[index - 1],
+      line[index],
+    );
+    if (!best || distanceMeters <= best.distanceMeters) {
+      best = { coordinate, index: index - 1, fraction, distanceMeters };
+    }
+  }
+  if (!best || best.distanceMeters > maxDistanceMeters) return null;
+
+  // A tap exactly on a vertex belongs to that vertex itself (not to the
+  // segment leading into it): the replaced base arc then starts/ends exactly
+  // there, and the last vertex keeps its true (len-1) index.
+  for (let vertexIndex = 0; vertexIndex < line.length; vertexIndex++) {
+    if (coordsDistanceMeters(point, line[vertexIndex]) < 1e-6) {
+      return {
+        coordinate: line[vertexIndex],
+        index: vertexIndex,
+        fraction: vertexIndex === line.length - 1 ? 1 : 0,
+        distanceMeters: 0,
+      };
+    }
+  }
+  return best;
+}
+
+/**
+ * Haversine point-to-segment projection (mirrors the server's
+ * distanceToSegment engine) returning the snapped coordinate, the clamped
+ * fraction t, and the true distance in meters.
+ */
+function distanceToSegment(
+  point: CoordinatePair,
+  a: CoordinatePair,
+  b: CoordinatePair,
+): { coordinate: CoordinatePair; fraction: number; distanceMeters: number } {
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const lengthSq = dx * dx + dy * dy;
+  let t = 0;
+  if (lengthSq > 0) {
+    t = ((point[0] - a[0]) * dx + (point[1] - a[1]) * dy) / lengthSq;
+    t = Math.max(0, Math.min(1, t));
+  }
+  const coordinate: CoordinatePair = [a[0] + t * dx, a[1] + t * dy];
+  return {
+    coordinate,
+    fraction: t,
+    distanceMeters: coordsDistanceMeters(point, coordinate),
+  };
+}
+
+/**
+ * Sum of the haversine segment lengths between `startIndex` and `endIndex`
+ * of a polyline — the base-arc length a detour replaces, used to derive the
+ * exact additional distance (FR-011) instead of approximating from the loop.
+ */
+export function polylineSegmentLength(
+  line: GeoLineString,
+  startIndex: number,
+  endIndex: number,
+): number {
+  const coords = line.coordinates;
+  if (
+    startIndex < 0 ||
+    endIndex < 0 ||
+    startIndex > endIndex ||
+    endIndex >= coords.length
+  ) {
+    throw new RangeError(
+      `polylineSegmentLength slice [${startIndex}, ${endIndex}] is invalid for ${coords.length} coordinates`,
+    );
+  }
+  let meters = 0;
+  for (let index = startIndex; index < endIndex; index++) {
+    meters += coordsDistanceMeters(coords[index], coords[index + 1]);
+  }
+  return meters;
+}
+
+/**
+ * The exact base-arc length a detour replaces: from the ENTRY POSITION (a
+ * fraction along its segment) to the EXIT POSITION. Unlike the vertex-sliced
+ * polylineSegmentLength, this honours fractional projections, so entry/exit
+ * snapped mid-segment never over-count the replaced arc (FR-011 exactness).
+ * Callers guarantee travel order (exit after entry) beforehand; out-of-order
+ * or same-position pairs return 0 defensively.
+ */
+export function replacedArcLengthMeters(
+  line: GeoLineString,
+  entry: { index: number; fraction: number },
+  exit: { index: number; fraction: number },
+): number {
+  const coords = line.coordinates;
+  // The last vertex has no outgoing segment — a point exactly there
+  // contributes zero head/tail (its fractional coverage is handled by the
+  // clamp below, so terminal-vertex entry/exit never index past the array).
+  const segmentLength = (index: number) =>
+    index + 1 < coords.length
+      ? coordsDistanceMeters(coords[index], coords[index + 1])
+      : 0;
+  if (
+    exit.index < entry.index ||
+    (exit.index === entry.index && exit.fraction <= entry.fraction)
+  ) {
+    return 0;
+  }
+  if (exit.index === entry.index) {
+    return (exit.fraction - entry.fraction) * segmentLength(exit.index);
+  }
+  let meters = 0;
+  // The tail of the entry's segment, the full middle segments, and the head
+  // of the exit's segment.
+  meters += (1 - entry.fraction) * segmentLength(entry.index);
+  meters += polylineSegmentLength(line, entry.index + 1, exit.index);
+  meters += exit.fraction * segmentLength(exit.index);
+  return meters;
+}
+
+/** A stop positioned along the base polyline (arc order: index → fraction). */
+export interface ArcPositionedStop {
+  stop_id: string;
+  name: string;
+  location: CoordinatePair;
+  /** Vertex index the stop projects to on the base polyline. */
+  index: number;
+  /** Clamped 0..1 position along that segment. */
+  fraction: number;
+}
+
+/**
+ * Quick-mode detour inference (US2 revision — one-click detour authoring):
+ * given an ordered stop list (chain order, `stop_order`) and a base polyline,
+ * find the two stops that flank a clicked detour point along the route:
+ *
+ * - Click exactly ON (within `snapToleranceMeters` of) a stop → its chain
+ *   neighbours are the flanks, and the clicked stop becomes the via stop
+ *   (entry = stop before it, exit = stop after it: the "insert Stop 3 between
+ *   1 and 2" case).
+ * - Click strictly between two stops → arc-order flanking: the last stop at
+ *   or before the click is `before`, the first strictly after is `after`
+ *   (entry/exit are those stops; the click is the via point).
+ *
+ * Returns null when no valid flanking pair exists (fewer than two stops, a
+ * click before the first stop or after the last stop, or a click far from the
+ * base polyline) — the caller surfaces a recovery message.
+ */
+export type FlankFailureReason =
+  "no_stops" | "no_path" | "before_first" | "after_last";
+
+export type FlankResult =
+  | {
+      ok: true;
+      before: ArcPositionedStop;
+      after: ArcPositionedStop;
+      viaStop: {
+        stop_id: string;
+        name: string;
+        location: CoordinatePair;
+      } | null;
+    }
+  | { ok: false; reason: FlankFailureReason };
+
+/** Base polyline whose first/last vertices are this close is a LOOP (Iloilo
+ *  routes are loops) — flanking then wraps across the chain ends so the
+ *  closing arc is a legitimate detour segment ("last stop → first stop"). */
+const LOOP_CLOSURE_TOLERANCE_METERS = 150;
+
+export function inferDetourFlanks(
+  basePolyline: GeoLineString,
+  orderedStops: readonly {
+    stop_id: string;
+    name: string;
+    location: CoordinatePair;
+  }[],
+  click: CoordinatePair,
+  snapToleranceMeters = 30,
+): FlankResult {
+  if (orderedStops.length < 2) return { ok: false, reason: "no_stops" };
+  const coords = basePolyline.coordinates;
+  if (coords.length < 2) return { ok: false, reason: "no_path" };
+
+  const isLoop =
+    coords.length >= 3 &&
+    coordsDistanceMeters(coords[0], coords[coords.length - 1]) <
+      LOOP_CLOSURE_TOLERANCE_METERS;
+
+  const positioned = orderedStops.map((stop) => ({
+    stop,
+    proj: projectPointOnPolyline(
+      stop.location,
+      basePolyline.coordinates,
+      Infinity,
+    ),
+  }));
+
+  const flanksFrom = (
+    before: (typeof positioned)[number],
+    after: (typeof positioned)[number],
+    viaStop: { stop_id: string; name: string; location: CoordinatePair } | null,
+  ): FlankResult => ({
+    ok: true,
+    before: {
+      stop_id: before.stop.stop_id,
+      name: before.stop.name,
+      location: before.stop.location,
+      index: before.proj!.index,
+      fraction: before.proj!.fraction,
+    },
+    after: {
+      stop_id: after.stop.stop_id,
+      name: after.stop.name,
+      location: after.stop.location,
+      index: after.proj!.index,
+      fraction: after.proj!.fraction,
+    },
+    viaStop,
+  });
+
+  // Click on/near an existing stop → that stop is the via stop; its chain
+  // neighbours are the flanks (chain order). On loops the chain wraps; on
+  // non-loops a terminal via stop has no flank on the missing side.
+  for (let index = 0; index < positioned.length; index += 1) {
+    const { stop, proj } = positioned[index];
+    if (!proj) continue;
+    if (coordsDistanceMeters(click, stop.location) <= snapToleranceMeters) {
+      const n = positioned.length;
+      const before = isLoop
+        ? positioned[(index - 1 + n) % n]
+        : positioned[index - 1];
+      const after = isLoop
+        ? positioned[(index + 1) % n]
+        : positioned[index + 1];
+      if (!before?.proj || !after?.proj) {
+        return {
+          ok: false,
+          reason: index === 0 ? "before_first" : "after_last",
+        };
+      }
+      const arcOrdered =
+        before.proj.index < after.proj.index ||
+        (before.proj.index === after.proj.index &&
+          before.proj.fraction < after.proj.fraction);
+      // On a loop every distinct stop pair is reachable forward across the
+      // seam (chain-next after the last stop wraps to the first, whose arc
+      // position is < the last's) — the raw-index gate misjudges the seam.
+      if (!arcOrdered && !isLoop) break; // desynced chain → arc-order flanking
+      return flanksFrom(before, after, {
+        stop_id: stop.stop_id,
+        name: stop.name,
+        location: stop.location,
+      });
+    }
+  }
+
+  // Boundary check (non-loops only): a click laterally before the route's
+  // start or past its end cannot be between two stops. Loops have no true
+  // start/end — the wrap below covers the closing arc instead.
+  if (!isLoop) {
+    const startSeg = [coords[1][0] - coords[0][0], coords[1][1] - coords[0][1]];
+    const beforeStart =
+      (click[0] - coords[0][0]) * startSeg[0] +
+        (click[1] - coords[0][1]) * startSeg[1] <
+      0;
+    const endSeg = [
+      coords[coords.length - 1][0] - coords[coords.length - 2][0],
+      coords[coords.length - 1][1] - coords[coords.length - 2][1],
+    ];
+    const endSq = endSeg[0] * endSeg[0] + endSeg[1] * endSeg[1];
+    const pastEnd =
+      (click[0] - coords[coords.length - 2][0]) * endSeg[0] +
+        (click[1] - coords[coords.length - 2][1]) * endSeg[1] >
+      endSq;
+    if (beforeStart) return { ok: false, reason: "before_first" };
+    if (pastEnd) return { ok: false, reason: "after_last" };
+  }
+
+  // Arc-order flanking for a click strictly between two stops. The click may
+  // sit OFF the base line (a detour point DEFINES the diversion) — the store
+  // gates the corridor (MAX_DETOUR_VIA_DISTANCE_METERS); here only the arc
+  // POSITION of the click matters, so project without a distance cap.
+  const clickProj = projectPointOnPolyline(
+    click,
+    basePolyline.coordinates,
+    Infinity,
+  );
+  if (!clickProj) return { ok: false, reason: "no_path" };
+  const atOrBefore = (a: NonNullable<(typeof positioned)[0]["proj"]>) =>
+    a.index < clickProj.index ||
+    (a.index === clickProj.index && a.fraction <= clickProj.fraction);
+  const furtherAlong = (
+    a: NonNullable<(typeof positioned)[0]["proj"]>,
+    b: NonNullable<(typeof positioned)[0]["proj"]>,
+  ) => a.index > b.index || (a.index === b.index && a.fraction > b.fraction);
+  let before: (typeof positioned)[number] | null = null;
+  let after: (typeof positioned)[number] | null = null;
+  for (const entry of positioned) {
+    const proj = entry.proj;
+    if (!proj) continue;
+    if (atOrBefore(proj)) {
+      if (!before?.proj || furtherAlong(proj, before.proj)) before = entry;
+    } else if (!after) {
+      // The FIRST strictly-after stop along the arc is the exit flank.
+      after = entry;
+    }
+  }
+  // Loop wrap: the closing arc flanks last-stop → first-stop.
+  if (isLoop) {
+    if (!before && positioned.length > 0) {
+      before = positioned[positioned.length - 1];
+    }
+    if (!after && positioned.length > 0) {
+      after = positioned[0];
+    }
+  }
+  if (!before?.proj || !after?.proj) {
+    return {
+      ok: false,
+      reason: before ? "after_last" : "before_first",
+    };
+  }
+  if (before.stop.stop_id === after.stop.stop_id) {
+    return { ok: false, reason: "after_last" };
+  }
+  return flanksFrom(before, after, null);
+}

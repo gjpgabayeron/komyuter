@@ -129,6 +129,10 @@ describe("plottingStore", () => {
       markers: { terminal: true, major_stop: true, waiting_area: true },
       markerLabels: true,
       routes: true,
+      detours: true,
+      detourStops: true,
+      detourStopLabels: true,
+      detourNodes: true,
     });
     expect(state.history).toEqual({ past: [], future: [] });
   });
@@ -905,6 +909,10 @@ describe("layer filtering (FR-016 product revision)", () => {
     markers: { terminal: true, major_stop: true, waiting_area: true },
     markerLabels: true,
     routes: true,
+    detours: true,
+    detourStops: true,
+    detourStopLabels: true,
+    detourNodes: true,
   };
 
   it("shows every stop type by default (Markers all on)", () => {

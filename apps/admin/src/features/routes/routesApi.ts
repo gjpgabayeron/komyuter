@@ -46,6 +46,9 @@ export interface DirectionEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  /** Present in the RouteDetail flow (detail endpoint embeds stops); NOT
+   *  populated by the directions LIST endpoint (`loadDirectionSummary`), so
+   *  list-driven consumers must fetch stops via the dedicated stops query. */
   stops: StopEntity[];
 }
 
@@ -202,6 +205,102 @@ export async function snapPreview(
   const query = coordinates.map(([lng, lat]) => `${lng},${lat}`).join(";");
   const { data } = await api.get<SnappedPath>(
     `/api/admin/mapbox/directions?coordinates=${encodeURIComponent(query)}`,
+  );
+  return data;
+}
+
+/** A stop owned by a detour (never part of the base chain). */
+export interface DetourStopEntity {
+  detour_stop_id: string;
+  detour_id: string;
+  stop_order: number;
+  name: string;
+  location: GeoPoint;
+  type: StopType;
+  is_guaranteed_service: boolean;
+  landmark_hint: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A detour-stop authoring input (order comes from the array position). */
+export interface DetourStopInput {
+  name: string;
+  location: GeoPoint;
+  type?: StopType;
+  is_guaranteed_service?: boolean;
+  landmark_hint?: string | null;
+  notes?: string | null;
+}
+
+export interface DetourEntity {
+  detour_id: string;
+  direction_id: string;
+  label: string;
+  entry: GeoPoint;
+  exit: GeoPoint;
+  detour_polyline: GeoLineString;
+  additional_distance_meters: number | null;
+  commuter_instruction: string;
+  driver_instruction: string | null;
+  detour_stops: DetourStopEntity[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SaveDetourPayload {
+  label: string;
+  entry: GeoPoint;
+  exit: GeoPoint;
+  detour_polyline: GeoLineString;
+  additional_distance_meters?: number | null;
+  commuter_instruction: string;
+  driver_instruction?: string | null;
+  detour_stops?: DetourStopInput[] | null;
+}
+
+export type UpdateDetourPayload = Partial<SaveDetourPayload> & {
+  is_active?: boolean;
+};
+
+export async function listDetours(
+  directionId: string,
+): Promise<DetourEntity[]> {
+  const { data } = await api.get<DetourEntity[]>(
+    `/api/admin/directions/${directionId}/detours`,
+  );
+  return data;
+}
+
+export async function createDetour(
+  directionId: string,
+  payload: SaveDetourPayload,
+): Promise<DetourEntity> {
+  const { data } = await api.post<DetourEntity>(
+    `/api/admin/directions/${directionId}/detours`,
+    payload,
+  );
+  return data;
+}
+
+export async function updateDetour(
+  detourId: string,
+  patch: UpdateDetourPayload,
+): Promise<DetourEntity> {
+  const { data } = await api.put<DetourEntity>(
+    `/api/admin/detours/${detourId}`,
+    patch,
+  );
+  return data;
+}
+
+export async function deleteDetour(
+  detourId: string,
+): Promise<{ detour_id: string }> {
+  const { data } = await api.delete<{ detour_id: string }>(
+    `/api/admin/detours/${detourId}`,
   );
   return data;
 }

@@ -128,6 +128,64 @@ export function clearDraft(
 }
 
 /**
+ * Detour draft persistence (US4) — the same 24 h TTL + injectable storage as
+ * the plotting draft, but keyed per direction under its own prefix, because a
+ * detour composition is a separate mini-draft from the base-route draft. The
+ * payload is whatever the detour store serializes (DetourDraftSnapshot); the
+ * storage layer stays generic.
+ */
+export const DETOUR_DRAFT_KEY_PREFIX = "komyuter.detour-draft";
+
+export function detourDraftKey(directionId: string): string {
+  return `${DETOUR_DRAFT_KEY_PREFIX}.${directionId}`;
+}
+
+export function saveDetourDraft<T>(
+  directionId: string,
+  payload: T,
+  storage: StorageLike = defaultStorage(),
+): void {
+  storage.setItem(
+    detourDraftKey(directionId),
+    JSON.stringify({ savedAt: Date.now(), directionId, detour: payload }),
+  );
+}
+
+/** Loads the direction's detour draft honouring the 24 h TTL; expired or
+ *  corrupt drafts are dropped and never surfaced (same contract as the
+ *  plotting draft, FR-014). Returns null when absent. */
+export function loadDetourDraft<T>(
+  directionId: string,
+  storage: StorageLike = defaultStorage(),
+  now = Date.now(),
+): T | null {
+  const key = detourDraftKey(directionId);
+  const raw = storage.getItem(key);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as {
+      savedAt: number;
+      detour: T;
+    };
+    if (now - parsed.savedAt > DRAFT_TTL_MS) {
+      storage.removeItem(key);
+      return null;
+    }
+    return parsed.detour;
+  } catch {
+    storage.removeItem(key);
+    return null;
+  }
+}
+
+export function clearDetourDraft(
+  directionId: string,
+  storage: StorageLike = defaultStorage(),
+): void {
+  storage.removeItem(detourDraftKey(directionId));
+}
+
+/**
  * Debounced draft writer (FR-014: ~500 ms writes). `save` coalesces rapid
  * edits into the latest payload; `flush` writes immediately (before unload /
  * save); `cancel` drops a pending write.

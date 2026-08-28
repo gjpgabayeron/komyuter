@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { MapPin } from "lucide-react";
+import { MapPin, GitBranch, Merge } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Map, { Marker } from "react-map-gl/maplibre";
 import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
@@ -21,6 +21,13 @@ import {
   SelectionPanner,
 } from "./map";
 import { DRAFT_LINE, SHAPE_CLASS } from "./map/constants";
+import { useDetourStore } from "@/features/detours/detourStore";
+import {
+  useDirectionsQuery,
+  useDetoursQuery,
+  useDirectionStopsQuery,
+} from "@/features/routes/useRouteQueries";
+import { buildDetourTarget } from "@/features/detours/target";
 
 interface Viewport {
   longitude: number;
@@ -62,10 +69,43 @@ export function RouteMap({ className, children }: RouteMapProps) {
   const moveStop = usePlottingStore((s) => s.moveStop);
   const setSelection = usePlottingStore((s) => s.setSelection);
   const setPoi = usePlottingStore((s) => s.setPoi);
+  // Detour stops are first-class stops while the detour editor is open: the
+  // same marker plates as base stops, draggable, clickable → property panel.
+  const detourOpen = useDetourStore((s) => s.open);
+  const detourStops = useDetourStore((s) => s.detourStops);
+  const selectedDetourStopId = useDetourStore((s) => s.selectedDetourStopId);
+  const detourEntry = useDetourStore((s) => s.entry);
+  const detourExit = useDetourStore((s) => s.exit);
+  const hiddenDetourIds = useDetourStore((s) => s.hiddenDetourIds);
+  // Saved detours' STOPS are visible while the workshop is closed (the tool is
+  // inactive) — gated by the layers → markers toggle, like their lines.
+  const openDirectionId = usePlottingStore((s) => s.directionId);
+  const routeMeta = usePlottingStore((s) => s.routeMeta);
+  const { data: savedDetours } = useDetoursQuery(openDirectionId);
+  const { data: directions } = useDirectionsQuery(routeId);
+  const { data: directionStops } = useDirectionStopsQuery(openDirectionId);
+  const openDirection =
+    directions?.find((d) => d.direction_id === openDirectionId) ?? null;
 
   const handleMapClick = (event: { lngLat: { lng: number; lat: number } }) => {
     // Any map click is a "different action" — dismiss the temporary POI marker.
     setPoi(null);
+    // While the detour editor is open the map taps belong to it (entry/exit/
+    // waypoint placement) — the base-route tooling steps aside entirely.
+    // Guard on `open`, not `mode` (a future idle-but-open state must not
+    // leak detour taps into base-route tooling; review follow-up).
+    // While a detour is focused: ONLY the Add tool places nodes/stops; any
+    // other tool click (e.g. Select) focuses BACK to the main route.
+    if (useDetourStore.getState().open) {
+      if (tool === "add") {
+        useDetourStore
+          .getState()
+          .handleMapClick([event.lngLat.lng, event.lngLat.lat]);
+      } else {
+        useDetourStore.getState().close();
+      }
+      return;
+    }
     // No plotting controls active with no route (FR-030).
     if (routeId === null) return;
     if (tool === "select") {
@@ -74,8 +114,12 @@ export function RouteMap({ className, children }: RouteMapProps) {
       return;
     }
     // Add tool: exact [lng,lat] placement at the clicked point (FR-022);
-    // placement is never blocked (FR-009); the store handles the connecting line.
-    addStop([event.lngLat.lng, event.lngLat.lat]);
+    // placement is never blocked (FR-009); the store handles the connecting
+    // line. Explicitly scoped — a stray non-select tool (e.g. detour without
+    // an open editor) must never insert a base-route stop.
+    if (tool === "add") {
+      addStop([event.lngLat.lng, event.lngLat.lat]);
+    }
   };
 
   const handleStopClick = (stopId: string) => {
@@ -250,6 +294,219 @@ export function RouteMap({ className, children }: RouteMapProps) {
             </Marker>
           );
         })}
+        {detourOpen && layers.detourNodes && detourEntry && detourExit && (
+          <>
+            {/* Split node marker */}
+            <Marker
+              longitude={detourEntry.coordinate[0]}
+              latitude={detourEntry.coordinate[1]}
+              draggable={true}
+              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+                useDetourStore
+                  .getState()
+                  .moveEntry([event.lngLat.lng, event.lngLat.lat])
+              }
+            >
+              <div className="relative flex flex-col items-center">
+                <button
+                  type="button"
+                  aria-label="Detour split node (drag to move)"
+                  className="flex size-7 cursor-grab items-center justify-center rounded-full border-2 border-white bg-[#C98100] text-white ring-2 ring-white transition-colors active:cursor-grabbing"
+                >
+                  <GitBranch className="size-3.5" />
+                </button>
+                {layers.markerLabels && (
+                  <span className="absolute top-full mt-0.5 rounded-xs border border-[#C98100] bg-white px-1 text-[11px] leading-4 font-medium text-[#C98100]">
+                    Split
+                  </span>
+                )}
+              </div>
+            </Marker>
+            <Marker
+              longitude={detourExit.coordinate[0]}
+              latitude={detourExit.coordinate[1]}
+              draggable={true}
+              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+                useDetourStore
+                  .getState()
+                  .moveExit([event.lngLat.lng, event.lngLat.lat])
+              }
+            >
+              <div className="relative flex flex-col items-center">
+                <button
+                  type="button"
+                  aria-label="Detour merge node (drag to move)"
+                  className="flex size-7 cursor-grab items-center justify-center rounded-full border-2 border-white bg-[#0F172A] text-white ring-2 ring-white transition-colors active:cursor-grabbing"
+                >
+                  <Merge className="size-3.5" />
+                </button>
+                {layers.markerLabels && (
+                  <span className="absolute top-full mt-0.5 rounded-xs border border-[#0F172A] bg-white px-1 text-[11px] leading-4 font-medium text-[#0F172A]">
+                    Merge
+                  </span>
+                )}
+              </div>
+            </Marker>
+          </>
+        )}
+        {detourOpen &&
+          layers.detourStops &&
+          detourStops.map((stop, index) => {
+            const selected = selectedDetourStopId === stop.id;
+            const shape = getStopShape(stop.type);
+            return (
+              <Marker
+                key={stop.id}
+                longitude={stop.location[0]}
+                latitude={stop.location[1]}
+                draggable={true}
+                onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+                  useDetourStore
+                    .getState()
+                    .moveDetourStop(stop.id, [
+                      event.lngLat.lng,
+                      event.lngLat.lat,
+                    ])
+                }
+              >
+                <div className="relative flex flex-col items-center">
+                  <button
+                    type="button"
+                    aria-label={`Detour stop ${index + 1}: ${stop.name} (${STOP_TYPE_LABELS[stop.type]})`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      useDetourStore.getState().selectDetourStop(stop.id);
+                    }}
+                    style={{
+                      backgroundColor: "#ffffff",
+                      borderColor: shape.color,
+                      color: shape.color,
+                    }}
+                    className={[
+                      // Distinct from base stops: HOLLOW, dashed outline so a
+                      // detour stop never reads as a main-route stop even at
+                      // the same type colour (FR-012).
+                      "flex size-7 items-center justify-center border-2 border-dashed text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
+                      SHAPE_CLASS[shape.shape],
+                      selected &&
+                        "outline-foreground outline-2 outline-offset-1",
+                      "focus-visible:outline-foreground focus-visible:outline-2 focus-visible:outline-offset-1",
+                      "cursor-grab active:cursor-grabbing",
+                    ].join(" ")}
+                  >
+                    {shape.shape === "diamond" ? (
+                      <span className="-rotate-45">{index + 1}</span>
+                    ) : (
+                      index + 1
+                    )}
+                  </button>
+                  {layers.detourStopLabels && (
+                    <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+                      {stop.name}
+                    </span>
+                  )}
+                </div>
+              </Marker>
+            );
+          })}
+        {!detourOpen &&
+          layers.detourStops &&
+          (savedDetours ?? [])
+            .filter(
+              (detour) =>
+                layers.detours && !hiddenDetourIds.includes(detour.detour_id),
+            )
+            .flatMap((detour) =>
+              detour.detour_stops.map((stop, index) => (
+                <Marker
+                  key={`${detour.detour_id}:${stop.detour_stop_id}`}
+                  longitude={stop.location.coordinates[0]}
+                  latitude={stop.location.coordinates[1]}
+                >
+                  <div className="relative flex flex-col items-center">
+                    <button
+                      type="button"
+                      aria-label={`Focus ${detour.label}, detour stop ${index + 1}: ${stop.name}`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        if (!openDirection) return;
+                        useDetourStore.getState().openEdit(
+                          detour,
+                          buildDetourTarget(
+                            openDirection,
+                            routeMeta?.name ?? "Route",
+                            savedDetours?.length ?? 0,
+                            (directionStops ?? []).map((s) => ({
+                              stop_id: s.stop_id,
+                              name: s.name,
+                              location: s.location.coordinates,
+                            })),
+                          ),
+                        );
+                        useDetourStore
+                          .getState()
+                          .selectDetourStop(stop.detour_stop_id);
+                      }}
+                      style={{
+                        backgroundColor: "#ffffff",
+                        borderColor: getStopShape(stop.type).color,
+                        color: getStopShape(stop.type).color,
+                      }}
+                      className={[
+                        "flex size-6 cursor-pointer items-center justify-center border-2 border-dashed text-[10px] font-bold tabular-nums ring-2 ring-white/70",
+                        SHAPE_CLASS[getStopShape(stop.type).shape],
+                      ].join(" ")}
+                    >
+                      {index + 1}
+                    </button>
+                    {layers.detourStopLabels && (
+                      <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+                        {stop.name}
+                      </span>
+                    )}
+                  </div>
+                </Marker>
+              )),
+            )}
+        {!detourOpen &&
+          layers.detourNodes &&
+          (savedDetours ?? [])
+            .filter(
+              (detour) =>
+                detour.is_active &&
+                layers.detours &&
+                !hiddenDetourIds.includes(detour.detour_id),
+            )
+            .flatMap((detour) => [
+              <Marker
+                key={`${detour.detour_id}:split`}
+                longitude={detour.entry.coordinates[0]}
+                latitude={detour.entry.coordinates[1]}
+              >
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-label={`${detour.label} split node`}
+                  className="pointer-events-none flex size-5 items-center justify-center rounded-full border-2 border-white bg-[#C98100]/80 text-white ring-2 ring-white/60"
+                >
+                  <GitBranch className="size-3" />
+                </button>
+              </Marker>,
+              <Marker
+                key={`${detour.detour_id}:merge`}
+                longitude={detour.exit.coordinates[0]}
+                latitude={detour.exit.coordinates[1]}
+              >
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-label={`${detour.label} merge node`}
+                  className="pointer-events-none flex size-5 items-center justify-center rounded-full border-2 border-white bg-[#0F172A]/80 text-white ring-2 ring-white/60"
+                >
+                  <Merge className="size-3" />
+                </button>
+              </Marker>,
+            ])}
         {children}
       </Map>
     </div>

@@ -55,3 +55,52 @@ function hslToHex(h: number, s: number, l: number): string {
 export function isValidHexColor(value: string): boolean {
   return /^#[0-9a-fA-F]{6}$/.test(value);
 }
+
+/** Converts a #RRGGBB hex colour to HSL components (h 0–360, s/l 0–100). */
+function hexToHsl(hex: string): { h: number; s: number; l: number } {
+  const value = hex.replace("#", "");
+  const r = parseInt(value.slice(0, 2), 16) / 255;
+  const g = parseInt(value.slice(2, 4), 16) / 255;
+  const b = parseInt(value.slice(4, 6), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const delta = max - min;
+  let h = 0;
+  if (delta !== 0) {
+    if (max === r) h = ((g - b) / delta) % 6;
+    else if (max === g) h = (b - r) / delta + 2;
+    else h = (r - g) / delta + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+  const l = (max + min) / 2;
+  const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+  return { h, s: s * 100, l: l * 100 };
+}
+
+/**
+ * Detour (alternative route) line colour: the MAIN ROUTE's colour family with
+ * a small, deterministic per-detour shift — visually "closely similar" to the
+ * solid baseline but clearly distinguishable, and different between detours.
+ * Inactive detours additionally drop to low opacity at render time.
+ */
+export function detourLineColorFor(
+  routeColor: string,
+  detourId: string,
+): string {
+  if (!isValidHexColor(routeColor)) {
+    routeColor = DEFAULT_ROUTE_COLOR;
+  }
+  const { h, s, l } = hexToHsl(routeColor);
+  let hash = 0;
+  for (let i = 0; i < detourId.length; i += 1) {
+    hash = (hash * 31 + detourId.charCodeAt(i)) >>> 0;
+  }
+  const step = hash % 3;
+  // COMPLEMENT of the main route's hue (+180°) — maximum contrast against
+  // the solid baseline — with a small ±6° per-detour spread so alternatives
+  // stay distinguishable; lightness drifts slightly for legibility.
+  const hue = (h + 180 + (step - 1) * 6 + 360) % 360;
+  const lightness = Math.max(30, Math.min(72, l + 6 + step * 5));
+  return hslToHex(hue, Math.max(35, s), lightness);
+}
