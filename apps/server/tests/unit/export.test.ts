@@ -75,6 +75,7 @@ function fixtureRows(): ExportRows {
       },
     ],
     detourRows: [],
+    detourStopRows: [],
     restrictionRows: [],
   };
 }
@@ -86,7 +87,7 @@ describe("buildExportDataset", () => {
       "2026-01-01T00:00:00.000Z",
     );
 
-    expect(dataset.schema_version).toBe("1.0");
+    expect(dataset.schema_version).toBe("1.1");
     expect(dataset.coordinate_order).toBe("lng_lat");
     expect(dataset.exported_at).toBe("2026-01-01T00:00:00.000Z");
 
@@ -129,6 +130,7 @@ describe("buildExportDataset", () => {
       directionRows: [],
       stopRows: [],
       detourRows: [],
+      detourStopRows: [],
       restrictionRows: [],
     };
     const dataset = buildExportDataset(rows, "2026-01-01T00:00:00.000Z");

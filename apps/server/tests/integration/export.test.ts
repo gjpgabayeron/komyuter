@@ -94,7 +94,7 @@ describe("export dataset (SC-004/SC-005)", () => {
     const dataset = exportRes.json();
     assertDatasetValid(dataset);
 
-    expect(dataset.schema_version).toBe("1.0");
+    expect(dataset.schema_version).toBe("1.1");
     expect(dataset.coordinate_order).toBe("lng_lat");
     expect(dataset.routes).toBeInstanceOf(Array);
 

@@ -1,6 +1,7 @@
 import type {
   ExportDataset,
   ExportDetour,
+  ExportDetourStop,
   ExportDirection,
   ExportFareConfiguration,
   ExportRestriction,
@@ -13,6 +14,7 @@ import {
 } from "@komyuter/shared";
 import type { Db } from "../config/db";
 import {
+  detourStops as detourStopsTable,
   detours as detoursTable,
   directions as directionsTable,
   fareConfigs as fareConfigsTable,
@@ -74,7 +76,17 @@ export interface ExportRows {
     additional_distance_meters: number | null;
     commuter_instruction: string;
     driver_instruction: string | null;
-    notable_stops: unknown;
+  }>;
+  detourStopRows: Array<{
+    detour_stop_id: string;
+    detour_id: string;
+    stop_order: number;
+    name: string;
+    type: ExportDetourStop["type"];
+    is_guaranteed_service: boolean;
+    landmark_hint: string | null;
+    notes: string | null;
+    location: unknown;
   }>;
   restrictionRows: Array<{
     restriction_id: string;
@@ -97,6 +109,7 @@ export function buildExportDataset(
     directionRows,
     stopRows,
     detourRows,
+    detourStopRows,
     restrictionRows,
   } = rows;
 
@@ -130,6 +143,21 @@ export function buildExportDataset(
   }
 
   const detoursByDirection = new Map<string, ExportDetour[]>();
+  const detourStopsByDetour = new Map<string, ExportDetourStop[]>();
+  for (const stop of detourStopRows) {
+    const list = detourStopsByDetour.get(stop.detour_id) ?? [];
+    list.push({
+      detour_stop_id: stop.detour_stop_id,
+      stop_order: stop.stop_order,
+      name: stop.name,
+      location: stop.location as unknown as ExportDetourStop["location"],
+      type: stop.type,
+      is_guaranteed_service: stop.is_guaranteed_service,
+      landmark_hint: stop.landmark_hint,
+      notes: stop.notes,
+    });
+    detourStopsByDetour.set(stop.detour_id, list);
+  }
   for (const detour of detourRows) {
     const list = detoursByDirection.get(detour.direction_id) ?? [];
     list.push({
@@ -142,8 +170,7 @@ export function buildExportDataset(
       additional_distance_meters: detour.additional_distance_meters,
       commuter_instruction: detour.commuter_instruction,
       driver_instruction: detour.driver_instruction,
-      notable_stops: (detour.notable_stops ??
-        []) as ExportDetour["notable_stops"],
+      detour_stops: detourStopsByDetour.get(detour.detour_id) ?? [],
     });
     detoursByDirection.set(detour.direction_id, list);
   }
@@ -213,6 +240,7 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
     directionRows,
     stopRows,
     detourRows,
+    detourStopRows,
     restrictionRows,
   ] = await Promise.all([
     db
@@ -271,9 +299,21 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
         additional_distance_meters: detoursTable.additional_distance_meters,
         commuter_instruction: detoursTable.commuter_instruction,
         driver_instruction: detoursTable.driver_instruction,
-        notable_stops: detoursTable.notable_stops,
       })
       .from(detoursTable),
+    db
+      .select({
+        detour_stop_id: detourStopsTable.detour_stop_id,
+        detour_id: detourStopsTable.detour_id,
+        stop_order: detourStopsTable.stop_order,
+        name: detourStopsTable.name,
+        type: detourStopsTable.type,
+        is_guaranteed_service: detourStopsTable.is_guaranteed_service,
+        landmark_hint: detourStopsTable.landmark_hint,
+        notes: detourStopsTable.notes,
+        location: asGeoJSON(detourStopsTable.location),
+      })
+      .from(detourStopsTable),
     db
       .select({
         restriction_id: restrictionsTable.restriction_id,
@@ -293,6 +333,7 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
     directionRows,
     stopRows,
     detourRows,
+    detourStopRows,
     restrictionRows,
   };
 }

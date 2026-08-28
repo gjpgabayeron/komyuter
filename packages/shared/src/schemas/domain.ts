@@ -19,12 +19,6 @@ export const restrictionAffectsSchema = z.enum([
   "both",
 ]);
 
-export const notableStopSchema = z.object({
-  stop_id: z.string().min(1),
-  name: z.string().min(1),
-  is_detour_only: z.boolean(),
-});
-
 export const routeIdSchema = z
   .string()
   .min(1)
@@ -46,6 +40,17 @@ export const createRouteSchema = z.object({
 
 export const updateRouteSchema = createRouteSchema.partial().extend({
   is_active: z.boolean().optional(),
+});
+
+/** A detour stop input — same shape as a base stop input, scoped to its
+ *  detour by the detour's own save (order comes from the array position). */
+export const detourStopSchema = z.object({
+  name: z.string().min(1),
+  location: geoPointSchema,
+  type: stopTypeSchema.optional(),
+  is_guaranteed_service: z.boolean().optional(),
+  landmark_hint: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
 });
 
 export const createStopSchema = z.object({
@@ -110,7 +115,7 @@ export const createDetourSchema = z.object({
   additional_distance_meters: z.number().int().min(0).nullable().optional(),
   commuter_instruction: z.string().min(1),
   driver_instruction: z.string().nullable().optional(),
-  notable_stops: z.array(notableStopSchema).optional(),
+  detour_stops: z.array(detourStopSchema).optional(),
 });
 
 export const updateDetourSchema = createDetourSchema.partial().extend({

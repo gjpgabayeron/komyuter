@@ -26,6 +26,55 @@ export function assertPointOnLine(
   }
 }
 
+/**
+ * FR-023 (SC-014): a detour loop must begin on its entry point and end on its
+ * exit point (within the detour on-line tolerance), and a detour must never be
+ * degenerate (entry and exit coincide). The editor always snaps loop[0] and
+ * loop[last] onto entry/exit exactly, so this guard catches foreign or
+ * hand-crafted payloads and any partial edit that would silently corrupt the
+ * distance/fare math (the loop's replaced-arc length is derived from geometry).
+ */
+export function assertDetourLoopEndpoints(
+  loop: GeoLineString,
+  entry: GeoPoint,
+  exit: GeoPoint,
+  toleranceMeters = DETOUR_ON_LINE_TOLERANCE_METERS,
+): void {
+  const start = loop.coordinates[0];
+  const end = loop.coordinates[loop.coordinates.length - 1];
+  const startDistance = haversineMeters(
+    start[0],
+    start[1],
+    entry.coordinates[0],
+    entry.coordinates[1],
+  );
+  const endDistance = haversineMeters(
+    end[0],
+    end[1],
+    exit.coordinates[0],
+    exit.coordinates[1],
+  );
+  if (startDistance > toleranceMeters) {
+    throw validationError(
+      `Detour loop start is ${startDistance.toFixed(1)}m from entry`,
+    );
+  }
+  if (endDistance > toleranceMeters) {
+    throw validationError(
+      `Detour loop end is ${endDistance.toFixed(1)}m from exit`,
+    );
+  }
+  const entryExitDistance = haversineMeters(
+    entry.coordinates[0],
+    entry.coordinates[1],
+    exit.coordinates[0],
+    exit.coordinates[1],
+  );
+  if (entryExitDistance <= toleranceMeters) {
+    throw validationError("Detour entry and exit coincide (degenerate loop)");
+  }
+}
+
 function distanceToSegment(
   px: number,
   py: number,

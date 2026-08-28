@@ -18,12 +18,30 @@ export function testEnv(): Env {
   return env;
 }
 
+/**
+ * The dedicated integration-test database — a sibling of the dev database in
+ * the same local Postgres instance (`.../postgres` → `.../komyuter_test`).
+ * Recreated + migrated at global setup and dropped at teardown, so the CRUD
+ * suites never write to (or read from) the live dev database.
+ */
+export function testDatabaseUrl(envValue: Env = env): string {
+  const url = new URL(envValue.DATABASE_URL);
+  url.pathname = "/komyuter_test";
+  return url.toString();
+}
+
 export function createTestDb(): Db {
-  return createDb(env.DATABASE_URL);
+  return createDb(testDatabaseUrl());
 }
 
 /** Standalone pool for global setup/teardown (avoids the Db → pool typing gap). */
 export function createTestPool(): Pool {
+  return new Pool({ connectionString: testDatabaseUrl() });
+}
+
+/** The dev database's pool — only for entities the auth service owns (its
+ *  users live in the MAIN database even though the CRUD data does not). */
+export function createDevPool(): Pool {
   return new Pool({ connectionString: env.DATABASE_URL });
 }
 
@@ -65,6 +83,12 @@ export async function createTestAdmin(
   }
   const pool = createTestPool();
   try {
+    // The test DB needs the stub auth.users row for the FK before the
+    // admin_users insert (the REAL auth user lives in the main database).
+    await pool.query(
+      "insert into auth.users (id, email) values ($1, $2) on conflict do nothing",
+      [data.user.id, email],
+    );
     await pool.query("insert into admin_users (user_id) values ($1)", [
       data.user.id,
     ]);
@@ -128,16 +152,19 @@ export interface DataBaseline {
 
 const TEST_EMAIL_SUFFIX = "%@komyuter.test";
 
-/** Snapshot of the id columns the integration suite can write to. */
+/** Snapshot of the id columns the integration suite can write to. CRUD data
+ *  lives in the dedicated test database; the auth-service users live in the
+ *  main database (Supabase Auth owns it). */
 export async function captureBaselineState(): Promise<DataBaseline> {
   const pool = createTestPool();
+  const devPool = createDevPool();
   try {
     const [routeRows, fareRows, testAuthRows] = await Promise.all([
       pool.query<{ id: string }>("select route_id as id from routes"),
       pool.query<{ id: string }>(
         "select fare_config_id as id from fare_configs",
       ),
-      pool.query<{ id: string }>(
+      devPool.query<{ id: string }>(
         "select id from auth.users where email like $1",
         [TEST_EMAIL_SUFFIX],
       ),
@@ -149,6 +176,7 @@ export async function captureBaselineState(): Promise<DataBaseline> {
     };
   } finally {
     await pool.end();
+    await devPool.end();
   }
 }
 
@@ -156,12 +184,14 @@ export async function captureBaselineState(): Promise<DataBaseline> {
  * Deletes everything the test run created, restoring the baseline captured
  * before the run. Routes cascade to their directions → stops → detours →
  * restrictions (schema FKs), so clearing routes first covers the plotted
- * graph; fare configs and test auth users are cleared explicitly.
+ * graph; fare configs are cleared from the test database; test auth users
+ * are cleared from the MAIN database (where Supabase Auth stores them).
  */
 export async function restoreBaselineState(
   baseline: DataBaseline,
 ): Promise<void> {
   const pool = createTestPool();
+  const devPool = createDevPool();
   try {
     const routeIds = baseline.routeIds;
     if (routeIds.length === 0) {
@@ -188,13 +218,14 @@ export async function restoreBaselineState(
     }
 
     // Test auth users (created via supabase.auth.admin.createUser — outside
-    // the app's DB transaction, so they must be removed explicitly).
+    // the app's DB transaction, in the MAIN database — removed explicitly;
+    // admin_users rows cascade off via the FK).
     if (baseline.testAuthUserIds.length === 0) {
-      await pool.query("delete from auth.users where email like $1", [
+      await devPool.query("delete from auth.users where email like $1", [
         TEST_EMAIL_SUFFIX,
       ]);
     } else {
-      await pool.query(
+      await devPool.query(
         `delete from auth.users where email like $1 and id not in (${baseline.testAuthUserIds
           .map((_, i) => `$${i + 2}`)
           .join(", ")})`,
@@ -203,5 +234,6 @@ export async function restoreBaselineState(
     }
   } finally {
     await pool.end();
+    await devPool.end();
   }
 }

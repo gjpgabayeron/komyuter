@@ -60,12 +60,6 @@ export interface Stop {
   updated_at: string;
 }
 
-export interface NotableStop {
-  stop_id: string;
-  name: string;
-  is_detour_only: boolean;
-}
-
 export interface Detour {
   detour_id: string;
   direction_id: string;
@@ -76,8 +70,25 @@ export interface Detour {
   additional_distance_meters: number | null;
   commuter_instruction: string;
   driver_instruction: string | null;
-  notable_stops: NotableStop[];
+  /** Points created by the detour tool — real stops scoped to this detour
+   *  only (ordered; the detour's route is entry → detour_stops → exit). */
+  detour_stops: DetourStop[];
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A stop owned by a detour (never part of the base chain). */
+export interface DetourStop {
+  detour_stop_id: string;
+  detour_id: string;
+  stop_order: number;
+  name: string;
+  location: GeoPoint;
+  type: StopType;
+  is_guaranteed_service: boolean;
+  landmark_hint: string | null;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }
