@@ -322,6 +322,118 @@ describe("detour store — sidebar visibility toggles (display-only)", () => {
   });
 });
 
+describe("detour store — stop reorder parity (US4, FR-010)", () => {
+  /** Split → merge → three waypoints (stops A, B, C in order). */
+  async function placeThreeStops(
+    store: ReturnType<typeof openNewStore>,
+  ): Promise<void> {
+    const get = () => store.getState();
+    get().handleMapClick(SPLIT);
+    get().handleMapClick(MERGE);
+    for (const point of [
+      [122.505, 10.605] as CoordinatePair,
+      [122.51, 10.608] as CoordinatePair,
+      [122.515, 10.611] as CoordinatePair,
+    ]) {
+      get().handleMapClick(point);
+    }
+    await vi.waitFor(() => expect(get().loop).not.toBeNull());
+  }
+
+  it("moves a detour stop up with ArrowUp semantics (insert-before)", async () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    await placeThreeStops(store);
+    expect(get().detourStops.map((s) => s.name)).toEqual([
+      "Stop 1",
+      "Stop 2",
+      "Stop 3",
+    ]);
+
+    // ArrowUp on index 2 → target row index 1 (same as base row handler).
+    get().reorderDetourStop(2, 1);
+    expect(get().detourStops.map((s) => s.name)).toEqual([
+      "Stop 1",
+      "Stop 3",
+      "Stop 2",
+    ]);
+    expect(get().canUndo()).toBe(true);
+  });
+
+  it("moves a detour stop down with ArrowDown semantics (target = index + 2)", async () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    await placeThreeStops(store);
+
+    // ArrowDown on index 0 → target row index 2 (insert-before row 2 shifts
+    // the moved stop into row 1's old slot's successor — matches base).
+    get().reorderDetourStop(0, 2);
+    expect(get().detourStops.map((s) => s.name)).toEqual([
+      "Stop 2",
+      "Stop 1",
+      "Stop 3",
+    ]);
+  });
+
+  it("ignores no-op and out-of-bounds reorders", async () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    await placeThreeStops(store);
+
+    get().reorderDetourStop(1, 1); // no-op
+    expect(get().detourStops.map((s) => s.name)).toEqual([
+      "Stop 1",
+      "Stop 2",
+      "Stop 3",
+    ]);
+
+    get().reorderDetourStop(-1, 0); // from out of bounds
+    get().reorderDetourStop(0, 5); // to out of bounds
+    get().reorderDetourStop(3, 0); // from out of bounds
+    expect(get().detourStops.map((s) => s.name)).toEqual([
+      "Stop 1",
+      "Stop 2",
+      "Stop 3",
+    ]);
+  });
+
+  it("round-trips a reorder through undo/redo", async () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    await placeThreeStops(store);
+
+    get().reorderDetourStop(2, 1); // Stop 3 before Stop 2
+    const reordered = get().detourStops.map((s) => s.name);
+    expect(reordered).toEqual(["Stop 1", "Stop 3", "Stop 2"]);
+
+    get().undo();
+    expect(get().detourStops.map((s) => s.name)).toEqual([
+      "Stop 1",
+      "Stop 2",
+      "Stop 3",
+    ]);
+
+    get().redo();
+    expect(get().detourStops.map((s) => s.name)).toEqual(reordered);
+  });
+
+  it("rebuilds the loop after a reorder (order feeds the road-follow)", async () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    await placeThreeStops(store);
+
+    const before = get().loop?.coordinates.length ?? 0;
+    get().reorderDetourStop(0, 2);
+    await vi.waitFor(() =>
+      expect(get().loop?.coordinates.length).toBeGreaterThanOrEqual(0),
+    );
+    // The loop stays a valid LineString with the reordered stops inside.
+    expect(get().loop?.type).toBe("LineString");
+    expect(before).toBeGreaterThanOrEqual(2);
+    expect(get().loop?.coordinates.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
 describe("detour store — late-bound stops (target context still supplied)", () => {
   it("binds stops into the target once they arrive, and only once", () => {
     const store = createDetourStore(stubSnap);

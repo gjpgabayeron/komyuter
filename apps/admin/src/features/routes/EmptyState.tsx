@@ -45,6 +45,7 @@ export function EmptyState({ onCreateRoute }: EmptyStateProps) {
               variant="outline"
               disabled
               aria-disabled
+              aria-label="Import JSON dataset — coming soon"
               title="Coming soon"
             >
               Import JSON dataset

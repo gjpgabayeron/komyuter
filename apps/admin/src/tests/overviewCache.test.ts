@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { OverviewRouteEntity } from "@komyuter/shared";
+import { semanticColor } from "@/lib/colors";
 import {
   clearOverviewCache,
   OVERVIEW_CACHE_KEY,
@@ -29,7 +30,7 @@ function fakeStorage(initial: Record<string, string> = {}): StorageLike & {
 const route = (id: string): OverviewRouteEntity => ({
   route_id: id,
   name: `Route ${id}`,
-  color: "#1B6DB2",
+  color: semanticColor("activeRoute"),
   is_active: true,
   base_polyline: {
     type: "LineString",

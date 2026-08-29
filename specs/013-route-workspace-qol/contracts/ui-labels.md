@@ -6,20 +6,20 @@ Every surface in the route workspace reads labels only through this registry —
 
 ## Label Registry (initial seed — extends during implementation)
 
-| `LabelKey`                     | Canonical string         | Former variants (to replace)                                                       |
-| ------------------------------ | ------------------------ | ---------------------------------------------------------------------------------- |
-| `routeCode`                    | `Route code`             | —                                                                                  |
-| `shortName`                    | `Short name`             | —                                                                                  |
-| `color`                        | `Color`                  | `Colour` (`NewRouteDialog.tsx:123`, `properties/RouteGroup.tsx:92,125`)            |
-| `stops`                        | `Stops`                  | —                                                                                  |
-| `sectionStops`                 | `Stops along this route` | inline headings in `RouteList`                                                     |
-| `detours`                      | `Alternative routes`     | `Detours` captions (Glossary term: Detour; admin action label: Alternative routes) |
-| `lastUpdated`                  | `Last updated`           | —                                                                                  |
-| `additionalDistance`           | `Additional distance`    | —                                                                                  |
-| `commuterInstruction`          | `Commuter instruction`   | —                                                                                  |
-| `driverInstruction`            | `Driver instruction`     | —                                                                                  |
-| `notableStops`                 | `Notable stops`          | —                                                                                  |
-| `searchStops` / `searchRoutes` | `Search…`                | per-list placeholder drift                                                         |
+| `LabelKey`                     | Canonical string                   | Former variants (to replace)                                                                   |
+| ------------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `routeCode`                    | `Route code`                       | —                                                                                              |
+| `shortName`                    | `Short name`                       | —                                                                                              |
+| `color`                        | `Color`                            | `Colour` (`NewRouteDialog.tsx:123`, `properties/RouteGroup.tsx:92,125`)                        |
+| `stops`                        | `Stops`                            | —                                                                                              |
+| `sectionStops`                 | `Stops along this route`           | inline headings in `RouteList`                                                                 |
+| `detours`                      | `Alternative routes`               | `Detours` captions (Glossary term: Detour; admin action label: Alternative routes)             |
+| `lastUpdated`                  | `Last updated`                     | —                                                                                              |
+| `additionalDistance`           | `Additional distance`              | —                                                                                              |
+| `commuterInstruction`          | `Commuter instruction`             | —                                                                                              |
+| `driverInstruction`            | `Driver instruction`               | —                                                                                              |
+| `notableStops`                 | `Notable stops`                    | —                                                                                              |
+| `searchStops` / `searchRoutes` | `Search stops…` / `Search routes…` | per-list placeholder drift — distinct strings so the value-uniqueness guardrail (Rule 1) holds |
 
 Specified format: add rows as surfaces are adopted; keys are a typed union so a misspelled key fails typecheck.
 

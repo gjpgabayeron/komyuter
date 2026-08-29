@@ -2,7 +2,12 @@
 
 name: Komyuter
 description: Iloilo PUJ transit navigation — multi-criteria routing and Geo-AR wayfinding with admin-managed route data
-
+semantic_colors_oklch:
+activeRoute: "oklch(0.52 0.13 235)" # #1B6DB2 — signboard green-blue
+previewLine: "oklch(0.70 0.19 45)" # #FF5C00 — vivid orange (transient)
+attentionAmber: "oklch(0.60 0.14 65)" # #D97706 — signal amber
+nodeInk: "oklch(0.23 0.02 230)" # #0F172A — plate ink
+detail: "Confirmed at implementation (contracts/ui-colors.md §1); single source is apps/admin/src/lib/colors.ts — DESIGN.md wins on any visual conflict.
 ---
 
 # Design System: Komyuter

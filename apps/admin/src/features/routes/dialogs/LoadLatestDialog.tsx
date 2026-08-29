@@ -1,13 +1,5 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
+import { CONFLICT_COPY } from "@/lib/labels";
 
 interface LoadLatestDialogProps {
   open: boolean;
@@ -16,9 +8,10 @@ interface LoadLatestDialogProps {
 }
 
 /**
- * Confirm before a save-conflict recovery: loading the latest server version
- * replaces the local unsaved edits (kept as a draft). Confirms the destructive
- * replace — the admin's unsaved work is intentionally discarded.
+ * Save-conflict recovery (FR-003): ONE shared confirmation shell — the same
+ * non-destructive ConfirmDialog as every other blocking ask, with the shared
+ * `conflict.*` copy (labels.ts). Both base-route and Detour save conflicts
+ * surface here, retaining all local work and offering the latest saved data.
  */
 export function LoadLatestDialog({
   open,
@@ -26,22 +19,14 @@ export function LoadLatestDialog({
   onLoadLatest,
 }: LoadLatestDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="sm:max-w-sm">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Loading the latest version replaces your unsaved edits. Your current
-            work is kept as a draft on this device.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Keep editing</AlertDialogCancel>
-          <AlertDialogAction onClick={onLoadLatest}>
-            Load latest
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={CONFLICT_COPY.title}
+      message={CONFLICT_COPY.body}
+      confirmLabel={CONFLICT_COPY.loadLatest}
+      cancelLabel={CONFLICT_COPY.keepLocal}
+      onConfirm={onLoadLatest}
+    />
   );
 }

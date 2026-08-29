@@ -16,6 +16,7 @@ import { usePlottingStore } from "@/lib/plottingStore";
 import { FareConfigSelect } from "./FareConfigSelect";
 import { isValidHexColor, randomRouteColor } from "./routeColors";
 import { useCreateRouteMutation } from "./useRouteQueries";
+import { label } from "@/lib/labels";
 import { useFareConfigsQuery } from "@/features/fares/queries";
 
 interface NewRouteDialogProps {
@@ -25,7 +26,7 @@ interface NewRouteDialogProps {
 
 const randomColor = () => randomRouteColor();
 
-/** Minimal create-route form (FR-002/FR-030): name, short name, colour, fare. */
+/** Minimal create-route form (FR-002/FR-030): name, short name, color, fare. */
 export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
   const [name, setName] = useState("");
   const [shortName, setShortName] = useState("");
@@ -33,7 +34,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
   const [hexText, setHexText] = useState(color);
   const [fareConfigId, setFareConfigId] = useState<string | null>(null);
 
-  // A fresh random colour on EVERY open — not just first mount — so each new
+  // A fresh random color on EVERY open — not just first mount — so each new
   // route gets a distinct identity even if the dialog stays mounted between
   // opens (or the previous create was cancelled). Also pre-fills the default
   // fare config when one exists.
@@ -67,7 +68,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
         short_name: shortName.trim(),
         color,
         fare_config_id: fareConfigId ?? undefined,
-        // Draft-first workflow: new routes start inactive for review (Pasted #42).
+        // Draft-first workflow: new routes start inactive for review.
         is_active: false,
       });
       // Select the new route as the active plotting surface (FR-002) and put
@@ -109,7 +110,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="route-short-name">Short name</Label>
+              <Label htmlFor="route-short-name">{label("shortName")}</Label>
               <Input
                 id="route-short-name"
                 value={shortName}
@@ -120,10 +121,10 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Colour</Label>
+              <Label>{label("color")}</Label>
               <div className="flex items-center gap-1.5">
                 <label
-                  title="Pick a colour"
+                  title={label("color")}
                   className="border-border flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-white"
                 >
                   <input
@@ -133,7 +134,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
                       setColor(event.target.value);
                       setHexText(event.target.value);
                     }}
-                    aria-label="Route colour"
+                    aria-label={label("color")}
                     className="size-9 cursor-pointer border-none bg-transparent p-0"
                   />
                 </label>
@@ -144,7 +145,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
                     setHexText(value);
                     if (isValidHexColor(value)) setColor(value);
                   }}
-                  aria-label="Route colour (hex)"
+                  aria-label={`${label("color")} (hex)`}
                   spellCheck={false}
                   className="h-8 font-mono tabular-nums"
                 />
@@ -160,7 +161,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
           </div>
           <DialogFooter className="flex-col items-stretch gap-2">
             {noFareConfigs && (
-              <p className="text-xs text-amber-700">
+              <p className="text-attentionAmber text-xs">
                 No fare config exists yet — routes require one. Create a fare
                 config in the Fares section first.
               </p>

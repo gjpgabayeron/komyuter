@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { Redo2, Undo2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,9 +22,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { routeKeys } from "@/lib/queryKeys";
 import type { UpdateDetourPayload } from "@/features/routes/routesApi";
 import { coordsDistanceMeters, formatDistance } from "@/lib/coords";
-
-const CONFLICT_COPY =
-  "Another detour was added or removed while you were editing — review the list and save again.";
+import { SaveButton } from "@/components/shared/SaveButton";
+import { LoadLatestDialog } from "@/features/routes/dialogs/LoadLatestDialog";
+import { label as labels } from "@/lib/labels";
 
 const PLACE_STEPS: Record<"entry" | "exit" | "waypoint", string> = {
   entry: "Click the MAIN route where the alternative path splits (split node).",
@@ -31,6 +32,13 @@ const PLACE_STEPS: Record<"entry" | "exit" | "waypoint", string> = {
   waypoint:
     "Click to add detour stops along the alternative path between the nodes.",
 };
+
+/** An open dialog keeps focus and owns the keys (same DOM probe as Esc/R4). */
+function isDialogOpen(): boolean {
+  return (
+    document.querySelector('[role="dialog"], [role="alertdialog"]') !== null
+  );
+}
 
 /**
  * The DetourGroup — the right property-panel surface for quick-mode detour
@@ -44,6 +52,20 @@ const PLACE_STEPS: Record<"entry" | "exit" | "waypoint", string> = {
  * blocks the save (US4).
  */
 export function DetourGroup() {
+  const [conflictOpen, setConflictOpen] = useState(false);
+
+  // Keyboard contract (R4/FR-004): while the Detour editor is open, mod+s
+  // triggers this editor's own save gate — the same entry point as the
+  // visible SaveButton. Registered unconditionally (this component only
+  // mounts while that control is visible); the ref always points at the
+  // latest handleSave/saving so the callback never goes stale.
+  const handleSaveRef = useRef<() => void>(() => {});
+  const savingRef = useRef(false);
+  useHotkeys("mod+s", () => handleSaveRef.current(), {
+    enabled: () => !savingRef.current && !isDialogOpen(),
+    preventDefault: true,
+  });
+
   const open = useDetourStore((s) => s.open);
   const target = useDetourStore((s) => s.target);
   const snap = useDetourStore((s) => s.snap);
@@ -86,6 +108,7 @@ export function DetourGroup() {
   const createMutation = useCreateDetourMutation(target?.directionId ?? "");
   const updateMutation = useUpdateDetourMutation(target?.directionId ?? "");
   const saving = createMutation.isPending || updateMutation.isPending;
+  savingRef.current = saving;
   const setTargetStops = useDetourStore((s) => s.setTargetStops);
 
   const detoursQuery = useDetoursQuery(target?.directionId ?? null);
@@ -237,12 +260,18 @@ export function DetourGroup() {
 
   const handleSave = () => {
     if (!target) return;
-    // US4 conflict guard: the saved list changed while editing. Load latest
-    // before refusing — the retried save then validates against fresh data.
+    // A dialog keeps focus; never save underneath it (R4, FR-004).
+    if (
+      document.querySelector('[role="dialog"], [role="alertdialog"]') !== null
+    )
+      return;
+    // US4 conflict guard: the saved list changed while editing. Surface the
+    // SAME recovery dialog as a base-route save conflict (FR-003); local work
+    // is retained, Load latest refetches the list so the retry validates
+    // against fresh data.
     const savedCount = detoursQuery.data?.length ?? 0;
     if (savedCount !== baselineDetourCount) {
-      void detoursQuery.refetch();
-      setLastError(CONFLICT_COPY);
+      setConflictOpen(true);
       return;
     }
     setLastError(null);
@@ -286,6 +315,8 @@ export function DetourGroup() {
     });
   };
 
+  handleSaveRef.current = handleSave;
+
   return (
     <section aria-label="Alternative route" className="border-t pt-3">
       <div className="flex items-center justify-between gap-2">
@@ -312,7 +343,10 @@ export function DetourGroup() {
       {/* Activation lives here (detour properties), not the list row. */}
       {editDetourId !== null && (
         <div className="mt-2 flex items-center justify-between">
-          <Label htmlFor="detour-active" className="text-xs">
+          <Label
+            htmlFor="detour-active"
+            className="text-muted-foreground text-[11px]"
+          >
             Active
           </Label>
           <Switch
@@ -332,7 +366,7 @@ export function DetourGroup() {
       {draftOffer && offeredDraft && (
         <div
           role="status"
-          className="mt-2 rounded-md border border-amber-500/50 bg-amber-50 px-2 py-1.5 text-xs"
+          className="border-attentionAmber/50 bg-attentionAmberTint mt-2 rounded-md border px-2 py-1.5 text-xs"
         >
           You have an unsaved detour draft for this direction.
           <div className="mt-1 flex gap-2">
@@ -448,7 +482,7 @@ export function DetourGroup() {
       )}
 
       {mapboxWarning !== null && (
-        <p className="mt-1.5 text-xs text-amber-600">
+        <p className="text-attentionAmber mt-1.5 text-xs">
           Road following is unavailable — showing a straight line. Click the
           detour point again to retry.
         </p>
@@ -456,7 +490,10 @@ export function DetourGroup() {
 
       <div className="mt-3 space-y-2">
         <div className="space-y-1">
-          <Label htmlFor="detour-label" className="text-xs">
+          <Label
+            htmlFor="detour-label"
+            className="text-muted-foreground text-[11px]"
+          >
             Label
           </Label>
           <Input
@@ -468,8 +505,11 @@ export function DetourGroup() {
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="detour-commuter" className="text-xs">
-            Passenger instruction
+          <Label
+            htmlFor="detour-commuter"
+            className="text-muted-foreground text-[11px]"
+          >
+            {labels("commuterInstruction")}
           </Label>
           <Input
             id="detour-commuter"
@@ -480,8 +520,11 @@ export function DetourGroup() {
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="detour-driver" className="text-xs">
-            Driver instruction{" "}
+          <Label
+            htmlFor="detour-driver"
+            className="text-muted-foreground text-[11px]"
+          >
+            {labels("driverInstruction")}{" "}
             <span className="text-muted-foreground">(optional)</span>
           </Label>
           <Input
@@ -532,10 +575,17 @@ export function DetourGroup() {
         >
           Cancel
         </Button>
-        <Button type="button" size="sm" onClick={handleSave} disabled={saving}>
-          {saving ? "Saving…" : editDetourId ? "Save changes" : "Save detour"}
-        </Button>
+        <SaveButton saving={saving} onSave={handleSave} size="sm" />
       </div>
+
+      <LoadLatestDialog
+        open={conflictOpen}
+        onOpenChange={setConflictOpen}
+        onLoadLatest={() => {
+          void detoursQuery.refetch();
+          setConflictOpen(false);
+        }}
+      />
     </section>
   );
 }

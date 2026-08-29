@@ -1,6 +1,9 @@
-/** Route Sign palette seed colours (used for the random new-route default). */
+import { activeRoute } from "@/lib/colors";
+
+/** Route Sign palette seed colours (used for the random new-route default).
+ *  First entry is the registry `activeRoute` token — no duplicated hex. */
 export const ROUTE_COLORS = [
-  "#1B6DB2",
+  activeRoute,
   "#1F9E6B",
   "#C98A1B",
   "#7A5FC0",
@@ -21,7 +24,7 @@ export function randomRouteColor(): string {
   return hslToHex(hue, saturation, lightness);
 }
 
-/** Converts an HSL colour to a #RRGGBB hex string (round-trips isValidHexColor). */
+/** Converts an HSL color to a #RRGGBB hex string (round-trips isValidHexColor). */
 function hslToHex(h: number, s: number, l: number): string {
   const sat = s / 100;
   const light = l / 100;

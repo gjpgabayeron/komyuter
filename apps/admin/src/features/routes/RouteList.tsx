@@ -1,22 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { readOverviewCache } from "@/lib/overviewCache";
-import {
-  ArrowLeft,
-  Plus,
-  Route as RouteIcon,
-  Search,
-  SlidersHorizontal,
-} from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Plus, Search, SlidersHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -28,7 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PanelState } from "@/components/shared/PanelState";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { isStopSelected, selectStop } from "@/lib/selection";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
@@ -36,6 +21,8 @@ import { SHAPE_CLASS } from "./map/constants";
 import { pathFromConnections } from "@/lib/connections";
 import { cn } from "@/lib/utils";
 import { Plate } from "@/components/shared/Plate";
+import { SectionLabel } from "@/components/shared/SectionLabel";
+import { label } from "@/lib/labels";
 import { useDetourStore } from "@/features/detours/detourStore";
 import {
   useDeleteRouteMutation,
@@ -86,6 +73,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const stops = usePlottingStore((s) => s.stops);
   const detourOpen = useDetourStore((s) => s.open);
   const detourStops = useDetourStore((s) => s.detourStops);
+  const reorderDetourStop = useDetourStore((s) => s.reorderDetourStop);
   const selectDetourStop = useDetourStore((s) => s.selectDetourStop);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const setRouteMeta = usePlottingStore((s) => s.setRouteMeta);
@@ -97,6 +85,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const selection = usePlottingStore((s) => s.selection);
   const setSelection = usePlottingStore((s) => s.setSelection);
   const reorderStop = usePlottingStore((s) => s.reorderStop);
+  const setTool = usePlottingStore((s) => s.setTool);
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
@@ -282,10 +271,8 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
               {detourOpen ? (
                 <>
                   <div className="flex shrink-0 items-center justify-between px-1 pb-1">
-                    <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                      Detour stops
-                    </span>
-                    <span className="text-muted-foreground text-xs tabular-nums">
+                    <SectionLabel>Detour stops</SectionLabel>
+                    <span className="text-muted-foreground text-[11px] tabular-nums">
                       {detourStops.length}
                     </span>
                   </div>
@@ -299,66 +286,122 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                     </div>
                   ) : (
                     <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
-                      {detourStops.map((stop, index) => (
-                        <button
-                          type="button"
-                          key={stop.id}
-                          onClick={() => selectDetourStop(stop.id)}
-                          aria-label={`Detour stop ${index + 1}: ${stop.name}`}
-                          className="flex w-full items-center gap-1.5 rounded-sm border border-dashed border-[#1B6DB2]/40 px-1.5 py-1 text-left"
-                        >
-                          <span
-                            aria-hidden
-                            style={{
-                              backgroundColor: "#ffffff",
-                              borderColor: getStopShape(stop.type).color,
-                              color: getStopShape(stop.type).color,
+                      {detourStops.map((stop, index) => {
+                        const isDragging = dragIndex === index;
+                        const isDropTarget =
+                          dropIndex === index &&
+                          dragIndex !== null &&
+                          !isDragging;
+                        return (
+                          <button
+                            type="button"
+                            key={stop.id}
+                            draggable
+                            onDragStart={(event) => {
+                              event.dataTransfer.effectAllowed = "move";
+                              event.dataTransfer.setData(
+                                "text/plain",
+                                String(index),
+                              );
+                              setDragIndex(index);
                             }}
+                            onDragOver={(event) => {
+                              event.preventDefault();
+                              event.dataTransfer.dropEffect = "move";
+                              setDropIndex(index);
+                            }}
+                            onDrop={(event) => {
+                              event.preventDefault();
+                              const from = Number(
+                                event.dataTransfer.getData("text/plain"),
+                              );
+                              if (Number.isFinite(from))
+                                reorderDetourStop(from, index);
+                              setDragIndex(null);
+                              setDropIndex(null);
+                            }}
+                            onDragEnd={() => {
+                              setDragIndex(null);
+                              setDropIndex(null);
+                            }}
+                            onClick={() => selectDetourStop(stop.id)}
+                            onKeyDown={(event) => {
+                              if (event.key === "ArrowUp" && index > 0) {
+                                event.preventDefault();
+                                reorderDetourStop(index, index - 1);
+                              } else if (
+                                event.key === "ArrowDown" &&
+                                index < detourStops.length - 1
+                              ) {
+                                // reorderDetourStop inserts BEFORE the target
+                                // row, so a down-move needs target = index + 2
+                                // (same as the base row handler, FR-010).
+                                event.preventDefault();
+                                reorderDetourStop(index, index + 2);
+                              }
+                            }}
+                            aria-label={`Detour stop ${index + 1}: ${stop.name}`}
                             className={cn(
-                              "flex size-5 shrink-0 items-center justify-center border-2 border-dashed text-[10px] font-bold",
-                              SHAPE_CLASS[getStopShape(stop.type).shape],
+                              "border-activeRoute/40 flex w-full items-center gap-1.5 rounded-sm border border-dashed px-1.5 py-1 text-left",
+                              isDragging && "opacity-40",
+                              isDropTarget &&
+                                "border-t-primary border-t-2 border-dashed",
                             )}
                           >
-                            {index + 1}
-                          </span>
-                          <span className="min-w-0 flex-1 truncate text-xs">
-                            {stop.name}
-                          </span>
-                          <span className="text-muted-foreground/70 shrink-0 text-[10px]">
-                            {STOP_TYPE_LABELS[stop.type]}
-                          </span>
-                        </button>
-                      ))}
+                            <span
+                              aria-hidden
+                              style={{
+                                backgroundColor: "#ffffff",
+                                borderColor: getStopShape(stop.type).color,
+                                color: getStopShape(stop.type).color,
+                              }}
+                              className={cn(
+                                "flex size-5 shrink-0 items-center justify-center border-2 border-dashed text-[10px] font-bold",
+                                SHAPE_CLASS[getStopShape(stop.type).shape],
+                              )}
+                            >
+                              {index + 1}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate text-xs">
+                              {stop.name}
+                            </span>
+                            <span className="text-muted-foreground/70 shrink-0 text-[10px]">
+                              {STOP_TYPE_LABELS[stop.type]}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </>
               ) : (
                 <>
                   <div className="flex shrink-0 items-center justify-between px-1 pb-1">
-                    <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                      Stops
-                    </span>
+                    <SectionLabel>{label("sectionStops")}</SectionLabel>
                     <span className="flex items-center gap-1.5">
                       {closedLoop && (
                         <span
-                          className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
+                          className="border-activeRoute/40 bg-activeRoute/10 text-activeRoute rounded-sm border px-1.5 text-[10px] leading-4 font-medium"
                           title="Last stop connects back to the first — circular route"
                         >
                           Loop
                         </span>
                       )}
-                      <span className="text-muted-foreground text-xs tabular-nums">
+                      <span className="text-muted-foreground text-[11px] tabular-nums">
                         {stops.length}
                       </span>
                     </span>
                   </div>
                   {stops.length === 0 ? (
-                    <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
-                      <p className="text-sm font-medium">No stops yet</p>
-                      <p className="text-muted-foreground max-w-52 text-xs">
-                        Switch to the Add tool and click the map to place stops.
-                      </p>
-                    </div>
+                    <PanelState
+                      empty
+                      emptyTitle="No stops yet"
+                      emptyHint="Switch to the Add tool and click the map to place stops."
+                      emptyAction={{
+                        label: "Switch to Add tool",
+                        onSelect: () => setTool("add"),
+                      }}
+                    />
                   ) : (
                     <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
                       {stops.map((stop, index) => {
@@ -473,7 +516,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                           indicator only shows after hovering the gap briefly
                           (distinguishing intent from casual mouse movement);
                           the base state has zero delay, so it disappears
-                          immediately on leave (Pasted #42/#43/#44). The icon
+                          immediately on leave. The icon
                           is centered via flex on a full-width button. */}
                             <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
                               <button
@@ -537,8 +580,8 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                 <Input
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search routes"
-                  aria-label="Search routes"
+                  placeholder={label("searchRoutes")}
+                  aria-label={label("searchRoutes")}
                   className="h-8 pr-2 pl-7"
                 />
               </div>
@@ -586,93 +629,56 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
 
             {/* List / states */}
             <div className="overlay-scrollbar mt-1.5 min-h-0 flex-1 space-y-1 overflow-y-auto">
-              {routesQuery.isLoading && (
-                <>
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                  <Skeleton className="h-12 w-full" />
-                </>
-              )}
-              {routesQuery.isError && (
-                <div className="space-y-1.5 px-1 py-2">
-                  <p className="text-muted-foreground text-xs">
-                    Could not load routes.
-                  </p>
-                  <Button
-                    size="xs"
-                    variant="outline"
-                    onClick={() => void routesQuery.refetch()}
-                  >
-                    Retry
-                  </Button>
-                </div>
-              )}
-              {empty && (
-                <div className="flex flex-col items-center gap-2 px-2 py-6 text-center">
-                  <div className="bg-muted text-foreground flex size-8 items-center justify-center rounded-lg">
-                    <RouteIcon className="size-4" />
-                  </div>
-                  <p className="text-sm font-medium">No routes yet</p>
-                  <p className="text-muted-foreground text-xs">
-                    Create your first route, then plot it stop by stop on the
-                    map.
-                  </p>
-                  <Button size="sm" className="mt-1" onClick={onCreateRoute}>
-                    <Plus className="size-3.5" />
-                    Create first route
-                  </Button>
-                </div>
-              )}
-              {!empty &&
-                !routesQuery.isLoading &&
-                !routesQuery.isError &&
-                filtered.map((route) => (
-                  <RouteRow
-                    key={route.route_id}
-                    route={route}
-                    active={route.route_id === routeId}
-                    onOpen={() => selectRoute(route)}
-                    onDelete={() => setDeleteTarget(route)}
-                  />
-                ))}
-              {!empty &&
-                !routesQuery.isLoading &&
-                !routesQuery.isError &&
-                filtered.length === 0 && (
-                  <p className="text-muted-foreground px-1 py-2 text-xs">
-                    No routes match this search.
-                  </p>
-                )}
+              <PanelState
+                loading={routesQuery.isLoading}
+                error={routesQuery.isError}
+                errorMessage="Could not load routes."
+                onRetry={() => void routesQuery.refetch()}
+                empty={empty}
+                emptyTitle="No routes yet"
+                emptyHint="Create your first route, then plot it stop by stop on the map."
+                emptyAction={{
+                  label: "Create first route",
+                  onSelect: onCreateRoute,
+                }}
+              >
+                {!empty &&
+                  filtered.map((route) => (
+                    <RouteRow
+                      key={route.route_id}
+                      route={route}
+                      active={route.route_id === routeId}
+                      onOpen={() => selectRoute(route)}
+                      onDelete={() => setDeleteTarget(route)}
+                    />
+                  ))}
+                {!empty &&
+                  !routesQuery.isLoading &&
+                  !routesQuery.isError &&
+                  filtered.length === 0 && (
+                    <p className="text-muted-foreground px-1 py-2 text-xs">
+                      No routes match this search.
+                    </p>
+                  )}
+              </PanelState>
             </div>
           </Plate>
         </nav>
       )}
 
-      <AlertDialog
+      <ConfirmDialog
         open={deleteTarget !== null}
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-      >
-        <AlertDialogContent className="sm:max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete route?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This permanently deletes “{deleteTarget?.name}” and its plotted
-              stops from the database. This action can’t be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => void confirmDelete()}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? "Deleting…" : "Delete"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title="Delete route?"
+        message={`This permanently deletes “${deleteTarget?.name}” and its plotted stops from the database. This action can’t be undone.`}
+        confirmLabel="Delete"
+        destructive
+        pending={deleteMutation.isPending}
+        pendingLabel="Deleting…"
+        onConfirm={() => void confirmDelete()}
+      />
     </>
   );
 }

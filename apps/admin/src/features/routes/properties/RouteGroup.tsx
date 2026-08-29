@@ -10,6 +10,9 @@ import { formatTimestamp } from "../format";
 import { FareConfigSelect } from "../FareConfigSelect";
 import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "../routeColors";
 import { useRouteQuery } from "../useRouteQueries";
+import { label } from "@/lib/labels";
+import { semanticColor } from "@/lib/colors";
+import { displayValue } from "../format";
 
 export function RouteGroup() {
   const routeId = usePlottingStore((s) => s.routeId);
@@ -76,7 +79,7 @@ export function RouteGroup() {
           />
         </div>
         <div className="space-y-1.5">
-          <SectionLabel>Route code</SectionLabel>
+          <SectionLabel>{label("routeCode")}</SectionLabel>
           <Input
             value={routeMeta?.shortName ?? ""}
             onChange={(event) =>
@@ -89,7 +92,7 @@ export function RouteGroup() {
           />
         </div>
         <div className="space-y-1.5">
-          <SectionLabel>Colour</SectionLabel>
+          <SectionLabel>{label("color")}</SectionLabel>
           <div className="flex items-center gap-1.5">
             <label
               title="Pick a colour"
@@ -122,7 +125,7 @@ export function RouteGroup() {
           </div>
           {!isValidHexColor(hexText) && hexText.trim() !== "" && (
             <p role="alert" className="text-destructive text-xs">
-              Not a valid colour — use six hex digits, e.g. #1B6DB2.
+              {`Not a valid color — use six hex digits, e.g. ${semanticColor("activeRoute")}.`}
             </p>
           )}
         </div>
@@ -164,7 +167,9 @@ export function RouteGroup() {
             </div>
           </div>
           <p className="text-sm tabular-nums">
-            {distance !== null ? formatDistance(distance, unit) : "—"}
+            {distance !== null
+              ? formatDistance(distance, unit)
+              : displayValue(null)}
             <span className="text-muted-foreground text-xs">
               {" "}
               (from plotted path)
@@ -172,9 +177,9 @@ export function RouteGroup() {
           </p>
         </div>
         <div className="space-y-1.5">
-          <SectionLabel>Last updated</SectionLabel>
+          <SectionLabel>{label("lastUpdated")}</SectionLabel>
           <p className="text-sm tabular-nums">
-            {route ? formatTimestamp(route.updated_at) : "—"}
+            {route ? formatTimestamp(route.updated_at) : displayValue(null)}
           </p>
         </div>
       </div>

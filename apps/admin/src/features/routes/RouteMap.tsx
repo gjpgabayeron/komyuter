@@ -284,9 +284,9 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     perfectly centered when a label appears (no perceived shift).
                     The marker-labels layer toggle controls the ACTUAL stop name
                     beneath every marker (the first keeps a "Start · " prefix
-                    for orientation) — not just the Start chip (Pasted #42/#45). */}
+                    for orientation) — not just the Start chip. */}
                 {layers.markerLabels && (
-                  <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+                  <span className="border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
                     {index === 0 ? `Start · ${stop.name}` : stop.name}
                   </span>
                 )}
@@ -336,12 +336,12 @@ export function RouteMap({ className, children }: RouteMapProps) {
                 <button
                   type="button"
                   aria-label="Detour merge node (drag to move)"
-                  className="flex size-7 cursor-grab items-center justify-center rounded-full border-2 border-white bg-[#0F172A] text-white ring-2 ring-white transition-colors active:cursor-grabbing"
+                  className="bg-nodeInk flex size-7 cursor-grab items-center justify-center rounded-full border-2 border-white text-white ring-2 ring-white transition-colors active:cursor-grabbing"
                 >
                   <Merge className="size-3.5" />
                 </button>
                 {layers.markerLabels && (
-                  <span className="absolute top-full mt-0.5 rounded-xs border border-[#0F172A] bg-white px-1 text-[11px] leading-4 font-medium text-[#0F172A]">
+                  <span className="border-nodeInk text-nodeInk absolute top-full mt-0.5 rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
                     Merge
                   </span>
                 )}
@@ -401,7 +401,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     )}
                   </button>
                   {layers.detourStopLabels && (
-                    <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+                    <span className="border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
                       {stop.name}
                     </span>
                   )}
@@ -460,7 +460,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
                       {index + 1}
                     </button>
                     {layers.detourStopLabels && (
-                      <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+                      <span className="border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
                         {stop.name}
                       </span>
                     )}
@@ -501,7 +501,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
                   type="button"
                   tabIndex={-1}
                   aria-label={`${detour.label} merge node`}
-                  className="pointer-events-none flex size-5 items-center justify-center rounded-full border-2 border-white bg-[#0F172A]/80 text-white ring-2 ring-white/60"
+                  className="bg-nodeInk/80 pointer-events-none flex size-5 items-center justify-center rounded-full border-2 border-white text-white ring-2 ring-white/60"
                 >
                   <Merge className="size-3" />
                 </button>

@@ -21,6 +21,7 @@ import {
   polylineClosesOn,
 } from "./coords";
 import type { DraftDraft } from "./draft";
+import { activeRoute } from "@/lib/colors";
 import {
   coalesceDragEntry,
   coalescePropsEntry,
@@ -149,7 +150,7 @@ const DEFAULT_LAYERS: LayerVisibility = {
 const EMPTY_ROUTE_META: RouteMetaDraft = {
   name: "",
   shortName: "",
-  color: "#1B6DB2",
+  color: activeRoute,
   isActive: false,
   fareConfigId: null,
 };

@@ -316,8 +316,10 @@ function ToolToggle({ disabled }: { disabled: boolean }) {
  * Centered floating icon-only action bar below the map (FR-019) — Figma-style:
  * each action is a recognizable icon with a tooltip, and the Select/Add tool
  * toggle shows the active edit tool (no separate mode chip — the toggle
- * itself is the indicator). Everything locks while a save is in flight; the
- * dedicated Save button (right of the bar) owns persistence.
+ * itself is the indicator). Everything locks while a save is in flight.
+ * Persistence lives in the workspace's chrome row (shared `SaveButton`, label
+ * "Save changes") — NOT in this bar (FR-014: status text matches the controls
+ * that exist).
  */
 export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
   const saving = usePlottingStore((s) => s.saving);

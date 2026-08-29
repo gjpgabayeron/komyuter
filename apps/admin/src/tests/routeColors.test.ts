@@ -5,11 +5,12 @@ import {
   isValidHexColor,
   randomRouteColor,
 } from "@/features/routes/routeColors";
+import { semanticColor } from "@/lib/colors";
 import { formatTimestamp } from "@/features/routes/format";
 
 describe("isValidHexColor", () => {
   it("accepts #RRGGBB hex colours", () => {
-    expect(isValidHexColor("#1B6DB2")).toBe(true);
+    expect(isValidHexColor(semanticColor("activeRoute"))).toBe(true);
     expect(isValidHexColor("#abcdef")).toBe(true);
     expect(isValidHexColor("#ABCDEF")).toBe(true);
   });
@@ -17,7 +18,7 @@ describe("isValidHexColor", () => {
   it("rejects malformed values", () => {
     expect(isValidHexColor("1B6DB2")).toBe(false);
     expect(isValidHexColor("#1B6D")).toBe(false);
-    expect(isValidHexColor("#1B6DB2FF")).toBe(false);
+    expect(isValidHexColor(`${semanticColor("activeRoute")}FF`)).toBe(false);
     expect(isValidHexColor("")).toBe(false);
   });
 });
@@ -56,20 +57,21 @@ describe("routeColors", () => {
 
 describe("detourLineColorFor (route-tone alternative colors)", () => {
   it("contrasts the main route color (complement of the hue)", () => {
-    const detour = detourLineColorFor("#1B6DB2", "det-abc");
+    const detour = detourLineColorFor(semanticColor("activeRoute"), "det-abc");
     expect(isValidHexColor(detour)).toBe(true);
-    // #1B6DB2 is blue (h≈207) — its complement is orange: red-dominant.
+    // activeRoute is blue (h≈207) — its complement is orange: red-dominant.
     const r = parseInt(detour.slice(1, 3), 16);
     const b = parseInt(detour.slice(5, 7), 16);
     expect(r).toBeGreaterThan(b);
   });
 
   it("is deterministic per detour id and differs between detours", () => {
-    expect(detourLineColorFor("#1B6DB2", "det-1")).toBe(
-      detourLineColorFor("#1B6DB2", "det-1"),
+    const base = semanticColor("activeRoute");
+    expect(detourLineColorFor(base, "det-1")).toBe(
+      detourLineColorFor(base, "det-1"),
     );
-    expect(detourLineColorFor("#1B6DB2", "det-1")).not.toBe(
-      detourLineColorFor("#1B6DB2", "det-2"),
+    expect(detourLineColorFor(base, "det-1")).not.toBe(
+      detourLineColorFor(base, "det-2"),
     );
   });
 

@@ -1,6 +1,6 @@
 import { useHotkeys } from "react-hotkeys-hook";
 import { SaveIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { SaveButton } from "@/components/shared/SaveButton";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { RouteMap } from "@/features/routes/RouteMap";
 import { MapProvider } from "react-map-gl/maplibre";
@@ -76,10 +76,12 @@ function RouteWorkspaceInner() {
   const detourOpen = useDetourStore((s) => s.open);
 
   useHotkeys("mod+s", () => void saveAll(), {
-    // The detour editor owns SAVE while it is open (its panel has the
-    // buttons); the base-route save stays silent so mod+s never saves the
-    // wrong thing mid-detour (review follow-up).
-    enabled: hasRoute && !saving && !detourOpen,
+    // The detour editor owns SAVE while it is open (its SaveButton and its
+    // own mod+s binding — R4); the base-route save stays silent so mod+s
+    // never saves the wrong thing mid-detour. A child dialog (route/stop
+    // delete, menus) keeps focus: the Esc DOM probe also gates mod+s, so the
+    // shortcut is never a silent no-op underneath an open dialog (FR-004).
+    enabled: hasRoute && !saving && !detourOpen && !childDialogOpen(),
     preventDefault: true,
   });
 
@@ -92,7 +94,10 @@ function RouteWorkspaceInner() {
       if (detour.open) detour.undo();
       else usePlottingStore.getState().undo();
     },
-    { enabled: hasRoute && !saving, preventDefault: true },
+    {
+      enabled: hasRoute && !saving && !childDialogOpen(),
+      preventDefault: true,
+    },
   );
   useHotkeys(
     "mod+shift+z",
@@ -101,7 +106,10 @@ function RouteWorkspaceInner() {
       if (detour.open) detour.redo();
       else usePlottingStore.getState().redo();
     },
-    { enabled: hasRoute && !saving, preventDefault: true },
+    {
+      enabled: hasRoute && !saving && !childDialogOpen(),
+      preventDefault: true,
+    },
   );
 
   // Keyboard contract (FR-008): Esc dismisses the focus plate (T6) or leaves
@@ -206,14 +214,11 @@ function RouteWorkspaceInner() {
                       onRedo={() => usePlottingStore.getState().redo()}
                     />
                     {showSave && !detourOpen && (
-                      <Button
-                        size="icon"
-                        onClick={() => void saveAll()}
-                        disabled={saving}
-                        aria-label={saving ? "Saving changes" : "Save changes"}
-                      >
-                        <SaveIcon />
-                      </Button>
+                      <SaveButton
+                        saving={saving}
+                        onSave={() => void saveAll()}
+                        icon={<SaveIcon />}
+                      />
                     )}
                   </div>
                   {showSnapWarning && snap.warning && (

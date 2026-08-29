@@ -1,5 +1,6 @@
 import { CircleCheck, TriangleAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SAVE_COPY, CONFLICT_COPY } from "@/lib/labels";
 import type { DraftPayload } from "@/lib/draft";
 import { DraftRestoreBanner } from "./DraftRestoreBanner";
 import { NoticePlate } from "@/components/shared/NoticePlate";
@@ -53,10 +54,10 @@ export function StatusBar({
   // clean and idle (no just-completed save), the plate is hidden entirely.
   const showLifecycle = saving || dirty || justSaved;
   const lifecycle = saving
-    ? "Saving…"
+    ? SAVE_COPY.saving
     : dirty
       ? "Unsaved changes"
-      : "Saved just now";
+      : SAVE_COPY.saved;
 
   if (!showLifecycle && !conflict && !draft && !restored) return null;
 
@@ -69,7 +70,7 @@ export function StatusBar({
             saving
               ? "border-primary/40 bg-primary/5 text-primary"
               : dirty
-                ? "border-amber-600/50 bg-amber-50 text-amber-900"
+                ? "border-attentionAmber/50 bg-attentionAmberTint text-attentionAmberDeep"
                 : "border-emerald-600/40 bg-emerald-50 text-emerald-900"
           }`}
         >
@@ -78,7 +79,7 @@ export function StatusBar({
               saving
                 ? "bg-primary animate-pulse"
                 : dirty
-                  ? "bg-amber-600"
+                  ? "bg-attentionAmber"
                   : "bg-emerald-600"
             }`}
             aria-hidden="true"
@@ -109,7 +110,7 @@ export function StatusBar({
             className="h-7 shrink-0 px-2 text-xs"
             onClick={onLoadLatest}
           >
-            Load latest
+            {CONFLICT_COPY.loadLatest}
           </Button>
           <Button
             size="icon-xs"

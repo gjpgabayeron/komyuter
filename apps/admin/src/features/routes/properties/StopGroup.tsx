@@ -1,18 +1,9 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { StopEditor } from "./StopEditor";
 
 export function StopGroup() {
@@ -52,28 +43,18 @@ export function StopGroup() {
         </p>
       )}
 
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent className="sm:max-w-sm">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete stop?</AlertDialogTitle>
-            <AlertDialogDescription>
-              “{stop?.name}” will be removed from the route. The change applies
-              the next time you Save.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (stop) removeStop(stop.id);
-                setDeleteOpen(false);
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete stop?"
+        message={`“${stop?.name}” will be removed from the route. The change applies the next time you Save.`}
+        confirmLabel="Delete"
+        destructive
+        onConfirm={() => {
+          if (stop) removeStop(stop.id);
+          setDeleteOpen(false);
+        }}
+      />
     </section>
   );
 }

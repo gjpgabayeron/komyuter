@@ -189,6 +189,9 @@ export interface DetourState {
   ) => void;
   /** Moves a detour stop on the map (drag) — records history + rebuilds. */
   moveDetourStop: (id: string, location: CoordinatePair) => void;
+  /** Reorders a detour stop (drag & drop / ArrowUp/Down) with the same
+   *  insert-before semantics as the base `reorderStop` (FR-010). */
+  reorderDetourStop: (fromIndex: number, toIndex: number) => void;
   removeDetourStop: (id: string) => void;
   selectDetourStop: (id: string | null) => void;
   setLabel: (label: string) => void;
@@ -530,6 +533,19 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
             stop.id === id ? { ...stop, location } : stop,
           ),
         });
+        void rebuildLoop(set, get, snapFn);
+      },
+
+      reorderDetourStop: (fromIndex, toIndex) => {
+        if (fromIndex === toIndex) return;
+        const { detourStops, open } = get();
+        if (!open || fromIndex < 0 || fromIndex >= detourStops.length) return;
+        if (toIndex < 0 || toIndex > detourStops.length) return;
+        recordHistory();
+        const next = [...detourStops];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(toIndex > fromIndex ? toIndex - 1 : toIndex, 0, moved);
+        set({ detourStops: next });
         void rebuildLoop(set, get, snapFn);
       },
 

@@ -7,6 +7,8 @@ import { readOverviewCache } from "@/lib/overviewCache";
 import { Plate } from "@/components/shared/Plate";
 import { SectionLabel } from "@/components/shared/SectionLabel";
 import { useRoutesQuery } from "../useRouteQueries";
+import { label } from "@/lib/labels";
+import { displayValue } from "../format";
 
 /**
  * The focus plate (T2/T12) — a read-only peek at a route picked from the
@@ -64,12 +66,14 @@ export function FocusPlate({ routeId }: { routeId: string }) {
         </div>
         <dl className="mt-3 space-y-1.5 text-sm">
           <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground text-xs">Stops</dt>
-            <dd className="tabular-nums">{stopCount ?? "—"}</dd>
+            <dt className="text-muted-foreground text-xs">{label("stops")}</dt>
+            <dd className="tabular-nums">{displayValue(stopCount)}</dd>
           </div>
           <div className="flex items-center justify-between">
             <dt className="text-muted-foreground text-xs">Directions</dt>
-            <dd className="tabular-nums">{route?.direction_count ?? "—"}</dd>
+            <dd className="tabular-nums">
+              {displayValue(route?.direction_count)}
+            </dd>
           </div>
         </dl>
         <div className="mt-auto pt-4">

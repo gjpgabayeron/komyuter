@@ -5,9 +5,10 @@ import { DetourList } from "./DetourList";
 /**
  * The dedicated BOTTOM-LEFT sidebar for alternative routes: a self-contained
  * card under the stops sidebar listing the open direction's detours, with the
- * per-detour actions (edit, eye, activate, delete) and "Add alternative
- * route". Visible only while a direction is open (edit mode); the right
- * properties rail no longer hosts the nested list.
+ * per-detour actions (focus, eye) and "Add alternative route". Activation
+ * lives in the detour's properties panel (Active switch — soft-deactivation,
+ * no destructive delete control). Visible only while a direction is open
+ * (edit mode); the right properties rail no longer hosts the nested list.
  */
 export function DetourSidebar() {
   const directionId = usePlottingStore((s) => s.directionId);

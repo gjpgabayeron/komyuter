@@ -1,8 +1,8 @@
-import type { CoordinatePair } from "@komyuter/shared";
+﻿import type { CoordinatePair } from "@komyuter/shared";
 import { coordsDistanceMeters } from "./coords";
 
 /**
- * Direction-aware overlap detection for the route overview (Pasted #34 model).
+ * Direction-aware overlap detection for the route overview .
  *
  * Premise: every polyline is produced by Mapbox snap-to-road, so two polylines
  * on the same road segment share the same underlying coordinates regardless of
@@ -11,7 +11,7 @@ import { coordsDistanceMeters } from "./coords";
  * Two passes OVERLAP when vertices from each lie within
  * `OVERLAP_TOLERANCE_METERS` of each other AND their local travel directions
  * are OPPOSITE (a bidirectional road). Same-direction convoys are deliberately
- * ignored — they are not a directional ambiguity, and offsetting them is what
+ * ignored â€” they are not a directional ambiguity, and offsetting them is what
  * made the old ladder look fragmented. Self-overlap (a loop traversing the
  * same road twice in opposite directions) is detected the same way, requiring
  * the two vertices to be far apart ALONG the line so adjacent dense vertices
@@ -19,8 +19,8 @@ import { coordsDistanceMeters } from "./coords";
  *
  * The lateral separation is applied in real-world METERS (not pixels) so it is
  * subtle at overview zoom and reads clearly when zoomed in: each overlapping
- * pass is shifted right of its own travel by `OVERLAP_OFFSET_METERS` (3 m → 6 m
- * total separation), with a smooth 0 → full → 0 taper over `OVERLAP_TAPER_METERS` at each end so the
+ * pass is shifted right of its own travel by `OVERLAP_OFFSET_METERS` (3 m â†’ 6 m
+ * total separation), with a smooth 0 â†’ full â†’ 0 taper over `OVERLAP_TAPER_METERS` at each end so the
  * shifted run rejoins the unshifted line without a kink or gap.
  */
 
@@ -28,16 +28,16 @@ import { coordsDistanceMeters } from "./coords";
 export const OVERLAP_TOLERANCE_METERS = 20;
 /** Lateral shift applied to each overlapping pass, right of its own travel. */
 export const OVERLAP_OFFSET_METERS = 1;
-/** Distance over which the shift ramps 0 → full at each end of a run. */
+/** Distance over which the shift ramps 0 â†’ full at each end of a run. */
 export const OVERLAP_TAPER_METERS = 30;
 /** A corridor needs at least this many matched vertices to be worth offsetting. */
 const MIN_RUN_VERTICES = 2;
 /** Two vertices of the SAME polyline must be at least this far apart ALONG the
- *  line (cumulative meters) to count as a second pass — dense snapped geometry
+ *  line (cumulative meters) to count as a second pass â€” dense snapped geometry
  *  has adjacent vertices only meters apart. */
 const SELF_MIN_ALONG_METERS = 100;
 /** Dot product of the two travel tangents below which they count as opposite
- *  (≈ >120° apart). Same direction / perpendicular junction crossings do not
+ *  (â‰ˆ >120Â° apart). Same direction / perpendicular junction crossings do not
  *  match. */
 const OPPOSITE_DOT_THRESHOLD = -0.5;
 
@@ -222,7 +222,7 @@ export function findOppositeOverlapRuns(
 
 /**
  * Returns a copy of `coords` with the given runs shifted laterally, right of
- * travel, with a tapered 0 → full → 0 profile so shifted stretches rejoin the
+ * travel, with a tapered 0 â†’ full â†’ 0 profile so shifted stretches rejoin the
  * unshifted line seamlessly. Vertices outside the runs are untouched. When a
  * vertex belongs to several runs the largest shift wins. Returns the input
  * reference unchanged when there are no runs.

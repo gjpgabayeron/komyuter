@@ -1,6 +1,8 @@
-import { Eye, EyeOff, Plus, RefreshCw } from "lucide-react";
+import { Eye, EyeOff, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PanelState } from "@/components/shared/PanelState";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { label } from "@/lib/labels";
 import { usePlottingStore } from "@/lib/plottingStore";
 import {
   useDirectionsQuery,
@@ -75,9 +77,9 @@ export function DetourList({ directionId }: { directionId: string }) {
   };
 
   return (
-    <section aria-label="Alternative routes">
+    <section aria-label={label("detours")}>
       <div className="flex items-center justify-between gap-2">
-        <SectionLabel>Alternative routes</SectionLabel>
+        <SectionLabel>{label("detours")}</SectionLabel>
         {detours.length > 0 && (
           <span className="text-muted-foreground text-[11px] tabular-nums">
             {detours.length}
@@ -86,83 +88,75 @@ export function DetourList({ directionId }: { directionId: string }) {
       </div>
 
       <div className="mt-2 space-y-1.5">
-        {detoursQuery.isLoading && (
-          <p className="text-muted-foreground text-xs">Loading detours…</p>
-        )}
-
-        {detoursQuery.isError && (
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-destructive text-xs">Could not load detours.</p>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="h-6 px-1.5 text-xs"
-              onClick={() => void detoursQuery.refetch()}
-            >
-              <RefreshCw className="size-3" /> Retry
-            </Button>
-          </div>
-        )}
-
-        {!detoursQuery.isLoading &&
-          !detoursQuery.isError &&
-          detours.length === 0 && (
-            <p className="text-muted-foreground text-xs">
-              No detours yet — add the first alternative route.
-            </p>
-          )}
-
-        {detours.map((detour, index) => {
-          const hidden = hiddenDetourIds.includes(detour.detour_id);
-          return (
-            <div
-              key={detour.detour_id}
-              className={`flex items-center gap-2 rounded-md border px-2 py-1.5 ${
-                detour.is_active
-                  ? "border-border"
-                  : "border-border/50 bg-muted/40"
-              }`}
-            >
-              <span
-                aria-hidden
-                className="size-2.5 shrink-0 rounded-full"
-                style={{
-                  backgroundColor: detourLineColorFor(
-                    routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
-                    detour.detour_id,
-                  ),
-                }}
-              />
-              <button
-                type="button"
-                onClick={() => focusDetour(index)}
-                aria-label={`Focus ${detour.label}`}
-                className={`min-w-0 flex-1 truncate text-left text-xs hover:underline ${
-                  detour.is_active ? "" : "text-muted-foreground line-through"
+        <PanelState
+          loading={detoursQuery.isLoading}
+          error={detoursQuery.isError}
+          errorMessage="Could not load alternative routes."
+          onRetry={() => void detoursQuery.refetch()}
+          empty={
+            !detoursQuery.isLoading &&
+            !detoursQuery.isError &&
+            detours.length === 0
+          }
+          emptyTitle="No alternative routes yet"
+          emptyHint="Add the first one below."
+          className="px-0 py-2"
+        >
+          {detours.map((detour, index) => {
+            const hidden = hiddenDetourIds.includes(detour.detour_id);
+            return (
+              <div
+                key={detour.detour_id}
+                className={`flex items-center gap-2 rounded-md border px-2 py-1.5 ${
+                  detour.is_active
+                    ? "border-border"
+                    : "border-border/50 bg-muted/40"
                 }`}
-                title={detour.label}
               >
-                {detour.label}
-              </button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                aria-label={`${hidden ? "Show" : "Hide"} ${detour.label} on the map`}
-                className="text-muted-foreground size-6"
-                onClick={() => toggleDetourVisibility(detour.detour_id)}
-              >
-                {hidden ? (
-                  <EyeOff className="size-3" />
-                ) : (
-                  <Eye className="size-3" />
-                )}
-              </Button>
-            </div>
-          );
-        })}
-
+                <span
+                  aria-hidden
+                  className="size-2.5 shrink-0 rounded-full"
+                  style={{
+                    backgroundColor: detourLineColorFor(
+                      routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
+                      detour.detour_id,
+                    ),
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => focusDetour(index)}
+                  aria-label={`Focus ${detour.label}`}
+                  className={`min-w-0 flex-1 truncate text-left text-xs hover:underline ${
+                    detour.is_active ? "" : "text-muted-foreground line-through"
+                  }`}
+                  title={detour.label}
+                >
+                  {detour.label}
+                </button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`${hidden ? "Show" : "Hide"} ${detour.label} on the map`}
+                  className="text-muted-foreground size-6"
+                  onClick={() => toggleDetourVisibility(detour.detour_id)}
+                >
+                  {hidden ? (
+                    <EyeOff className="size-3" />
+                  ) : (
+                    <Eye className="size-3" />
+                  )}
+                </Button>
+              </div>
+            );
+          })}
+        </PanelState>
+        {/* The Add affordance must stay visible in EVERY state (loading /
+            error / empty / loaded) — PanelState's early-return branches do
+            not render children, so the button lives OUTSIDE the children
+            slot. It is disabled while loading / without a direction, never
+            removed (FR-014). */}
         <Button
           type="button"
           variant="outline"

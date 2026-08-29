@@ -8,6 +8,7 @@ import type {
 import type { GeoLineString } from "@komyuter/shared";
 import { useOverviewQuery } from "./useRouteQueries";
 import { usePlottingStore } from "@/lib/plottingStore";
+import { activeRoute } from "@/lib/colors";
 import {
   ensureGeoJsonSource,
   lineLayerSpec,
@@ -114,7 +115,7 @@ export function RouteOverviewLayer() {
 
     // bidirectional corridors get a subtle tapered lateral shift so both
 
-    // directions read as two parallel lines (Pasted #34 model).
+    // directions read as two parallel lines..
 
     const overlapRuns = new Map(
       findOppositeOverlapRuns(
@@ -134,12 +135,15 @@ export function RouteOverviewLayer() {
       overviewRoutes.map((route) => [
         route.routeId,
 
-        { name: route.name, color: route.color || "#1B6DB2" },
+        { name: route.name, color: route.color || activeRoute },
       ]),
     );
 
     overviewRoutes.forEach((route) => {
-      const meta = metaOf.get(route.routeId) ?? { name: "", color: "#1B6DB2" };
+      const meta = metaOf.get(route.routeId) ?? {
+        name: "",
+        color: activeRoute,
+      };
 
       const baseCoords = route.polyline?.coordinates ?? [];
 
@@ -278,7 +282,7 @@ export function RouteOverviewLayer() {
 
           filter: ["==", ["get", "direction"], "base"],
 
-          color: ["coalesce", ["get", "color"], "#1B6DB2"],
+          color: ["coalesce", ["get", "color"], activeRoute],
 
           width: 3.5,
 
@@ -290,7 +294,7 @@ export function RouteOverviewLayer() {
 
           filter: ["==", ["get", "direction"], "return"],
 
-          color: ["coalesce", ["get", "color"], "#1B6DB2"],
+          color: ["coalesce", ["get", "color"], activeRoute],
 
           width: 3.5,
 
@@ -330,7 +334,7 @@ export function RouteOverviewLayer() {
             },
 
             paint: {
-              "icon-color": ["coalesce", ["get", "color"], "#1B6DB2"],
+              "icon-color": ["coalesce", ["get", "color"], activeRoute],
 
               "icon-opacity": overviewOpacityAt(1),
             },
@@ -457,7 +461,7 @@ export function RouteOverviewLayer() {
         x: event.point.x,
         y: event.point.y,
         name: String(feature.properties.name ?? ""),
-        color: String(feature.properties.color ?? "#1B6DB2"),
+        color: String(feature.properties.color ?? activeRoute),
       });
     };
     const onClick = (event: MapLayerMouseEvent) => {
@@ -538,7 +542,7 @@ export function RouteOverviewLayer() {
                   index + 1
                 )}
               </span>
-              <span className="rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
+              <span className="border-activeRoute text-activeRoute rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
                 {stop.name}
               </span>
             </div>
