@@ -1,7 +1,8 @@
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, inArray } from "drizzle-orm";
 import type { GeoLineString, GeoPoint } from "@komyuter/shared";
 import type { Db } from "../config/db";
 import {
+  detourStops as detourStopsTable,
   detours as detoursTable,
   directions as directionsTable,
   restrictions as restrictionsTable,
@@ -35,8 +36,23 @@ export interface DetourEntity {
   additional_distance_meters: number | null;
   commuter_instruction: string;
   driver_instruction: string | null;
-  notable_stops: { stop_id: string; name: string; is_detour_only: boolean }[];
+  detour_stops: DetourStopEntity[];
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A stop owned by a detour (never part of the base chain). */
+export interface DetourStopEntity {
+  detour_stop_id: string;
+  detour_id: string;
+  stop_order: number;
+  name: string;
+  location: GeoPoint;
+  type: string;
+  is_guaranteed_service: boolean;
+  landmark_hint: string | null;
+  notes: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -132,7 +148,6 @@ export async function loadDetours(
       additional_distance_meters: detoursTable.additional_distance_meters,
       commuter_instruction: detoursTable.commuter_instruction,
       driver_instruction: detoursTable.driver_instruction,
-      notable_stops: detoursTable.notable_stops,
       is_active: detoursTable.is_active,
       created_at: detoursTable.created_at,
       updated_at: detoursTable.updated_at,
@@ -140,15 +155,66 @@ export async function loadDetours(
     .from(detoursTable)
     .where(eq(detoursTable.direction_id, directionId));
 
+  const stopsByDetour = await loadDetourStopsByDetour(
+    db,
+    rows.map((row) => row.detour_id),
+  );
+
   return rows.map((row) => ({
     ...row,
     entry: row.entry as unknown as GeoPoint,
     exit: row.exit as unknown as GeoPoint,
     detour_polyline: row.detour_polyline as unknown as GeoLineString,
-    notable_stops: row.notable_stops ?? [],
+    detour_stops: stopsByDetour.get(row.detour_id) ?? [],
     created_at: iso(row.created_at),
     updated_at: iso(row.updated_at),
   }));
+}
+
+/** Detour stops for a set of detours, grouped by detour_id in stop order. */
+export async function loadDetourStopsByDetour(
+  db: Db,
+  detourIds: string[],
+): Promise<Map<string, DetourStopEntity[]>> {
+  if (detourIds.length === 0) return new Map();
+  const rows = await db
+    .select({
+      detour_stop_id: detourStopsTable.detour_stop_id,
+      detour_id: detourStopsTable.detour_id,
+      stop_order: detourStopsTable.stop_order,
+      name: detourStopsTable.name,
+      location: asGeoJSON(detourStopsTable.location),
+      type: detourStopsTable.type,
+      is_guaranteed_service: detourStopsTable.is_guaranteed_service,
+      landmark_hint: detourStopsTable.landmark_hint,
+      notes: detourStopsTable.notes,
+      created_at: detourStopsTable.created_at,
+      updated_at: detourStopsTable.updated_at,
+    })
+    .from(detourStopsTable)
+    .where(inArray(detourStopsTable.detour_id, detourIds))
+    .orderBy(detourStopsTable.stop_order);
+
+  const grouped = new Map<string, DetourStopEntity[]>();
+  for (const row of rows) {
+    const entry: DetourStopEntity = {
+      detour_stop_id: row.detour_stop_id,
+      detour_id: row.detour_id,
+      stop_order: row.stop_order,
+      name: row.name,
+      location: row.location as unknown as GeoPoint,
+      type: row.type,
+      is_guaranteed_service: row.is_guaranteed_service,
+      landmark_hint: row.landmark_hint,
+      notes: row.notes,
+      created_at: iso(row.created_at),
+      updated_at: iso(row.updated_at),
+    };
+    const list = grouped.get(row.detour_id) ?? [];
+    list.push(entry);
+    grouped.set(row.detour_id, list);
+  }
+  return grouped;
 }
 
 export async function loadRestrictions(

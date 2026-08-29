@@ -1,12 +1,7 @@
 import type { GeoPoint, GeoLineString } from "./geometry";
-import type {
-  StopType,
-  RestrictionReason,
-  RestrictionAffects,
-  NotableStop,
-} from "./domain";
+import type { StopType, RestrictionReason, RestrictionAffects } from "./domain";
 
-export const EXPORT_SCHEMA_VERSION = "1.0";
+export const EXPORT_SCHEMA_VERSION = "1.1";
 export const EXPORT_COORDINATE_ORDER = "lng_lat";
 
 export interface ExportFareConfiguration {
@@ -48,7 +43,19 @@ export interface ExportDetour {
   additional_distance_meters: number | null;
   commuter_instruction: string;
   driver_instruction: string | null;
-  notable_stops: NotableStop[];
+  detour_stops: ExportDetourStop[];
+}
+
+/** A stop owned by a detour (never part of the base chain). */
+export interface ExportDetourStop {
+  detour_stop_id: string;
+  stop_order: number;
+  name: string;
+  location: GeoPoint;
+  type: StopType;
+  is_guaranteed_service: boolean;
+  landmark_hint: string | null;
+  notes: string | null;
 }
 
 export interface ExportDirection {

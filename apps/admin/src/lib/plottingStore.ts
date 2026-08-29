@@ -15,8 +15,9 @@ import {
   type Connection,
 } from "./connections";
 import {
-  coordsDistanceMeters,
   LOOP_CLOSE_TOLERANCE_METERS,
+  coordsDistanceMeters,
+  inferDetourFlanks,
   polylineClosesOn,
 } from "./coords";
 import type { DraftDraft } from "./draft";
@@ -118,6 +119,14 @@ export interface LayerVisibility {
   markerLabels: boolean;
   /** Route path lines (committed draft + transient connecting line). */
   routes: boolean;
+  /** Saved alternative-route (detour) line visibility (map layers → markers). */
+  detours: boolean;
+  /** Detour STOP marker visibility (draft + saved); on by default. */
+  detourStops: boolean;
+  /** Detour STOP NAME label visibility; on by default. */
+  detourStopLabels: boolean;
+  /** Split/merge node indicator visibility (draft + saved); on by default. */
+  detourNodes: boolean;
 }
 
 const DEFAULT_LAYERS: LayerVisibility = {
@@ -131,6 +140,10 @@ const DEFAULT_LAYERS: LayerVisibility = {
   },
   markerLabels: true,
   routes: true,
+  detours: true,
+  detourStops: true,
+  detourStopLabels: true,
+  detourNodes: true,
 };
 
 const EMPTY_ROUTE_META: RouteMetaDraft = {
@@ -759,14 +772,60 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
           type,
           location,
         };
-        const nextStops = [...state.stops, stop];
-        // Preserve the existing chain: append the new stop after the chain's
-        // LAST stop (breaking + re-closing the loop edge for closed routes)
-        // instead of rebuilding consecutive pairs — a rebuild would silently
-        // wipe a custom connected-from/to chain (the "values revert on the
-        // next edit" bug). For the default consecutive chain the result is
-        // identical to the old rebuild.
+        // MID-ROUTE INSERTION (product decision): a placement between two
+        // existing stops slots the new stop into the chain BETWEEN them
+        // (before → new → after), replacing the former direct pair — the same
+        // loop-aware flanking the detour tool uses. Two cases deliberately
+        // keep the append path: the LOOP-CLOSE heuristic (a stop placed near
+        // the chain's FIRST stop means "close the route back to start") and
+        // placements beyond the route's ends (no flanking pair).
         const chain = pathFromConnections(state.connections, state.stops);
+        const closesLoop =
+          chain.stopIds.length >= 2 &&
+          coordsDistanceMeters(
+            location,
+            state.stops.find((s) => s.id === chain.stopIds[0])?.location ??
+              state.stops[0]?.location ??
+              location,
+          ) <= LOOP_CLOSE_TOLERANCE_METERS;
+        let insertIndex = state.stops.length;
+        if (!closesLoop && state.polyline && state.stops.length >= 2) {
+          const flanks = inferDetourFlanks(
+            state.polyline,
+            state.stops.map((s) => ({
+              stop_id: s.id,
+              name: s.name,
+              location: s.location,
+            })),
+            location,
+          );
+          if (flanks.ok) {
+            const beforeIdx = state.stops.findIndex(
+              (s) => s.id === flanks.before.stop_id,
+            );
+            const afterIdx = state.stops.findIndex(
+              (s) => s.id === flanks.after.stop_id,
+            );
+            if (beforeIdx !== -1 && afterIdx !== -1) {
+              // Loop wrap (last → first neighbours): the pair straddles the
+              // closure — inserting after the chain's LAST member lands the
+              // new stop between them on the loop.
+              insertIndex =
+                afterIdx < beforeIdx ? state.stops.length : beforeIdx + 1;
+            }
+          }
+        }
+        const midRoute = insertIndex < state.stops.length;
+        const nextStops = [
+          ...state.stops.slice(0, insertIndex),
+          stop,
+          ...state.stops.slice(insertIndex),
+        ];
+        // Preserve the existing chain when appending at the end: append the
+        // new stop after the chain's LAST stop (breaking + re-closing the
+        // loop edge for closed routes) instead of rebuilding consecutive
+        // pairs — a rebuild would silently wipe a custom connected-from/to
+        // chain (the "values revert on the next edit" bug).
         // The chain's last stop — or, before the first edge exists (first two
         // placements), the placement-order last stop so the first link is made.
         const lastId =
@@ -775,7 +834,11 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
             : state.stops[state.stops.length - 1]?.id;
         const firstId = chain.stopIds[0];
         let connections = state.connections;
-        if (lastId) {
+        if (midRoute) {
+          // Explicit mid-route insertion: rebuild consecutive pairs (single-
+          // mode plotting — the chain IS the consecutive stop pairs).
+          connections = connectionsFromStops(nextStops, state.polyline);
+        } else if (lastId) {
           const closing = connections.find(
             (c) => c.from === lastId && c.to === firstId,
           );
@@ -803,7 +866,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
           history: pushHistory(state.history, {
             kind: "stop_placed",
             stop,
-            index: state.stops.length,
+            index: insertIndex,
             connectionsBefore: state.connections,
             connectionsAfter: connections,
           }),

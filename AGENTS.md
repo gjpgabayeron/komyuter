@@ -53,5 +53,5 @@
 
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/011-backend-language-migration/plan.md
+at C:\ProgrammingFiles\Projects\School Activities\Thesis\komyuter\specs\012-alternative-route-plotting\plan.md
 <!-- SPECKIT END -->

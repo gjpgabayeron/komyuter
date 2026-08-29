@@ -10,6 +10,9 @@ import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
 import { EmptyState } from "@/features/routes/EmptyState";
 import { NarrowWindowGate } from "@/features/routes/NarrowWindowGate";
 import { PlotActionBar } from "@/features/routes/PlotActionBar";
+import { useDetourStore } from "@/features/detours/detourStore";
+import { DetourSidebar } from "@/features/detours/DetourSidebar";
+import { DetourLayer } from "@/features/detours/DetourLayer";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
 import { StatusBar } from "@/features/routes/StatusBar";
 import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
@@ -69,20 +72,37 @@ function RouteWorkspaceInner() {
       '[role="dialog"], [role="alertdialog"], [role="menu"]',
     ) !== null;
 
+  const directionOpen = usePlottingStore((s) => s.directionId !== null);
+  const detourOpen = useDetourStore((s) => s.open);
+
   useHotkeys("mod+s", () => void saveAll(), {
-    enabled: hasRoute && !saving,
+    // The detour editor owns SAVE while it is open (its panel has the
+    // buttons); the base-route save stays silent so mod+s never saves the
+    // wrong thing mid-detour (review follow-up).
+    enabled: hasRoute && !saving && !detourOpen,
     preventDefault: true,
   });
 
-  // Undo/redo the plotting draft (FR-013/FR-019/FR-020).
-  useHotkeys("mod+z", () => usePlottingStore.getState().undo(), {
-    enabled: hasRoute && !saving,
-    preventDefault: true,
-  });
-  useHotkeys("mod+shift+z", () => usePlottingStore.getState().redo(), {
-    enabled: hasRoute && !saving,
-    preventDefault: true,
-  });
+  // Undo/redo: the detour editor owns the shortcuts while it is open, the
+  // plotting draft otherwise (FR-013/FR-019/FR-020).
+  useHotkeys(
+    "mod+z",
+    () => {
+      const detour = useDetourStore.getState();
+      if (detour.open) detour.undo();
+      else usePlottingStore.getState().undo();
+    },
+    { enabled: hasRoute && !saving, preventDefault: true },
+  );
+  useHotkeys(
+    "mod+shift+z",
+    () => {
+      const detour = useDetourStore.getState();
+      if (detour.open) detour.redo();
+      else usePlottingStore.getState().redo();
+    },
+    { enabled: hasRoute && !saving, preventDefault: true },
+  );
 
   // Keyboard contract (FR-008): Esc dismisses the focus plate (T6) or leaves
   // the editor back to focus (T5, styled confirm when dirty). Typing inside a
@@ -99,6 +119,12 @@ function RouteWorkspaceInner() {
         el instanceof HTMLTextAreaElement ||
         el instanceof HTMLSelectElement
       ) {
+        return;
+      }
+      // Esc first leaves the detour editor (draft preserved for the restore
+      // offer); the base-route editor's close flows are untouched.
+      if (useDetourStore.getState().open) {
+        useDetourStore.getState().close();
         return;
       }
       if (hasRoute) {
@@ -122,6 +148,7 @@ function RouteWorkspaceInner() {
               {(uiState === "overview" || uiState === "focus") && (
                 <RouteOverviewLayer />
               )}
+              <DetourLayer />
             </RouteMap>
           </main>
 
@@ -129,11 +156,25 @@ function RouteWorkspaceInner() {
               tracks + a transparent center track hosting the chrome. */}
           <WorkspaceColumns
             mode={uiState}
+            leftPinned={directionOpen}
             left={
-              <RouteList
-                onCreateRoute={openNewRoute}
-                onCloseEdit={requestCloseEdit}
-              />
+              <div
+                className={
+                  directionOpen
+                    ? // The track is definite when pinned (h-full there), so
+                      // this column can fill it and pin the card to the bottom.
+                      "flex h-full w-full flex-col"
+                    : "flex w-full flex-col"
+                }
+              >
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  <RouteList
+                    onCreateRoute={openNewRoute}
+                    onCloseEdit={requestCloseEdit}
+                  />
+                </div>
+                {directionOpen && <DetourSidebar />}
+              </div>
             }
             right={<PropertiesPanel />}
             empty={<EmptyState onCreateRoute={openNewRoute} />}
@@ -164,7 +205,7 @@ function RouteWorkspaceInner() {
                       onUndo={() => usePlottingStore.getState().undo()}
                       onRedo={() => usePlottingStore.getState().redo()}
                     />
-                    {showSave && (
+                    {showSave && !detourOpen && (
                       <Button
                         size="icon"
                         onClick={() => void saveAll()}

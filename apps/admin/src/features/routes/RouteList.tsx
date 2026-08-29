@@ -32,9 +32,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isStopSelected, selectStop } from "@/lib/selection";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
+import { SHAPE_CLASS } from "./map/constants";
 import { pathFromConnections } from "@/lib/connections";
 import { cn } from "@/lib/utils";
 import { Plate } from "@/components/shared/Plate";
+import { useDetourStore } from "@/features/detours/detourStore";
 import {
   useDeleteRouteMutation,
   useRouteQuery,
@@ -82,6 +84,9 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const deleteMutation = useDeleteRouteMutation();
 
   const stops = usePlottingStore((s) => s.stops);
+  const detourOpen = useDetourStore((s) => s.open);
+  const detourStops = useDetourStore((s) => s.detourStops);
+  const selectDetourStop = useDetourStore((s) => s.selectDetourStop);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const setRouteMeta = usePlottingStore((s) => s.setRouteMeta);
   const saving = usePlottingStore((s) => s.saving);
@@ -210,7 +215,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
       {detail ? (
         <nav
           aria-label="Route stops"
-          className="flex min-h-0 w-full flex-col overflow-hidden"
+          className="flex h-full min-h-0 w-full flex-col overflow-hidden"
         >
           <Plate
             padded="sm"
@@ -220,10 +225,16 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
               <button
                 type="button"
                 aria-label="Back to routes"
-                onClick={
-                  onCloseEdit ??
-                  (() => usePlottingStore.getState().openRoute(null))
-                }
+                onClick={() => {
+                  // Focused on a detour? Back returns to the MAIN route first;
+                  // a second press leaves the workspace as usual.
+                  if (useDetourStore.getState().open) {
+                    useDetourStore.getState().close();
+                    return;
+                  }
+                  if (onCloseEdit) onCloseEdit();
+                  else usePlottingStore.getState().openRoute(null);
+                }}
                 className={cn(
                   buttonVariants({ variant: "ghost", size: "icon-xs" }),
                 )}
@@ -268,134 +279,194 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col border-t pt-1.5">
-              <div className="flex shrink-0 items-center justify-between px-1 pb-1">
-                <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                  Stops
-                </span>
-                <span className="flex items-center gap-1.5">
-                  {closedLoop && (
-                    <span
-                      className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
-                      title="Last stop connects back to the first — circular route"
-                    >
-                      Loop
+              {detourOpen ? (
+                <>
+                  <div className="flex shrink-0 items-center justify-between px-1 pb-1">
+                    <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                      Detour stops
                     </span>
-                  )}
-                  <span className="text-muted-foreground text-xs tabular-nums">
-                    {stops.length}
-                  </span>
-                </span>
-              </div>
-              {stops.length === 0 ? (
-                <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
-                  <p className="text-sm font-medium">No stops yet</p>
-                  <p className="text-muted-foreground max-w-52 text-xs">
-                    Switch to the Add tool and click the map to place stops.
-                  </p>
-                </div>
-              ) : (
-                <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
-                  {stops.map((stop, index) => {
-                    const selected = isStopSelected(selection, stop.id);
-                    const shape = getStopShape(stop.type);
-                    const isDragging = dragIndex === index;
-                    const isDropTarget =
-                      dropIndex === index && dragIndex !== null && !isDragging;
-                    return (
-                      <div className="group" key={stop.id}>
+                    <span className="text-muted-foreground text-xs tabular-nums">
+                      {detourStops.length}
+                    </span>
+                  </div>
+                  {detourStops.length === 0 ? (
+                    <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
+                      <p className="text-sm font-medium">No detour stops yet</p>
+                      <p className="text-muted-foreground max-w-52 text-xs">
+                        With the Add tool active, click the map along the path
+                        between the split and merge nodes to add stops.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
+                      {detourStops.map((stop, index) => (
                         <button
                           type="button"
-                          draggable
-                          onDragStart={(event) => {
-                            event.dataTransfer.effectAllowed = "move";
-                            event.dataTransfer.setData(
-                              "text/plain",
-                              String(index),
-                            );
-                            setDragIndex(index);
-                          }}
-                          onDragOver={(event) => {
-                            event.preventDefault();
-                            event.dataTransfer.dropEffect = "move";
-                            setDropIndex(index);
-                          }}
-                          onDrop={(event) => {
-                            event.preventDefault();
-                            const from = Number(
-                              event.dataTransfer.getData("text/plain"),
-                            );
-                            if (Number.isFinite(from)) reorderStop(from, index);
-                            setDragIndex(null);
-                            setDropIndex(null);
-                          }}
-                          onDragEnd={() => {
-                            setDragIndex(null);
-                            setDropIndex(null);
-                          }}
-                          onClick={() => setSelection(selectStop(stop.id))}
-                          onKeyDown={(event) => {
-                            if (event.key === "ArrowUp" && index > 0) {
-                              event.preventDefault();
-                              reorderStop(index, index - 1);
-                            } else if (
-                              event.key === "ArrowDown" &&
-                              index < stops.length - 1
-                            ) {
-                              // reorderStop inserts BEFORE the target row, so a
-                              // down-move needs target = index + 2.
-                              event.preventDefault();
-                              reorderStop(index, index + 2);
-                            }
-                          }}
-                          aria-label={`Select ${stop.name}`}
-                          className={cn(
-                            "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
-                            selected
-                              ? "border-primary/50 bg-primary/5"
-                              : "hover:bg-muted border-transparent",
-                            isDragging && "opacity-40",
-                            isDropTarget && "border-t-primary border-t-2",
-                          )}
+                          key={stop.id}
+                          onClick={() => selectDetourStop(stop.id)}
+                          aria-label={`Detour stop ${index + 1}: ${stop.name}`}
+                          className="flex w-full items-center gap-1.5 rounded-sm border border-dashed border-[#1B6DB2]/40 px-1.5 py-1 text-left"
                         >
                           <span
-                            className={cn(
-                              "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
-                              SHAPE_CHIP[shape.shape],
-                              selected &&
-                                "outline-foreground outline-2 outline-offset-1",
-                            )}
+                            aria-hidden
                             style={{
-                              backgroundColor: shape.color,
-                              color:
-                                stop.type === "waiting_area"
-                                  ? "#201A10"
-                                  : "#ffffff",
+                              backgroundColor: "#ffffff",
+                              borderColor: getStopShape(stop.type).color,
+                              color: getStopShape(stop.type).color,
                             }}
-                          >
-                            {shape.shape === "diamond" ? (
-                              <span className="-rotate-45">{index + 1}</span>
-                            ) : (
-                              index + 1
+                            className={cn(
+                              "flex size-5 shrink-0 items-center justify-center border-2 border-dashed text-[10px] font-bold",
+                              SHAPE_CLASS[getStopShape(stop.type).shape],
                             )}
+                          >
+                            {index + 1}
                           </span>
-                          <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                          <span className="min-w-0 flex-1 truncate text-xs">
                             {stop.name}
                           </span>
-                          <Badge
-                            className="h-4 shrink-0 border px-1 text-[11px] font-medium"
-                            style={{
-                              backgroundColor: shape.color,
-                              borderColor: shape.color,
-                              color:
-                                stop.type === "waiting_area"
-                                  ? "#201A10"
-                                  : "#ffffff",
-                            }}
-                          >
+                          <span className="text-muted-foreground/70 shrink-0 text-[10px]">
                             {STOP_TYPE_LABELS[stop.type]}
-                          </Badge>
+                          </span>
                         </button>
-                        {/* Insert-after indicator: the wrapper collapses to zero
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="flex shrink-0 items-center justify-between px-1 pb-1">
+                    <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+                      Stops
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      {closedLoop && (
+                        <span
+                          className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
+                          title="Last stop connects back to the first — circular route"
+                        >
+                          Loop
+                        </span>
+                      )}
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {stops.length}
+                      </span>
+                    </span>
+                  </div>
+                  {stops.length === 0 ? (
+                    <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
+                      <p className="text-sm font-medium">No stops yet</p>
+                      <p className="text-muted-foreground max-w-52 text-xs">
+                        Switch to the Add tool and click the map to place stops.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
+                      {stops.map((stop, index) => {
+                        const selected = isStopSelected(selection, stop.id);
+                        const shape = getStopShape(stop.type);
+                        const isDragging = dragIndex === index;
+                        const isDropTarget =
+                          dropIndex === index &&
+                          dragIndex !== null &&
+                          !isDragging;
+                        return (
+                          <div className="group" key={stop.id}>
+                            <button
+                              type="button"
+                              draggable
+                              onDragStart={(event) => {
+                                event.dataTransfer.effectAllowed = "move";
+                                event.dataTransfer.setData(
+                                  "text/plain",
+                                  String(index),
+                                );
+                                setDragIndex(index);
+                              }}
+                              onDragOver={(event) => {
+                                event.preventDefault();
+                                event.dataTransfer.dropEffect = "move";
+                                setDropIndex(index);
+                              }}
+                              onDrop={(event) => {
+                                event.preventDefault();
+                                const from = Number(
+                                  event.dataTransfer.getData("text/plain"),
+                                );
+                                if (Number.isFinite(from))
+                                  reorderStop(from, index);
+                                setDragIndex(null);
+                                setDropIndex(null);
+                              }}
+                              onDragEnd={() => {
+                                setDragIndex(null);
+                                setDropIndex(null);
+                              }}
+                              onClick={() => setSelection(selectStop(stop.id))}
+                              onKeyDown={(event) => {
+                                if (event.key === "ArrowUp" && index > 0) {
+                                  event.preventDefault();
+                                  reorderStop(index, index - 1);
+                                } else if (
+                                  event.key === "ArrowDown" &&
+                                  index < stops.length - 1
+                                ) {
+                                  // reorderStop inserts BEFORE the target row, so a
+                                  // down-move needs target = index + 2.
+                                  event.preventDefault();
+                                  reorderStop(index, index + 2);
+                                }
+                              }}
+                              aria-label={`Select ${stop.name}`}
+                              className={cn(
+                                "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
+                                selected
+                                  ? "border-primary/50 bg-primary/5"
+                                  : "hover:bg-muted border-transparent",
+                                isDragging && "opacity-40",
+                                isDropTarget && "border-t-primary border-t-2",
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
+                                  SHAPE_CHIP[shape.shape],
+                                  selected &&
+                                    "outline-foreground outline-2 outline-offset-1",
+                                )}
+                                style={{
+                                  backgroundColor: shape.color,
+                                  color:
+                                    stop.type === "waiting_area"
+                                      ? "#201A10"
+                                      : "#ffffff",
+                                }}
+                              >
+                                {shape.shape === "diamond" ? (
+                                  <span className="-rotate-45">
+                                    {index + 1}
+                                  </span>
+                                ) : (
+                                  index + 1
+                                )}
+                              </span>
+                              <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                                {stop.name}
+                              </span>
+                              <Badge
+                                className="h-4 shrink-0 border px-1 text-[11px] font-medium"
+                                style={{
+                                  backgroundColor: shape.color,
+                                  borderColor: shape.color,
+                                  color:
+                                    stop.type === "waiting_area"
+                                      ? "#201A10"
+                                      : "#ffffff",
+                                }}
+                              >
+                                {STOP_TYPE_LABELS[stop.type]}
+                              </Badge>
+                            </button>
+                            {/* Insert-after indicator: the wrapper collapses to zero
                           height when hidden (max-h-0 + overflow-hidden) so the
                           list stays compact. The appear is DELIBERATE: the
                           hover state carries a 400 ms transition-delay, so the
@@ -404,46 +475,48 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                           the base state has zero delay, so it disappears
                           immediately on leave (Pasted #42/#43/#44). The icon
                           is centered via flex on a full-width button. */}
-                        <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
-                          <button
-                            type="button"
-                            aria-label={`Insert stop after ${stop.name}`}
-                            onClick={() => insertAfter(stop.id)}
-                            className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
-                          >
-                            <Plus className="size-3" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {stops.length > 0 && (
-                    <div
-                      className={cn(
-                        "h-1 rounded",
-                        dropIndex === stops.length
-                          ? "bg-primary/40"
-                          : "bg-transparent",
-                      )}
-                      onDragOver={(event) => {
-                        event.preventDefault();
-                        event.dataTransfer.dropEffect = "move";
-                        setDropIndex(stops.length);
-                      }}
-                      onDrop={(event) => {
-                        event.preventDefault();
-                        const from = Number(
-                          event.dataTransfer.getData("text/plain"),
+                            <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
+                              <button
+                                type="button"
+                                aria-label={`Insert stop after ${stop.name}`}
+                                onClick={() => insertAfter(stop.id)}
+                                className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
+                              >
+                                <Plus className="size-3" />
+                              </button>
+                            </div>
+                          </div>
                         );
-                        if (Number.isFinite(from)) {
-                          reorderStop(from, stops.length);
-                        }
-                        setDragIndex(null);
-                        setDropIndex(null);
-                      }}
-                    />
+                      })}
+                      {stops.length > 0 && (
+                        <div
+                          className={cn(
+                            "h-1 rounded",
+                            dropIndex === stops.length
+                              ? "bg-primary/40"
+                              : "bg-transparent",
+                          )}
+                          onDragOver={(event) => {
+                            event.preventDefault();
+                            event.dataTransfer.dropEffect = "move";
+                            setDropIndex(stops.length);
+                          }}
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            const from = Number(
+                              event.dataTransfer.getData("text/plain"),
+                            );
+                            if (Number.isFinite(from)) {
+                              reorderStop(from, stops.length);
+                            }
+                            setDragIndex(null);
+                            setDropIndex(null);
+                          }}
+                        />
+                      )}
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </Plate>
@@ -451,7 +524,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
       ) : (
         <nav
           aria-label="Routes"
-          className="flex min-h-0 w-full flex-col overflow-hidden"
+          className="flex h-full min-h-0 w-full flex-col overflow-hidden"
         >
           <Plate
             padded="sm"

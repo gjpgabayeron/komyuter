@@ -8,6 +8,9 @@ interface WorkspaceColumnsProps {
   left: ReactNode;
   /** Right plate — FocusPlate (focus) or properties (edit). */
   right: ReactNode;
+  /** When true the left track fills the cell height (pins a bottom card);
+   *  otherwise it stays content-adaptive (ADR-0015 short plates). */
+  leftPinned?: boolean;
   /** Empty-state plate; rendered in the center track over the warm map. */
   empty: ReactNode;
   /** Floating chrome (search, status, action bar) anchored to the center
@@ -46,6 +49,7 @@ export function WorkspaceColumns({
   right,
   empty,
   chrome,
+  leftPinned = false,
 }: WorkspaceColumnsProps) {
   const showLeft = mode !== "empty";
   const showRight = mode === "focus" || mode === "edit";
@@ -83,7 +87,11 @@ export function WorkspaceColumns({
             overflow-y-auto scrolls (plate root is min-h-0 — flex items cap
             against the container's max-height, percentage heights against a
             fit-content parent do not). */}
-        <div className="pointer-events-auto flex max-h-full w-full flex-col">
+        <div
+          className={`pointer-events-auto flex w-full flex-col ${
+            leftPinned ? "h-full" : "max-h-full"
+          }`}
+        >
           {left}
         </div>
       </div>
@@ -108,7 +116,11 @@ export function WorkspaceColumns({
         style={{ display: showRight ? undefined : "none" }}
       >
         {/* Content-adaptive: same capped-flex-column contract as the left track. */}
-        <div className="pointer-events-auto flex max-h-full w-full flex-col">
+        <div
+          className={`pointer-events-auto flex w-full flex-col ${
+            leftPinned ? "h-full" : "max-h-full"
+          }`}
+        >
           {right}
         </div>
       </div>

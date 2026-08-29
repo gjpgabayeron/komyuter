@@ -3,7 +3,6 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   integer,
-  jsonb,
   numeric,
   pgEnum,
   pgTable,
@@ -11,6 +10,7 @@ import {
   timestamp,
   uuid,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const stopType = pgEnum("stop_type", [
@@ -181,14 +181,40 @@ export const detours = pgTable(
     additional_distance_meters: integer("additional_distance_meters"),
     commuter_instruction: text("commuter_instruction").notNull(),
     driver_instruction: text("driver_instruction"),
-    notable_stops:
-      jsonb("notable_stops").$type<
-        { stop_id: string; name: string; is_detour_only: boolean }[]
-      >(),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
   },
   (table) => [index("detours_direction_id_idx").on(table.direction_id)],
+);
+
+/** Detour stops (product decision, 2026-08-27): points created by the detour
+ *  tool are REAL stops with full base-stop parity, scoped to their detour
+ *  only. Ordered by stop_order; the detour's route is
+ *  entry(base) → detour_stops → exit(base). Cascade with the detour. */
+export const detourStops = pgTable(
+  "detour_stops",
+  {
+    detour_stop_id: text("detour_stop_id").primaryKey(),
+    detour_id: text("detour_id")
+      .notNull()
+      .references(() => detours.detour_id, { onDelete: "cascade" }),
+    stop_order: integer("stop_order").notNull(),
+    name: text("name").notNull(),
+    location: pointGeometry("location").notNull(),
+    type: stopType("type").notNull().default("waiting_area"),
+    is_guaranteed_service: boolean("is_guaranteed_service")
+      .notNull()
+      .default(false),
+    landmark_hint: text("landmark_hint"),
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("detour_stops_detour_id_order_idx").on(
+      table.detour_id,
+      table.stop_order,
+    ),
+  ],
 );
 
 export const restrictions = pgTable(

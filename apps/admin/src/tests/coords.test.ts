@@ -5,11 +5,15 @@ import {
   coordinatesEqual,
   divergingSegments,
   formatDistance,
+  inferDetourFlanks,
   nearestCoordIndex,
   parseCoordinatePair,
   pathCoversStops,
   pathEndsOnStops,
   polylineDistanceMeters,
+  polylineSegmentLength,
+  projectPointOnPolyline,
+  replacedArcLengthMeters,
   resolveConnectingLine,
   straightLineThrough,
 } from "@/lib/coords";
@@ -405,5 +409,243 @@ describe("resolveConnectingLine chain-line override (map reflects a rewire)", ()
       [122.52, 10.62],
       [122.55, 10.65],
     ]);
+  });
+});
+
+describe("projectPointOnPolyline (detour snap)", () => {
+  const line: CoordinatePair[] = [
+    [122.5, 10.6],
+    [122.51, 10.61],
+    [122.52, 10.62],
+  ];
+
+  it("snaps a click near the line to the nearest segment", () => {
+    // Midpoint of segment 0, nudged ~10 m perpendicular to the line.
+    const a = line[0];
+    const b = line[1];
+    const mid: CoordinatePair = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    const len = Math.hypot(dx, dy);
+    const click: CoordinatePair = [
+      mid[0] - (dy / len) * 0.00009,
+      mid[1] + (dx / len) * 0.00009,
+    ];
+    const result = projectPointOnPolyline(click, line);
+    expect(result).not.toBeNull();
+    expect(result!.index).toBe(0);
+    expect(result!.distanceMeters).toBeGreaterThan(0);
+    expect(result!.distanceMeters).toBeLessThan(30);
+    expect(result!.coordinate[0]).toBeGreaterThan(122.5);
+    expect(result!.coordinate[0]).toBeLessThan(122.51);
+    expect(result!.coordinate[0]).toBeCloseTo(mid[0], 2);
+  });
+
+  it("returns null for a click far from the polyline", () => {
+    expect(projectPointOnPolyline([122.9, 10.9], line)).toBeNull();
+  });
+
+  it("returns distance 0 for an exact vertex hit and reports the vertex index", () => {
+    const result = projectPointOnPolyline([122.51, 10.61], line);
+    expect(result!.distanceMeters).toBe(0);
+    // A vertex-exact snap belongs to the segment STARTING at that vertex so
+    // the replaced base arc begins exactly there (no off-by-one over-count).
+    expect(result!.index).toBe(1);
+  });
+
+  it("reports the leading vertex index of the snapped segment", () => {
+    // Exact midpoint of segment 1; strictly nearest to it (segment 0 clamps).
+    const result = projectPointOnPolyline([122.515, 10.615], line);
+    expect(result).not.toBeNull();
+    expect(result!.index).toBe(1);
+    expect(result!.distanceMeters).toBe(0);
+  });
+
+  it("snaps when the click is within the custom max distance", () => {
+    const result = projectPointOnPolyline([122.51, 10.615], line, 600);
+    expect(result).not.toBeNull();
+  });
+});
+
+describe("polylineSegmentLength (detour replaced distance)", () => {
+  // ~111 m per 0.001° of latitude.
+  const line: GeoLineString = {
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.6],
+      [122.5, 10.601],
+      [122.5, 10.602],
+    ],
+  };
+
+  it("sums the haversine segments between indices", () => {
+    const length = polylineSegmentLength(line, 0, 2);
+    expect(length).toBeGreaterThan(200);
+    expect(length).toBeLessThan(260);
+  });
+
+  it("returns 0 for a zero-length slice", () => {
+    expect(polylineSegmentLength(line, 1, 1)).toBe(0);
+  });
+
+  it("throws when the slice is inverted or out of range", () => {
+    expect(() => polylineSegmentLength(line, 2, 1)).toThrow(RangeError);
+    expect(() => polylineSegmentLength(line, -1, 2)).toThrow(RangeError);
+    expect(() => polylineSegmentLength(line, 0, 5)).toThrow(RangeError);
+  });
+});
+
+describe("replacedArcLengthMeters (FR-011 fractional exactness)", () => {
+  // Two ~111 m segments: A=[122.5,10.6] → B=[122.5,10.601] → C=[122.5,10.602].
+  const line: GeoLineString = {
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.6],
+      [122.5, 10.601],
+      [122.5, 10.602],
+    ],
+  };
+
+  it("measures entry-tail + full middles + exit-head for fractional points", () => {
+    // Entry at 25% along AB, exit at 75% along BC: replaced =
+    // (1-0.25)·|AB| + 0.75·|BC| ≈ 0.75·111 + 0.75·111 ≈ 166 m.
+    const meters = replacedArcLengthMeters(
+      line,
+      { index: 0, fraction: 0.25 },
+      { index: 1, fraction: 0.75 },
+    );
+    expect(meters).toBeGreaterThan(150);
+    expect(meters).toBeLessThan(180);
+  });
+
+  it("measures a same-segment pair as the fraction delta", () => {
+    const segment = coordsDistanceMeters([122.5, 10.6], [122.5, 10.601]);
+    const meters = replacedArcLengthMeters(
+      line,
+      { index: 0, fraction: 0.2 },
+      { index: 0, fraction: 0.8 },
+    );
+    expect(meters).toBeCloseTo(0.6 * segment, 1);
+  });
+
+  it("returns 0 defensively for out-of-order or same-position pairs", () => {
+    expect(
+      replacedArcLengthMeters(
+        line,
+        { index: 1, fraction: 0.5 },
+        { index: 0, fraction: 0.5 },
+      ),
+    ).toBe(0);
+    expect(
+      replacedArcLengthMeters(
+        line,
+        { index: 0, fraction: 0.5 },
+        { index: 0, fraction: 0.5 },
+      ),
+    ).toBe(0);
+  });
+});
+
+describe("inferDetourFlanks (quick-mode detour authoring)", () => {
+  const base: GeoLineString = {
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.6],
+      [122.51, 10.61],
+      [122.52, 10.62],
+    ],
+  };
+  const chainStops = [
+    { stop_id: "A", name: "A", location: [122.5, 10.6] as [number, number] },
+    { stop_id: "B", name: "B", location: [122.51, 10.61] as [number, number] },
+    { stop_id: "C", name: "C", location: [122.52, 10.62] as [number, number] },
+  ];
+
+  it("flanks a mid-segment click by arc order (before at-or-before, after strictly after)", () => {
+    const result = inferDetourFlanks(base, chainStops, [122.505, 10.605]);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.before.stop_id).toBe("A");
+      expect(result.after.stop_id).toBe("B");
+      expect(result.viaStop).toBeNull();
+    }
+  });
+
+  it("treats a click on an existing stop as the via stop with chain neighbours", () => {
+    const result = inferDetourFlanks(base, chainStops, [122.51, 10.61]); // B
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.viaStop?.stop_id).toBe("B");
+      expect(result.before.stop_id).toBe("A");
+      expect(result.after.stop_id).toBe("C");
+    }
+  });
+
+  it("picks the LAST at-or-before stop for a click past several stops", () => {
+    const result = inferDetourFlanks(base, chainStops, [122.515, 10.615]);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.before.stop_id).toBe("B");
+      expect(result.after.stop_id).toBe("C");
+    }
+  });
+
+  it("fails with a precise reason before the first stop, after the last stop, or off the route", () => {
+    expect(inferDetourFlanks(base, chainStops, [122.49, 10.59])).toEqual({
+      ok: false,
+      reason: "before_first",
+    });
+    expect(inferDetourFlanks(base, chainStops, [122.55, 10.65])).toEqual({
+      ok: false,
+      reason: "after_last",
+    });
+    expect(inferDetourFlanks(base, chainStops, [122.9, 10.9])).toEqual({
+      ok: false,
+      reason: "after_last",
+    });
+  });
+
+  it("fails with no_stops when fewer than two stops exist", () => {
+    expect(
+      inferDetourFlanks(base, chainStops.slice(0, 1), [122.505, 10.605]),
+    ).toEqual({ ok: false, reason: "no_stops" });
+  });
+});
+
+describe("inferDetourFlanks — loop routes wrap across the closing arc", () => {
+  // A closed loop polyline: the last vertex returns to the first.
+  const loop: GeoLineString = {
+    type: "LineString",
+    coordinates: [
+      [122.5, 10.6],
+      [122.51, 10.6],
+      [122.51, 10.61],
+      [122.5, 10.61],
+      [122.5, 10.6],
+    ],
+  };
+  const loopStops = [
+    { stop_id: "A", name: "A", location: [122.5, 10.6] as [number, number] },
+    { stop_id: "B", name: "B", location: [122.51, 10.61] as [number, number] },
+    { stop_id: "C", name: "C", location: [122.5, 10.61] as [number, number] },
+  ];
+
+  it("flanks a click past the last stop with last → first (the closing arc)", () => {
+    const result = inferDetourFlanks(loop, loopStops, [122.495, 10.605]);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.before.stop_id).toBe("C"); // chain last
+      expect(result.after.stop_id).toBe("A"); // wraps to chain first
+    }
+  });
+
+  it("wraps chain neighbours for a via-stop click on the chain's last stop", () => {
+    const result = inferDetourFlanks(loop, loopStops, [122.5, 10.61]); // C (chain last)
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.viaStop?.stop_id).toBe("C");
+      expect(result.before.stop_id).toBe("B");
+      expect(result.after.stop_id).toBe("A");
+    }
   });
 });

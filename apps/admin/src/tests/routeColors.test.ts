@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_ROUTE_COLOR,
+  detourLineColorFor,
   isValidHexColor,
   randomRouteColor,
 } from "@/features/routes/routeColors";
@@ -50,5 +51,30 @@ describe("formatTimestamp", () => {
 describe("routeColors", () => {
   it("exposes a default route colour", () => {
     expect(DEFAULT_ROUTE_COLOR).toMatch(/^#[0-9a-fA-F]{6}$/);
+  });
+});
+
+describe("detourLineColorFor (route-tone alternative colors)", () => {
+  it("contrasts the main route color (complement of the hue)", () => {
+    const detour = detourLineColorFor("#1B6DB2", "det-abc");
+    expect(isValidHexColor(detour)).toBe(true);
+    // #1B6DB2 is blue (h≈207) — its complement is orange: red-dominant.
+    const r = parseInt(detour.slice(1, 3), 16);
+    const b = parseInt(detour.slice(5, 7), 16);
+    expect(r).toBeGreaterThan(b);
+  });
+
+  it("is deterministic per detour id and differs between detours", () => {
+    expect(detourLineColorFor("#1B6DB2", "det-1")).toBe(
+      detourLineColorFor("#1B6DB2", "det-1"),
+    );
+    expect(detourLineColorFor("#1B6DB2", "det-1")).not.toBe(
+      detourLineColorFor("#1B6DB2", "det-2"),
+    );
+  });
+
+  it("falls back to the default route color for invalid input", () => {
+    const detour = detourLineColorFor("not-a-color", "det-abc");
+    expect(isValidHexColor(detour)).toBe(true);
   });
 });

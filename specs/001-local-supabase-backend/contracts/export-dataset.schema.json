@@ -13,16 +13,27 @@
   ],
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "const": "1.0" },
-    "coordinate_order": { "const": "lng_lat" },
-    "exported_at": { "type": "string", "format": "date-time" },
+    "schema_version": {
+      "const": "1.1"
+    },
+    "coordinate_order": {
+      "const": "lng_lat"
+    },
+    "exported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "fare_configs": {
       "type": "array",
-      "items": { "$ref": "#/definitions/fare_config" }
+      "items": {
+        "$ref": "#/definitions/fare_config"
+      }
     },
     "routes": {
       "type": "array",
-      "items": { "$ref": "#/definitions/route" }
+      "items": {
+        "$ref": "#/definitions/route"
+      }
     }
   },
   "definitions": {
@@ -30,12 +41,16 @@
       "type": "object",
       "required": ["type", "coordinates"],
       "properties": {
-        "type": { "const": "Point" },
+        "type": {
+          "const": "Point"
+        },
         "coordinates": {
           "type": "array",
           "minItems": 2,
           "maxItems": 2,
-          "items": { "type": "number" },
+          "items": {
+            "type": "number"
+          },
           "description": "[longitude, latitude]"
         }
       }
@@ -44,7 +59,9 @@
       "type": "object",
       "required": ["type", "coordinates"],
       "properties": {
-        "type": { "const": "LineString" },
+        "type": {
+          "const": "LineString"
+        },
         "coordinates": {
           "type": "array",
           "minItems": 2,
@@ -52,7 +69,9 @@
             "type": "array",
             "minItems": 2,
             "maxItems": 2,
-            "items": { "type": "number" }
+            "items": {
+              "type": "number"
+            }
           },
           "description": "[[longitude, latitude], ...]"
         }
@@ -71,14 +90,30 @@
         "is_default"
       ],
       "properties": {
-        "fare_config_id": { "type": "string" },
-        "label": { "type": "string" },
-        "base_fare": { "type": "number" },
-        "base_distance_km": { "type": "number" },
-        "rate_per_km": { "type": "number" },
-        "student_discount_pct": { "type": "number" },
-        "senior_discount_pct": { "type": "number" },
-        "is_default": { "type": "boolean" }
+        "fare_config_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "base_fare": {
+          "type": "number"
+        },
+        "base_distance_km": {
+          "type": "number"
+        },
+        "rate_per_km": {
+          "type": "number"
+        },
+        "student_discount_pct": {
+          "type": "number"
+        },
+        "senior_discount_pct": {
+          "type": "number"
+        },
+        "is_default": {
+          "type": "boolean"
+        }
       },
       "additionalProperties": false
     },
@@ -94,15 +129,29 @@
         "directions"
       ],
       "properties": {
-        "route_id": { "type": "string" },
-        "name": { "type": "string" },
-        "short_name": { "type": "string" },
-        "color": { "type": "string" },
-        "is_active": { "type": "boolean" },
-        "fare_config_id": { "type": ["string", "null"] },
+        "route_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "short_name": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "fare_config_id": {
+          "type": ["string", "null"]
+        },
         "directions": {
           "type": "array",
-          "items": { "$ref": "#/definitions/direction" }
+          "items": {
+            "$ref": "#/definitions/direction"
+          }
         }
       },
       "additionalProperties": false
@@ -120,30 +169,48 @@
         "restrictions"
       ],
       "properties": {
-        "direction_id": { "type": "string" },
-        "label": { "type": "string" },
-        "is_active": { "type": "boolean" },
+        "direction_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
         "terminals": {
           "type": "object",
           "required": ["origin", "destination"],
           "properties": {
-            "origin": { "type": ["string", "null"] },
-            "destination": { "type": ["string", "null"] }
+            "origin": {
+              "type": ["string", "null"]
+            },
+            "destination": {
+              "type": ["string", "null"]
+            }
           },
           "additionalProperties": false
         },
-        "base_polyline": { "$ref": "#/definitions/linestring" },
+        "base_polyline": {
+          "$ref": "#/definitions/linestring"
+        },
         "stops": {
           "type": "array",
-          "items": { "$ref": "#/definitions/stop" }
+          "items": {
+            "$ref": "#/definitions/stop"
+          }
         },
         "detours": {
           "type": "array",
-          "items": { "$ref": "#/definitions/detour" }
+          "items": {
+            "$ref": "#/definitions/detour"
+          }
         },
         "restrictions": {
           "type": "array",
-          "items": { "$ref": "#/definitions/restriction" }
+          "items": {
+            "$ref": "#/definitions/restriction"
+          }
         }
       },
       "additionalProperties": false
@@ -159,13 +226,28 @@
         "location"
       ],
       "properties": {
-        "stop_id": { "type": "string" },
-        "name": { "type": "string" },
-        "type": { "enum": ["terminal", "major_stop", "waiting_area"] },
-        "stop_order": { "type": "integer", "minimum": 1 },
-        "is_guaranteed_service": { "type": "boolean" },
-        "landmark_hint": { "type": ["string", "null"] },
-        "location": { "$ref": "#/definitions/point" }
+        "stop_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "enum": ["terminal", "major_stop", "waiting_area"]
+        },
+        "stop_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "is_guaranteed_service": {
+          "type": "boolean"
+        },
+        "landmark_hint": {
+          "type": ["string", "null"]
+        },
+        "location": {
+          "$ref": "#/definitions/point"
+        }
       },
       "additionalProperties": false
     },
@@ -178,26 +260,72 @@
         "exit",
         "detour_polyline",
         "commuter_instruction",
-        "notable_stops"
+        "detour_stops"
       ],
       "properties": {
-        "detour_id": { "type": "string" },
-        "label": { "type": "string" },
-        "entry": { "$ref": "#/definitions/point" },
-        "exit": { "$ref": "#/definitions/point" },
-        "detour_polyline": { "$ref": "#/definitions/linestring" },
-        "additional_distance_meters": { "type": ["integer", "null"] },
-        "commuter_instruction": { "type": "string" },
-        "driver_instruction": { "type": ["string", "null"] },
-        "notable_stops": {
+        "detour_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "entry": {
+          "$ref": "#/definitions/point"
+        },
+        "exit": {
+          "$ref": "#/definitions/point"
+        },
+        "detour_polyline": {
+          "$ref": "#/definitions/linestring"
+        },
+        "additional_distance_meters": {
+          "type": ["integer", "null"]
+        },
+        "commuter_instruction": {
+          "type": "string"
+        },
+        "driver_instruction": {
+          "type": ["string", "null"]
+        },
+        "detour_stops": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["stop_id", "name", "is_detour_only"],
+            "required": [
+              "detour_stop_id",
+              "stop_order",
+              "name",
+              "location",
+              "type",
+              "is_guaranteed_service",
+              "landmark_hint",
+              "notes"
+            ],
             "properties": {
-              "stop_id": { "type": "string" },
-              "name": { "type": "string" },
-              "is_detour_only": { "type": "boolean" }
+              "detour_stop_id": {
+                "type": "string"
+              },
+              "stop_order": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "location": {
+                "$ref": "#/definitions/point"
+              },
+              "type": {
+                "enum": ["terminal", "major_stop", "waiting_area"]
+              },
+              "is_guaranteed_service": {
+                "type": "boolean"
+              },
+              "landmark_hint": {
+                "type": ["string", "null"]
+              },
+              "notes": {
+                "type": ["string", "null"]
+              }
             },
             "additionalProperties": false
           }
@@ -215,14 +343,26 @@
         "affects"
       ],
       "properties": {
-        "restriction_id": { "type": "string" },
-        "from_coord_index": { "type": "integer", "minimum": 0 },
-        "to_coord_index": { "type": "integer", "minimum": 0 },
+        "restriction_id": {
+          "type": "string"
+        },
+        "from_coord_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "to_coord_index": {
+          "type": "integer",
+          "minimum": 0
+        },
         "reason": {
           "enum": ["no_stopping_zone", "contraflow", "pedestrian_hostile"]
         },
-        "affects": { "enum": ["boarding", "alighting", "both"] },
-        "note": { "type": ["string", "null"] }
+        "affects": {
+          "enum": ["boarding", "alighting", "both"]
+        },
+        "note": {
+          "type": ["string", "null"]
+        }
       },
       "additionalProperties": false
     }

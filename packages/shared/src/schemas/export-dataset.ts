@@ -49,11 +49,16 @@ export const exportDetourSchema = z.object({
   additional_distance_meters: z.number().int().nullable(),
   commuter_instruction: z.string().min(1),
   driver_instruction: z.string().nullable(),
-  notable_stops: z.array(
+  detour_stops: z.array(
     z.object({
-      stop_id: z.string().min(1),
+      detour_stop_id: z.string().min(1),
+      stop_order: z.number().int(),
       name: z.string().min(1),
-      is_detour_only: z.boolean(),
+      location: geoPointSchema,
+      type: stopTypeSchema,
+      is_guaranteed_service: z.boolean(),
+      landmark_hint: z.string().nullable(),
+      notes: z.string().nullable(),
     }),
   ),
 });

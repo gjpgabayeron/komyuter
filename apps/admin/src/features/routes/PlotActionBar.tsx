@@ -177,6 +177,22 @@ function LayerToggles() {
                           {STOP_TYPE_LABELS[type]}
                         </DropdownMenuCheckboxItem>
                       ))}
+                      <DropdownMenuCheckboxItem
+                        checked={layers.detourStops}
+                        onCheckedChange={(value) =>
+                          setLayers({ detourStops: value })
+                        }
+                      >
+                        Detour Stop Markers
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={layers.detourNodes}
+                        onCheckedChange={(value) =>
+                          setLayers({ detourNodes: value })
+                        }
+                      >
+                        Split/Merge Indicators
+                      </DropdownMenuCheckboxItem>
                     </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuGroup>
@@ -187,22 +203,47 @@ function LayerToggles() {
                           setLayers({ markerLabels: value })
                         }
                       >
-                        Stop names
+                        Stop Names
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={layers.detourStopLabels}
+                        onCheckedChange={(value) =>
+                          setLayers({ detourStopLabels: value })
+                        }
+                      >
+                        Detour Stop Names
+                      </DropdownMenuCheckboxItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger>Polylines</DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Toggle Visibility</DropdownMenuLabel>
+                      <DropdownMenuCheckboxItem
+                        checked={layers.routes}
+                        onCheckedChange={(value) =>
+                          setLayers({ routes: value })
+                        }
+                      >
+                        Main Route
+                      </DropdownMenuCheckboxItem>
+                      <DropdownMenuCheckboxItem
+                        checked={layers.detours}
+                        onCheckedChange={(value) =>
+                          setLayers({ detours: value })
+                        }
+                      >
+                        Alternative Routes
                       </DropdownMenuCheckboxItem>
                     </DropdownMenuGroup>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
             </DropdownMenuGroup>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuCheckboxItem
-              checked={layers.routes}
-              onCheckedChange={(value) => setLayers({ routes: value })}
-            >
-              Toggle Route Visibility
-            </DropdownMenuCheckboxItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </TooltipTrigger>
@@ -211,7 +252,9 @@ function LayerToggles() {
   );
 }
 
-/** Edit-mode pointer tool: Select (click/drag stops) vs Add (click to insert). */
+/** Edit-mode pointer tool: Select (click/drag stops) vs Add (click to insert)
+ *  vs Detour (click to plot an alternative route) — one three-way toggle so
+ *  the detour workflow feels exactly like base-route plotting. */
 function ToolToggle({ disabled }: { disabled: boolean }) {
   const tool = usePlottingStore((s) => s.tool);
   const setTool = usePlottingStore((s) => s.setTool);
