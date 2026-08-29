@@ -1,0 +1,24 @@
+# Contract: Semantic Colors
+
+**Spec**: FR-012, FR-013 · **Arbiter file**: `apps/admin/src/lib/colors.ts` (values below; `map/constants.ts` re-exports the line tokens so existing imports keep working during migration)
+
+Every fixed semantic color is defined **exactly once** and consumed — never copied — across all surfaces (SC-007). Exact OKLCH equivalents are confirmed against DESIGN.md ("The Route Sign": signboard green-blue, signal amber) at implementation and recorded in DESIGN.md frontmatter; if DESIGN.md's OKLCH differs from the legacy hex, **DESIGN.md wins** (Constitution check R2).
+
+## Semantic Color Registry
+
+| Key              | Role                                                                                               | Value                                                                                         | Consumers today that must migrate                                                                                                                                                    |
+| ---------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `activeRoute`    | Signboard green-blue — active/draft line, loop badge, terminal stop, labels, `DEFAULT_ROUTE_COLOR` | `#1B6DB2`                                                                                     | Raw hex in `RouteList.tsx:308,344`, `RouteMap.tsx:289,404,463`, `RouteOverviewLayer.tsx:137,142,281,293,333,460,541`, `plottingStore.ts:152`, `stopShapes.ts:20`, `routeColors.ts:4` |
+| `previewLine`    | Vivid orange — transient snap-preview line                                                         | `#FF5C00`                                                                                     | `map/constants.ts:9` (re-home)                                                                                                                                                       |
+| `attentionAmber` | Signal amber — live detour composition, hail attention, warnings                                   | `#D97706` (≈ Tailwind `amber-600`)                                                            | `map/constants.ts:38` + Tailwind class strings `amber-500/600/700`/`amber-50` in `DetourGroup.tsx:335,451`, `StatusBar.tsx:72,81`, `NewRouteDialog.tsx:163`                          |
+| `nodeInk`        | Workspace ink — split/merge/snap nodes                                                             | `#0F172A`                                                                                     | Raw hex in `RouteMap.tsx:339,344,504`                                                                                                                                                |
+| `detourColors`   | Per-detour line cycle (4 values, hash-stable)                                                      | `#C98A1B`, `#178B7E`, `#8E5CC3`, `#B4553C`                                                    | `map/constants.ts:14-19` (re-home, keep `detourColorFor`)                                                                                                                            |
+| `stopColors`     | Per-stop-type: terminal / major_stop / waiting_area                                                | terminal = `activeRoute`; major_stop `#008554`; waiting_area share of `attentionAmber` family | `stopShapes.ts:20-24` (import from registry)                                                                                                                                         |
+
+## Rules
+
+1. **One definition per key.** A source-audit test (vitest, `apps/admin/src/tests/colors.test.ts`) scans `apps/admin/src` and fails on any raw `#1B6DB2`, `#0F172A`, or hardcoded `amber-600/700` string outside the registry and its sanctioned export files — this is the guardrail for SC-007.
+2. Tailwind arbitrary-value hex in `className` strings is banned for these tokens: use `@theme`-backed utilities (e.g. `bg-activeRoute`) declared in `index.css` from the registry, or inline `style` from `semanticColor(key)`.
+3. **Selection/active state is never color alone** (FR-013): shape, border, or halo always accompanies color (existing `StopShape` convention extended to markers/labels touched here).
+4. User-chosen per-route corridor colors (`--route-*` palette, `randomRouteColor`) are presentation/data — explicitly outside this registry (spec Assumptions).
+5. Tests that assert colors by literal hex are migrated to the registry (e.g. `tests/routeColors.test.ts`, `tests/overviewCache.test.ts` use `#1B6DB2`).
