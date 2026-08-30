@@ -1,9 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
 import { readOverviewCache } from "@/lib/overviewCache";
-import { ArrowLeft, Plus, Search, SlidersHorizontal } from "lucide-react";
+import {
+  ArrowDownToLine,
+  ArrowLeft,
+  ArrowUpToLine,
+  LocateFixed,
+  Plus,
+  Search,
+  Shapes,
+  SlidersHorizontal,
+  Trash2,
+} from "lucide-react";
+import type { StopType } from "@komyuter/shared";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,6 +85,12 @@ const SHAPE_CHIP: Record<StopShape, string> = {
  */
 export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const [deleteTarget, setDeleteTarget] = useState<RouteSummary | null>(null);
+  /** Stop pending context-menu removal — confirmed before `removeStop`. */
+  const [removeStopTarget, setRemoveStopTarget] = useState<string | null>(null);
+  /** Detour stop pending context-menu removal — confirmed before removal. */
+  const [removeDetourStopTarget, setRemoveDetourStopTarget] = useState<
+    string | null
+  >(null);
 
   const routesQuery = useRoutesQuery();
   const routeId = usePlottingStore((s) => s.routeId);
@@ -75,6 +102,11 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const detourStops = useDetourStore((s) => s.detourStops);
   const reorderDetourStop = useDetourStore((s) => s.reorderDetourStop);
   const selectDetourStop = useDetourStore((s) => s.selectDetourStop);
+  const updateDetourStop = useDetourStore((s) => s.updateDetourStop);
+  const removeDetourStop = useDetourStore((s) => s.removeDetourStop);
+  const selectedDetourStopId = useDetourStore((s) => s.selectedDetourStopId);
+  const setHoveredDetourStop = useDetourStore((s) => s.setHoveredDetourStop);
+  const editDetourId = useDetourStore((s) => s.editDetourId);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const setRouteMeta = usePlottingStore((s) => s.setRouteMeta);
   const saving = usePlottingStore((s) => s.saving);
@@ -85,7 +117,13 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const selection = usePlottingStore((s) => s.selection);
   const setSelection = usePlottingStore((s) => s.setSelection);
   const reorderStop = usePlottingStore((s) => s.reorderStop);
+  const updateStop = usePlottingStore((s) => s.updateStop);
+  const removeStop = usePlottingStore((s) => s.removeStop);
   const setTool = usePlottingStore((s) => s.setTool);
+  // Map→sidebar hover alignment: the hovered stop's sidebar row highlights.
+  const hoveredStopId = usePlottingStore((s) => s.hoveredStopId);
+  const setHoveredStop = usePlottingStore((s) => s.setHoveredStop);
+  const hoveredDetourStopId = useDetourStore((s) => s.hoveredDetourStopId);
 
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dropIndex, setDropIndex] = useState<number | null>(null);
@@ -196,6 +234,35 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
       .insertStopBetween(stopId, location as [number, number]);
   };
 
+  /** Inserts a stop right BEFORE the given stop (mid-way from its predecessor,
+   *  or slightly off the first stop when there is no predecessor). */
+  const insertBefore = (stopId: string) => {
+    const current = usePlottingStore.getState().stops;
+    const index = current.findIndex((s) => s.id === stopId);
+    if (index === -1) return;
+    const anchor = current[index];
+    const predecessor = current[index - 1];
+    if (predecessor) {
+      // insertStopBetween inserts AFTER the anchor — anchor on the predecessor
+      // so the new stop lands at `index`, directly above the target.
+      usePlottingStore
+        .getState()
+        .insertStopBetween(predecessor.id, [
+          (predecessor.location[0] + anchor.location[0]) / 2,
+          (predecessor.location[1] + anchor.location[1]) / 2,
+        ]);
+    } else {
+      // First stop: no predecessor — insert after it, then bring it to the front.
+      usePlottingStore
+        .getState()
+        .insertStopBetween(stopId, [
+          anchor.location[0] - 0.0005,
+          anchor.location[1] - 0.0005,
+        ]);
+      usePlottingStore.getState().reorderStop(1, 0);
+    }
+  };
+
   const empty =
     !routesQuery.isLoading && !routesQuery.isError && routes.length === 0;
 
@@ -287,88 +354,184 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                   ) : (
                     <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
                       {detourStops.map((stop, index) => {
+                        const isHovered = hoveredDetourStopId === stop.id;
+                        const isSelected = selectedDetourStopId === stop.id;
+                        const shape = getStopShape(stop.type);
                         const isDragging = dragIndex === index;
                         const isDropTarget =
                           dropIndex === index &&
                           dragIndex !== null &&
                           !isDragging;
                         return (
-                          <button
-                            type="button"
-                            key={stop.id}
-                            draggable
-                            onDragStart={(event) => {
-                              event.dataTransfer.effectAllowed = "move";
-                              event.dataTransfer.setData(
-                                "text/plain",
-                                String(index),
-                              );
-                              setDragIndex(index);
-                            }}
-                            onDragOver={(event) => {
-                              event.preventDefault();
-                              event.dataTransfer.dropEffect = "move";
-                              setDropIndex(index);
-                            }}
-                            onDrop={(event) => {
-                              event.preventDefault();
-                              const from = Number(
-                                event.dataTransfer.getData("text/plain"),
-                              );
-                              if (Number.isFinite(from))
-                                reorderDetourStop(from, index);
-                              setDragIndex(null);
-                              setDropIndex(null);
-                            }}
-                            onDragEnd={() => {
-                              setDragIndex(null);
-                              setDropIndex(null);
-                            }}
-                            onClick={() => selectDetourStop(stop.id)}
-                            onKeyDown={(event) => {
-                              if (event.key === "ArrowUp" && index > 0) {
-                                event.preventDefault();
-                                reorderDetourStop(index, index - 1);
-                              } else if (
-                                event.key === "ArrowDown" &&
-                                index < detourStops.length - 1
-                              ) {
-                                // reorderDetourStop inserts BEFORE the target
-                                // row, so a down-move needs target = index + 2
-                                // (same as the base row handler, FR-010).
-                                event.preventDefault();
-                                reorderDetourStop(index, index + 2);
-                              }
-                            }}
-                            aria-label={`Detour stop ${index + 1}: ${stop.name}`}
-                            className={cn(
-                              "border-activeRoute/40 flex w-full items-center gap-1.5 rounded-sm border border-dashed px-1.5 py-1 text-left",
-                              isDragging && "opacity-40",
-                              isDropTarget &&
-                                "border-t-primary border-t-2 border-dashed",
-                            )}
-                          >
-                            <span
-                              aria-hidden
-                              style={{
-                                backgroundColor: "#ffffff",
-                                borderColor: getStopShape(stop.type).color,
-                                color: getStopShape(stop.type).color,
-                              }}
-                              className={cn(
-                                "flex size-5 shrink-0 items-center justify-center border-2 border-dashed text-[10px] font-bold",
-                                SHAPE_CLASS[getStopShape(stop.type).shape],
+                          <ContextMenu key={stop.id}>
+                            <ContextMenuTrigger
+                              render={(props) => (
+                                <button
+                                  {...props}
+                                  type="button"
+                                  draggable
+                                  onDragStart={(event) => {
+                                    event.dataTransfer.effectAllowed = "move";
+                                    event.dataTransfer.setData(
+                                      "text/plain",
+                                      String(index),
+                                    );
+                                    setDragIndex(index);
+                                  }}
+                                  onDragOver={(event) => {
+                                    event.preventDefault();
+                                    event.dataTransfer.dropEffect = "move";
+                                    setDropIndex(index);
+                                  }}
+                                  onDrop={(event) => {
+                                    event.preventDefault();
+                                    const from = Number(
+                                      event.dataTransfer.getData("text/plain"),
+                                    );
+                                    if (Number.isFinite(from))
+                                      reorderDetourStop(from, index);
+                                    setDragIndex(null);
+                                    setDropIndex(null);
+                                  }}
+                                  onDragEnd={() => {
+                                    setDragIndex(null);
+                                    setDropIndex(null);
+                                  }}
+                                  onFocus={() =>
+                                    setHoveredDetourStop(stop.id, editDetourId)
+                                  }
+                                  onBlur={() =>
+                                    setHoveredDetourStop(null, null)
+                                  }
+                                  onClick={() => {
+                                    selectDetourStop(stop.id);
+                                    setHoveredDetourStop(stop.id, editDetourId);
+                                  }}
+                                  onKeyDown={(event) => {
+                                    if (event.key === "ArrowUp" && index > 0) {
+                                      event.preventDefault();
+                                      reorderDetourStop(index, index - 1);
+                                    } else if (
+                                      event.key === "ArrowDown" &&
+                                      index < detourStops.length - 1
+                                    ) {
+                                      // reorderDetourStop inserts BEFORE the target
+                                      // row, so a down-move needs target = index + 2
+                                      // (same as the base row handler, FR-010).
+                                      event.preventDefault();
+                                      reorderDetourStop(index, index + 2);
+                                    }
+                                  }}
+                                  aria-label={`Detour stop ${index + 1}: ${stop.name}`}
+                                  className={cn(
+                                    "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
+                                    isSelected
+                                      ? "border-primary/50 bg-primary/5"
+                                      : isHovered
+                                        ? "border-primary/40 bg-primary/10"
+                                        : "hover:bg-muted border-transparent",
+                                    isDragging && "opacity-40",
+                                    isDropTarget &&
+                                      "border-t-primary border-t-2",
+                                  )}
+                                >
+                                  <span
+                                    aria-hidden
+                                    className={cn(
+                                      // Hollow, dashed, shape-colored — the same
+                                      // marker as the map's detour stops (FR-012):
+                                      // the ONLY difference from a base stop row.
+                                      "flex size-5 shrink-0 items-center justify-center border-2 border-dashed text-[11px] font-bold tabular-nums ring-1 ring-black/10",
+                                      SHAPE_CLASS[shape.shape],
+                                      isSelected &&
+                                        "outline-foreground outline-2 outline-offset-1",
+                                    )}
+                                    style={{
+                                      backgroundColor: "#ffffff",
+                                      borderColor: shape.color,
+                                      color: shape.color,
+                                    }}
+                                  >
+                                    {shape.shape === "diamond" ? (
+                                      <span className="-rotate-45">
+                                        {index + 1}
+                                      </span>
+                                    ) : (
+                                      index + 1
+                                    )}
+                                  </span>
+                                  <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                                    {stop.name}
+                                  </span>
+                                  <Badge
+                                    className="h-4 shrink-0 border px-1 text-[11px] font-medium"
+                                    style={{
+                                      backgroundColor: shape.color,
+                                      borderColor: shape.color,
+                                      color:
+                                        stop.type === "waiting_area"
+                                          ? "#201A10"
+                                          : "#ffffff",
+                                    }}
+                                  >
+                                    {STOP_TYPE_LABELS[stop.type]}
+                                  </Badge>
+                                </button>
                               )}
+                            />
+                            <ContextMenuContent
+                              alignOffset={4}
+                              className="min-w-44"
                             >
-                              {index + 1}
-                            </span>
-                            <span className="min-w-0 flex-1 truncate text-xs">
-                              {stop.name}
-                            </span>
-                            <span className="text-muted-foreground/70 shrink-0 text-[10px]">
-                              {STOP_TYPE_LABELS[stop.type]}
-                            </span>
-                          </button>
+                              <ContextMenuItem
+                                onClick={() => {
+                                  selectDetourStop(stop.id);
+                                  setHoveredDetourStop(stop.id, editDetourId);
+                                }}
+                              >
+                                <LocateFixed className="size-4" />
+                                Focus stop
+                              </ContextMenuItem>
+                              <ContextMenuSub>
+                                <ContextMenuSubTrigger>
+                                  <Shapes className="size-4" />
+                                  Change type
+                                </ContextMenuSubTrigger>
+                                <ContextMenuSubContent className="w-auto min-w-32">
+                                  {(
+                                    Object.keys(STOP_TYPE_LABELS) as StopType[]
+                                  ).map((type) => (
+                                    <ContextMenuItem
+                                      key={type}
+                                      onClick={() =>
+                                        updateDetourStop(stop.id, { type })
+                                      }
+                                    >
+                                      <span
+                                        aria-hidden
+                                        className="size-2 rounded-full"
+                                        style={{
+                                          backgroundColor:
+                                            getStopShape(type).color,
+                                        }}
+                                      />
+                                      {STOP_TYPE_LABELS[type]}
+                                    </ContextMenuItem>
+                                  ))}
+                                </ContextMenuSubContent>
+                              </ContextMenuSub>
+                              <ContextMenuSeparator />
+                              <ContextMenuItem
+                                variant="destructive"
+                                onClick={() =>
+                                  setRemoveDetourStopTarget(stop.id)
+                                }
+                              >
+                                <Trash2 className="size-4" />
+                                Remove stop
+                              </ContextMenuItem>
+                            </ContextMenuContent>
+                          </ContextMenu>
                         );
                       })}
                     </div>
@@ -406,6 +569,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                     <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
                       {stops.map((stop, index) => {
                         const selected = isStopSelected(selection, stop.id);
+                        const hovered = hoveredStopId === stop.id;
                         const shape = getStopShape(stop.type);
                         const isDragging = dragIndex === index;
                         const isDropTarget =
@@ -414,101 +578,183 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                           !isDragging;
                         return (
                           <div className="group" key={stop.id}>
-                            <button
-                              type="button"
-                              draggable
-                              onDragStart={(event) => {
-                                event.dataTransfer.effectAllowed = "move";
-                                event.dataTransfer.setData(
-                                  "text/plain",
-                                  String(index),
-                                );
-                                setDragIndex(index);
-                              }}
-                              onDragOver={(event) => {
-                                event.preventDefault();
-                                event.dataTransfer.dropEffect = "move";
-                                setDropIndex(index);
-                              }}
-                              onDrop={(event) => {
-                                event.preventDefault();
-                                const from = Number(
-                                  event.dataTransfer.getData("text/plain"),
-                                );
-                                if (Number.isFinite(from))
-                                  reorderStop(from, index);
-                                setDragIndex(null);
-                                setDropIndex(null);
-                              }}
-                              onDragEnd={() => {
-                                setDragIndex(null);
-                                setDropIndex(null);
-                              }}
-                              onClick={() => setSelection(selectStop(stop.id))}
-                              onKeyDown={(event) => {
-                                if (event.key === "ArrowUp" && index > 0) {
-                                  event.preventDefault();
-                                  reorderStop(index, index - 1);
-                                } else if (
-                                  event.key === "ArrowDown" &&
-                                  index < stops.length - 1
-                                ) {
-                                  // reorderStop inserts BEFORE the target row, so a
-                                  // down-move needs target = index + 2.
-                                  event.preventDefault();
-                                  reorderStop(index, index + 2);
-                                }
-                              }}
-                              aria-label={`Select ${stop.name}`}
-                              className={cn(
-                                "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
-                                selected
-                                  ? "border-primary/50 bg-primary/5"
-                                  : "hover:bg-muted border-transparent",
-                                isDragging && "opacity-40",
-                                isDropTarget && "border-t-primary border-t-2",
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
-                                  SHAPE_CHIP[shape.shape],
-                                  selected &&
-                                    "outline-foreground outline-2 outline-offset-1",
+                            <ContextMenu>
+                              <ContextMenuTrigger
+                                render={(props) => (
+                                  <button
+                                    {...props}
+                                    type="button"
+                                    draggable
+                                    onDragStart={(event) => {
+                                      event.dataTransfer.effectAllowed = "move";
+                                      event.dataTransfer.setData(
+                                        "text/plain",
+                                        String(index),
+                                      );
+                                      setDragIndex(index);
+                                    }}
+                                    onDragOver={(event) => {
+                                      event.preventDefault();
+                                      event.dataTransfer.dropEffect = "move";
+                                      setDropIndex(index);
+                                    }}
+                                    onDrop={(event) => {
+                                      event.preventDefault();
+                                      const from = Number(
+                                        event.dataTransfer.getData(
+                                          "text/plain",
+                                        ),
+                                      );
+                                      if (Number.isFinite(from))
+                                        reorderStop(from, index);
+                                      setDragIndex(null);
+                                      setDropIndex(null);
+                                    }}
+                                    onDragEnd={() => {
+                                      setDragIndex(null);
+                                      setDropIndex(null);
+                                    }}
+                                    onClick={() =>
+                                      setSelection(selectStop(stop.id))
+                                    }
+                                    onFocus={() => setHoveredStop(stop.id)}
+                                    onBlur={() => setHoveredStop(null)}
+                                    onKeyDown={(event) => {
+                                      if (
+                                        event.key === "ArrowUp" &&
+                                        index > 0
+                                      ) {
+                                        event.preventDefault();
+                                        reorderStop(index, index - 1);
+                                      } else if (
+                                        event.key === "ArrowDown" &&
+                                        index < stops.length - 1
+                                      ) {
+                                        // reorderStop inserts BEFORE the target row, so a
+                                        // down-move needs target = index + 2.
+                                        event.preventDefault();
+                                        reorderStop(index, index + 2);
+                                      }
+                                    }}
+                                    aria-label={`Select ${stop.name}`}
+                                    className={cn(
+                                      "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
+                                      selected
+                                        ? "border-primary/50 bg-primary/5"
+                                        : hovered
+                                          ? "border-primary/40 bg-primary/10"
+                                          : "hover:bg-muted border-transparent",
+                                      isDragging && "opacity-40",
+                                      isDropTarget &&
+                                        "border-t-primary border-t-2",
+                                    )}
+                                  >
+                                    <span
+                                      className={cn(
+                                        "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
+                                        SHAPE_CHIP[shape.shape],
+                                        selected &&
+                                          "outline-foreground outline-2 outline-offset-1",
+                                      )}
+                                      style={{
+                                        backgroundColor: shape.color,
+                                        color:
+                                          stop.type === "waiting_area"
+                                            ? "#201A10"
+                                            : "#ffffff",
+                                      }}
+                                    >
+                                      {shape.shape === "diamond" ? (
+                                        <span className="-rotate-45">
+                                          {index + 1}
+                                        </span>
+                                      ) : (
+                                        index + 1
+                                      )}
+                                    </span>
+                                    <span className="text-foreground min-w-0 flex-1 truncate text-sm">
+                                      {stop.name}
+                                    </span>
+                                    <Badge
+                                      className="h-4 shrink-0 border px-1 text-[11px] font-medium"
+                                      style={{
+                                        backgroundColor: shape.color,
+                                        borderColor: shape.color,
+                                        color:
+                                          stop.type === "waiting_area"
+                                            ? "#201A10"
+                                            : "#ffffff",
+                                      }}
+                                    >
+                                      {STOP_TYPE_LABELS[stop.type]}
+                                    </Badge>
+                                  </button>
                                 )}
-                                style={{
-                                  backgroundColor: shape.color,
-                                  color:
-                                    stop.type === "waiting_area"
-                                      ? "#201A10"
-                                      : "#ffffff",
-                                }}
+                              />
+                              <ContextMenuContent
+                                alignOffset={4}
+                                className="min-w-44"
                               >
-                                {shape.shape === "diamond" ? (
-                                  <span className="-rotate-45">
-                                    {index + 1}
-                                  </span>
-                                ) : (
-                                  index + 1
-                                )}
-                              </span>
-                              <span className="text-foreground min-w-0 flex-1 truncate text-sm">
-                                {stop.name}
-                              </span>
-                              <Badge
-                                className="h-4 shrink-0 border px-1 text-[11px] font-medium"
-                                style={{
-                                  backgroundColor: shape.color,
-                                  borderColor: shape.color,
-                                  color:
-                                    stop.type === "waiting_area"
-                                      ? "#201A10"
-                                      : "#ffffff",
-                                }}
-                              >
-                                {STOP_TYPE_LABELS[stop.type]}
-                              </Badge>
-                            </button>
+                                <ContextMenuItem
+                                  onClick={() =>
+                                    setSelection(selectStop(stop.id))
+                                  }
+                                >
+                                  <LocateFixed className="size-4" />
+                                  Focus stop
+                                </ContextMenuItem>
+                                <ContextMenuItem
+                                  onClick={() => insertAfter(stop.id)}
+                                >
+                                  <ArrowDownToLine className="size-4" />
+                                  Insert stop below
+                                </ContextMenuItem>
+                                <ContextMenuItem
+                                  onClick={() => insertBefore(stop.id)}
+                                >
+                                  <ArrowUpToLine className="size-4" />
+                                  Insert stop above
+                                </ContextMenuItem>
+                                <ContextMenuSub>
+                                  <ContextMenuSubTrigger>
+                                    <Shapes className="size-4" />
+                                    Change type
+                                  </ContextMenuSubTrigger>
+                                  <ContextMenuSubContent className="w-auto min-w-32">
+                                    {(
+                                      Object.keys(
+                                        STOP_TYPE_LABELS,
+                                      ) as StopType[]
+                                    ).map((type) => (
+                                      <ContextMenuItem
+                                        key={type}
+                                        onClick={() =>
+                                          updateStop(stop.id, { type })
+                                        }
+                                      >
+                                        <span
+                                          aria-hidden
+                                          className="size-2 rounded-full"
+                                          style={{
+                                            backgroundColor:
+                                              getStopShape(type).color,
+                                          }}
+                                        />
+                                        {STOP_TYPE_LABELS[type]}
+                                      </ContextMenuItem>
+                                    ))}
+                                  </ContextMenuSubContent>
+                                </ContextMenuSub>
+                                <ContextMenuSeparator />
+                                <ContextMenuItem
+                                  variant="destructive"
+                                  onClick={() => setRemoveStopTarget(stop.id)}
+                                >
+                                  <Trash2 className="size-4" />
+                                  Remove stop
+                                </ContextMenuItem>
+                              </ContextMenuContent>
+                            </ContextMenu>
                             {/* Insert-after indicator: the wrapper collapses to zero
                           height when hidden (max-h-0 + overflow-hidden) so the
                           list stays compact. The appear is DELIBERATE: the
@@ -678,6 +924,39 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
         pending={deleteMutation.isPending}
         pendingLabel="Deleting…"
         onConfirm={() => void confirmDelete()}
+      />
+
+      <ConfirmDialog
+        open={removeStopTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveStopTarget(null);
+        }}
+        title="Remove stop?"
+        message={`“${stops.find((s) => s.id === removeStopTarget)?.name}” will be removed from the route. The change applies the next time you Save.`}
+        confirmLabel="Remove"
+        destructive
+        onConfirm={() => {
+          if (removeStopTarget) removeStop(removeStopTarget);
+          setRemoveStopTarget(null);
+        }}
+      />
+
+      <ConfirmDialog
+        open={removeDetourStopTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveDetourStopTarget(null);
+        }}
+        title="Remove detour stop?"
+        message={`“${detourStops.find((s) => s.id === removeDetourStopTarget)?.name}” will be removed from this detour. The change applies the next time you Save.`}
+        confirmLabel="Remove"
+        destructive
+        onConfirm={() => {
+          if (removeDetourStopTarget) {
+            removeDetourStop(removeDetourStopTarget);
+            selectDetourStop(null);
+          }
+          setRemoveDetourStopTarget(null);
+        }}
       />
     </>
   );

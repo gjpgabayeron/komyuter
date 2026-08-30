@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MapPin, GitBranch, Merge } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Map, { Marker } from "react-map-gl/maplibre";
+import { cn } from "@/lib/utils";
 import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
 import { resolveConnectingLine } from "@/lib/coords";
+import { buildDetourContextLines, projectPointOnPolyline } from "@/lib/coords";
 import { pathFromConnections } from "@/lib/connections";
 import { getStopShape } from "@/lib/stopShapes";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
@@ -15,6 +17,7 @@ import {
 } from "@/lib/plottingStore";
 import {
   BasemapController,
+  DetourFitter,
   PerspectiveController,
   RouteFitter,
   RouteLines,
@@ -69,11 +72,19 @@ export function RouteMap({ className, children }: RouteMapProps) {
   const moveStop = usePlottingStore((s) => s.moveStop);
   const setSelection = usePlottingStore((s) => s.setSelection);
   const setPoi = usePlottingStore((s) => s.setPoi);
+  const hoveredStopId = usePlottingStore((s) => s.hoveredStopId);
+  const setHoveredStop = usePlottingStore((s) => s.setHoveredStop);
   // Detour stops are first-class stops while the detour editor is open: the
   // same marker plates as base stops, draggable, clickable → property panel.
   const detourOpen = useDetourStore((s) => s.open);
   const detourStops = useDetourStore((s) => s.detourStops);
   const selectedDetourStopId = useDetourStore((s) => s.selectedDetourStopId);
+  const hoveredDetourStopId = useDetourStore((s) => s.hoveredDetourStopId);
+  const hoveredDetourId = useDetourStore((s) => s.hoveredDetourId);
+  const setHoveredDetourStop = useDetourStore((s) => s.setHoveredDetourStop);
+  const setHoveredDetourId = useDetourStore((s) => s.setHoveredDetourId);
+  const editDetourId = useDetourStore((s) => s.editDetourId);
+  const editBaseline = useDetourStore((s) => s.editBaseline);
   const detourEntry = useDetourStore((s) => s.entry);
   const detourExit = useDetourStore((s) => s.exit);
   const hiddenDetourIds = useDetourStore((s) => s.hiddenDetourIds);
@@ -88,6 +99,11 @@ export function RouteMap({ className, children }: RouteMapProps) {
     directions?.find((d) => d.direction_id === openDirectionId) ?? null;
 
   const handleMapClick = (event: { lngLat: { lng: number; lat: number } }) => {
+    // A marker drag ends with a trailing map `click` from MapLibre — that
+    // click is NOT a tap, and must never be treated as one (e.g. closing an
+    // open detour because the Select tool is active). Suppress clicks that
+    // arrive within the drag window.
+    if (Date.now() - lastMarkerDragEndRef.current < 350) return;
     // Any map click is a "different action" — dismiss the temporary POI marker.
     setPoi(null);
     // While the detour editor is open the map taps belong to it (entry/exit/
@@ -124,6 +140,14 @@ export function RouteMap({ className, children }: RouteMapProps) {
 
   const handleStopClick = (stopId: string) => {
     if (routeId === null) return;
+    // Clicking a MAIN-route stop while the detour editor is open switches
+    // context back to the main route: close the detour (draft preserved,
+    // same contract as Esc / tapping the empty map with a non-Add tool),
+    // then select the base stop. The marker's stopPropagation means
+    // handleMapClick never saw this click, so the switch happens here.
+    if (useDetourStore.getState().open) {
+      useDetourStore.getState().close();
+    }
     setSelection(selectStop(stopId));
   };
 
@@ -174,6 +198,28 @@ export function RouteMap({ className, children }: RouteMapProps) {
     [polyline, chainOrderedLocations, chainOutOfSync],
   );
 
+  // Detour-focus route context (detour as primary path): while the detour
+  // editor is open with a composed loop + split/merge nodes, the main route
+  // renders dimmed between them and a SOLID before+loop+after connection is
+  // drawn on top. Re-project the split/merge COORDINATES onto the DRAWN
+  // polyline (the store's projections are against target.basePolyline, which
+  // may differ by a vertex from the working polyline).
+  const detourLoop = useDetourStore((s) => s.loop);
+  const detourContext = useMemo(() => {
+    if (!detourOpen || !polyline || !detourEntry || !detourExit || !detourLoop)
+      return null;
+    const splitProj = projectPointOnPolyline(
+      detourEntry.coordinate,
+      polyline.coordinates,
+    );
+    const mergeProj = projectPointOnPolyline(
+      detourExit.coordinate,
+      polyline.coordinates,
+    );
+    if (!splitProj || !mergeProj) return null;
+    return buildDetourContextLines(polyline, splitProj, mergeProj, detourLoop);
+  }, [detourOpen, polyline, detourEntry, detourExit, detourLoop]);
+
   // Layer filtering (FR-016): markers follow Stops/Terminals; the route path
   // lines follow Routes. Original placement indices are kept for numbering.
   const layers = usePlottingStore((s) => s.layers);
@@ -194,9 +240,79 @@ export function RouteMap({ className, children }: RouteMapProps) {
     [stops, layers],
   );
 
+  // Hover must never outlive its marker: layer toggles / detour hides unmount
+  // markers without firing mouseleave, so a stale `hovered*Id` would keep an
+  // orphaned sidebar row highlighted. Clear hover whenever the hovered item
+  // leaves the currently-visible set.
+  useEffect(() => {
+    const visibleStopIds = new Set(visibleMarkers.map(({ stop }) => stop.id));
+    if (hoveredStopId !== null && !visibleStopIds.has(hoveredStopId)) {
+      setHoveredStop(null);
+    }
+    const visibleDetourStopIds = new Set(
+      detourOpen && layers.detourStops
+        ? detourStops.map((stop) => stop.id)
+        : !detourOpen && layers.detourStops && layers.detours
+          ? (savedDetours ?? [])
+              .filter((d) => !hiddenDetourIds.includes(d.detour_id))
+              .flatMap((d) => d.detour_stops.map((s) => s.detour_stop_id))
+          : [],
+    );
+    if (
+      hoveredDetourStopId !== null &&
+      !visibleDetourStopIds.has(hoveredDetourStopId)
+    ) {
+      setHoveredDetourStop(null, null);
+    }
+    // Row-only hover (sidebar hover → detour) must die when its detour gets
+    // hidden — same orphan rule as the stop marker hover.
+    if (hoveredDetourId !== null && hiddenDetourIds.includes(hoveredDetourId)) {
+      setHoveredDetourId(null);
+    }
+  }, [
+    visibleMarkers,
+    hoveredStopId,
+    setHoveredStop,
+    detourOpen,
+    layers.detourStops,
+    layers.detours,
+    hiddenDetourIds,
+    hoveredDetourId,
+    setHoveredDetourId,
+    detourStops,
+    hoveredDetourStopId,
+    setHoveredDetourStop,
+    savedDetours,
+  ]);
+
+  // The wrapper div is the hover/focus boundary: focus leaving the map
+  // (tab to sidebar/browser chrome) clears hover; clicks that stay inside the
+  // map (canvas, other markers) must NOT drop the highlight while the pointer
+  // is still on a marker.
+  const mapWrapperRef = useRef<HTMLDivElement | null>(null);
+  /** Timestamp of the last draggable-marker drag end — MapLibre fires a
+   *  trailing map `click` after a marker drag; handleMapClick suppresses
+   *  clicks inside the drag window so a node/stop adjustment never reads as
+   *  a map tap (e.g. closing the open detour). */
+  const lastMarkerDragEndRef = useRef(0);
+  const markMarkerDragEnded = () => {
+    lastMarkerDragEndRef.current = Date.now();
+  };
+  const clearHoverOnTrueBlur = () => {
+    const el = document.activeElement;
+    if (mapWrapperRef.current?.contains(el)) return; // focus stayed in-map
+    // The pointer may still be over the marker even though focus left (a
+    // canvas click moves activeElement to body) — in that case the hover is
+    // still true; mouseleave will clear it when the pointer actually moves.
+    if (mapWrapperRef.current?.matches(":hover")) return;
+    setHoveredStop(null);
+    setHoveredDetourStop(null, null);
+  };
+
   return (
     <div
-      className={className}
+      ref={mapWrapperRef}
+      className={cn(className, tool === "add" && "cursor-add")}
       style={{ position: "relative", width: "100%", height: "100%" }}
     >
       <Map
@@ -215,6 +331,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
         style={{ width: "100%", height: "100%" }}
       >
         <RouteFitter />
+        <DetourFitter />
         <SelectionPanner />
         <BasemapController />
         <PerspectiveController />
@@ -223,6 +340,8 @@ export function RouteMap({ className, children }: RouteMapProps) {
           connecting={layers.routes ? connectingLine : null}
           color={routeColor ?? DRAFT_LINE}
           routeId={routeId}
+          detourContext={detourContext}
+          detourActive={editBaseline?.is_active ?? true}
         />
         {poi && (
           <Marker longitude={poi[0]} latitude={poi[1]}>
@@ -238,6 +357,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
         )}
         {visibleMarkers.map(({ stop, index }) => {
           const selected = isStopSelected(selection, stop.id);
+          const hovered = hoveredStopId === stop.id;
           const shape = getStopShape(stop.type);
           return (
             <Marker
@@ -245,9 +365,10 @@ export function RouteMap({ className, children }: RouteMapProps) {
               longitude={stop.location[0]}
               latitude={stop.location[1]}
               draggable={canDrag}
-              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
-                moveStop(stop.id, [event.lngLat.lng, event.lngLat.lat])
-              }
+              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) => {
+                markMarkerDragEnded();
+                moveStop(stop.id, [event.lngLat.lng, event.lngLat.lat]);
+              }}
             >
               <div className="relative flex flex-col items-center">
                 <button
@@ -257,6 +378,10 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     event.stopPropagation();
                     handleStopClick(stop.id);
                   }}
+                  onMouseEnter={() => setHoveredStop(stop.id)}
+                  onMouseLeave={() => setHoveredStop(null)}
+                  onFocus={() => setHoveredStop(stop.id)}
+                  onBlur={clearHoverOnTrueBlur}
                   style={{
                     backgroundColor: shape.color,
                     borderColor: "#ffffff",
@@ -264,14 +389,18 @@ export function RouteMap({ className, children }: RouteMapProps) {
                   }}
                   className={[
                     // Filled type-colour plate + white border + white halo for
-                    // contrast against any basemap; selection adds a dark outline.
-                    "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
+                    // contrast against any basemap; selection adds a dark
+                    // outline, hover adds a colored emphasis ring (FR-013:
+                    // never color alone — the outline stays shape + border).
+                    "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums ring-2 ring-white transition-[outline,ring,box-shadow]",
                     SHAPE_CLASS[shape.shape],
                     selected && "outline-foreground outline-2 outline-offset-1",
+                    hovered && "outline-primary/70 outline-2 outline-offset-2",
                     "focus-visible:outline-foreground focus-visible:outline-2 focus-visible:outline-offset-1",
-                    canDrag
-                      ? "cursor-grab active:cursor-grabbing"
-                      : "cursor-pointer",
+                    // Click cursor at rest (indicates interactivity); grabbing
+                    // while the admin actually drags (only draggable stops).
+                    "cursor-pointer",
+                    canDrag && "active:cursor-grabbing",
                   ].join(" ")}
                 >
                   {shape.shape === "diamond" ? (
@@ -301,11 +430,12 @@ export function RouteMap({ className, children }: RouteMapProps) {
               longitude={detourEntry.coordinate[0]}
               latitude={detourEntry.coordinate[1]}
               draggable={true}
-              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) => {
+                markMarkerDragEnded();
                 useDetourStore
                   .getState()
-                  .moveEntry([event.lngLat.lng, event.lngLat.lat])
-              }
+                  .moveEntry([event.lngLat.lng, event.lngLat.lat]);
+              }}
             >
               <div className="relative flex flex-col items-center">
                 <button
@@ -326,11 +456,12 @@ export function RouteMap({ className, children }: RouteMapProps) {
               longitude={detourExit.coordinate[0]}
               latitude={detourExit.coordinate[1]}
               draggable={true}
-              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+              onDragEnd={(event: { lngLat: { lng: number; lat: number } }) => {
+                markMarkerDragEnded();
                 useDetourStore
                   .getState()
-                  .moveExit([event.lngLat.lng, event.lngLat.lat])
-              }
+                  .moveExit([event.lngLat.lng, event.lngLat.lat]);
+              }}
             >
               <div className="relative flex flex-col items-center">
                 <button
@@ -353,6 +484,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
           layers.detourStops &&
           detourStops.map((stop, index) => {
             const selected = selectedDetourStopId === stop.id;
+            const hovered = hoveredDetourStopId === stop.id;
             const shape = getStopShape(stop.type);
             return (
               <Marker
@@ -360,14 +492,17 @@ export function RouteMap({ className, children }: RouteMapProps) {
                 longitude={stop.location[0]}
                 latitude={stop.location[1]}
                 draggable={true}
-                onDragEnd={(event: { lngLat: { lng: number; lat: number } }) =>
+                onDragEnd={(event: {
+                  lngLat: { lng: number; lat: number };
+                }) => {
+                  markMarkerDragEnded();
                   useDetourStore
                     .getState()
                     .moveDetourStop(stop.id, [
                       event.lngLat.lng,
                       event.lngLat.lat,
-                    ])
-                }
+                    ]);
+                }}
               >
                 <div className="relative flex flex-col items-center">
                   <button
@@ -377,6 +512,12 @@ export function RouteMap({ className, children }: RouteMapProps) {
                       event.stopPropagation();
                       useDetourStore.getState().selectDetourStop(stop.id);
                     }}
+                    onMouseEnter={() =>
+                      setHoveredDetourStop(stop.id, editDetourId)
+                    }
+                    onMouseLeave={() => setHoveredDetourStop(null, null)}
+                    onFocus={() => setHoveredDetourStop(stop.id, editDetourId)}
+                    onBlur={clearHoverOnTrueBlur}
                     style={{
                       backgroundColor: "#ffffff",
                       borderColor: shape.color,
@@ -386,12 +527,17 @@ export function RouteMap({ className, children }: RouteMapProps) {
                       // Distinct from base stops: HOLLOW, dashed outline so a
                       // detour stop never reads as a main-route stop even at
                       // the same type colour (FR-012).
-                      "flex size-7 items-center justify-center border-2 border-dashed text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
+                      "flex size-7 items-center justify-center border-2 border-dashed text-xs font-bold tabular-nums ring-2 ring-white transition-[outline,ring,box-shadow]",
                       SHAPE_CLASS[shape.shape],
                       selected &&
                         "outline-foreground outline-2 outline-offset-1",
+                      hovered &&
+                        "outline-primary/70 outline-2 outline-offset-2",
                       "focus-visible:outline-foreground focus-visible:outline-2 focus-visible:outline-offset-1",
-                      "cursor-grab active:cursor-grabbing",
+                      "cursor-pointer active:cursor-grabbing",
+                      // Inactive detours fade to half opacity (matches the
+                      // solid primary connection + saved dashed line).
+                      editBaseline?.is_active === false && "opacity-50",
                     ].join(" ")}
                   >
                     {shape.shape === "diamond" ? (
@@ -401,7 +547,12 @@ export function RouteMap({ className, children }: RouteMapProps) {
                     )}
                   </button>
                   {layers.detourStopLabels && (
-                    <span className="border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
+                    <span
+                      className={[
+                        "border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium",
+                        editBaseline?.is_active === false && "opacity-50",
+                      ].join(" ")}
+                    >
                       {stop.name}
                     </span>
                   )}
@@ -447,20 +598,48 @@ export function RouteMap({ className, children }: RouteMapProps) {
                           .getState()
                           .selectDetourStop(stop.detour_stop_id);
                       }}
+                      onMouseEnter={() =>
+                        setHoveredDetourStop(
+                          stop.detour_stop_id,
+                          detour.detour_id,
+                        )
+                      }
+                      onMouseLeave={() => setHoveredDetourStop(null, null)}
+                      onFocus={() =>
+                        setHoveredDetourStop(
+                          stop.detour_stop_id,
+                          detour.detour_id,
+                        )
+                      }
+                      onBlur={clearHoverOnTrueBlur}
                       style={{
                         backgroundColor: "#ffffff",
                         borderColor: getStopShape(stop.type).color,
                         color: getStopShape(stop.type).color,
                       }}
                       className={[
-                        "flex size-6 cursor-pointer items-center justify-center border-2 border-dashed text-[10px] font-bold tabular-nums ring-2 ring-white/70",
+                        "flex size-6 cursor-pointer items-center justify-center border-2 border-dashed text-[10px] font-bold tabular-nums ring-2 ring-white/70 transition-[outline,ring,box-shadow]",
                         SHAPE_CLASS[getStopShape(stop.type).shape],
+                        hoveredDetourStopId === stop.detour_stop_id &&
+                          "outline-primary/70 outline-2 outline-offset-2",
+                        // Inactive alternative routes fade to half opacity
+                        // (matches the dashed line, same value).
+                        !detour.is_active && "opacity-50",
                       ].join(" ")}
                     >
-                      {index + 1}
+                      {getStopShape(stop.type).shape === "diamond" ? (
+                        <span className="-rotate-45">{index + 1}</span>
+                      ) : (
+                        index + 1
+                      )}
                     </button>
                     {layers.detourStopLabels && (
-                      <span className="border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium">
+                      <span
+                        className={[
+                          "border-activeRoute text-activeRoute absolute top-full mt-0.5 max-w-28 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium",
+                          !detour.is_active && "opacity-50",
+                        ].join(" ")}
+                      >
                         {stop.name}
                       </span>
                     )}

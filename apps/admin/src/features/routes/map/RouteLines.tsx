@@ -8,7 +8,13 @@ import {
   useDrawWhenReady,
 } from "@/lib/mapLayers";
 import { fadeLineLayers, fadeOutLayers } from "@/lib/overviewFade";
-import { DRAFT_FADE_OUT_MS, DRAFT_LINE, PREVIEW_LINE } from "./constants";
+import {
+  DETOUR_DASH,
+  DRAFT_FADE_OUT_MS,
+  DRAFT_LINE,
+  PREVIEW_LINE,
+} from "./constants";
+import type { DetourContextLines } from "@/lib/coords";
 
 /**
  * Imperatively draws the route lines straight onto the map via the raw
@@ -19,7 +25,12 @@ import { DRAFT_FADE_OUT_MS, DRAFT_LINE, PREVIEW_LINE } from "./constants";
  */
 interface RouteLineFeature {
   type: "Feature";
-  properties: { kind: "draft" | "connecting"; color: string };
+  properties: {
+    kind: "draft" | "draft-dimmed" | "detour-primary" | "connecting";
+    color: string;
+    /** Set on detour-primary features — drives the inactive half-opacity. */
+    active?: boolean;
+  };
   geometry: GeoLineString;
 }
 
@@ -28,11 +39,23 @@ export const RouteLines = memo(function RouteLines({
   connecting,
   color,
   routeId,
+  detourContext,
+  detourActive = true,
 }: {
   draft: GeoLineString | null;
   connecting: GeoLineString | null;
   color: string;
   routeId: string | null;
+  /**
+   * Detour-focus context (detour as primary path): when present, the draft
+   * renders as before/after (solid) + the replaced arc (dimmed) + a solid
+   * primary connection (before + detour loop + after). Null keeps the plain
+   * single draft line.
+   */
+  detourContext?: DetourContextLines | null;
+  /** Whether the FOCUSED detour is active — inactive connections fade to
+   *  half opacity, matching the saved dashed lines and detour stops. */
+  detourActive?: boolean;
 }) {
   const map = useMap().current?.getMap();
   // Crossfade bookkeeping for the draft line: keep the CURRENT draft in a ref
@@ -68,6 +91,50 @@ export const RouteLines = memo(function RouteLines({
     };
     tryFade();
   }, [map, draft, routeId]);
+
+  // Detour-focus context fade-in: the SOLID primary connection appears when
+  // the detour editor opens with a composed loop. Fade it in (same pattern
+  // as the draft fade-in) so the context change doesn't pop. The dimmed arc
+  // is deliberately EXCLUDED — fadeLineLayers animates to full opacity
+  // (t → 1), which would clobber the arc's spec opacity of 0.3; it appears
+  // at its lowered value instantly instead. Keyed on a ref that tracks the
+  // previous context — re-arms every time context toggles.
+  //
+  // INACTIVE detours never fade: fadeLineLayers writes a FLAT number ending
+  // at 1, which would permanently replace the data-driven opacity expression
+  // (["case", ["get", "active"], 1, 0.5]) and leave an inactive detour's
+  // connection fully opaque. Instead the expression is (re)applied directly —
+  // also covering the toggle-inactive-after-fade case, where a previous fade
+  // left a flat 1 on the layer.
+  const contextFadedRef = useRef(false);
+  useEffect(() => {
+    if (!map || !detourContext) {
+      contextFadedRef.current = false;
+      return;
+    }
+    if (contextFadedRef.current) return;
+    let attempts = 0;
+    const tryApply = () => {
+      if (map.getLayer("route-line-detour-primary")) {
+        contextFadedRef.current = true;
+        if (detourActive === false) {
+          map.setPaintProperty("route-line-detour-primary", "line-opacity", [
+            "case",
+            ["get", "active"],
+            1,
+            0.5,
+          ]);
+        } else {
+          fadeLineLayers(map, [
+            { id: "route-line-detour-primary", prop: "line-opacity" },
+          ]);
+        }
+        return;
+      }
+      if (attempts++ < 30) requestAnimationFrame(tryApply);
+    };
+    tryApply();
+  }, [map, detourContext, detourActive]);
 
   // CROSSFADE OUT (edit→overview / route close): when the committed draft
   // becomes null while geometry was showing, fade the line to 0 over ~200 ms
@@ -117,7 +184,7 @@ export const RouteLines = memo(function RouteLines({
 
   useDrawWhenReady(
     map,
-    [draft, connecting, color],
+    [draft, connecting, color, detourContext, detourActive],
     () => {
       if (!map) return false;
       ensureGeoJsonSource(map, "route-lines");
@@ -135,6 +202,28 @@ export const RouteLines = memo(function RouteLines({
           color: ["coalesce", ["get", "color"], DRAFT_LINE],
           width: 4,
         }),
+        // Detour-focus context: the original arc the detour replaces, drawn
+        // DASHED at lowered opacity so it reads as temporarily de-emphasized
+        // while the detour takes priority (the detour itself is the solid
+        // primary connection, drawn above this layer).
+        lineLayerSpec("route-line-draft-dimmed", {
+          source: "route-lines",
+          filter: ["==", ["get", "kind"], "draft-dimmed"],
+          color: ["coalesce", ["get", "color"], DRAFT_LINE],
+          width: 4,
+          dasharray: [...DETOUR_DASH],
+          opacity: 0.3,
+        }),
+        // Detour-focus context: the SOLID "detour as primary" connection
+        // (main-before + detour loop + main-after) on top of everything.
+        // Inactive detours fade to half opacity like every other detour line.
+        lineLayerSpec("route-line-detour-primary", {
+          source: "route-lines",
+          filter: ["==", ["get", "kind"], "detour-primary"],
+          color: ["coalesce", ["get", "color"], DRAFT_LINE],
+          width: 4,
+          opacity: ["case", ["get", "active"], 1, 0.5],
+        }),
       ];
       for (const layer of layers) {
         if (!map.getLayer(layer.id)) map.addLayer(layer);
@@ -143,7 +232,45 @@ export const RouteLines = memo(function RouteLines({
     },
     () => {
       const features: RouteLineFeature[] = [];
-      if (draft) {
+      if (detourContext) {
+        // Detour focused: the main route is drawn in three parts — the arcs
+        // OUTSIDE the detour at full opacity (the solid connection into and
+        // out of it) and the REPLACED arc between split/merge dimmed.
+        // Rendered independently of the `draft` prop so the connection shows
+        // even when the routes layer toggle is off (it IS the focus).
+        // Degenerate slices (split at the first vertex, merge at the last)
+        // are single points — MapLibre rejects 1-coordinate LineStrings, so
+        // only features with ≥2 coordinates are emitted.
+        const valid = (line: GeoLineString) => line.coordinates.length >= 2;
+        if (valid(detourContext.before)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "draft", color },
+            geometry: detourContext.before,
+          });
+        }
+        if (valid(detourContext.after)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "draft", color },
+            geometry: detourContext.after,
+          });
+        }
+        if (valid(detourContext.replaced)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "draft-dimmed", color },
+            geometry: detourContext.replaced,
+          });
+        }
+        if (valid(detourContext.primary)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "detour-primary", color, active: detourActive },
+            geometry: detourContext.primary,
+          });
+        }
+      } else if (draft) {
         features.push({
           type: "Feature",
           properties: { kind: "draft", color },
@@ -158,18 +285,59 @@ export const RouteLines = memo(function RouteLines({
         });
       }
       // Content-based signature INCLUDING coordinates: a drag that keeps the
-      // same vertex count still redraws (perf-audit review fix).
+      // same vertex count still redraws (perf-audit review fix). Activation
+      // flips the line's opacity — it MUST participate or setData never
+      // re-runs when only is_active changes.
       return JSON.stringify(
         features.map((f) => [
           f.properties.kind,
           f.properties.color,
+          (f.properties as { active?: boolean }).active ?? true,
           f.geometry.coordinates,
         ]),
       );
     },
     () => {
       const features: RouteLineFeature[] = [];
-      if (draft) {
+      if (detourContext) {
+        // Detour focused: the main route is drawn in three parts — the arcs
+        // OUTSIDE the detour at full opacity (the solid connection into and
+        // out of it) and the REPLACED arc between split/merge dimmed.
+        // Rendered independently of the `draft` prop so the connection shows
+        // even when the routes layer toggle is off (it IS the focus).
+        // Degenerate slices (split at the first vertex, merge at the last)
+        // are single points — MapLibre rejects 1-coordinate LineStrings, so
+        // only features with ≥2 coordinates are emitted.
+        const valid = (line: GeoLineString) => line.coordinates.length >= 2;
+        if (valid(detourContext.before)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "draft", color },
+            geometry: detourContext.before,
+          });
+        }
+        if (valid(detourContext.after)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "draft", color },
+            geometry: detourContext.after,
+          });
+        }
+        if (valid(detourContext.replaced)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "draft-dimmed", color },
+            geometry: detourContext.replaced,
+          });
+        }
+        if (valid(detourContext.primary)) {
+          features.push({
+            type: "Feature",
+            properties: { kind: "detour-primary", color, active: detourActive },
+            geometry: detourContext.primary,
+          });
+        }
+      } else if (draft) {
         features.push({
           type: "Feature",
           properties: { kind: "draft", color },
@@ -188,7 +356,12 @@ export const RouteLines = memo(function RouteLines({
       if (draftFadeOutRef.current) return;
       setSourceData(map!, "route-lines", features);
     },
-    ["route-line-draft", "route-line-connecting"],
+    [
+      "route-line-draft",
+      "route-line-connecting",
+      "route-line-draft-dimmed",
+      "route-line-detour-primary",
+    ],
   );
 
   return null;

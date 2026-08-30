@@ -285,6 +285,9 @@ export interface PlottingState {
   polyline: GeoLineString | null;
   snap: SnapState;
   selection: Selection;
+  /** Draft stop hovered on the map — drives the map↔sidebar alignment
+   *  highlight (hover maps to the corresponding stops-sidebar row). */
+  hoveredStopId: string | null;
   layers: LayerVisibility;
   /** Undo/redo stacks (FR-013) — see `lib/plottingHistory.ts`. */
   history: HistoryStack;
@@ -355,6 +358,8 @@ export interface PlottingState {
   setPolyline: (polyline: GeoLineString | null) => void;
   setSnap: (snap: Partial<SnapState>) => void;
   setSelection: (selection: Selection) => void;
+  /** Sets/clears the hovered stop (map hover → sidebar highlight). */
+  setHoveredStop: (stopId: string | null) => void;
   setLayers: (layers: Partial<LayerVisibility>) => void;
   /** Debounced road-following request for the placed stops; a road-snapped
    *  response is auto-committed to the draft (FR-008/FR-009). */
@@ -581,6 +586,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
       warning: null,
     },
     selection: clearSelection,
+    hoveredStopId: null,
     layers: DEFAULT_LAYERS,
     history: emptyHistory(),
     savedBaseline: null,
@@ -619,6 +625,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
           warning: null,
         },
         selection: clearSelection,
+        hoveredStopId: null,
         tool: "select",
         poi: null,
         routeMeta: null,
@@ -1040,6 +1047,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     setPolyline: (polyline) => set({ polyline }),
     setSnap: (snap) => set((state) => ({ snap: { ...state.snap, ...snap } })),
     setSelection: (selection) => set({ selection, poi: null }), // selecting a stop dismisses the POI marker
+    setHoveredStop: (hoveredStopId) => set({ hoveredStopId }),
     setLayers: (layers) =>
       set((state) => ({ layers: { ...state.layers, ...layers } })),
 
@@ -1244,6 +1252,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         // A restored draft has no known saved baseline — it is all unsaved work.
         savedBaseline: null,
         selection: clearSelection,
+        hoveredStopId: null,
         poi: null,
         snap: {
           status: "idle",
@@ -1286,6 +1295,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
           warning: null,
         },
         selection: clearSelection,
+        hoveredStopId: null,
         layers: DEFAULT_LAYERS,
         history: emptyHistory(),
         savedBaseline: null,

@@ -1,18 +1,27 @@
-import { Eye, EyeOff, Plus } from "lucide-react";
+import { useState } from "react";
+import { Eye, EyeOff, LocateFixed, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "@/components/ui/context-menu";
+import { cn } from "@/lib/utils";
 import { PanelState } from "@/components/shared/PanelState";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { label } from "@/lib/labels";
 import { usePlottingStore } from "@/lib/plottingStore";
 import {
+  useDeleteDetourMutation,
   useDirectionsQuery,
   useDetoursQuery,
   useDirectionStopsQuery,
 } from "@/features/routes/useRouteQueries";
-import {
-  DEFAULT_ROUTE_COLOR,
-  detourLineColorFor,
-} from "@/features/routes/routeColors";
+import type { DetourEntity } from "@/features/routes/routesApi";
+import { DEFAULT_ROUTE_COLOR } from "@/features/routes/routeColors";
 import { useDetourStore } from "./detourStore";
 import { buildDetourTarget } from "./target";
 
@@ -31,10 +40,14 @@ export function DetourList({ directionId }: { directionId: string }) {
   const detoursQuery = useDetoursQuery(directionId);
   const { data: directions } = useDirectionsQuery(routeId);
   const { data: directionStops } = useDirectionStopsQuery(directionId);
+  const hoveredDetourId = useDetourStore((s) => s.hoveredDetourId);
+  const setHoveredDetourId = useDetourStore((s) => s.setHoveredDetourId);
   const toggleDetourVisibility = useDetourStore(
     (s) => s.toggleDetourVisibility,
   );
   const hiddenDetourIds = useDetourStore((s) => s.hiddenDetourIds);
+  const [deleteTarget, setDeleteTarget] = useState<DetourEntity | null>(null);
+  const deleteMutation = useDeleteDetourMutation(directionId);
 
   const direction =
     directions?.find((d) => d.direction_id === directionId) ?? null;
@@ -76,6 +89,25 @@ export function DetourList({ directionId }: { directionId: string }) {
     );
   };
 
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      // The deleted detour might be open in the editor — close it first so
+      // its draft can't linger or be saved back over the deletion.
+      if (useDetourStore.getState().editDetourId === deleteTarget.detour_id) {
+        useDetourStore.getState().close();
+      }
+      useDetourStore
+        .getState()
+        .clearDeletedDetourVisibility(deleteTarget.detour_id);
+      await deleteMutation.mutateAsync(deleteTarget.detour_id);
+    } catch {
+      // Error toast handled by the mutation.
+    } finally {
+      setDeleteTarget(null);
+    }
+  };
+
   return (
     <section aria-label={label("detours")}>
       <div className="flex items-center justify-between gap-2">
@@ -104,51 +136,89 @@ export function DetourList({ directionId }: { directionId: string }) {
         >
           {detours.map((detour, index) => {
             const hidden = hiddenDetourIds.includes(detour.detour_id);
+            const hovered = hoveredDetourId === detour.detour_id;
             return (
-              <div
-                key={detour.detour_id}
-                className={`flex items-center gap-2 rounded-md border px-2 py-1.5 ${
-                  detour.is_active
-                    ? "border-border"
-                    : "border-border/50 bg-muted/40"
-                }`}
-              >
-                <span
-                  aria-hidden
-                  className="size-2.5 shrink-0 rounded-full"
-                  style={{
-                    backgroundColor: detourLineColorFor(
-                      routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
-                      detour.detour_id,
-                    ),
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => focusDetour(index)}
-                  aria-label={`Focus ${detour.label}`}
-                  className={`min-w-0 flex-1 truncate text-left text-xs hover:underline ${
-                    detour.is_active ? "" : "text-muted-foreground line-through"
-                  }`}
-                  title={detour.label}
-                >
-                  {detour.label}
-                </button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`${hidden ? "Show" : "Hide"} ${detour.label} on the map`}
-                  className="text-muted-foreground size-6"
-                  onClick={() => toggleDetourVisibility(detour.detour_id)}
-                >
-                  {hidden ? (
-                    <EyeOff className="size-3" />
-                  ) : (
-                    <Eye className="size-3" />
+              <ContextMenu key={detour.detour_id}>
+                <ContextMenuTrigger
+                  render={(props) => (
+                    <div
+                      {...props}
+                      className={cn(
+                        "flex items-center gap-2 rounded-md border px-2 py-1.5",
+                        hovered
+                          ? "border-primary/40 bg-primary/10"
+                          : detour.is_active
+                            ? "border-border"
+                            : "border-border/50 bg-muted/40",
+                      )}
+                    >
+                      <span
+                        aria-hidden
+                        className="size-2.5 shrink-0 rounded-full"
+                        style={{
+                          // Swatch matches the line: the MAIN route's color (dash
+                          // differentiates, not color contrast).
+                          backgroundColor:
+                            routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => focusDetour(index)}
+                        onFocus={() => setHoveredDetourId(detour.detour_id)}
+                        onBlur={() => setHoveredDetourId(null)}
+                        aria-label={`Focus ${detour.label}`}
+                        className={`min-w-0 flex-1 truncate text-left text-xs hover:underline ${
+                          detour.is_active
+                            ? ""
+                            : "text-muted-foreground line-through"
+                        }`}
+                        title={detour.label}
+                      >
+                        {detour.label}
+                      </button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${hidden ? "Show" : "Hide"} ${detour.label} on the map`}
+                        className="text-muted-foreground size-6"
+                        onClick={() => toggleDetourVisibility(detour.detour_id)}
+                      >
+                        {hidden ? (
+                          <EyeOff className="size-3" />
+                        ) : (
+                          <Eye className="size-3" />
+                        )}
+                      </Button>
+                    </div>
                   )}
-                </Button>
-              </div>
+                />
+                <ContextMenuContent alignOffset={4} className="min-w-44">
+                  <ContextMenuItem onClick={() => focusDetour(index)}>
+                    <LocateFixed className="size-4" />
+                    Focus detour
+                  </ContextMenuItem>
+                  <ContextMenuItem
+                    onClick={() => toggleDetourVisibility(detour.detour_id)}
+                  >
+                    {hidden ? (
+                      <EyeOff className="size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )}
+                    {hidden ? "Show on map" : "Hide from map"}
+                  </ContextMenuItem>
+                  <ContextMenuSeparator />
+                  <ContextMenuItem
+                    variant="destructive"
+                    onClick={() => setDeleteTarget(detour)}
+                  >
+                    <Trash2 className="size-4" />
+                    Delete detour
+                  </ContextMenuItem>
+                </ContextMenuContent>
+              </ContextMenu>
             );
           })}
         </PanelState>
@@ -168,6 +238,20 @@ export function DetourList({ directionId }: { directionId: string }) {
           <Plus className="size-3" /> Add alternative route
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete alternative route?"
+        message={`“${deleteTarget?.label}” will be permanently deleted along with its plotted detour stops. This action can’t be undone.`}
+        confirmLabel="Delete"
+        destructive
+        pending={deleteMutation.isPending}
+        pendingLabel="Deleting…"
+        onConfirm={() => void confirmDelete()}
+      />
     </section>
   );
 }

@@ -13,6 +13,8 @@ import {
   replacedArcLengthMeters,
   type ProjectedPoint,
 } from "@/lib/coords";
+import { usePlottingStore } from "@/lib/plottingStore";
+import { clearSelection } from "@/lib/selection";
 
 /**
  * Detour (alternative route) planning state — BRANCHING-NODE model (product
@@ -144,6 +146,10 @@ export interface DetourState {
   detourStops: DetourStopDraft[];
   /** The detour stop selected on the map (properties panel editor). */
   selectedDetourStopId: string | null;
+  /** Detour stop hovered on the map + the detour it belongs to (for
+   *  map↔sidebar alignment: hover highlights the owning detour's row). */
+  hoveredDetourStopId: string | null;
+  hoveredDetourId: string | null;
   /** Road-followed [entry, ...detourStops, exit]; null until the first build. */
   loop: GeoLineString | null;
   /** Set when road following is unavailable — editor shows the fallback note. */
@@ -169,6 +175,9 @@ export interface DetourState {
   touched: boolean;
   past: DetourSnapshot[];
   future: DetourSnapshot[];
+  /** Incremented whenever the map should frame the focused detour (mirrors
+   *  the plotting store's `fitCounter`/`requestFit` pattern). */
+  detourFitCounter: number;
 
   openNew: (target: DetourTarget) => void;
   openEdit: (detour: DetourEntity, target: DetourTarget) => void;
@@ -183,6 +192,9 @@ export interface DetourState {
   moveExit: (location: CoordinatePair) => void;
   /** Toggles a saved detour's map visibility (sidebar eye, display-only). */
   toggleDetourVisibility: (detourId: string) => void;
+  /** Drops a detour id from the hidden list after it is deleted (prevents a
+   *  stale entry from suppressing a future detour with a fresh id). */
+  clearDeletedDetourVisibility: (detourId: string) => void;
   updateDetourStop: (
     id: string,
     patch: Partial<Omit<DetourStopDraft, "id" | "location">>,
@@ -194,7 +206,17 @@ export interface DetourState {
   reorderDetourStop: (fromIndex: number, toIndex: number) => void;
   removeDetourStop: (id: string) => void;
   selectDetourStop: (id: string | null) => void;
+  /** Sets/clears the hovered detour stop + its owning detour (map hover). */
+  setHoveredDetourStop: (
+    stopId: string | null,
+    detourId: string | null,
+  ) => void;
+  /** Sets/clears the hovered detour row (sidebar row hover highlight). */
+  setHoveredDetourId: (detourId: string | null) => void;
   setLabel: (label: string) => void;
+  /** Requests a map frame to the focused detour (same contract as the
+   *  plotting store's `requestFit`). */
+  requestDetourFit: () => void;
   setCommuterInstruction: (instruction: string) => void;
   setDriverInstruction: (instruction: string) => void;
   setLastError: (message: string | null) => void;
@@ -224,6 +246,8 @@ const IDLE_STATE = {
   hiddenDetourIds: [],
   detourStops: [],
   selectedDetourStopId: null,
+  hoveredDetourStopId: null,
+  hoveredDetourId: null,
   loop: null,
   mapboxWarning: null,
   composeError: null,
@@ -239,6 +263,7 @@ const IDLE_STATE = {
   touched: false,
   past: [],
   future: [],
+  detourFitCounter: 0,
 };
 
 /**
@@ -306,11 +331,28 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
       });
     };
 
+    /** Detour focus takes over the workspace: a base-route stop outline must
+     *  not linger while the admin is editing/selecting a detour or a detour
+     *  stop (outline is per-store — without this, the two outlines would
+     *  stack visually and confuse which context is focused). Also clears the
+     *  base hover: keyboard-tabbing from a base stop to a detour stop would
+     *  otherwise leave the hover outline (the in-map focus path bypasses the
+     *  blur guard). */
+    const clearBaseRouteFocus = () => {
+      if (usePlottingStore.getState().selection.type !== "none") {
+        usePlottingStore.getState().setSelection(clearSelection);
+      }
+      if (usePlottingStore.getState().hoveredStopId !== null) {
+        usePlottingStore.getState().setHoveredStop(null);
+      }
+    };
+
     return {
       ...IDLE_STATE,
 
       openNew: (target) => {
         snapSeq += 1;
+        clearBaseRouteFocus();
         set({
           ...IDLE_STATE,
           open: true,
@@ -322,6 +364,7 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
 
       openEdit: (detour, target) => {
         snapSeq += 1;
+        clearBaseRouteFocus();
         const entry = projectPointOnPolyline(
           detour.entry.coordinates,
           target.basePolyline.coordinates,
@@ -354,6 +397,7 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
           commuterInstruction: detour.commuter_instruction,
           driverInstruction: detour.driver_instruction ?? "",
           additionalDistanceMeters: detour.additional_distance_meters,
+          detourFitCounter: get().detourFitCounter + 1,
         });
       },
 
@@ -512,6 +556,12 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
             : [...hiddenDetourIds, detourId],
         });
       },
+      clearDeletedDetourVisibility: (detourId) =>
+        set((state) => ({
+          hiddenDetourIds: state.hiddenDetourIds.filter(
+            (id) => id !== detourId,
+          ),
+        })),
 
       updateDetourStop: (id, patch) => {
         const { detourStops } = get();
@@ -563,7 +613,13 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
         void rebuildLoop(set, get, snapFn);
       },
 
-      selectDetourStop: (id) => set({ selectedDetourStopId: id }),
+      selectDetourStop: (id) => {
+        clearBaseRouteFocus();
+        set({ selectedDetourStopId: id });
+      },
+      setHoveredDetourStop: (hoveredDetourStopId, hoveredDetourId) =>
+        set({ hoveredDetourStopId, hoveredDetourId }),
+      setHoveredDetourId: (hoveredDetourId) => set({ hoveredDetourId }),
 
       setLabel: (label) => {
         if (label === get().label) return;
@@ -616,6 +672,9 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
 
       canUndo: () => get().past.length > 0,
       canRedo: () => get().future.length > 0,
+
+      requestDetourFit: () =>
+        set((state) => ({ detourFitCounter: state.detourFitCounter + 1 })),
 
       serializeDraft: () => {
         const { target, open, editDetourId, baselineDetourCount } = get();

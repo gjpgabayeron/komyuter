@@ -428,6 +428,86 @@ export interface ArcPositionedStop {
 }
 
 /**
+ * Detour-focus route context (US: detour as primary path): the main route
+ * polyline split at the detour's split/merge projections, plus the combined
+ * "detour as primary" path (main-before + detour loop + main-after).
+ *
+ * - `before` / `after`: the main-route segments OUTSIDE the detour — drawn
+ *   at full opacity (they are the connection into/out of the detour).
+ * - `replaced`: the main-route arc BETWEEN the split and merge nodes — the
+ *   original path the detour replaces, drawn dimmed so the detour reads as
+ *   the visual focal point without losing the original route context.
+ * - `primary`: `before` + detour loop + `after` — how the overall route
+ *   would look if the detour were treated as the primary path (solid line).
+ */
+export interface DetourContextLines {
+  before: GeoLineString;
+  replaced: GeoLineString;
+  after: GeoLineString;
+  primary: GeoLineString;
+}
+
+/**
+ * Builds the detour-focus context lines. The split/merge projections must
+ * land ON the main polyline and in travel order (entry before exit); out of
+ * order or unprojectable positions return `null` (callers keep the plain
+ * main line then).
+ */
+export function buildDetourContextLines(
+  mainLine: GeoLineString,
+  split: ProjectedPoint,
+  merge: ProjectedPoint,
+  detourLoop: GeoLineString,
+): DetourContextLines | null {
+  const coords = mainLine.coordinates;
+  if (coords.length < 2) return null;
+  if (
+    split.index > merge.index ||
+    (split.index === merge.index && split.fraction > merge.fraction)
+  ) {
+    return null;
+  }
+  if (detourLoop.coordinates.length < 2) return null;
+
+  const before = {
+    type: "LineString" as const,
+    coordinates: [
+      ...coords.slice(0, split.index + 1),
+      ...(coordinatesEqual(coords[split.index], split.coordinate)
+        ? []
+        : [split.coordinate]),
+    ],
+  };
+  const replaced = {
+    type: "LineString" as const,
+    coordinates: [
+      split.coordinate,
+      ...coords.slice(split.index + 1, merge.index + 1),
+      ...(coordinatesEqual(coords[merge.index], merge.coordinate)
+        ? []
+        : [merge.coordinate]),
+    ],
+  };
+  const mergeOnVertex = coordinatesEqual(coords[merge.index], merge.coordinate);
+  const after = {
+    type: "LineString" as const,
+    coordinates: mergeOnVertex
+      ? coords.slice(merge.index)
+      : [merge.coordinate, ...coords.slice(merge.index + 1)],
+  };
+  const primary = {
+    type: "LineString" as const,
+    coordinates: [
+      ...before.coordinates,
+      ...detourLoop.coordinates,
+      ...after.coordinates,
+    ],
+  };
+
+  return { before, replaced, after, primary };
+}
+
+/**
  * Quick-mode detour inference (US2 revision — one-click detour authoring):
  * given an ordered stop list (chain order, `stop_order`) and a base polyline,
  * find the two stops that flank a clicked detour point along the route:

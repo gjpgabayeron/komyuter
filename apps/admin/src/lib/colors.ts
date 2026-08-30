@@ -31,33 +31,6 @@ export function semanticColor(key: SemanticColorKey): string {
 }
 
 /**
- * Distinct palette for detour (alternative-route) lines (FR-012): a
- * per-detour cycle avoiding the base route colors so an alternative reads
- * as a different service, not a recolor.
- */
-export const DETOUR_COLORS = [
-  "#C98A1B",
-  "#178B7E",
-  "#8E5CC3",
-  "#B4553C",
-] as const;
-
-/** Palette color for the nth detour of a direction. */
-export function detourColorForIndex(index: number): string {
-  return DETOUR_COLORS[index % DETOUR_COLORS.length];
-}
-
-/** Stable per-detour color from the detour_id hash — soft-deleting one
- *  detour must not reshuffle the remaining detours' colors between sessions. */
-export function detourColorFor(detourId: string): string {
-  let hash = 0;
-  for (let index = 0; index < detourId.length; index += 1) {
-    hash = (hash * 31 + detourId.charCodeAt(index)) >>> 0;
-  }
-  return detourColorForIndex(hash % DETOUR_COLORS.length);
-}
-
-/**
  * Stop-type identity colors (pair with shape — never color alone, FR-015).
  * Terminal = signboard green-blue, major = read green, hail-and-ride = amber.
  */

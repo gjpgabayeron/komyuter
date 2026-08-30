@@ -2,23 +2,13 @@ import type { StopShape } from "@/lib/stopShapes";
 import {
   activeRoute as DRAFT_LINE,
   previewLine as PREVIEW_LINE,
-  DETOUR_COLORS,
-  detourColorForIndex,
-  detourColorFor,
   attentionAmber as DETOUR_DRAFT_COLOR,
 } from "@/lib/colors";
 
 /** Re-exported line tokens: the color VALUES live in lib/colors.ts (single
  *  source, FR-012/SC-007); map-only constants stay here. */
 
-export {
-  DRAFT_LINE,
-  PREVIEW_LINE,
-  DETOUR_COLORS,
-  detourColorForIndex,
-  detourColorFor,
-  DETOUR_DRAFT_COLOR,
-};
+export { DRAFT_LINE, PREVIEW_LINE, DETOUR_DRAFT_COLOR };
 
 /** Crossfade-out duration for the editor's committed draft line (edit→overview). */
 export const DRAFT_FADE_OUT_MS = 200;

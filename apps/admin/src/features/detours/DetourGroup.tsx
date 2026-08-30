@@ -351,7 +351,14 @@ export function DetourGroup() {
           </Label>
           <Switch
             id="detour-active"
-            checked={editBaseline?.is_active !== false}
+            // The LIVE detour from the detours list, not the frozen
+            // `editBaseline` open-time snapshot — the optimistic update
+            // flips it the moment the toggle fires, so the switch, the
+            // sidebar row, and the map line all stay in sync.
+            checked={
+              detoursQuery.data?.find((d) => d.detour_id === editDetourId)
+                ?.is_active ?? editBaseline?.is_active !== false
+            }
             disabled={saving || updateMutation.isPending}
             onCheckedChange={(checked) =>
               updateMutation.mutate({

@@ -226,14 +226,51 @@ export function useUpdateDetourMutation(directionId: string) {
   return useMutation({
     mutationFn: (args: { detourId: string; patch: UpdateDetourPayload }) =>
       updateDetour(args.detourId, args.patch),
+    // Optimistic: the Active switch must reflect immediately (and the list +
+    // map line follow) — no waiting for the invalidate/refetch round-trip.
+    // Rolled back on error.
+    onMutate: async (args) => {
+      await queryClient.cancelQueries({
+        queryKey: routeKeys.detours(directionId),
+      });
+      const previous = queryClient.getQueryData<DetourEntity[]>(
+        routeKeys.detours(directionId),
+      );
+      if (previous) {
+        // Merge the patch fields that are type-identical to DetourEntity.
+        // `detour_stops` is excluded: the payload carries DetourStopInput[]
+        // (no server-generated id) and can't stand in for DetourStopEntity[] —
+        // a full geometry save refreshes via onSettled invalidation anyway.
+        const { detour_stops, ...rest } = args.patch;
+        // `detour_stops` is intentionally excluded from the optimistic merge.
+        void detour_stops;
+        queryClient.setQueryData<DetourEntity[]>(
+          routeKeys.detours(directionId),
+          previous.map((detour) =>
+            detour.detour_id === args.detourId
+              ? { ...detour, ...rest }
+              : detour,
+          ),
+        );
+      }
+      return { previous };
+    },
     onSuccess: () => {
+      toast.success("Detour updated.");
+    },
+    onError: (error, _args, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          routeKeys.detours(directionId),
+          context.previous,
+        );
+      }
+      toast.error(error.message);
+    },
+    onSettled: () => {
       void queryClient.invalidateQueries({
         queryKey: routeKeys.detours(directionId),
       });
-      toast.success("Detour updated.");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message);
     },
   });
 }

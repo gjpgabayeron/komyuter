@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
-import { SEMANTIC_COLORS, semanticColor, DETOUR_COLORS } from "@/lib/colors";
+import { SEMANTIC_COLORS, semanticColor } from "@/lib/colors";
 
 /**
  * Source audit for SC-007 (contracts/ui-colors.md §1): every fixed semantic
@@ -17,7 +17,6 @@ describe("colors source audit (SC-007, FR-012)", () => {
     expect(SEMANTIC_COLORS.activeRoute).toBe("#1B6DB2");
     expect(SEMANTIC_COLORS.nodeInk).toBe("#0F172A");
     expect(SEMANTIC_COLORS.attentionAmber).toBe("#D97706");
-    expect(DETOUR_COLORS.length).toBe(4);
     expect(semanticColor("activeRoute")).toBe("#1B6DB2");
     expect(semanticColor("attentionAmber")).toBe("#D97706");
   });

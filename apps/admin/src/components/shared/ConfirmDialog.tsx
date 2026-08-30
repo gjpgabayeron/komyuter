@@ -62,7 +62,7 @@ export function ConfirmDialog({
             disabled={confirmDisabled}
             className={cn(
               destructive &&
-                "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+                "bg-destructive text-background hover:bg-destructive/90",
             )}
           >
             {pending ? pendingLabel : confirmLabel}

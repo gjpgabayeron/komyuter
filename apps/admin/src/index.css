@@ -162,3 +162,12 @@
     scroll-behavior: auto !important;
   }
 }
+
+.cursor-add {
+  cursor: crosshair;
+}
+
+.cursor-add .maplibregl-canvas,
+.cursor-add .maplibregl-canvas-container {
+  cursor: crosshair !important;
+}

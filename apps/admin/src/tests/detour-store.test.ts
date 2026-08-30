@@ -1,10 +1,12 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CoordinatePair, GeoLineString } from "@komyuter/shared";
 import {
   createDetourStore,
   type DetourTarget,
   type LoopSnapper,
 } from "@/features/detours/detourStore";
+import { usePlottingStore } from "@/lib/plottingStore";
+import { selectStop } from "@/lib/selection";
 
 const BASE: GeoLineString = {
   type: "LineString",
@@ -320,6 +322,21 @@ describe("detour store — sidebar visibility toggles (display-only)", () => {
     get().toggleDetourVisibility("det-2");
     expect(get().hiddenDetourIds).toEqual(["det-1", "det-2"]);
   });
+
+  it("clearDeletedDetourVisibility drops the id after a delete", () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    get().toggleDetourVisibility("det-1");
+    get().toggleDetourVisibility("det-2");
+    expect(get().hiddenDetourIds).toEqual(["det-1", "det-2"]);
+
+    get().clearDeletedDetourVisibility("det-1");
+    expect(get().hiddenDetourIds).toEqual(["det-2"]);
+
+    // Clearing an id that isn't hidden is a no-op (never throws).
+    get().clearDeletedDetourVisibility("det-1");
+    expect(get().hiddenDetourIds).toEqual(["det-2"]);
+  });
 });
 
 describe("detour store — stop reorder parity (US4, FR-010)", () => {
@@ -474,5 +491,77 @@ describe("detour store — draft persistence (US4, T031)", () => {
     expect(state.exit?.index).toBe(2);
     expect(state.detourStops).toHaveLength(1);
     expect(state.draftOffer).toBe(false);
+  });
+});
+
+describe("detour store — map hover alignment (sidebar highlight)", () => {
+  it("tracks the hovered detour stop + owning detour, close clears it", () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    expect(get().hoveredDetourStopId).toBeNull();
+    expect(get().hoveredDetourId).toBeNull();
+
+    get().setHoveredDetourStop("ds-1", "det-7");
+    expect(get().hoveredDetourStopId).toBe("ds-1");
+    expect(get().hoveredDetourId).toBe("det-7");
+
+    get().setHoveredDetourStop(null, null);
+    expect(get().hoveredDetourStopId).toBeNull();
+    expect(get().hoveredDetourId).toBeNull();
+
+    // Sidebar-row hover drives the map via the detour id alone.
+    get().setHoveredDetourId("det-7");
+    expect(get().hoveredDetourId).toBe("det-7");
+    get().setHoveredDetourId(null);
+    expect(get().hoveredDetourId).toBeNull();
+
+    // A stale hover never survives closing/reopening the editor.
+    get().setHoveredDetourStop("ds-1", "det-7");
+    get().close();
+    expect(get().hoveredDetourStopId).toBeNull();
+    expect(get().hoveredDetourId).toBeNull();
+  });
+});
+
+describe("detour store — base-route stop focus clears on detour focus", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  it("openNew clears a previously selected base stop outline", () => {
+    usePlottingStore.getState().setSelection(selectStop("base-stop-1"));
+    usePlottingStore.getState().setHoveredStop("base-stop-1");
+    expect(usePlottingStore.getState().selection).toEqual({
+      type: "stop",
+      stopId: "base-stop-1",
+    });
+
+    openNewStore(); // openNew → clearBaseRouteFocus
+
+    expect(usePlottingStore.getState().selection).toEqual({ type: "none" });
+    expect(usePlottingStore.getState().hoveredStopId).toBeNull();
+  });
+
+  it("selectDetourStop clears the base stop outline", () => {
+    usePlottingStore.getState().setSelection(selectStop("base-stop-1"));
+    const store = openNewStore();
+
+    store.getState().selectDetourStop("ds-1");
+
+    expect(usePlottingStore.getState().selection).toEqual({ type: "none" });
+  });
+});
+
+describe("detour store — detour fit counter (camera frames focused detour)", () => {
+  it("requestDetourFit increments the counter (DetourFitter watches it)", () => {
+    const store = openNewStore();
+    const get = () => store.getState();
+    expect(get().detourFitCounter).toBe(0);
+
+    get().requestDetourFit();
+    expect(get().detourFitCounter).toBe(1);
+
+    get().requestDetourFit();
+    expect(get().detourFitCounter).toBe(2);
   });
 });

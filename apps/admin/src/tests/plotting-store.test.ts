@@ -35,6 +35,22 @@ describe("plottingStore", () => {
     usePlottingStore.getState().reset();
   });
 
+  it("setHoveredStop drives the map↔sidebar hover highlight, reset clears it", () => {
+    const { setHoveredStop } = usePlottingStore.getState();
+    expect(usePlottingStore.getState().hoveredStopId).toBeNull();
+
+    setHoveredStop("stop-abc");
+    expect(usePlottingStore.getState().hoveredStopId).toBe("stop-abc");
+
+    setHoveredStop(null);
+    expect(usePlottingStore.getState().hoveredStopId).toBeNull();
+
+    // A fresh route/reset must never carry a stale hover into the new route.
+    setHoveredStop("stop-abc");
+    usePlottingStore.getState().reset();
+    expect(usePlottingStore.getState().hoveredStopId).toBeNull();
+  });
+
   it("addStop appends a draft stop with an auto-default name (FR-028)", () => {
     const { addStop } = usePlottingStore.getState();
     addStop([122.5, 10.6]);
@@ -1491,5 +1507,70 @@ describe("cache seed (Phase 2 — instant edit paint)", () => {
     usePlottingStore.getState().seedFromOverview(seed);
     store.reset();
     expect(usePlottingStore.getState().seedSource).toBeNull();
+  });
+});
+
+describe("insertStopBetween (context-menu insert above/below)", () => {
+  beforeEach(() => {
+    usePlottingStore.getState().reset();
+  });
+
+  function seedStops() {
+    const { setStops, addStop } = usePlottingStore.getState();
+    setStops([], null);
+    addStop([122.5, 10.6], "Alpha");
+    addStop([122.51, 10.61], "Beta");
+    addStop([122.52, 10.62], "Gamma");
+  }
+
+  it("anchoring on the predecessor places the new stop ABOVE the target (insert before)", () => {
+    seedStops();
+    const { stops } = usePlottingStore.getState();
+    const target = stops[1]; // Beta
+    const predecessor = stops[0]; // Alpha
+
+    // Mirrors RouteList.insertBefore: anchor = predecessor, location = midpoint.
+    usePlottingStore
+      .getState()
+      .insertStopBetween(predecessor.id, [
+        (predecessor.location[0] + target.location[0]) / 2,
+        (predecessor.location[1] + target.location[1]) / 2,
+      ]);
+
+    const after = usePlottingStore.getState().stops;
+    expect(after.map((s) => s.name)).toEqual([
+      "Alpha",
+      "Stop 4",
+      "Beta",
+      "Gamma",
+    ]);
+    // The new stop is selected so it can be dragged into place.
+    expect(usePlottingStore.getState().selection).toEqual({
+      type: "stop",
+      stopId: after[1].id,
+    });
+  });
+
+  it("anchoring on the target places the new stop BELOW it (insert after)", () => {
+    seedStops();
+    const { stops } = usePlottingStore.getState();
+    const target = stops[1]; // Beta
+    const successor = stops[2]; // Gamma
+
+    // Mirrors RouteList.insertAfter: anchor = target, location = midpoint.
+    usePlottingStore
+      .getState()
+      .insertStopBetween(target.id, [
+        (target.location[0] + successor.location[0]) / 2,
+        (target.location[1] + successor.location[1]) / 2,
+      ]);
+
+    const after = usePlottingStore.getState().stops;
+    expect(after.map((s) => s.name)).toEqual([
+      "Alpha",
+      "Beta",
+      "Stop 4",
+      "Gamma",
+    ]);
   });
 });
