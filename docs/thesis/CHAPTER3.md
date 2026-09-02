@@ -67,15 +67,17 @@ The system's data flow was modeled at two levels of abstraction to identify the 
 
 ```mermaid
 flowchart LR
-    Admin["Admin"] -->|"Route, Stop,<br>Fare Data"| System(("Komyuter<br>Transit Navigation"))
+    Admin["Admin"] -->|"Route, Stop, Detour,<br>Restriction and Fare Data"| System(("Komyuter<br>Transit Navigation"))
     System -->|"Confirmation/<br>Validation Status"| Admin
 
-    Commuter["Commuter"] -->|"Origin, Destination,<br>Preferences and GPS"| System
+    Commuter["Commuter"] -->|"Origin, Destination,<br>Preferences and GPS Position"| System
     System -->|"Route Result, Fare<br>and AR Markers"| Commuter
-    Commuter -->|"GPS Trace Upload"| System
+
+    Mapbox["Mapbox Directions API"] -->|"Snapped Polyline<br>and Distance"| System
+    System -->|"Drawn Path<br>Waypoints"| Mapbox
 ```
 
-At Level 0 (Context Diagram), Komyuter is treated as a single process interacting with two external entities: the Admin and the Commuter. The Admin supplies Route, Stop, and Fare data and receives Confirmation and Validation Status in return. The Commuter provides Origin, Destination, Preferences, and GPS position and receives Route Results, Fare information, and AR Markers. GPS Traces submitted by the Commuter flow back into the system asynchronously.
+At Level 0 (Context Diagram), Komyuter is treated as a single process interacting with three external entities: the Admin, the Commuter, and the Mapbox Directions API. The Admin supplies Route, Stop, Detour, Restriction, and Fare data and receives Confirmation and Validation Status in return. The Commuter provides Origin, Destination, Preferences, and GPS position and receives Route Results, Fare information, and AR Markers. While a route is being plotted, the system forwards the drawn path waypoints to the Mapbox Directions API and receives a road-snapped polyline with its distance back, which are stored as the direction's geometry; when no access token is configured or the upstream call fails, the system falls back to straight-line geometry so that route authoring always works offline.
 
 ##### FIGURE 3: Level 1 Data Flow Diagram
 
@@ -84,21 +86,21 @@ flowchart TD
     %% Actors
     Admin["Admin"]
     Commuter["Commuter"]
+    Mapbox["Mapbox Directions API"]
 
     %% Processes
     P1["P1<br>Route and Fare<br>Management"]
     P2["P2<br>Graph Construction"]
     P3["P3<br>Navigation and<br>Pathfinding"]
-    P4["P4<br>Trust Scoring"]
 
     %% Data Stores
-    DS1["DS1 Routes / stops / fare configs"]
+    DS1["DS1 Routes, directions, stops,<br>detours, restrictions, fare configs"]
     DS2["DS2 Transit graph (in-memory cache)"]
-    DS3["DS3 GPS Traces"]
 
-    %% Connections - Admin to P1
+    %% Connections - Admin and Mapbox to P1
     Admin <-->|"Confirmation"| P1
-    P1 <-->|"Route, fare,<br>stop data"| Admin
+    P1 <-->|"Route, stop, detour,<br>restriction and fare data"| Admin
+    Mapbox <-->|"Drawn waypoints /<br>snapped polyline"| P1
 
     %% Connections - P1 to DS1
     P1 -->|"write"| DS1
@@ -106,7 +108,7 @@ flowchart TD
 
     %% Connections - DS1 to P2 and P3
     DS1 -->|"read"| P2
-    DS1 -->|"fare config"| P3
+    DS1 -->|"fare configs and<br>restrictions"| P3
 
     %% Connections - P2 to DS2
     P2 -->|"rebuild"| DS2
@@ -115,25 +117,164 @@ flowchart TD
     DS2 -->|"read graph"| P3
 
     %% Connections - Commuter to P3
-    Commuter <-->|"Origin, Destination,<br>Preferences and GPS"| P3
+    Commuter <-->|"Origin, Destination,<br>Preferences and GPS Position"| P3
     P3 <-->|"Route Result,<br>Fare, Stops"| Commuter
 
-    %% Connections - Commuter to P4
-    Commuter -.->|"GPS Trace"| P4
-    P4 -.->|"Trust Badge"| Commuter
-
-    %% Connections - P4 to DS3 and DS2
-    P4 <-->|"read"| DS3
-    P4 -->|"update trust score"| DS2
-
-    %% Styling to create the horizontal lines in P1-P4
+    %% Styling to create the horizontal lines in P1-P3
     classDef process fill:#000000,stroke:#000,stroke-width:1.5,shape:stadium;
-    class P1,P2,P3,P4 process;
+    class P1,P2,P3 process;
 ```
 
-At Level 1 (System Diagram), four internal processes are exposed: P1 (Route and Fare Management), P2 (Graph Construction), P3 (Navigation and Pathfinding), and P4 (Trust Scoring). Three data stores support these processes: DS1 (Routes, Stops, and Fare Configs), DS2 (Transit Graph — In-Memory Cache), and DS3 (GPS Traces). Admin mutations to DS1 raise a dirty flag that invalidates DS2, triggering graph reconstruction by P2. Navigation requests to P3 consume the graph from DS2 and fare configuration from DS1 to produce route results for the Commuter. GPS Traces submitted by the Commuter are stored in DS3 and processed by P4 to update trust scores in DS1.
+At Level 1 (System Diagram), three internal processes are exposed: P1 (Route and Fare Management), P2 (Graph Construction), and P3 (Navigation and Pathfinding). Two data stores support these processes: DS1 (Routes, Directions, Stops, Detours, Restrictions, and Fare Configurations) and DS2 (Transit Graph — In-Memory Cache). Through P1 the Admin maintains the entire route inventory — each route's two direction polylines and ordered stop lists, nested detours, boarding and alighting restrictions, and LTFRB fare configurations — with plotted paths road-snapped through the Mapbox Directions API before they are written to DS1. Admin mutations to DS1 raise a dirty flag that invalidates DS2, triggering graph reconstruction by P2. Navigation requests from the Commuter are handled by P3, which reads the transit graph from DS2 together with the applicable fare configurations and restrictions from DS1 to produce route results. Hail-and-ride boarding at positions between formal stops is resolved per request: P3 projects the commuter's GPS position onto the nearest valid direction polyline, checks the position against the direction's boarding restrictions, and injects temporary virtual nodes and board edges that exist only for that request — they never persist and never enter the graph cache. The non-scored community trust-scoring add-on (GPS trace upload, Modified Hausdorff Distance comparison, and trust badges) is an optional extension outside these core flows and is therefore intentionally not modeled in the diagrams; it is described under Modified Hausdorff Distance for Trust Scoring later in this chapter.
 
 When an admin update (DS1 mutation) invalidates the graph (DS2), Process P2 immediately rebuilds the entire transit graph in memory from PostGIS and atomically swaps it into place, so the next commuter navigation request (P3) reads a consistent, up-to-date graph with no stale window. Because the transit network at this study's scale (10–12 routes) rebuilds in only milliseconds, a full eager rebuild is cheaper than any external cache round-trip, so no background worker or external cache is needed and no graph state is serialized outside the server's memory.
+
+#### PROCESS PSEUDOCODE
+
+The behavior of each Level 1 DFD process is specified below as pseudocode in standard algorithmic notation: each procedure declares its inputs, outputs, and data-store touches, uses capitalized keywords, and relies on indentation to delimit block structure. The listings describe the data transformation each process performs — reading from its input stores, updating state, and producing the flows shown in Figure 3 — and are followed by a brief discussion of how each process behaves in the system.
+
+##### P1: Route and Fare Management
+
+```
+Manage Route and Fare Data
+Input: administrative action, target entity, and payload data
+Output: confirmation or validation status returned to the Admin
+Reads/Writes: READS: DS1; WRITES: DS1; EXTERNAL: Mapbox Directions API (road snapping)
+ 1  START
+ 2  IF admin is not authenticated OR not authorized THEN
+ 3      RETURN validation status "unauthorized"
+ 4  END IF
+ 5  IF VALIDATE(entity, payload) fails THEN
+ 6      RETURN validation status "invalid payload"
+ 7  END IF
+ 8  IF action = "create" OR action = "update" THEN
+ 9      IF payload contains a newly drawn direction polyline THEN
+10          SET payload.polyline ← SNAP-TO-ROAD(payload.waypoints)
+             // road snapping via Mapbox Directions API;
+             // falls back to straight-line geometry when offline
+11      END IF
+12      IF creating the base direction of a new route THEN
+13          DERIVE the return direction from the base path
+             // stored as a separate, independently editable direction
+14      END IF
+15      WRITE(DS1, entity, payload)
+         // geometry stored as PostGIS LINESTRING/POINT
+16  ELSE IF action = "delete" THEN
+17      SOFT-DELETE(DS1, entity)
+         // is_active = FALSE; record retained
+18  ELSE IF action = "read" THEN
+19      RETURN { success, data: READ(DS1, entity, filters) }
+         // list/detail views for the admin dashboard, incl. export dataset
+20  END IF
+21  RAISE dirty flag on DS2
+     // invalidates the cached graph; triggers P2
+22  RETURN { success, data: confirmation }
+23  STOP
+```
+
+Process P1 is the implemented administrative core of the system: every route, direction, stop, detour, restriction, and fare configuration managed through the dashboard is validated against the shared Zod schemas, written to the PostGIS-backed store DS1, and confirmed back to the Admin. Drawn paths are road-snapped through the server's Mapbox Directions proxy so that stored direction geometry follows the actual road network whenever the service is reachable, with an automatic straight-line fallback so that route authoring never blocks on the third-party service. Only one travel direction is plotted by the Admin; the opposite direction is derived at save time and can then be edited independently, preserving the two-direction route model required for graph construction. Because any of these mutations changes the transit network, P1 concludes by raising the dirty flag that invalidates the in-memory graph (DS2), so the Admin never works against stale routing data.
+
+##### P2: Graph Construction
+
+```
+Manage Transit Graph Construction
+Input: none (triggered by server start or by the DS1 dirty flag)
+Output: fully rebuilt transit graph installed into DS2
+Reads/Writes: READS: DS1; WRITES: DS2 (in-memory cache, atomically swapped)
+ 1  START
+ 2  INITIALIZE newGraph as EMPTY directed graph
+ 3  FOR EACH active route r IN DS1 DO
+ 4      READ fareConfig from DS1.fare_configs using r.fare_config_id
+         // base fare, base distance, rate/km
+ 5      FOR EACH direction d OF route r DO
+        // both travel directions are modeled
+ 6          RETRIEVE stops of direction d ordered by stop_order
+ 7          IF number of stops < 2 THEN
+ 8              SKIP direction d
+ 9          END IF
+10          FOR index i FROM 1 TO (number of stops − 1) DO
+11              DEFINE node a as KEY(stops[i], d)
+                 // node key: stop_{stopId}_direction_{directionId}
+12              DEFINE node b as KEY(stops[i+1], d)
+13              CALCULATE km as HAVERSINE-KM(a.location, b.location)
+14              ADD route edge from a TO b WITH
+                     distance        ← km × 1000                 // meters
+                     marginalFare    ← fareConfig.rate_per_km × km
+                     transferPenalty ← 0
+                     walkMeters      ← 0
+15          END FOR
+16      END FOR
+17  END FOR
+18  RETRIEVE pairs from SPATIAL-QUERY(DS1)
+     // PostGIS ST_DWithin(::geography, 300) over stop pairs with differing directions
+19  FOR EACH pair (a, b) IN pairs DO
+20      ADD transfer edge from a TO b AND from b TO a WITH
+             distance        ← 0                  // no vehicle travel
+             marginalFare    ← 0
+             transferPenalty ← 1
+             walkMeters      ← HAVERSINE-M(a.location, b.location)
+21  END FOR
+22  SWAP-ATOMIC(DS2, newGraph)
+     // consistent reads with no stale window; detour-owned stops excluded (P3 injects per request)
+23  CLEAR dirty flag on DS2
+24  STOP
+```
+
+Process P2 transforms the relational route inventory of DS1 into the weighted directed graph that the pathfinding engine consumes. Each physical route contributes two sets of nodes — one per travel direction — keyed as stop_{stopId}_direction_{directionId}, because the same geographic position reached by opposite directions or by different routes represents distinct commuter states. Route edges connect consecutive stops along a direction and carry a haversine segment distance plus the marginal fare contributed by the direction's route fare configuration; transfer edges are discovered by a PostGIS 300-meter proximity query and carry the physical walking distance and a transfer penalty of one, so that a vehicle switch is never free in the cost model. Because detour stops are only reachable on demand, they are deliberately omitted from the default graph and injected at request time instead. The rebuild runs eagerly on every DS1 mutation and replaces the cached graph atomically, which at the study's network scale is faster and simpler than any external cache invalidation scheme.
+
+##### P3: Navigation and Pathfinding
+
+```
+Manage Navigation and Pathfinding
+Input: origin and destination, preference profile, commuter GPS position
+Output: route result to the Commuter: steps, per-leg fare, distance, transfers, and walk distance (no ETA)
+Reads/Writes: READS: DS2 (transit graph), DS1 (fare configs, restrictions)
+ 1  START
+ 2  // 1. Boarding and alighting resolution (request-scoped graph)
+ 3  SET (originVirtual, boardEdges) ← SNAP-BOARDING(origin, gpsPosition)
+     // project GPS onto the nearest valid direction polyline (ST_ClosestPoint, 25–50 m)
+     // reject restricted positions (no boarding allowed)
+     // create virtual origin node + board edges for hail-and-ride boarding
+ 4  SET (destNodes, alightEdges) ← SNAP-ALIGHTING(destination)
+     // apply alighting restrictions
+     // if destination is a detour-flagged stop, inject its detour path
+     // (entry → detour stops → exit) for this request only
+ 5  SET G' ← DS2 ∪ originVirtual ∪ boardEdges ∪ destNodes ∪ alightEdges ∪ injected detour edges
+
+ 6  // 2. Composite cost model (scalarized multi-criteria)
+ 7  SET (α, β, γ, δ) ← PROFILE-COEFFICIENTS(profile)        // TABLE 4, α+β+γ+δ = 1
+ 8  SET pools ← NORMALIZATION-POOLS(G')
+     // distance over route edges; fare over boarding + marginal fares;
+     // transfer over {0, 1}; walk over transfer and virtual walk edges
+ 9  FOR EACH edge e IN G' DO
+10      IF e is a board/transfer edge THEN
+11          SET e.fareRank ← baseFare                        // one-time charge on boarding
+12      ELSE
+13          SET e.fareRank ← e.marginalFare                   // rate_per_km × segment km
+14      END IF
+15      SET e.cost ← α·norm(e.distance) + β·norm(e.fareRank) + γ·norm(e.transferPenalty) + δ·norm(e.walkMeters)
+16  END FOR
+
+17  // 3. Label-setting Dijkstra over G' (non-negative weights ⇒ optimal, deterministic)
+18  SET labels ← LABEL-SETTING-DIJKSTRA(G', originVirtual, destNodes, costs)
+     // each label tracks (compositeCost, accumulatedRideDistance, ride)
+     // accumulatedRideDistance resets to 0 whenever a transfer edge is traversed
+
+19  // 4. Result assembly (displayed values, exact per-leg LTFRB)
+20  SET path ← RECONSTRUCT-PATH(labels)
+21  SET legs ← SPLIT-AT-TRANSFERS(path)                      // each leg = one continuous vehicle ride
+22  FOR EACH leg IN legs DO
+23      SET legKm ← Σ(haversine distances of the leg's route edges)
+24      SET fareConfig ← fare config of the leg's route
+25      SET displayedFare ← LTFRB-FARE(legKm, fareConfig)
+         // base_fare + max(0, legKm − base_distance_km) × rate_per_km
+         // student/senior discount % applied when the commuter profile is eligible
+26  END FOR
+27  RETURN { success, data: { legs, totalFare, transfers, totalWalkMeters } }
+28  STOP
+```
+
+Process P3 serves the commuter-facing navigation flow. Because hail-and-ride boarding can occur anywhere along a valid corridor and not only at formal stops, P3 first projects the commuter's GPS position onto the nearest direction polyline, checks the position against the direction's boarding restrictions, and builds request-scoped virtual nodes and board edges that exist only for that query and never enter the graph cache; a detour-flagged destination likewise injects its detour path on demand. The engine then applies the preference profile's weight coefficients to per-pool normalized edge costs — distance, fare, transfer inconvenience, and walking — and runs a label-setting extension of Dijkstra's algorithm whose labels carry the accumulated ride distance so that a transfer correctly re-bases the fare computation. The returned route is reported with the exact LTFRB fare recomputed per vehicle leg, per-leg distance, number of transfers, and walking distance, with no ETA anywhere in the output, consistent with the design constraints of the system.
 
 ### DESIGN SPECIFICATION
 
