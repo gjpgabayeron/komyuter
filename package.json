@@ -5,6 +5,7 @@
     "dev": "turbo run dev",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p packages/ui/tsconfig.json && tsc --noEmit -p apps/admin/tsconfig.json && pnpm --filter mobile typecheck && tsc --noEmit -p apps/server/tsconfig.json && tsc --noEmit -p packages/shared/tsconfig.json",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
     "prepare": "husky"
