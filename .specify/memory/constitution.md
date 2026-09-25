@@ -1,5 +1,22 @@
 <!--
   SYNC IMPACT REPORT
+  === 1.1.0 (2026-09-25) ===
+  Version change: 1.0.0 → 1.1.0
+  Modified principles: n/a — no principle changed
+  Added sections: n/a
+  Amended sections:
+    - Engineering Workflow & Quality Gates — tests became a mandatory pre-merge gate and the
+      admin suite runs in CI (TEST_GATE amendment; see that section)
+  Removed sections: n/a
+  Templates requiring updates:
+    - .specify/templates/plan-template.md         ✅ no change (gates are populated per-plan
+      from this file; plans must now list the test gate in the Engineering Workflow row)
+    - .specify/templates/spec-template.md         ✅ no change
+    - .specify/templates/tasks-template.md        ✅ no change
+    - .specify/templates/constitution-template.md ✅ no change (canonical template source)
+  Follow-up TODOs: n/a
+
+  === 1.0.0 (initial fill-in) ===
   Version change: (template placeholders) → 1.0.0
   Modified principles: n/a — initial fill-in of template placeholders
   Added sections:
@@ -17,9 +34,11 @@
       state; no test task defined)
     - .specify/templates/constitution-template.md ✅ no change (canonical template source)
   Follow-up TODOs:
-    - TEST_STRATEGY: no test runner is configured in the repo (turbo.json defines no `test`).
-      Decision required at planning time whether to adopt a runner; see Engineering Workflow
-      section for the standing rule until then.
+    - TEST_STRATEGY: RESOLVED — a runner was adopted (Vitest, 2026-07-31) and the gate was made
+      mandatory and enforced in CI (2026-09-25). The original note read: "no test runner is
+      configured in the repo (turbo.json defines no `test`). Decision required at planning time
+      whether to adopt a runner; see Engineering Workflow section for the standing rule until
+      then."
 -->
 
 # Komyuter Constitution
@@ -115,8 +134,12 @@ cannot be validated.
   `@repo/eslint-config` or any `.eslintrc.*` files.
 - Prettier uses `.prettierrc.json` (semicolons, double quotes); the five root design docs are
   prettier-ignored.
-- Quality gates: `pnpm lint`, `pnpm typecheck`, and `pnpm format:check` MUST pass before
-  merge. `.husky/pre-commit` runs lint-staged (eslint + prettier --check, no auto-fix);
+- Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, and the admin test suite
+  (`pnpm --filter admin test`) MUST pass before merge, and all four are enforced by CI
+  (`.github/workflows/ci.yml`). The server suite (`pnpm --filter server test`) MUST pass before
+  merge whenever a change touches `apps/server` or `packages/shared`; its integration half needs
+  the local Supabase stack, so it stays a local obligation rather than a CI step.
+  `.husky/pre-commit` runs lint-staged (eslint + prettier --check, no auto-fix);
   `.husky/commit-msg` enforces conventional commits (`type(scope): description`).
 - TEST_STRATEGY (amended 2026-07-31): a test runner (**Vitest**) is permitted for workspace
   apps; each app that defines tests contributes a `test` task to `turbo.json`. Rationale:
@@ -124,6 +147,11 @@ cannot be validated.
   verification that manual checks cannot prove on every change (Principle V). Migration note:
   this PATCH supersedes the earlier standing rule that no test task existed; earlier plans and
   docs that reference a missing `test` task are historical, not normative.
+- TEST_GATE (amended 2026-09-25): the admin Vitest suite became a mandatory pre-merge gate and
+  runs in CI. Rationale: 311 hermetic tests existed and no workflow executed them, leaving lint,
+  types, and formatting as the only automatic guards — none of which observe logic or state
+  defects. Migration note: plans must list the test gate in their Constitution Check
+  "Engineering Workflow" row alongside lint/typecheck/format (e.g. `specs/012-…/plan.md`).
 - UI work MUST load `PRODUCT.md` and `DESIGN.md` first; DESIGN wins on visual decisions,
   PRODUCT wins on strategic/voice decisions. The visual grammar is "The Route Sign" — flat
   enamel sign-plate surfaces, pure white ground, signboard green-blue plus signal amber,
@@ -149,4 +177,4 @@ cannot be validated.
 - `docs/CONTEXT.md` is the authoritative glossary; terms MUST be added there before use
   (Principle IV).
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-31 | **Last Amended**: 2026-07-31
+**Version**: 1.1.0 | **Ratified**: 2026-07-31 | **Last Amended**: 2026-09-25

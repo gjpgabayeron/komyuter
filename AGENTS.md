@@ -2,17 +2,17 @@
 
 ## Repo state: what actually exists
 
-- This repo started as the `create-turbo` "with-vite-react" starter. It now also contains the backend and shared packages:
-  - `apps/web` — React 18 + Vite 5 + TS app
+- This repo started as the `create-turbo` "with-vite-react" starter. It now also contains the admin dashboard, backend, and shared packages:
+  - `apps/admin` — React 18 + Vite 5 + TS admin dashboard (MapLibre GL, zustand, React Query)
   - `apps/server` — Fastify v5 admin API (`@komyuter/server`), TDD'd against the local Supabase stack
   - `apps/mobile` — Expo app (from a later starter import)
-  - `packages/ui` (`@repo/ui`), `packages/eslint-config` (`@repo/eslint-config`), `packages/typescript-config` (`@repo/typescript-config`), `packages/shared` (`@komyuter/shared`)
+  - `packages/ui` (`@repo/ui`), `packages/typescript-config` (`@repo/typescript-config`), `packages/shared` (`@komyuter/shared`)
 - The root `*.md` docs (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **design documents** for the target thesis system (Expo mobile app, admin dashboard, Fastify server, PostGIS, Supabase Auth). They are NOT a current file map — trust the code and `specs/001-local-supabase-backend/` for the backend. (`docs/adr/` and `CONTEXT.md` DO exist — they hold the design decisions and glossary.)
 - Design decisions are recorded in `docs/adr/0001-…md` and the glossary in `CONTEXT.md`. The root design docs have been reconciled with those decisions; where a doc still disagrees, the ADR wins.
 - Historically the docs contradicted each other and the config; resolved now:
   - Backend framework: **Fastify v5** (ADR-0004). `SUMMARY.md`'s Express references are superseded.
   - pnpm: docs claim 9+/10.12+; root `package.json` pins `"packageManager": "pnpm@8.15.6"`. Trust package.json.
-  - `SUMMARY.md` claims Husky/commitlint/lint-staged, CI workflows, docker-compose — lint-staged/commitlint/Husky ARE configured; CI workflows and docker-compose are not.
+  - `SUMMARY.md` claims Husky/commitlint/lint-staged, CI workflows, docker-compose — lint-staged/commitlint/Husky ARE configured and CI exists (`.github/workflows/ci.yml`); docker-compose is not.
 
 ## Commands
 
@@ -20,7 +20,10 @@
 - `pnpm lint` — **single root ESLint 9 flat config** (`eslint.config.mjs`); runs `eslint .` repo-wide. Per-package lint scripts were removed; eslint lives only at root.
 - `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/admin`, `apps/mobile`, `apps/server`, and `packages/shared`. (The `apps/web` starter app was removed from the repo in commit `c9bf984`.)
 - `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five root design docs are in `.prettierignore`.
-- **Tests**: `pnpm --filter server test` runs Vitest on `apps/server` (unit + integration). The integration suite requires the local Supabase stack up and `apps/server/.env` present. `turbo.json` has no `test` task — there is no repo-wide `pnpm test`.
+- **Tests**: `pnpm test` runs `turbo run test`. Two suites:
+  - `apps/admin` (`pnpm --filter admin test`) — 23 files / 311 tests, pure node-env helpers (plotting + detour stores, coords, draft, geometry). Hermetic, ~5 s, no database. **This is what CI runs.**
+  - `apps/server` (`pnpm --filter server test`) — unit + integration. The integration half drops and recreates `komyuter_test` and needs the local Supabase stack up plus `apps/server/.env`; it is local-only.
+- CI (`.github/workflows/ci.yml`) runs `format:check`, `lint`, `typecheck`, the **admin test suite**, and `build`, in that order. Server tests are a local pre-merge obligation.
 - Hooks: `.husky/pre-commit` runs lint-staged (`eslint` + `prettier --check` on staged files, no auto-fix) and a warn-only branch-name check; `.husky/commit-msg` enforces conventional commits via commitlint (`commitlint.config.cjs`, scopes are warn-level).
 - Install with pnpm (workspace deps use `workspace:*`); `.npmrc` sets `auto-install-peers = true`.
 
