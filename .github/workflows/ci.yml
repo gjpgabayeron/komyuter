@@ -29,5 +29,11 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # Hermetic subset: apps/admin's suite runs in the node environment with no
+      # database. apps/server's integration half needs a live Supabase stack, so it
+      # stays a local pre-merge obligation rather than a CI step.
+      - name: Test (admin)
+        run: pnpm --filter admin test
+
       - name: Build
         run: pnpm build
