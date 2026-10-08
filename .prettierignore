@@ -4,13 +4,12 @@ dist
 pnpm-lock.yaml
 supabase/.temp
 
-# Root design docs use table/bold formatting that Prettier would mangle
-/OVERVIEW.md
-/TECHSTACK.md
-/SCHEMA.md
-/SUMMARY.md
-/BACKEND.md
-/SCAFFOLD.md
+# Design docs use table/bold formatting that Prettier would mangle
+/docs/OVERVIEW.md
+/docs/TECHSTACK.md
+/docs/SCHEMA.md
+/docs/SUMMARY.md
+/docs/BACKEND.md
 
 # OpenWiki output is generated (Markdown plus .claims/*.json sidecars) and the
 # hand-authored openwiki/INSTRUCTIONS.md sits beside it. format:check globs
