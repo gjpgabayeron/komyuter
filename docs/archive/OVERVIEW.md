@@ -1,3 +1,11 @@
+> **ARCHIVED 2026-10-08 — superseded.** This describes the _target_ system as planned, not what
+> the repository contains today. It is kept for provenance: the ADRs cite it as the source of
+> positions they later overturned, and line numbers in those citations refer to the
+> pre-archive revision of this file.
+>
+> For current behaviour, trust instead: `docs/ADMIN.md` (the admin surface), `README.md` (how
+> the system is described and laid out), and `docs/adr/` (the decisions, which win).
+
 # Komyuter — Project Overview
 
 **Undergraduate Thesis** | Iloilo Science and Technology University (ISATU)

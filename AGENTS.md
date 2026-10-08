@@ -7,44 +7,46 @@
   - `apps/server` — Fastify v5 admin API (`@komyuter/server`), TDD'd against the local Supabase stack
   - `apps/mobile` — Expo app (from a later starter import)
   - `packages/ui` (`@repo/ui`), `packages/typescript-config` (`@repo/typescript-config`), `packages/shared` (`@komyuter/shared`)
-- The root `*.md` docs (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **design documents** for the target thesis system (Expo mobile app, admin dashboard, Fastify server, PostGIS, Supabase Auth). They are NOT a current file map — trust the code and `specs/001-local-supabase-backend/` for the backend. (`docs/adr/` and `CONTEXT.md` DO exist — they hold the design decisions and glossary.)
-- Design decisions are recorded in `docs/adr/0001-…md` and the glossary in `CONTEXT.md`. The root design docs have been reconciled with those decisions; where a doc still disagrees, the ADR wins.
+- **Which document to trust.** Design decisions live in `docs/adr/0001-…md`, and **the ADR wins wherever any other document disagrees**. The glossary is `docs/CONTEXT.md`; the milestone plan (order, deliverables, exit criteria) is `docs/ROADMAP.md`; the admin surface as built is `docs/ADMIN.md`; `openwiki/` describes how the system works today; `specs/` holds per-feature specifications.
+- The design docs for the target thesis system (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **not** a current file map, and the code contradicts them in places. Four were **archived on 2026-10-08** into `docs/archive/` (`OVERVIEW.md`, `SUMMARY.md`, `SCHEMA.md`, `TECHSTACK.md`) with provenance headers. `docs/BACKEND.md` deliberately stays put: it is the conceptual reference for the routing/AR/trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line number. For the backend, trust the code and `specs/001-local-supabase-backend/`.
 - Historically the docs contradicted each other and the config; resolved now:
-  - Backend framework: **Fastify v5** (ADR-0004). `SUMMARY.md`'s Express references are superseded.
+  - Backend framework: **Fastify v5** (ADR-0004). `docs/archive/SUMMARY.md`'s Express references are superseded.
   - pnpm: docs claim 9+/10.12+; root `package.json` pins `"packageManager": "pnpm@8.15.6"`. Trust package.json.
-  - `SUMMARY.md` claims Husky/commitlint/lint-staged, CI workflows, docker-compose — lint-staged/commitlint/Husky ARE configured and CI exists (`.github/workflows/ci.yml`); docker-compose is not.
+  - `docs/archive/SUMMARY.md` claims Husky/commitlint/lint-staged, CI workflows, docker-compose — lint-staged/commitlint/Husky ARE configured and CI exists (`.github/workflows/ci.yml`); docker-compose is not.
+  - Deployments: nothing is hosted yet and no deployment automation exists. `docs/ROADMAP.md` **M1** is the staging deploy and **M4** the CI/CD milestone; `docs/adr/0018-deployment-topology.md` is the agreed topology.
 
 ## Commands
 
 - `pnpm dev` / `pnpm build` — turbo pipelines across all packages (see `turbo.json`).
 - `pnpm lint` — **single root ESLint 9 flat config** (`eslint.config.mjs`); runs `eslint .` repo-wide. Per-package lint scripts were removed; eslint lives only at root.
-- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/admin`, `apps/mobile`, `apps/server`, and `packages/shared`. (The `apps/web` starter app was removed from the repo in commit `c9bf984`.)
-- `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five root design docs are in `.prettierignore`.
+- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/admin`, `apps/mobile`, `apps/server`, and `packages/shared`. (The `apps/web` starter app was removed from the repo in commit `c9bf984`; no config may reference it.)
+- `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five design docs are in `.prettierignore` — four under `docs/archive/` plus `docs/BACKEND.md`. Keep those paths in step with any further move, or `format:check` starts policing historical documents that were never Prettier-clean.
 - **Tests**: `pnpm test` runs `turbo run test`. Two suites:
-  - `apps/admin` (`pnpm --filter admin test`) — 23 files / 311 tests, pure node-env helpers (plotting + detour stores, coords, draft, geometry). Hermetic, ~5 s, no database. **This is what CI runs.**
+  - `apps/admin` (`pnpm --filter admin test`) — 23 files / 311 tests, pure node-env helpers (plotting + detour stores, coords, draft, geometry). Hermetic, ~12 s, no database. **This is what CI runs.**
   - `apps/server` (`pnpm --filter server test`) — unit + integration. The integration half drops and recreates `komyuter_test` and needs the local Supabase stack up plus `apps/server/.env`; it is local-only.
-- CI (`.github/workflows/ci.yml`) runs `format:check`, `lint`, `typecheck`, the **admin test suite**, and `build`, in that order. Server tests are a local pre-merge obligation.
+- CI (`.github/workflows/ci.yml`) runs `format:check`, `lint`, `typecheck`, the **admin test suite**, and `build`, in that order. Server tests are a local pre-merge obligation, so a server-side regression can merge green — see `docs/ROADMAP.md` (M4) where that gap is recorded as a known risk.
 - Hooks: `.husky/pre-commit` runs lint-staged (`eslint` + `prettier --check` on staged files, no auto-fix) and a warn-only branch-name check; `.husky/commit-msg` enforces conventional commits via commitlint (`commitlint.config.cjs`, scopes are warn-level).
 - Install with pnpm (workspace deps use `workspace:*`); `.npmrc` sets `auto-install-peers = true`.
 
 ## Conventions that matter
 
 - TS is strict via shared `@repo/typescript-config` (`strict: true`). Extend it; don't redefine tsconfigs from scratch.
-- ESLint is a **single root flat config** (`eslint.config.mjs`): `@eslint/js` + `typescript-eslint` (non-type-aware), react-hooks/react-refresh rules, browser globals for `apps/web` + `packages/ui`, node globals for config files. `@repo/eslint-config` and all `.eslintrc.*` files were removed — do not recreate them.
+- ESLint is a **single root flat config** (`eslint.config.mjs`): `@eslint/js` + `typescript-eslint` (non-type-aware), react-hooks/react-refresh rules, browser globals for `packages/ui` + `apps/admin`, node globals for config files. `@repo/eslint-config` and all `.eslintrc.*` files were removed — do not recreate them.
 - **Spatial data — coordinate order `[longitude, latitude]` everywhere** (GeoJSON, PostGIS `ST_MakePoint`, MapLibre/Mapbox GL). `[lng, lat]` is the sole format in the admin UI — MapLibre consumes it natively, so there is **no conversion layer** (ADR-0013 supersedes ADR-0007's old Leaflet exception, which never shipped a converter). Docs call this the single most dangerous pitfall — a swapped pair puts stops in the ocean.
 - For meter-based PostGIS math, always cast `::geography`; raw geometry returns degrees.
-- Fare is the LTFRB formula (`base_fare + max(0, dist_km - base_distance_km) × rate_per_km`; defaults ₱13 / 4km / ₱1.80, 20% student/senior). Planned shared package `@komyuter/shared` owns `fareCalculator` + shared types — reuse, never reimplement. The **displayed** fare is always the exact per-leg total; the Dijkstra **internal** cost is base-on-board + marginal ₱1.80/km (ADR-0001). Don't "fix" the internal cost into per-edge LTFRB — it's deliberate.
+- Fare is the LTFRB formula (`base_fare + max(0, dist_km - base_distance_km) × rate_per_km`; defaults ₱13 / 4km / ₱1.80, 20% student/senior). `@komyuter/shared` owns the shared types and zod schemas; the rule itself is still to be extracted into it as `fareCalculator` (roadmap `R5`, delivered in `docs/ROADMAP.md` **M3**) — reuse, never reimplement. The **displayed** fare is always the exact per-leg total; the Dijkstra **internal** cost is base-on-board + marginal ₱1.80/km (ADR-0001). Don't "fix" the internal cost into per-edge LTFRB — it's deliberate.
 - Routes are modeled as two **directions**, each with its own polyline and ordered stop list (`stop_{stopId}_direction_{directionId}` nodes). Never reverse one polyline for the return trip (ADR-0008).
 - Hail-and-ride boarding at non-stop positions uses request-time **virtual nodes + board edges**; they never persist and never enter the graph cache.
 - Normalization is per-edge-type (distance/walk/fare/transfer pools), clamped to [0,1]; transfer-edge distance = 0 (ADR-0002).
-- Trust scoring (MHD) is **informational only** — never a Dijkstra weight (panel constraint). Trace validity uses a max-speed discriminator (10–45 km/h), not average speed (ADR-0003).
+- Trust scoring (MHD) is **informational only** — never a Dijkstra weight (panel constraint). Trace validity uses a max-speed discriminator (10–45 km/h), not average speed (ADR-0003). No `traces` table, endpoint or shared types exist yet, so calibration data cannot be collected until the mobile app ships.
 - **No ETA anywhere** — navigation output is distances, fare, transfers, walk distance only (ADR-0009).
 - AR is location-based Geo-AR (expo-camera + expo-sensors), only during walking/transfer segments — never during rides, never ARCore/ARKit.
-- Authentication is Supabase Auth: admin-gated CRUD, commuter app anonymous with optional sign-in (ADR-0006). No DIY JWT.
+- Authentication is Supabase Auth: admin-gated CRUD, commuter app anonymous with optional sign-in (ADR-0006). No DIY JWT. Authorization is **Roles + Permissions**, decided in ADR-0019 and not yet implemented: until M2a lands, `admin_users` membership is still the whole rule (`apps/server/src/api/auth.ts`).
 - Documented API envelope: `{ success, data | error }`. Commit messages: `type(scope): description` (enforced by commitlint).
 - **Server (`apps/server`) quality gates**: `pnpm --filter server typecheck` and `pnpm --filter server test` must pass before commit. Tests are written FIRST per `specs/001-local-supabase-backend/tasks.md` (TDD: red before implementation).
 - **Server conventions**: Fastify v5 with `@fastify/type-provider-zod` (zod schemas from `@komyuter/shared`); drizzle-orm against Postgres/PostGIS; a single injectable `buildApp({ db, supabase })` with `AppDeps`/`AppInstance` types in `apps/server/src/api/app.ts`; admin routes registered under `/api/admin` with the Supabase auth guard; responses always use the `{ success, data | error }` envelope (error codes in `src/api/errors.ts`, handled centrally in `app.ts`). Geometry write/read goes through `src/db/queries.ts` (`ST_GeomFromGeoJSON` / `ST_AsGeoJSON`); entity validation lives in `src/domain/validation.ts`; the export assembler is `src/domain/export.ts`. `.env` is gitignored and auto-loaded by `src/config/env.ts` (guard is idempotent when tests pre-load it).
 - Numeric columns in drizzle are string mode (no `mode: "number"` option in drizzle-orm 0.36.x) — convert with `Number()` at the handler layer.
+- **Concurrent plotting is not safe yet.** The direction/route save path is a blind overwrite with no version precondition, and the conflict message in the workspace claims a check the server does not perform. Two people on one Direction lose work silently until `docs/ROADMAP.md` **M2c** / `docs/adr/0020-concurrent-plotting-safety.md` land.
 
 ## Design Context
 
@@ -55,8 +57,9 @@
 <!-- SPECKIT START -->
 
 For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
-at C:\ProgrammingFiles\Projects\School Activities\Thesis\komyuter\specs\012-alternative-route-plotting\plan.md
+shell commands, and other important information, read the milestone plan
+at C:\ProgrammingFiles\Projects\School Activities\Thesis\komyuter\docs\ROADMAP.md
+(the most recent per-feature plan is specs/012-alternative-route-plotting/plan.md)
 <!-- SPECKIT END -->
 
 <!-- OPENWIKI:START -->

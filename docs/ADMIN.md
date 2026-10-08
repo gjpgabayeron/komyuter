@@ -202,9 +202,11 @@ The workspace is a **four-state machine** derived from (selection, draft):
 
 Pure logic lives in `lib/` and is unit-tested: `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
 
-**Tests:** 21 Vitest suites in `apps/admin/src/tests` (node env). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
+**Tests:** 23 Vitest suites / 311 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
 
 ## 6. Roadmap — planned & upcoming
+
+Milestone grouping, order and exit criteria live in `docs/ROADMAP.md`, which is the milestone authority. The table below stays here because the admin-surface item list and its FR/SC references are not duplicated anywhere else.
 
 Everything below is **not yet implemented**. It is the documented intent so the team has a roadmap.
 
@@ -374,6 +376,8 @@ apps/admin/src/
 14. **Prettier** — this file is formatted by Prettier (`pnpm format:check`); keep tables/pipes Prettier-clean.
 
 ## 12. Roadmap task plan
+
+The milestones these items are grouped into, with the exit criterion for each, are in `docs/ROADMAP.md`.
 
 Current workspace (ADR-0014/0015) is **done**. Remaining, in order:
 
@@ -590,23 +594,28 @@ discounted = fare × (1 - discount_rate)
 
 ## Appendix F — ADR index (`docs/adr/`)
 
-| ADR  | Decision                                                                                     | Status                                              |
-| ---- | -------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| 0001 | Fare-ranking cost = base-on-board + marginal ₱1.80/km                                        | live                                                |
-| 0002 | Per-edge-type normalization, clamped [0,1]; transfer distance 0                              | live (routing)                                      |
-| 0003 | Trace validity via max-speed discriminator (10–45 km/h)                                      | live (routing)                                      |
-| 0004 | Backend framework = Fastify v5                                                               | live                                                |
-| 0005 | No Redis — local Postgres state                                                              | live                                                |
-| 0006 | Supabase Auth — admin-gated CRUD, anonymous commuter                                         | live                                                |
-| 0007 | Admin Leaflet map                                                                            | **superseded by 0013** — never ship the Leaflet map |
-| 0008 | Detour replacement model (data model)                                                        | live                                                |
-| 0009 | No ETA anywhere                                                                              | live                                                |
-| 0010 | Single-region dataset (Iloilo)                                                               | live                                                |
-| 0011 | Auto-derived return direction (reverse of base)                                              | live                                                |
-| 0012 | Detour conditional triggers — **planned** (requirements in this doc, §6 R2; no ADR file yet) | planned                                             |
-| 0013 | Admin MapLibre + Mapbox directions proxy; `[lng, lat]`; one instance                         | live                                                |
-| 0014 | Admin workspace layers (fixed 256/336 columns, full-bleed map)                               | live                                                |
-| 0015 | Workspace floating plates over the map (five-track grid)                                     | live                                                |
+| ADR  | Decision                                                                         | Status                                              |
+| ---- | -------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 0001 | Fare-ranking cost = base-on-board + marginal ₱1.80/km                            | live                                                |
+| 0002 | Per-edge-type normalization, clamped [0,1]; transfer distance 0                  | live (routing)                                      |
+| 0003 | Trace validity via max-speed discriminator (10–45 km/h)                          | live (routing)                                      |
+| 0004 | Backend framework = Fastify v5                                                   | live                                                |
+| 0005 | No Redis — local Postgres state                                                  | live                                                |
+| 0006 | Supabase Auth — admin-gated CRUD, anonymous commuter                             | live                                                |
+| 0007 | Admin Leaflet map                                                                | **superseded by 0013** — never ship the Leaflet map |
+| 0008 | Detour replacement model (data model)                                            | live                                                |
+| 0009 | No ETA anywhere                                                                  | live                                                |
+| 0010 | Single-region dataset (Iloilo)                                                   | live                                                |
+| 0011 | Auto-derived return direction (reverse of base)                                  | live                                                |
+| 0012 | Detour conditional triggers — ADR file exists; implemented in milestone M3       | planned                                             |
+| 0013 | Admin MapLibre + Mapbox directions proxy; `[lng, lat]`; one instance             | live                                                |
+| 0014 | Admin workspace layers (fixed 256/336 columns, full-bleed map)                   | live                                                |
+| 0015 | Workspace floating plates over the map (five-track grid)                         | live                                                |
+| 0016 | Require `MAPBOX_SECRET_TOKEN`; remove mock/OSM fallbacks                         | **proposed** — not yet implemented                  |
+| 0017 | Backend navigation runtime — keep Node CRUD, extract a native navigation service | decided — seam only, no migration                   |
+| 0018 | Deployment topology and production data plane                                    | decided — implemented in milestone M1               |
+| 0019 | Authorization model — Roles as data, Super Admin as ownership                    | decided — implemented in milestones M2a and M2b     |
+| 0020 | Concurrent-plotting safety — version stamp and client-side merge                 | decided — implemented in milestone M2c              |
 
 ## Appendix G — API surface (`apps/server/src/api/`)
 

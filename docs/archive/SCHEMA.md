@@ -1,3 +1,15 @@
+> **ARCHIVED 2026-10-08 — superseded.** This is a schema _proposal_ ("Route Schema & Design
+> Decisions Reference", April 2026, addressed to "AI Conversation Instances & Development
+> Team"), not the schema as built. It is kept for provenance: the ADRs cite it as the source of
+> positions they later overturned (ADR-0009 on ETA, ADR-0011 on separately plotted directions),
+> and line numbers in those citations refer to the pre-archive revision of this file.
+>
+> For current behaviour, trust instead: `apps/server/src/db/schema.ts` (the real Drizzle
+> schema), `packages/shared/src/schemas/` (the validation contracts), `supabase/migrations/`
+> (the applied DDL) and `specs/001-local-supabase-backend/` (the data model as built). Its §7
+> "Implementation Checklist for AI Instances" is a second instruction surface for AI
+> assistants; `AGENTS.md` is the one that governs.
+
 **KOMYUTER**
 
 Route Schema & Design Decisions Reference

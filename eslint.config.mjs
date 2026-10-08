@@ -6,8 +6,8 @@ import globals from "globals";
 import prettier from "eslint-config-prettier";
 import expoFlat from "eslint-config-expo/flat.js";
 
+// apps/web was removed in c9bf984; only the shared UI package and the admin dashboard remain.
 const webUiFiles = [
-  "apps/web/**/*.{ts,tsx}",
   "packages/ui/**/*.{ts,tsx}",
   "apps/admin/**/*.{ts,tsx}",
 ];

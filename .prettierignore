@@ -4,11 +4,13 @@ dist
 pnpm-lock.yaml
 supabase/.temp
 
-# Design docs use table/bold formatting that Prettier would mangle
-/docs/OVERVIEW.md
-/docs/TECHSTACK.md
-/docs/SCHEMA.md
-/docs/SUMMARY.md
+# Design docs use table/bold formatting that Prettier would mangle. Four of the five have been
+# archived under /docs/archive — keep those exclusions in step with the move, or format:check
+# starts policing historical documents that were never Prettier-clean.
+/docs/archive/OVERVIEW.md
+/docs/archive/TECHSTACK.md
+/docs/archive/SCHEMA.md
+/docs/archive/SUMMARY.md
 /docs/BACKEND.md
 
 # OpenWiki output is generated (Markdown plus .claims/*.json sidecars) and the

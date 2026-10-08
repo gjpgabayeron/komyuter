@@ -36,7 +36,7 @@ description: "Task list for backend language migration feasibility study"
   - `navbench/shared/` — shared workload definitions + I/O TS types
   - `navbench/scripts/` — run/validation scripts
 - Decision ADR: `docs/adr/0017-runtime-for-backend-navigation.md`
-- Docs: `CONTEXT.md` (glossary), root `TECHSTACK.md` / `OVERVIEW.md`
+- Docs: `docs/CONTEXT.md` (glossary), `docs/archive/TECHSTACK.md` / `docs/archive/OVERVIEW.md` (superseded design docs, archived for provenance)
 
 ---
 
@@ -163,7 +163,7 @@ description: "Task list for backend language migration feasibility study"
 
 - [x] T033 [P] Run the `quickstart.md` validation: all 5 scenarios mapped to SC-001…SC-007 pass
 - [x] T034 [P] Finalize `navbench/README.md`: findings summary, reproducibility notes (seeded RNG, pinned toolchain versions recorded in `navbench/results/env-notes.md`), and link to `docs/adr/0017-*.md` + `navbench/results/recommendation.md`
-- [x] T035 Update root design docs (`TECHSTACK.md` / `OVERVIEW.md`) with a pointer to ADR-0017 and the feasibility-study status (no production code touched)
+- [x] T035 Update the design docs (`TECHSTACK.md` / `OVERVIEW.md`, since archived under `docs/archive/`) with a pointer to ADR-0017 and the feasibility-study status (no production code touched)
 
 **Checkpoint**: The feasibility study is complete, reproducible, and documented; the decision ADR and PoC stand as the deliverable.
 

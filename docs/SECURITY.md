@@ -1,6 +1,6 @@
 # SECURITY — Komyuter Authentication & Identity: Audit Findings
 
-**Status**: Investigation report — findings, evidence, and recommendations. RBAC direction decided (§6.2); the session strategy (§6.1) is still open. Findings from this report have since been actioned by `specs/009-auth-quick-wins` (see §0 resolution table); the open items are S2/E1/E2/R4/L4/L5/M1/R3.
+**Status**: Investigation report — findings, evidence, and recommendations. **Findings only: the decisions this report once carried now live in ADRs.** RBAC is decided in `docs/adr/0019-authorization-model.md`, which supersedes the 2026-08 direction recorded in §6.2; the session strategy (§6.1) is still open. Findings from this report have since been actioned by `specs/009-auth-quick-wins` (see §0 resolution table); the open items are S2/E1/E2/R4/L4/L5/M1/R3.
 
 **Scope**: `apps/server` (Fastify + Supabase Auth), `apps/admin` (SPA), `supabase/` (config + migrations + seed), and the commuter app gap (`apps/mobile`).
 
@@ -144,9 +144,22 @@ The `localStorage` token plus the missing refresh/401 flow (S1 + L1) means an ho
 
 Option A (HttpOnly cookie + server-held session/refresh + revocation endpoints) vs Option B (keep Bearer + `localStorage`, add refresh + proactive expiry handling). Choice affects S1, L1, L2, and the amount of client/server rework.
 
-### 6.2 RBAC — Discord-Permissions-style granular control (decided)
+### 6.2 RBAC — Roles, Permissions and Super Admin (2026-08 direction **superseded**)
 
-**Decisions (2026-08)**
+**Superseded 2026-10-08 by [`adr/0019-authorization-model.md`](../adr/0019-authorization-model.md), which is now the authority.** The detail below is kept as the historical record on purpose: a report that deletes the decision it once took loses the reasoning, and reading the ADR without this record is how the divergence went unnoticed for a full design pass.
+
+ADR-0019 keeps this section's core — permission **bits**, one canonical constant list in `@komyuter/shared`, per-request Postgres revalidation so revocation is instant, and evolving the R1 seam into `requirePermission` — and changes four points:
+
+| Point             | Decided here (2026-08)                       | ADR-0019 (authoritative)                                              |
+| ----------------- | -------------------------------------------- | --------------------------------------------------------------------- |
+| Roles per Account | many-to-many via `admin_user_roles`          | exactly one — `admin_users.role_id`                                   |
+| Super Admin       | "the seeded admin gets a role with all bits" | an immutable ownership **property**, not a Role                       |
+| Hierarchy         | none — "no role hierarchy"                   | **grant-subset** guard: you cannot grant a Permission you do not hold |
+| Role management   | gated to `ADMIN_MANAGE` holders              | the Super Admin only                                                  |
+
+This section's concrete initial permission set (`ROUTES_EDIT`, `FARES_EDIT`, `EXPORT_DATASET`, `MAPBOX_GEOSERVICES`, `ADMIN_MANAGE`) is adopted by ADR-0019 rather than reinvented. The findings this decision responded to are unchanged and still valid: all-or-nothing membership and the missing `disabled`/audit columns on `admin_users` (§2.3 R3, R4), and the seam duplication RBAC extends (§2.3 R1).
+
+**Decisions (2026-08 — historical record, see the supersession note above)**
 
 - **Scope**: admin dashboard only. The commuter app stays anonymous (ADR-0006); commuter identity is only for future trace dedup, never permissions.
 - **Model**: global permission **bits** per role — no per-entity overwrites, no role hierarchy, no deny semantics (denial = absent bit). Roles attach to users via the existing Supabase identity (`auth.users.id`).

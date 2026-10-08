@@ -52,6 +52,8 @@ conflicts. Then:
   systems. Load both before UI work.
 - **`specs/`** — per-feature specifications, plans and contracts.
 
-> **Superseded:** `docs/OVERVIEW.md`, `docs/TECHSTACK.md`, `docs/SCHEMA.md`,
-> `docs/SUMMARY.md` and `docs/BACKEND.md` describe a _target_ system, not the current
-> one. Trust the code, the ADRs and the wiki over them.
+> **Superseded:** the design docs `OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md` and `SUMMARY.md`
+> describe a _target_ system, not the current one, and now live in `docs/archive/` for
+> provenance. `docs/BACKEND.md` stays where it is — it is the conceptual reference for the
+> routing, AR and trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line
+> number. Trust the code, the ADRs and the wiki over any of them.
