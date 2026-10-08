@@ -1,3 +1,12 @@
+> **ARCHIVED 2026-10-08 — superseded.** This describes the _target_ system as planned, not what
+> the repository contains today. It is kept for provenance: the ADRs cite it as the source of
+> positions they later overturned, and line numbers in those citations refer to the
+> pre-archive revision of this file.
+>
+> For current behaviour, trust instead: `README.md` §Layout (the layout), `AGENTS.md` (commands
+> and conventions), `docs/adr/` (the decisions, which win), and each app's `package.json` for
+> the dependency versions actually installed.
+
 # Komyuter — Tech Stack Reference
 
 > Monorepo: **Turborepo + pnpm workspaces**
@@ -6,21 +15,7 @@
 
 ## Repository Structure
 
-```
-komyuter/
-├── apps/
-│   ├── mobile/          # Expo React Native
-│   ├── admin/           # React + Vite
-│   └── server/          # Fastify + Node.js
-│       └── src/
-│           └── graph/   # Dijkstra + graph construction (server-only)
-├── packages/
-│   └── shared/          # Zod schemas, TS types, fareCalculator only
-├── supabase/
-│   └── migrations/      # SQL + PostGIS schema
-└── .github/
-    └── workflows/       # CI pipeline
-```
+> **Moved.** The authoritative layout is the table in `README.md` §Layout (kept current); an earlier, already-stale copy of it was here. `apps/server/src/graph/` does not exist yet — the graph layer is planned for the routing engine (see `docs/adr/0017`).
 
 ---
 
@@ -124,16 +119,7 @@ No external cache. The graph is built once on server startup, stored as an adjac
 
 ## CI/CD — GitHub Actions
 
-```yaml
-# Runs on every PR to main/develop
-jobs:
-  ci:
-    steps:
-      - typecheck # tsc --noEmit across all apps
-      - lint # ESLint
-      - test # Vitest smoke tests (navigation endpoint)
-      - migration-lint # drizzle-kit check (no broken migrations)
-```
+> **Moved.** The real pipeline is `.github/workflows/ci.yml`, described in `README.md` and `AGENTS.md`. The YAML sketch that was here was aspirational and wrong on the substance: it promised a `test` step running "Vitest smoke tests (navigation endpoint)" and a `migration-lint` step running `drizzle-kit check`, and neither exists. What CI actually runs, in order, is `format:check`, `lint`, `typecheck`, the `apps/admin` suite, then `build` — and `apps/server`'s integration suite is deliberately excluded because it needs a live Supabase stack. Automated deployment does not exist yet: see `docs/ROADMAP.md` milestones **M1** and **M4**.
 
 ---
 

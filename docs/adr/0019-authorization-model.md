@@ -5,7 +5,9 @@
 - **Date**: 2026-10-08
 - **Supersedes/refines**: refines **ADR-0006** (Supabase Auth — admin-gated CRUD) by replacing binary
   admin membership with Roles and Permissions. Supersedes the glossary's definition of **Administrator**
-  as "the sole human actor" — it is no longer a term for a person.
+  as "the sole human actor" — it is no longer a term for a person. It also **supersedes the RBAC
+  direction recorded in `docs/SECURITY.md` §6.2** (2026-08): this ADR keeps that section's substance and
+  corrects four of its points, and §6.2 now carries the delta table and stands as the historical record.
 
 ## Context
 
@@ -39,12 +41,18 @@ Constraints that bound the design:
    of **Permissions**; an Account holds exactly one Role.
 2. **Permission constants are declared once in `@komyuter/shared`.** Each is written as an explicit
    `1 << n` (never positional, so inserting a Permission cannot renumber its neighbours), and that list
-   is the source of truth; the capability module and the stored encoding are **derived** from it.
+   is the source of truth; the capability module and the stored encoding are **derived** from it. The
+   initial set is **inherited from `docs/SECURITY.md` §6.2 rather than invented here**: `ROUTES_EDIT`,
+   `FARES_EDIT`, `EXPORT_DATASET`, `MAPBOX_GEOSERVICES` and `ADMIN_MANAGE`. §6.2's `ADMINISTRATOR`
+   "bypass everything" bit is dropped — unrestricted _data_ access is expressed by holding every
+   Permission (the seeded Administrator Role), and the powers that cannot be delegated are expressed by
+   Super Admin ownership (point 5) instead of by a bit any Administrator could grant.
 3. **A Role's Permissions are stored as one integer, typed `bigint`.** Not `integer`: per-resource CRUD
    across the domain — routes, directions, stops, detours, detour stops, restrictions, fare configs,
    Accounts, Roles, dataset export, dataset import, security events — reaches 48 bits before any system
    permission, and Postgres `integer` is 32-bit signed. In JavaScript the arithmetic uses `BigInt`,
-   because `<<` on a `number` is 32-bit and wraps silently.
+   because `<<` on a `number` is 32-bit and wraps silently. (`docs/SECURITY.md` §6.2 had already
+   anticipated this encoding as `1n << n`; the width argument above is what fixes it.)
 4. **A Role is data, not code.** The Super Admin creates, renames, reorders and deletes Roles from the
    dashboard; no Role is hard-coded.
 5. **Super Admin is an immutable ownership property, not a Role.** Exactly one Account is the owner. It

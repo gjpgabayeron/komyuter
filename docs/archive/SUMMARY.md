@@ -1,3 +1,13 @@
+> **ARCHIVED 2026-10-08 — superseded.** This describes the _target_ system as planned, not what
+> the repository contains today. It is kept for provenance: the ADRs cite it as the source of
+> positions they later overturned, and line numbers in those citations refer to the
+> pre-archive revision of this file.
+>
+> For current behaviour, trust instead: `openwiki/` (how the system works today), `docs/adr/`
+> (the decisions, which win), `docs/ADMIN.md` §6 (the admin-surface roadmap), `docs/ROADMAP.md`
+> (the milestone plan), `docs/thesis/` (the narrative chapters) and `AGENTS.md` (repo
+> conventions). §20 of this document was a duplicate of `AGENTS.md` and has been removed.
+
 # Komyuter: Project Summary
 
 > **Thesis Title:** "Komyuter: A Distance and Fare-Optimized Dijkstra's Algorithm with Augmented Reality Wayfinding for Public Transit Navigation in Iloilo City"  
@@ -547,13 +557,7 @@ Design (1–2 days) → Implement (5–8 days) → Test (2–3 days) → Review 
 
 ## 14. Team Structure
 
-| Role                     | Member   | Primary Responsibility                                                           |
-| ------------------------ | -------- | -------------------------------------------------------------------------------- |
-| Mobile + AR Lead         | Member A | Expo app, AR implementation, sensor integration, Mapbox                          |
-| Backend + Algorithm Lead | Member B | Fastify API, PostgreSQL + PostGIS, Dijkstra's, graph construction, trust scoring |
-| Admin + Research Lead    | Member C | React admin dashboard, field data coordination, PSSUQ evaluation, thesis writing |
-
-**Shared:** All members participate in field data collection (riding jeepneys), thesis writing, and code reviews.
+> **Moved.** Team composition lives in the thesis front matter. The table that was here duplicated `docs/thesis/`; this heading is retained only so section numbering stays stable for citations.
 
 ---
 
@@ -583,33 +587,13 @@ Design (1–2 days) → Implement (5–8 days) → Test (2–3 days) → Review 
 
 ## 16. Concept Evolution History
 
-| Iteration        | Core Idea                                                                             | Outcome                                           |
-| ---------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Original Draft   | Multi-weighted Dijkstra's + crowdsourcing + detour detection + offline maps           | Rejected — 4 theses in one, no research questions |
-| Option A         | Focused multi-criteria Dijkstra's only                                                | Not submitted — moderate novelty                  |
-| Option B         | Focused crowdsourced trust scoring only                                               | Not submitted — strong novelty but no pathfinding |
-| Hybrid (A+B)     | Trust as a pathfinding weight — novel synthesis                                       | Submitted and accepted by panel                   |
-| Hybrid + Expo    | Same concept, Expo for better GPS quality                                             | Refined version                                   |
-| Panel-Revised    | Panel removed trust from core, added AR, simplified algorithm, added admin CRUD       | Current active version                            |
-| Current Strategy | Deliver panel's 4 objectives + embed trust as bonus + argue for transfer/walk weights | What we are building                              |
-
-### What Was Gained and Lost
-
-- **Proposed:** Algorithm that knows what it doesn't know (trust-aware pathfinding)
-- **Panel:** Working app with AR that people can use (practical + demonstrable)
-- **Strategy:** Deliver the visible app → embed the depth beneath it
+> **Moved.** The concept's evolution and the "what was gained and lost" argument belong to the thesis narrative (Chapter 1, background and significance), not to a repo reference. The section that was here duplicated that narrative in a form that would drift from it.
 
 ---
 
 ## 17. Thesis Document Structure
 
-| Chapter                               | Sections                                                                                                                                                | Pages |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| Ch 1: Introduction                    | Background, Problem Statement, Objectives, Significance, Scope, Definition of Terms                                                                     | 12–18 |
-| Ch 2: Review of Related Literature    | PH Transit, Shortest Path Algorithms, Graph Modeling, AR Navigation, Usability Evaluation, Related Systems, Theoretical Framework, Conceptual Framework | 20–30 |
-| Ch 3: Methodology                     | Research Design, Data Collection, System Architecture, Algorithm Design, SDLC, Evaluation Methodology, Ethical Considerations                           | 18–25 |
-| Ch 4: Results and Discussion          | Implementation, Algorithm Benchmarks, AR Field Tests, PSSUQ Results, Discussion                                                                         | 25–35 |
-| Ch 5: Conclusions and Recommendations | Summary, Conclusions per Objective, Limitations, Future Work                                                                                            | 6–10  |
+> **Moved.** The chapter-by-chapter breakdown lives in `docs/thesis/` alongside the chapters themselves (`CHAPTER1.md`–`CHAPTER3.md`). The table that was here was a planning artefact whose page estimates would only drift from the actual manuscript.
 
 ---
 
@@ -632,41 +616,4 @@ Design (1–2 days) → Implement (5–8 days) → Test (2–3 days) → Review 
 
 ## 19. Key References
 
-| Reference                                                                                                          | Relevance                         |
-| ------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
-| Dijkstra, E.W. (1959). A Note on Two Problems in Connexion with Graphs.                                            | Foundation — Dijkstra's Algorithm |
-| Hart, P.E., Nilsson, N.J., & Raphael, B. (1968). A Formal Basis for Heuristic Determination of Minimum Cost Paths. | A\* Search — baseline context     |
-| Dubuisson, M.P., & Jain, A.K. (1994). A Modified Hausdorff Distance for Object Matching.                           | MHD — trust scoring metric        |
-| Goodchild, M.F. (2007). Citizens as Sensors.                                                                       | VGI framework                     |
-| Haklay, M. (2010). How Good is Volunteered Geographical Information?                                               | Crowdsourced data quality         |
-| Delling, D., Pajor, T., & Werneck, R.F. (2015). Round-Based Public Transit Routing.                                | RAPTOR — transit routing context  |
-| Lewis, J.R. (1992). Psychometric Evaluation of the PSSUQ.                                                          | PSSUQ instrument                  |
-| Lewis, J.R. (2018). Measuring Perceived Usability: CSUQ, SUS, and UMUX.                                            | PSSUQ benchmarks                  |
-| Merry, K., & Bettinger, P. (2019). Smartphone GPS Accuracy Study in an Urban Environment.                          | GPS accuracy assumption           |
-| Larman, C., & Basili, V.R. (2003). Iterative and Incremental Development: A Brief History.                         | SDLC model citation               |
-| Pressman, R.S., & Maxim, B.R. (2020). Software Engineering: A Practitioner's Approach (9th ed.).                   | SDLC methodology reference        |
-
----
-
-## 20. Instructions for AI Assistants
-
-When providing assistance on this project, follow these guidelines:
-
-1. ✅ Always use TypeScript with strict mode for any code generation
-2. ✅ Always use shared types from `@komyuter/shared` — never redefine Route, Stop, etc.
-3. ✅ Always use the shared fare calculator — never reimplement the LTFRB formula; the displayed fare is always the exact per-leg total (ADR-0001)
-4. ✅ GeoJSON uses `[longitude, latitude]` — verify this in every spatial operation (the map renderer uses `[lng, lat]` natively; no conversion layer, ADR-0013)
-5. ✅ PostGIS `ST_MakePoint` takes `(longitude, latitude)` — NOT `(latitude, longitude)`
-6. ✅ Trust scoring is informational only — it does NOT affect Dijkstra's weights
-7. ✅ AR is Location-Based Geo-AR — NOT ARCore/ARKit. Uses expo-camera + expo-sensors
-8. ✅ AR only activates during walking/transfer segments — not during rides
-9. ✅ The four panel objectives are scored — all features must serve these objectives
-10. ✅ Fare is distance-based using LTFRB formula, not flat fare; internal ranking uses base-on-board + marginal (ADR-0001)
-11. ✅ Transfer penalty and walking distance are supplementary Dijkstra weights beyond the panel's minimum of distance + fare
-12. ✅ Commit messages must follow `type(scope): description` format
-13. ✅ API responses must follow the `{ success, data/error }` format
-14. ✅ Database queries must use parameterized SQL — never string concatenation
-15. ✅ This is an undergraduate thesis — prioritize clarity and correctness over cleverness
-16. ✅ Normalize each weight against its own edge-type pool, clamped to [0,1] (ADR-0002); transfer-edge distance = 0
-17. ✅ Trace validity uses max-speed discriminator (10–45 km/h), not average speed (ADR-0003)
-18. ✅ No ETA anywhere — distances, fare, transfers, walk only (ADR-0009)
+> **Moved.** The reference list lives in `docs/thesis/REFERENCES.md`, which is the copy the manuscript cites against. The table that was here was an independent duplicate and would have drifted from it.

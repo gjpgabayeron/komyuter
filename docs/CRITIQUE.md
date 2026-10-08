@@ -1,5 +1,15 @@
 # Comprehensive Critique of the Komyuter Thesis Manuscript (Chapters 1-3)
 
+> **Status: partly acted on — kept as the record of what was asked for.** This is a critique, not a specification: its recommendations were dispositioned, not all adopted. The authoritative disposition map is `docs/DEVIATIONS.md` §4, and the decisions that answered it live in `docs/adr/`:
+>
+> - **§1.1.1** — move Node graph compute to Rust/Go or pgRouting: **rejected in form**, then revisited on measured evidence in **ADR-0017** (Go preferred _when_ navigation becomes load-bearing; the seam is defined, the native service deliberately not shipped yet).
+> - **§1.1.2** — harden Redis: **dissolved** by removing Redis entirely (**ADR-0005**); the in-memory graph is rebuilt eagerly on mutation.
+> - **§3.2.2** — rank-based/z-score normalization: **rejected**; per-edge-type min-max adopted instead (**ADR-0002**).
+> - **§3.1.2** — "effective distance" / fare redundancy: **addressed by design** — the displayed fare is recomputed per leg, while the internal ranking cost is base-on-board plus marginal (ADR-0001).
+> - **§3.2.1, §1.2.1, §2.3.x, §3.3/§3.4, §5.2** — **open thesis-writing tasks**, with no codebase consequence.
+>
+> Where this document and an ADR disagree, the ADR wins.
+
 ## Executive Summary
 
 This thesis presents a well-conceived and timely project addressing a genuine gap in Philippine urban mobility. The integration of multi-criteria Dijkstra pathfinding with AR wayfinding for jeepney navigation in Iloilo City is innovative and practically valuable. However, the manuscript requires substantial strengthening in technical depth, methodological rigor, and academic positioning before proceeding to implementation and evaluation.
