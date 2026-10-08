@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:792cec459a2bfcf13a9ecc029d35dd99ef2fb302ba6437ec00d6e8ce752f5dc6",
+  "claims": [
+    {
+      "id": "claim_26e3626d526145c0af3c89a70e000e79",
+      "statement": "registerMapbox registers the road-snapping proxy as GET /mapbox/directions inside the single /api/admin plugin whose preHandler hook is the admin auth guard, so the endpoint is reachable only as GET /api/admin/mapbox/directions by an authenticated admin and inherits the standard { success, data | error } envelope.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L14-L36",
+          "version": "repo-lines-v1:sha256:cc5d728f37999836f5a5550cc2b48a7d7d26875865535c4f961dd93326c9549b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Y2IwZWJmY2U3N2UxYWQ0NjA5ZDI5OGI0ZjRjYzcwOGYxYTI0MGFjMGRjYWUyOGEwNjNmMjcwZWJmNjE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTZhNWZjM2Q4NWU5MjIwYzI2YmZiMWVkOGIwZTkyNDE3ZTMxYTgxZDYzNzE1NTc5ZTUxYTAzNmY1ODBlNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L85-L93",
+          "version": "repo-lines-v1:sha256:eb97b171204e655c5da220abc158e7cb650386daf4292592cd34b4cb4fed56a4:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM1MzA4ODMyZDI0N2M2M2IxMzM5NTMwNWMzNDRjZDVhZmE3YzA5YTQ4NzQwZWU3ZjkwOGNjYmQ5YjRiZmQ2MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODkxZTRkNzRiY2RiYzM5MTliYjJiMGVlZmE4ODJjZjhlNTM1ZGU3NGYwYWEzMTUyMjBmM2RiMGFhZDkyMzgxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGNhNGI2ZWMwNzJjZDU0M2UzMDBkZmIxMGVkNDJiYTUyNTMyMmI2Y2ZmYmExNTM1ZGQ2NjU5ZTNkZjc0Nzk0MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bdb894f240ad45d4a4a4b6e9699641aa",
+      "statement": "The proxy's request contract is a single coordinates query string of lng,lat pairs separated by semicolons: a missing parameter, a pair that does not coerce to two finite numbers, or fewer than 2 pairs is rejected as 422 VALIDATION_ERROR (a client error) rather than degrading to the fallback.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L13-L27",
+          "version": "repo-lines-v1:sha256:90c92d98ac42695e26d4462077839c022d5517a3b4d0345c2dfc3a434d358315:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2YjgzMDg2N2Y5OWJmNTIxZWFlNzUyNDUzYWQwNDI4ZDQ5NjQzOWM5MDE0ZmVhZTJiOTA0NTRhMjRkZWQyOGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmOTRjMWVhZWEwNThlOTllMmM4NzQ5MGU3MzA5Y2ZlYmYzZmI0NmI1NDc5OWFhZWJkYmUwY2ExMWZiMTcyMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlMDk2Y2VkYTI5MmQyODFkMzFmNjVjY2JlMmNjMjRhZTNkMjVjZWQ1ZTIzYWE0ZTA0NGIxZWVhNTU2YzJiMzUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L93-L105",
+          "version": "repo-lines-v1:sha256:547480bcfe787344026a8088306f5ef5e72b59ed944d8ad3dd4e1c57f7219d00:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzNTMwODgzMmQyNDdjNjNiMTMzOTUzMDVjMzQ0Y2Q1YWZhN2MwOWE0ODc0MGVlN2Y5MDhjY2JkOWI0YmZkNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0NmRiOWJjODFhOGQ0YzE0YzcyYjlkZjlmNTBhNGFjNDY3MThiNDQ1NTYxZDg4ZGNmZjYyODZkNDAxODExYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZDRiYWIwMjE1NDM3ZTM3ODMxZTU2M2JiNjRjYTM4YzkxZGQ2YTAxYWYxZWJhZDBlNTI5NjM1M2ZlZWE1YzEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L188-L200",
+          "version": "repo-lines-v1:sha256:9dd06a359a702f76675ebed4bbcc8786c35f22da3b8ea7dbb3dfd2f777535939:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZTJkNmU4YTJkMDg5ODZiYWU2MWM1MGMxMjJiOWUyYzM3MTViZGQ5ZDI3YjFiYjlhMDFmOTlhMWRjMGNlNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJhZTk1ODRkZDQwMDJiNzk1Zjg5NTRjMDA5MzJhZTAxZWEwNTMyMjY0ZDIxMGM1ZmQ3MTllYzY2YzM2Yzk1MDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d140e8ebbe6144d88e6040c5af821732",
+      "statement": "Each chunk is fetched from https://api.mapbox.com/directions/v5/mapbox/driving/<waypoints> with a fixed parameter set of geometries=geojson, overview=full, steps=false, alternatives=false and the secret token passed as the access_token query parameter; no optimize, exclude, language, or timeout options are sent.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L69-L83",
+          "version": "repo-lines-v1:sha256:407975576526774461e5b14f76bc1908d4986f0f57b67f0178fe1bb584251867:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyZWE0YTA0Njg4NDRhMDQ0MTI3Y2EwZGUzNmQ0NTQ2Mjk1NDg0ZDE1ODhhOGFiMjI3NmI2MzkwYmFlOWZmMTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZTEzOWY1OWM1OGQ2YjUzNWZjZWJlZjI1NTJkNGVlMDFhNTlhNWM0NDgzMmUwMGQ4MTY5M2Y0NzVmOWQ4ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwZjA0ZDMzMThkZWQzMmM2YTBkZTk2ZGI0YmI5ZTQ1MTkyMThkNGUzMDY5YTQ3NzEwZjIxOTIyOGU5MDA0ODgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_028e9e8ffc614b308ac7eb51c519f8a9",
+      "statement": "Every well-formed request answers HTTP 200 with { success: true, data: { polyline, distance_meters, snapped, warning } }; snapped:true carries Mapbox road geometry with distance_meters equal to the sum of the per-chunk route distances, while snapped:false carries the straight-line fallback. The shared wire schema declares exactly these four fields.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L145-L156",
+          "version": "repo-lines-v1:sha256:4215f7ae9f8b989f63ea94357110ef7d77709f7ec0433f40ad2701aace301ff5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MGVkYmQ0ZDc3ZTY1NzVkNDZiYTQzZGM1MjUyNWIwYTExZDY0NDY1MGE1MTY5N2I3NWFjMTM2YzQ1NGY4OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwMjU2YjhlYWM1NjA1OWQ5Y2MyMzc3YTU0MTQxNTQxMWVlYjFlYjFkYjRlMmNhYjVhMzVhM2U2ZDdhNWEyMTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZWMyODdjNzdmNzQ3YjExMmRiZTJlN2FlOGYxNGQ0ZjJmYmE5MzgyOTU4MGQ0ODI5YzQ2ZDQ2Yzg1MGQ2NDMifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/mapbox.ts#L9-L18",
+          "version": "repo-lines-v1:sha256:d022885f9d30ddaa7cee9eb54a7766d3b9ed3477428bf20bd2bce213fb638760:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhNjgxM2E1NTcwYzI1ODViYTJkMWQ4ZjBlMDFkNGJlMGEzYzM0ZmE2YzQwNDEyY2ZhMDE5ZmQzYjI2YmQxMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjOTAwNjkwODUxNWNhYjM0ZDE0ZmE5ODAxYWQ1NWJjN2EwZjVmMzdmNDcwYTgzOTQ5M2Q2ZmI1MDIyZGZjMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwMzYwNDM1ZDY4YzZjNjhmZTY1YzY3ZGRmY2Q0M2MwOTQ1YTlmMGRmYTg4MzM2NTM2ZTM1OTIwNTFiMWRjNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b4a616145989484d9215b1ea5ed18b61",
+      "statement": "Contract (ADR-0009): the proxy forwards geometry and distance only and never upstream durations or instructions - the upstream JSON is narrowed to routes[0].geometry and routes[0].distance, steps=false means no turn-by-turn legs are requested, and the response shape has no duration field.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L132-L143",
+          "version": "repo-lines-v1:sha256:84077c6abf844057f992e04cd318db30438f94da9f95bb7bedd7c83bc6b775e0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxZDcxZWYyY2NmZjUzNDU2MjdjNmIwYmU4YzY4ZGQ5ZmFhNDViNjExOWZhOTBiMTE1ZWJlMTYxZDNiMWVhMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxNjdhZGIzMTY3NWQ5NTE1YmM1ZGU0YmRjMWUxMzY1MjUzY2YxNGQ0ZjJmYjAxZjk4NjJhNDYwYzU0MWJjMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0MDlhNzEwMzdhNDBlMWMxZmY5NzA1ZDUxY2Q1MjU5OTUxM2YwMDRhNjI1ZTQxNTczMGMzOWZkNDZkNmZkMGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNmODc1MGJlMDMwNjQyNzk1NWNiZWYzMjc5NTE0Nzg0YzU5NzlmOTVjYzFjNmY4ZmNjYmZlOTkwMDk5NzBkZWEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L69-L83",
+          "version": "repo-lines-v1:sha256:407975576526774461e5b14f76bc1908d4986f0f57b67f0178fe1bb584251867:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyZWE0YTA0Njg4NDRhMDQ0MTI3Y2EwZGUzNmQ0NTQ2Mjk1NDg0ZDE1ODhhOGFiMjI3NmI2MzkwYmFlOWZmMTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZTEzOWY1OWM1OGQ2YjUzNWZjZWJlZjI1NTJkNGVlMDFhNTlhNWM0NDgzMmUwMGQ4MTY5M2Y0NzVmOWQ4ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwZjA0ZDMzMThkZWQzMmM2YTBkZTk2ZGI0YmI5ZTQ1MTkyMThkNGUzMDY5YTQ3NzEwZjIxOTIyOGU5MDA0ODgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a849c6586a9e45eaa8778dc3c2010c72",
+      "statement": "Waypoints are chunked at MAPBOX_CHUNK_SIZE = 25 into ordered non-overlapping slices; all chunks are fetched concurrently with Promise.all, their geometries are concatenated in chunk order (dropping a chunk's leading coordinate only when it is element-wise identical to the last coordinate already appended), and their distances are summed into distance_meters.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L124-L156",
+          "version": "repo-lines-v1:sha256:b0347f25e452c3ea1afc75d778a007d577a3f60ee518fe4bb0e49c0bd12aec25:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZGY4N2E0NzMxNmM3MDhjNTUwMjA5OGU5YWY2YzQ0NTM0ZWI4MGJlYWRjZjYwNjMwMjhlZmNhODU5MzdhYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4NWI2M2FmYTliYWEzOGEzN2Y1YmNhN2I2NjUyYTQ2OWYzY2Y1Njg2MWU2ZTM5MGE0NDQ3NmJhZTEzMTFlNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZWMyODdjNzdmNzQ3YjExMmRiZTJlN2FlOGYxNGQ0ZjJmYmE5MzgyOTU4MGQ0ODI5YzQ2ZDQ2Yzg1MGQ2NDMifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L48-L67",
+          "version": "repo-lines-v1:sha256:bad9f1688a2c4f58b214b94108dd7317a51d8c6353a0bb01848c29b54c2b9e35:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZTEzOWY1OWM1OGQ2YjUzNWZjZWJlZjI1NTJkNGVlMDFhNTlhNWM0NDgzMmUwMGQ4MTY5M2Y0NzVmOWQ4ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5MmRjNjFmYmI0YzYyNWUwMTEyYzM0ZDg4YzU1NGVhYWMwYzZjMjU0NWM1NzcxZjAzNTVjZDgxMjFjYWMyMzQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L6-L39",
+          "version": "repo-lines-v1:sha256:40712d3d1a9cc1e45309700f42fdf22c2c329558abb2ae07dc1d3084511c83db:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3NzUyMjc1MjU4OWJiY2U2YTNlODAxNmIyMjA1MjFjYzU4NTZhMDJmMTdiNzQ1YjZlYjFhYTUwYjA1MWY5NjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkY2U0MGU5NjRlNTlmMGI5NGQ0OGY5ZDFmNzc0MDQxNDMzMzJjMWFjY2ZiYjgzM2M5OGIwNjRjZjM4YWYzNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4Zjk4MmQ0NDFiYmJiNmMyZWEyMWU4MWRiNzIwZmQzNjc2Yjc3MDg4ZjU0MGQwZjVjOTdmM2ZkMzJkMmQ1YzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c42e550b13624fc4bd04752453725e24",
+      "statement": "Chunk fetching is all-or-nothing: a non-OK status, a body without routes[0], or a rejected fetch in any single chunk throws out of the shared try/catch around Promise.all, discarding every successfully snapped chunk and returning the straight-line fallback for the whole coordinate list; a trailing chunk of one waypoint (coordinate counts of 26, 51, 76, ...) is sent unguarded and is therefore the shape most likely to degrade.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L124-L163",
+          "version": "repo-lines-v1:sha256:169efbe00c1256ac836f61abd2593e11e7be16b2df307210986d9c8c974d38d4:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZGY4N2E0NzMxNmM3MDhjNTUwMjA5OGU5YWY2YzQ0NTM0ZWI4MGJlYWRjZjYwNjMwMjhlZmNhODU5MzdhYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4NWI2M2FmYTliYWEzOGEzN2Y1YmNhN2I2NjUyYTQ2OWYzY2Y1Njg2MWU2ZTM5MGE0NDQ3NmJhZTEzMTFlNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMWJmMmE1NjhkYmY2MmM0ZTQ4MGNiMTliOGZjM2QxNTNjMzIzMmRjYjc1ZWQ1ZDE5MWIwZGMxODE4YzY3MzIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L30-L39",
+          "version": "repo-lines-v1:sha256:4e47dfd7ec8323946c85683a7957f73978b52020b876fd62c3eb93043086cee1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmOGFkNjFlNDgxYjhhNGRjZjU3MmQ4MmJkZDE2ZWQwNGNlZmUxZDUxZmJlOTBhMjdlNjgwMWM2NTMyY2M0ZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAyMjFmODg0Mjk1ZTA1ZDJkZTFlMmRkMGY1MmYxN2U1ZjFkZjRiZTIzMTdiNzlmNmMyNjYxYmE4ODA5MDcyNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4Zjk4MmQ0NDFiYmJiNmMyZWEyMWU4MWRiNzIwZmQzNjc2Yjc3MDg4ZjU0MGQwZjVjOTdmM2ZkMzJkMmQ1YzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f0981f9190bc47199381119fa1ffbbe3",
+      "statement": "Both failure paths return HTTP 200 with a straight-line LineString through the caller's coordinates, distance_meters 0, snapped false, and a warning of \"no_token\" when MAPBOX_SECRET_TOKEN is absent (returned before any network call) or \"upstream_error\" when the chunked fetch throws (after an app.log.warn); there is deliberately no 5xx path for Mapbox service failure.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L110-L122",
+          "version": "repo-lines-v1:sha256:6ca810ecb3c861615d8052b50554c685057511d5b72fecd3dbf9d4f7c31a61bc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3ZmQ1ZjQxZDMzYTk1NGNlYWEyNjVlNzdhYTJiNWZjMjJkMTFhOGE3YWVjODEyNmJiMjcwNWQ5MTRmZDE0NjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFmNmMzMmFiZmJiZGJmMTIyZWQxOWMxNWU4ZThhYjRkYzg2NGVjNGQ1NDkxNmYzZWFhNWQ1ZTRlMWExZjZlY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwNmFmM2E0YWZiMmQzNDZlNjNjN2FhNzQ5NWE4YmJkYjg3NGQwZWZjZmE3ODI3ZWY3Zjc3MTZhMjM4MmU0NGIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L157-L163",
+          "version": "repo-lines-v1:sha256:b6a87ee550fc877bdbc34f945aa707aee0e2016305d8e89ec8b08f9675e7ba23:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDhkYjc0NjA4MTgyY2I3Y2E0ZDlmYmE0OWEzOTQ5OWE3ZjM5MDdiNGVhMDMzYjE0OTJhZDVjZjBiZWVlZWNlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmFkNTQ0NGM0ZjMyNWJhOGVlZDFlMTQ5MGNlNjg1ODg0MGU5ZWZlYzQwOGU4YTdkYzk2ZjM1YWZkZjg0YTExMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTAxYmYyYTU2OGRiZjYyYzRlNDgwY2IxOWI4ZmMzZDE1M2MzMjMyZGNiNzVlZDVkMTkxYjBkYzE4MThjNjczMiJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L117-L186",
+          "version": "repo-lines-v1:sha256:f24cc8adb2e3dc35520bbdd1a706c9d4a6ec2b8a4a890eb1e2341d2f859727ba:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhNjc2MTFlOGQ3NWRiYjE3MmQ3ZTg0NWYyYzVlZmMwNmY3M2ZiMzYyY2U0OTg5ODIyZTk5MGNiZjYzYTJlOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1NTk5NWIwYmVhZDU1NzBhODk0OGIzOTRkYmNlMzhhNTRlNmE1MGM1ZDA0ZmIzNmNhNWJkOGJjOTU2ODg5YmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNmFkNTgwODEzMTg3OWY5NjFkNTBlYzdhYTViOTY3NTU0MGM2YzA2NjBhYTRmNzU5ZjBmMmYwN2ZlMzc2YjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3948db10f84e47958a10814a69fcd0e3",
+      "statement": "MAPBOX_SECRET_TOKEN is optional in the Zod environment schema (absent means the straight-line fallback), and the handler re-reads it per request with loadEnv(process.env) instead of using AppDeps.env, so a token can be picked up without a restart while an otherwise invalid environment would fail this route through the generic 500 INTERNAL handler rather than by falling back.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L81-L86",
+          "version": "repo-lines-v1:sha256:5b72845504fc1bf5cc7c11995ce8f70cb298a895df1bf0ae43fa722170ee2f04:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI1N2Q4YzdkYTg3Y2ZlMjkxZTYwMjY4MTkzMmI1NzVlMzg5YTQ5MTg5YjZhN2Q3MzljZDMxOGJmNmI1OWZlNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGRkZmFjMDg1YTAxMWQ4ZTllZDUxMTc0MWVjNTU2YzZhNGVjZDRlZGMzYjRmODUyMjk5YmJhYjA1ZTczNmI4OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2MyNTRiYzE4MjQ4NDIzOTZiOGIwZDZjMmY2MmMxY2M3ZjAyMDFhYWExOWE3ODQ0NjRiNDlmZjhiYjU3NjlkMCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L107-L108",
+          "version": "repo-lines-v1:sha256:74072e50665783c448483902e5c876afb3c3a113439f811b7559648a52f5559b:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI0NTIwOWIyODRhYzFlYjEzZGFlMzIxZWQ1NzZhYjMzYzgwNTM0ZWNmYTI5OGMxNjI1MDM4OTRhMjI5NzJmMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzM3NGU0ZGYxNjI3ODIyMmY1OTQzYzQxNWZhNjM4ZDFlYjg2OTYzYWE3MDBiZThlZjYyMmM0ZjI4NDQ2NzI0NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2ZhN2Y0MDgxZGUzNTVjMzkyYjBjMWQ5NmMxN2JjNDQxODdkOWU5OWZlMzMxYWI3YWVhYjc2Y2FlNzU2ODlmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGQzOGQzMzQ4ZmMyZDhjYjhiMmY5YTI2OWE4NGNmNWYyMjc1YWNmMmZhMTAwOTc1MTJhZTkwNDM2OGM5MzI1YiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/config/env.ts#L14-L16",
+          "version": "repo-lines-v1:sha256:277fb8f71c40cb19fa0e6d5c3930b802b11a9aafb1767a5e52df5bf4f65b658c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGY0NDM3OTZiMGQ2NWIzYmNmNGQ0MzJlMzQ3OGJiNjc5ODU2NTUzZmIwZTU0Mzc5MGZkODE0ZTBkMzExNTFkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGRkMjBjODUzMDhkMzIyMDA1NDNkNjY0MjYxNDA3NTIxNDdlNDZjOTAwZTgwN2Q3Nzk0NmEyYTlmMGRlNTI0OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjQ1YzE2M2NhM2ZkZDM1ODE3NGExNTBkNTk4ZjQwMDY2OTEyZWNiZmE5NjZmZThiMTU1ODJhM2Q4OGZkZmRjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzNjODFhMGQ3NGU0MjE1Y2VhOTFmYmIzMTZlYTk5MWJhNDY3NDFjNzFmNmI3YWI4OGNmZTA2MmJhZGJmNjA0MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_37516b1df7ba42cfaa19be704a9978ca",
+      "statement": "ADR-0016 (require MAPBOX_SECRET_TOKEN, delete the mock/OSM fallbacks) is PROPOSED and not implemented: the shipped code keeps the optional token plus a real, exported straightLineFallback used on both failure paths, and that gap is recorded as A3 in docs/DEVIATIONS.md, which also allows deliberate retention for a tokenless demo.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L41-L46",
+          "version": "repo-lines-v1:sha256:33f31ecfdb442c0473db23000966c68bc55894b3cc2348e62662d9d0938f1ca6:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQ0NjUyMmY0ODM4ZjgzYTZhZWU3MGM5NGY3NzNiMjc3NDU5ZTk0MGU1MWY3MjM4NmI2OWQ4ZWNkZjI5YjFhMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTYxODg2ZGM2OTk4ZmJmNGYyZmJiMTY0NTU0Zjg0MmU5OWEzMjRhNjZiOGJmNGMzN2VjMzY0NzJlYjEwNzEyNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjVkYmE1MGU1Y2NhODJlYmM1NzZiYmNjNWUzM2Y5MDkxNTJhMDQ1MDZjZWE0NTExOTllZmI4OWNlYzE0OWFlMSJ9"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L84-L84",
+          "version": "repo-lines-v1:sha256:26ef246b05889198dead85612cc151fa7dd141fb0196c77378e86859468510c4:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjZlZjI0NmIwNTg4OTE5OGRlYWQ4NTYxMmNjMTUxZmE3ZGQxNDFmYjAxOTZjNzczNzhlODY4NTk0Njg1MTBjNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjZlZjI0NmIwNTg4OTE5OGRlYWQ4NTYxMmNjMTUxZmE3ZGQxNDFmYjAxOTZjNzczNzhlODY4NTk0Njg1MTBjNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmQwMGE2NzlmOGU1ZTAxMzM5OTM5NzJmMmM2YzExYWZlNDczYzg2NjZlMWRmMzNjODUxYjJjOGYyNGFiYWY2ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0016-mapbox-token-required.md#L1-L14",
+          "version": "repo-lines-v1:sha256:786eaeda9a19577d946c7ac82cda23d9580786ed0c1cfead9730ef6a39e6c3af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdlMTViNDg1ZDI2ZDFiY2IzMzhkNTY2ZmYxYjZkYzU4N2YxYmFlMTAwYjQ0ZDcwOTg4NmQyMjY2MjgzNjk0MTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1NmU0ZTZlMDFhMDYwNWFlYzIxZDI3NzRlMDNmNDg5NDg1OTM1YjYxZjJiNTQ4ZmU5Y2NmMmY1NGVlNThhNWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmY2IwYWQ2YWViYzI1ODk3YWM2ODkwOTRhZDU0OTZhZjdlNGU2NjkwNGEwNmViN2ZkZjAzMDVjODc5OGNlMWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_534ba6931d844a63b8b5663ab3a5b5e8",
+      "statement": "The plotting store commits a response to the draft path only when snapped is true; a fallback writes just the snap state (status \"idle\", snapped false, the warning, polyline and distanceMeters cleared) and never the fallback geometry, and savePlot further requires a committed polyline that ends on stops, covers every stop, and carries a pathStopIds list matching the current chain - so fallback geometry cannot be persisted as a direction's base_polyline from this flow (FR-009).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L262-L325",
+          "version": "repo-lines-v1:sha256:817a2bbacfe6286167b0c5a617186c10c917b26fb2504d26b1f5426323e65339:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0NmFjNGQzNWJhYjY1N2ZiOWM5YWM1MDU1YTg0YzcwNDhlYzI3MWEwMzk4NTE5ZjdkYTI3YmYwNDRlNjhhNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkYmZmZGY5ZjMxYzc1N2M1NzU2MmMxOGRiODdjNjhlNWZiNjljNTljZGFiZmZhZDE3Yjk1NDU0MWY1M2Y3MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1Njc5ODAzYTJkMDQ3ZWZhODNiOTYxOWMwNmQ4NTJlNDcyMGUzY2Y1ODkyZDJlOThhZjI1MTI1OWY4OGZkM2IifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L447-L548",
+          "version": "repo-lines-v1:sha256:d90e99f6f990e916db8735360084d74eae1293dd28c73b2b604ead63d262e8bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNzAyNWJmZjVmMTE1OWNhMGEyY2FmODU2YmJlNzM3MTk3ZmYxNGNmNDc0YjdmMTdjMWIzMTE2ZTcwZDQ2YTU2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3MTdhZjExMDFjOTdiN2MyZjUyNTQwNzgyZTYzNGNjNDQ0MGYwZTk3MDM0MWU1MmY5NzUyMzExZDc4YjdkN2QwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhNGJlYTBmYzQwNDFlNjg4YzJhZmIxOWVhMzIwNWJmOWYzY2QyYmI3OWZmODIzMTMwMTE2ZTk2ZmNkN2VlYTVkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzZDVlYzgyOTU0YmNlOTA1YmYyNTc5Y2NmNTA2OWUxYWE5MzBmZDhhMWNiMzczODY1Mjk5ZjNhZTc3ODQyM2JmIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_06422f2a659c45c292f9ac9fcf7c501b",
+      "statement": "Fallback warnings surface as admin UI copy on a successful 200 rather than as an error: the workspace provider gates a role=status banner on showSnapWarning = !snap.snapped && snap.warning !== null, and RouteWorkspace's SNAP_WARNING_COPY renders distinct sentences for no_token and upstream_error while any other code degrades to printing the raw value.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L570-L570",
+          "version": "repo-lines-v1:sha256:33116c15af62778b0a30bf8cddf7cfb2c28cc769d371ebac30192283b9ab1785:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzMxMTZjMTVhZjYyNzc4YjBhMzBiZjhjZGRmN2NmYjJjMjhjYzc2OWQzNzFlYmFjMzAxOTIyODNiOWFiMTc4NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzMxMTZjMTVhZjYyNzc4YjBhMzBiZjhjZGRmN2NmYjJjMjhjYzc2OWQzNzFlYmFjMzAxOTIyODNiOWFiMTc4NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTFlMzcyNWRhMDAyYjQ2ZWQ4YjRkZTg4MDAzYWQ5NzEwZGNhZjE4ZDU3YzQ3MDFkYzNiZWZmMGIyYzVjYjEzZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTUxYjYwYzFkYTZmZDUwYmEzNmIyYTI4YTE0NjI1NDU1YjRiMWYxZTViNWQyMjI5NzE2NDc0ZTNkYjk4MzRlNSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L219-L226",
+          "version": "repo-lines-v1:sha256:264e5bfba0ee191c140236e2bfa4fe8c26163512c86ac636fd2eabfc7837c956:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTIxYjRjZWNjNDE5OTFhYzRlODFmNzRlMmMzMTg1MDY1MTA1MDk4YzUyNWE0M2Y0OTFjOWVjNzA5ZjEwOTE3MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTljMWE2ODRkZDU3MzdkZGE5NzlmZjdmZWQzNDhlYzkzODc1MzFlNzdmMGUwNTliY2E0ZWNmMTg2YmE2MTAxZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDU3ODdiNjE0NmZlNjkxNWNiN2E5OGU4MDNkMTRmMGUxZTAyNmM0YzYxOTIzZjQ3NTNjNjAxOTI2M2NkZWRkYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTc1NjQ2MzVmMWFlZDkxNDA5ZTRkNTIxNjMwYWMxNDQ4MmVlZjliNTQ0NTc5MzY4NzUzZDdkYTFmNmQxNDM3NSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L24-L29",
+          "version": "repo-lines-v1:sha256:2caa796f4b8d9127f89329974e36faafc6ad7e724a8620c92ab2e32525ccad31:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWE2OTMzY2FiMTJkOWE4MTM5ZDc0NTg1MDNhNjg4YTE1NjgzZWQ0M2Y3NTQ2MWM0ZGYwY2ZmZWJhM2Y2ZGJjNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTYzYmNmOTNkYWFjY2JiYjIxYWEwYzQ2ZjVjMzk4ZTc2Mzc4NDhjNDkzZGEzMGU5NDM5OGJkZDA0MTUzOThkMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTQxZjc5OTVhYWIwYTc1MTBhMTQ1NDFlYzRiNzYwZjRlNTMxY2I0MDhjYjAwZDgxNDE2OGIyZDVkZTA4NjFkYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9c08e1446e954c478a9054b7df29a66e",
+      "statement": "The no_token warning copy tells the admin to add a public Mapbox token named MAPBOX_TOKEN, but the only Mapbox variable the server schema defines is the server-side MAPBOX_SECRET_TOKEN, and the admin basemap renders keyless OpenFreeMap styles, so the copy's instruction does not name a configurable variable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/tiles.ts#L17-L19",
+          "version": "repo-lines-v1:sha256:8926f045fdf0ac3ee065c1dd2fe2996ae84efd8dbd6bba4955da90bf50a29123:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDllMjA5NGYzNDgwNmE1YjU5NjNjMmM2YjkwNjc0OTBkY2QxYWU2Yzc0OGM4Zjc1NGY1N2Y4MDQwYmE1MzQzMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzMzYmE2MWEzNDg1MmI1ZTYyYjhiMzk2Zjg3ODljYzU0MWMxYjJlZjRjMTczM2UzYzFlNmY2OThjYzM5ZDkwMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODFiOGE0YzUwMTQyOTBiYWVkMTFmZWI2OTY3YTdjNzNlNmU0MWNhMzJlMzgwY2JjMTk4M2U4ZGEzM2IzOWQzZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTU0YzgyOWNhZDYwZDQzNGNlOTI3NWQ4ZmFiOTk1OGZjOTFkM2RiZTliNGNjZTc5NDA3ZjhkOGIzOGQ3ZTk4MSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L24-L26",
+          "version": "repo-lines-v1:sha256:9af51f80265601f0be22d76ff9aa091798e3e29fa9709b9ba752086f372792d8:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWE2OTMzY2FiMTJkOWE4MTM5ZDc0NTg1MDNhNjg4YTE1NjgzZWQ0M2Y3NTQ2MWM0ZGYwY2ZmZWJhM2Y2ZGJjNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGU5NTgzZDVlNzU4OGM5NjNiMTI0NjY4OWRjNTc4N2NmNDY5YTNiMWIyYzIxNGZiNDk5YjNkYzMzMGFjMWU0YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTYzYmNmOTNkYWFjY2JiYjIxYWEwYzQ2ZjVjMzk4ZTc2Mzc4NDhjNDkzZGEzMGU5NDM5OGJkZDA0MTUzOThkMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODViMjliOWExN2ZlZjRkOGZjNjM1ZDRmMTgwZmU5OTU1YTgxNjUzOTkzNzYyNGQ4MjI1YzBiMWE3ODE4NGQ1NyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/config/env.ts#L15-L16",
+          "version": "repo-lines-v1:sha256:5cc192d2a7c7e1a0d71c0112a78e38f32c9b27005b938810779d597bce1dd861:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjUxZTI4ZmQzMTU1Zjk5OTRmOTg3OTU3NGY2ZWYwYjBmM2M0NzRjZTJjOGU5MjZjZGM1NGM2YmY3M2E2MjZkNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGRkMjBjODUzMDhkMzIyMDA1NDNkNjY0MjYxNDA3NTIxNDdlNDZjOTAwZTgwN2Q3Nzk0NmEyYTlmMGRlNTI0OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2U4MWVlYjRhN2E3NjNiZDNhYzJmNWRjMDljZjdjNzkwMjFkOTcxMDllZDNhNWMyZTNhZDllYzg0OWMwMDFhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzNjODFhMGQ3NGU0MjE1Y2VhOTFmYmIzMTZlYTk5MWJhNDY3NDFjNzFmNmI3YWI4OGNmZTA2MmJhZGJmNjA0MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7ff7f5d4344f40e08a6c6d006c746c0e",
+      "statement": "Client orchestration of the proxy call lives in module scope: requestSnapPreview issues no request with fewer than 2 stops, debounces by SNAP_DEBOUNCE_MS = 300, and a snapGeneration counter makes superseded or late responses no-ops; resolvePendingSnap flushes a pending debounce before a save so the save sees a settled snap state.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1045-L1077",
+          "version": "repo-lines-v1:sha256:b9b54a5c29abfb917f18c8643cd4c5325cc42d06257309571cc64193897564c6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczNjhiZmZlZDMwN2MzMzUzYmE0MDc2MzA4NDdiMzgxMjJhOWI1NjM5N2RkOTIzMDkzOTQ3ZGM4YTYzYTNmMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFhMDA3ZWI5NzEwNmYzYjI1NzY0OTQ3Yzc2YTY2YjY0NTQ0NmVmYmIwMDVkNWFjYWFiZDQyZDM1NDEwMTM2ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhZTE0YzU1ZDIxMzk0MGI0ZDcxMjU4NzFjMmI5MjVlOGE4Y2NhZmRjNzAxNDUxOGVmODFmZTdkODhjODdjOWIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L229-L258",
+          "version": "repo-lines-v1:sha256:d20e238f3cf1bdd3937270c1b5b3d47d2e8f4848deeff2cf8d4f9e1ed9e1f1ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZWNhZTIxYjMxYjRkNWM5ZWZiYmQ1MDllNmM2YjlhYWM1NjJmYjQwYzAzZjgzYWY4ZDA5MDhmNmRlNTlkOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMDYyOTk0NjQ2ZTZjMmE2NjYzZjMzZmJjMzA5M2MyZDY0ZjUyMzQ5NzBmZGNjMzgwMGMzMTg4NjY5MDIzODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkMjc1ZmUyZTc3MTUxMDdjNGM3ODVmZWRlYTkzMWQ3ZDM3NjcxNzM1OGM0NmM4ZjQzZTJjYWI4MTM3NTY1MDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cd0c2e54d0134c698260bf8613d0d965",
+      "statement": "The detour loop builder is a second consumer of the same endpoint with different semantics: it keeps only the returned polyline, so a snapped:false fallback body becomes the persisted loop geometry with mapboxWarning left null, and the warning is set to upstream_error only when the request itself throws.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L122-L126",
+          "version": "repo-lines-v1:sha256:d3ced1a2991e28152daffab4df02c9abf91703af47a70ca698b931387f32b6d2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzlhMmY5ZjRjZWQ5MzhiMmVhMTY3Y2I4YmEwNDk0MTFmNGQxYWY5ZGEyYjdiOTE5NzFmYWExZmE3MGJiNzE0YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjM5NGRkNTE4YmU4NGZjZDI0Mzg2ZWZiNTg1NDA0ZTgzZjkzMTU1ZGRhZmIyY2FkOWI2YjlkMTE5YTI2ODdjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTRiOGY1Yjc1NjU4MjAzZGU0ZDhkOWVhMTlkNGYyYmNiYTM3ZmY2ZDVlZmQxZGQ3OTA5ZWY0MTFmMzhiMGY5NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L250-L277",
+          "version": "repo-lines-v1:sha256:ca8175b44b16c8371b6744f4d4e7ce15b24e0cfd1d8adefed2856393ce6aceb3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3Y2UzZTBjMmIwYTdjY2Y2YjY2MjNkYzg0MTE2MjUyMDg5ZjE5ZDk2Y2RjYzkyNDE3YWM5MDU1ZTk2Yzc5NjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ODllNzg0YTIyMWE0ZjJlZDEyNjIwNGQwNTE3NTg2ZTdiNmFkOGE5NjJiMWRhYWFjYjU3NjRhNGY3Njc5YjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmMWFkYjBiNDNlYjdlNGNlOWFiYTc2YmQwMDVlNTg3Y2Q4MzhhODE1NmY1YzQzNmYzMmZlMTlhMjczZWYyNmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_97852105e3b34516949cd9a3fe0a5cdf",
+      "statement": "apps/server/tests/unit/mapbox-proxy.test.ts is the entire server-side suite for this integration: it covers the pure helpers (parseCoordinates, chunkCoordinates, straightLineFallback, concatenateLineStrings, buildDirectionsUrl) and, on a bare Fastify instance with a stubbed global fetch, the no_token, snapped-success, upstream_error and 422 paths - with no test exercising the multi-chunk path through the handler and none asserting the absence of duration or instructions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L13-L18",
+          "version": "repo-lines-v1:sha256:36d25df2bd18ea66336980ef00d883dfe5fb4f4e1e8daa871efb6fb63ce564e3:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTFlZGVkNWVhZWUwNjExOWMyZDU1MTFmY2E4ZGRmY2E3NjJlNjFhYzE1OTk2N2MzYWM3NjE3NDkwN2U3YmI0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVkOGRlYjllOTYyMWQ4MTVlYzY5ZjI5OWQ2MTZjZmU1NTg0ZDJiOTEwNzcxMGZhYWZlYjM1MDMzMDIzMTExNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmFlZTQyYTNiMWU1MWQ1ZmIxMTBhNTRkNTY5ZjA5YWQ1MzlkY2QzOWIxM2IyMDFjMDkxNTEyNTFjYTllZTAxNSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L20-L200",
+          "version": "repo-lines-v1:sha256:e17baa4bf88edd6f1d4c5cbc78a72c054ffb48d53967399711b8a928c013567f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxNDE5NmIyOTNhOGM0ZWVkZjg3N2YyZmI0ZDQ1ZWViNTNlYzNjNmRhODc1OGYxMWI1NGNjZGRjNzI1YjZkODJiIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyY2Q4MzA3ZGIwMmQzMzE1MmRhZmE3ZjQ4ZDkwZjE5NWU2Y2M1MWNhMjg5YzNhZTM1YzVjNDE2ZGE0NWNiZDJkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_b98b27a8c9ee470a93f08a383d70b053",
+      "statement": "The two sides of this boundary do not share a runtime-validated type: snapPreview types the raw response as the camelCase SnappedPath.distanceMeters while the wire field is distance_meters and no mapping exists, leaving snap.distanceMeters undefined at runtime (the displayed distance is recomputed from the polyline instead), and mapboxDirectionsResponseSchema is exported from the shared barrel but applied by neither the server handler nor the admin client.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/properties/RouteGroup.tsx#L47-L47",
+          "version": "repo-lines-v1:sha256:9deaa77d853a826f3e15bdf1348971ef37223c52f25d8eb9cb0f15c0834da553:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRlYWE3N2Q4NTNhODI2ZjNlMTViZGYxMzQ4OTcxZWYzNzIyM2M1MmYyNWQ4ZWI5Y2IwZjE1YzA4MzRkYTU1MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRlYWE3N2Q4NTNhODI2ZjNlMTViZGYxMzQ4OTcxZWYzNzIyM2M1MmYyNWQ4ZWI5Y2IwZjE1YzA4MzRkYTU1MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ0MWFkMjRlYzVhNGZkODRhMjZiYjk3ZjczYzYxZTdhYjUxMjAzM2QyZTRhZWEwNGFhNDRmZDAwZmMzM2MwNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjExOGFlMDZkYTkxNWNjYzM1NTI4MjhjYzgwYjdhZmFmYmIzODFiMmUzYjcxNTkyZTczMWRkMzQ4MTM1MTE1YyJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L201-L210",
+          "version": "repo-lines-v1:sha256:245e26c2175262acb18be17ca05442caa648e1c1c811e2f51ec1befca80b542f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NTdmOTQ3YmE3NDNjZGUzOWNlYjEyYWZjMDQ1OGExOTQyMDQxMjUzOTJkNjkyZWUxZTQ3OTM3MzgyNTQyYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1NDU4ZjMwNjQ4MzRmOGYzNjhmZWU4YjdhOGEzYzBjMmZjNTI2ZDZhNWZjZmM5NDIwYzBkMWIwOGUyMTY1MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxZjFkYzUwYzMyNDMxMmM3NmZiYWU3MDE4NDRiZTg5ZjllMWZkMTczNmM2MDQ4NDk0MWYwZjQzNTI4M2U5YjgifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/mapbox.ts#L9-L18",
+          "version": "repo-lines-v1:sha256:d022885f9d30ddaa7cee9eb54a7766d3b9ed3477428bf20bd2bce213fb638760:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhNjgxM2E1NTcwYzI1ODViYTJkMWQ4ZjBlMDFkNGJlMGEzYzM0ZmE2YzQwNDEyY2ZhMDE5ZmQzYjI2YmQxMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjOTAwNjkwODUxNWNhYjM0ZDE0ZmE5ODAxYWQ1NWJjN2EwZjVmMzdmNDcwYTgzOTQ5M2Q2ZmI1MDIyZGZjMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIwMzYwNDM1ZDY4YzZjNjhmZTY1YzY3ZGRmY2Q0M2MwOTQ1YTlmMGRmYTg4MzM2NTM2ZTM1OTIwNTFiMWRjNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/mapbox.ts#L7-L12",
+          "version": "repo-lines-v1:sha256:944a9ee86b7ba81d9e95a33684f9049006b1ed79bd4c3e1a74cedc1bfd6590cd:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDgyYjIxMzg3MzNhMzY0OTVjMmE0NmZmN2RiYzdiNDg5MDk4MGY3Njc3ZDJhYzgyN2RhNzE0OTY2MzQ1OTZjOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTU5MzhkMjNiNTAzMmViMzU5MTBkYjQ1MGY4NGQzZDE0OTZlMmUxNWQzNzhiMDZiMjg3ZjIyN2Y5ODJiMTc4OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjI1MWVjMzc0NTVmMWQxN2I5ZjdjMmQyODg4OTY2YThjYWY1NjZhMTUwY2U3NTMxZGZlZjU2MWI3YzNhMTA3ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e652bb7983d843ee901ce339169a4f91",
+      "statement": "The upstream fetch has no timeout, AbortSignal, or retry, and this route has no rate limiting - the only throttler in the server is the login-route throttler - so a hung Mapbox response leaves the client's snap state pending until the socket fails.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L42-L69",
+          "version": "repo-lines-v1:sha256:fef1893119af1ef5c88dc11760392634aef3684662a4b086edcb8413b3e1f3c8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVlMmU4Mjk1ZTUyMWRkYTU1NTU4YjQ0YWU1Y2U5Y2QwMTJhYWM3YWFiODBjZjg3OTdiN2U0MDE0NjNmMjRkZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4ZDkxZmI3ZDEwMDc1MjM2ZDg4MDI0NzQ4ZjlkODcwNGVkNWQ2MTQxOTcxYTcwODMwYTNhMjcwZjMwYWUyYTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4NmMxM2IwMzIzODNmZTE1ODA2NmRkYjkxN2Q2YTAxNjA1ZjRiY2Q4MmJiZjNkNmNkYTY2ZjJiYzcxY2VlMmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiYzg0Y2VjMzlkMTZmYmU5MjBkYzcwYjQ3OTZhYjkzOWFlMTMwOTgyMzdiNTFkMGI4ZWUzM2IyNGJiMWFlNDQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L126-L130",
+          "version": "repo-lines-v1:sha256:7cfefa1d1f55742ec4203dd6ec54347199251a432e00577b02949c0b62d4c3e2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTczMmVlMzQ3OTQ3MTlkMWM4YTdiZDIwNWM5YTBkOTc2MTQ4ZmU1ODM5MmQzZGI5YjcwZjQyN2RlMzIzOTkwMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTBhOGM0NzU0ODM1Mjc2YjI4YzczNzM5ZjBhNTcyMTVhOTQxOTZmOGM4ZjIzYzgyMzg4Y2NkMDkyYWE1ZDgxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODA2YWYzYTRhZmIyZDM0NmU2M2M3YWE3NDk1YThiYmRiODc0ZDBlZmNmYTc4MjdlZjdmNzcxNmEyMzgyZTQ0YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWQ0ZGNhODViOTFjMDAyYjYyZjIwZWZhYmY5MDdlZjIzMTEwZjljZDE0ZWQ2YmExZTFhMThkYWJkNDljZDg0MCJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

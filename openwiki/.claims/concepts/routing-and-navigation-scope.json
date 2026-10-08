@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:cf73426382618d8fd41b2b70c655cc9c4c7effd452a5c4f7146b506649b7fb54",
+  "claims": [
+    {
+      "id": "claim_8773a11c24034b78991dbe1291fc0656",
+      "statement": "The repository's authoritative position on this area is docs/DEVIATIONS.md §0: apps/server is an admin CRUD API only, apps/mobile is an untouched Expo starter, and packages/shared is types plus Zod schemas — which is why the authoritative specification for routing, AR and trust is the design docs and ADRs rather than code.",
+      "evidence": [
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L16-L21",
+          "version": "repo-lines-v1:sha256:01d8843d8b26f2a269eb54012fe91163933d51f297013eb3452e2a488b443cde:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJiMzQyNjhmNTBkNDBjNTE3YjU1YTRlMzg5ZjA3OWI0MzY2OTAwODExOTYxNGJiOTUxNjdhNTIzOThjOTllYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGZlNGI3N2Q3NGJkNWFjNzg3MDgwZGYxZWNhZjljZTJjMTQ5YWNmYWRjNmZiZTZjMjJmYTAwODQ5YTliZjVlOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_002f761ca45541d2baf55c899dcf64f3",
+      "statement": "Every HTTP endpoint the server serves is registered by registerAdminRoutes: GET /api/status and the auth routes unguarded at the root, plus one plugin mounted at /api/admin behind the admin auth guard containing routes, fare-configs, directions, stops, detours, restrictions, export and mapbox — with no graph, navigation or trust route.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L14-L37",
+          "version": "repo-lines-v1:sha256:a8d5fac833d4d8ccf8b1da07b3973e6d932f1fab33b4c0dd20055f5b41c99286:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Y2IwZWJmY2U3N2UxYWQ0NjA5ZDI5OGI0ZjRjYzcwOGYxYTI0MGFjMGRjYWUyOGEwNjNmMjcwZWJmNjE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTZhNWZjM2Q4NWU5MjIwYzI2YmZiMWVkOGIwZTkyNDE3ZTMxYTgxZDYzNzE1NTc5ZTUxYTAzNmY1ODBlNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e165141f5e524514a3a4bb83f3a1a91b",
+      "statement": "The only unguarded endpoints are GET /api/status and the three auth routes; GET /api/status reports per-table row counts and the latest directions.updated_at, so it exposes no graph state.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L20-L21",
+          "version": "repo-lines-v1:sha256:eff761dca478f60144500917321ef63f8fbad4ca77511305fef3e50bdee8fc1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTNiYmU1ZTk3NDEzZTQ5ZDhiZTJhNDk0YTBhZDNjMTQyMjRmYzg3YzIwZjNjYmM2NmRhZWQwODM0N2Y2M2YwOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDNiODZkZTNlN2MwYTgwNWQ5YWY1YzQ4YWEyNzYwMjhiNDY5NmJjYjI1NzAzNjI2NTk1ZWEzZTk3NzJlMGE3OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjc3NjNiMzIxMjJiNzAyMDNjZGQyNjlhOTJiNzQ1MGM5MjE2MGI3YjNmMzU3ODA5MjY0MTQ4YTkyOTVhMGQwZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODAzYTAxODQzYjRlMDY3NzJkMGY5YzQ1MGM4Y2MxNTgwYmQ3NThhNTU4Yzc0YTlhOWI3ZjIwZjJkYTcyYmNiMSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/status.ts#L18-L56",
+          "version": "repo-lines-v1:sha256:d2c42b240327dd18e0f41a53bf19499e56424a4538ab26725445fe8a5416cefc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiZDJmM2NkN2FmYmIwOGExMDg0ZjJiZGUwN2ZkZjg1MWU4YTZmYmNjNWE2ODAyNDhhMjM4ZWVlMDJiZDQ5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c2dbe5401e0d4e3fb1faf99a28c8219b",
+      "statement": "Server startup performs no graph build: it loads env, constructs the app and listens, with no build phase, no cache and no rebuild hook.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/index.ts#L6-L23",
+          "version": "repo-lines-v1:sha256:06be845e5b22e9cb09f7177b186faaedcbd1ebfb8409d84a8c1fb6974cae0223:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyNDNjMjc0N2VjZWUyYWQ2YmEyMTg0M2YwZDU1YTA4NzAxOGQxMTg1OGE0YzljNjY5OTYyNTY3Y2Q4NDZmYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4ZmZhN2ZlNTlkMjM3ODI0OTk2ZWU2MGQ2ZjgwZGZlNTMzMzExMzdiZmRhODZkZDlhMjM1NzE3Y2M3NmE5ZWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0NTg0Mzc5MjlhMDhkZDNjYzRmYjRjYWQwODZhYzQxOTdhZDAwYTg5Y2QyNDExNzA1ODg5NjA4MjE3ZGZmOTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2c3efdf9a32b443abf9a5978e8c34bd9",
+      "statement": "No graph, trace or trust tables exist: the Drizzle schema and the migrations define only admin_users, fare_configs, routes, directions, stops, detours, detour_stops and restrictions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L60-L220",
+          "version": "repo-lines-v1:sha256:c004b2f3e3a7adca4fc5ebd09f8f1bb0e01c13d0354929b79320774b3010b0cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNjk5ZDFmYjhkN2EwOWQ3MGY0NDU1NDg1NzkzNTQ2N2JhYzVkOWQ1N2JiOWJjNTk5Njk5MTg5MDk4NzNhYTUxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjODY5NzU0OGJiOTFkYzhkYjA4NjI2NWU5YzQzZjBlYTdhMmZmMmMyNjk0MGE1NDJiNTEyOWE5Nzc2Y2Q0NzBkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4ZDc4MWM4OTllOTk0MWNlMjU5NDAzZjE2YzhkOGY4NTVmNGM3MmViZDY3YTNlMTI5NjYwM2ExYjg0N2FmNmMxIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1OGVkYmIwNTcwNGFhYzFiYjkzNzViM2Y2MWNkODQzZWM5OGZjNDlkZTM0ZDA1NzBiZDRlYTlmZWQ5YTU0NDA3In0"
+        },
+        {
+          "resource": "repo://supabase/migrations/0005_detour_stops.sql#L5-L17",
+          "version": "repo-lines-v1:sha256:649adaf199a653bde3814955f3579a7f08d63d1f5a0f68749a2f6a082105ad59:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmNWRlNjA4ZWNlNGM5MDRhZWJhM2JmZGM0ZTBmNzIwYzYwNjI3NDJjNDk5ZGRmMjQ1ZDZjOGRmYjY0MDc1ZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU1OWUxMDgxNTU5ZmQ3NmQ3ZWVkYTRiYzViOTUxNjMxMTc4YWExMTg0YWRiYTE2OGEwOWRiY2E0MWQyNTExOTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3ZGQzZGU2MzljODIwMTVlYmI5OTJkN2U4OGE0ZWI4ODBmMDc0ODQwZGY4NzRjZGJhNDY4M2UxOWQ2ZTVjMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ac28ed7b41fb443998b4769cce051d07",
+      "statement": "The only Dijkstra implementation in the repository is the standalone navbench harness (buildGraph and dijkstraSegment in navbench/shared/model.js), which sits outside the declared pnpm workspace globs apps/* and packages/* and is documented as standalone tooling rather than part of the shipped app.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/README.md#L16-L18",
+          "version": "repo-lines-v1:sha256:0e1336fab9771b9730793c68ab5fcc3f2a037e27474be46558ca4dc38f4d8364:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjliNTNkYmRlM2Y5MGVjNjE4NWEyNzM4NTVkMTA2OTIzNDUwYjg0Y2E3YWM5NDJjMDBmMTExM2FlN2Q1YjZmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzliZDY2MGZkYzhjMmNmYWQ5ZjU4NTM3ZTU3NTViMWJlNWNjMDkxMWJmNzg1NTU5NmQyOTQxNmIzNjAzZTE2OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTRmYTI2ZjQxNWNjNzA1YmEwZjAwZDlhMTViMWE2YWE2NDljZjkyZWVmOTIxOGMzMGE3NWUyZjhkZDEzMmE2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGVjOTA2ODU2ODFiNDFjMjZmNDdjODUzZGZjOWMzYTMyMWEwYjQ0ODYxZGY1MTdmNmQzNDA0N2RmNzI2NWU1NCJ9"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L46-L60",
+          "version": "repo-lines-v1:sha256:d88df7b40e90a4ea7107b1c1847d53011d8b770b00a6ec110396ce7853176b5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhODI4OTgyMTJmMTIyZDc4MWY4MDMxMjg1YWNjZTc4NDVmYjM2YjI5YWZkYWQ1OTYxN2E5N2EwOTgwZDVhYWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllODc4YTUwMDU3NGNmYTZmMDVhZWM5NGVmM2JhN2ZlOTA5OTRhYTI4NjgzNzdjNzY1OGM3ZWMzN2RlZmJiOTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZGQ2ZjAxYWY4ZTQ3NjczNjY0Zjg3NDFmZDVhOGNmZjdmMmFhZmUyZWY0MGExZTk0NmIyMjZiNjBhNWNkNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwZDc3MDZmYWUwMGEzMzg5OTAyNGFlMDllOTRiNWY3OWY3ZDkzZmFlNGY5YjU2NWE5NmZmZDY1YmE4OTM3NTAifQ"
+        },
+        {
+          "resource": "repo://pnpm-workspace.yaml#L1-L3",
+          "version": "repo-lines-v1:sha256:08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWRiMDc2ZWI4MGFkZTE5ZmVhM2UwYTQzMTk4NmI2NTVmNWZhNTllZDYyNjdlMTA3ZDY4OGI2MWMzZjQyMTc5NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODlkNjdjMzRmZGJlMGVkMzRlN2Y5ODcxYjA4OTU5ZjgzZTJmMmYwOTM3ZDAxZWU5Mzg0YWU4YWRlYjFkMjU2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9ac43ded9e0643f0a4def51a7afe660e",
+      "statement": "No navigation endpoint exists: no file under apps/ references POST /api/navigate, docs/BACKEND.md §10 documents that request and response only as design, the navigation-api contract declares itself a target interface not built by its feature, and the only HTTP navigation service in the tree is the navbench Rust PoC.",
+      "evidence": [
+        {
+          "resource": "repo://docs/BACKEND.md#L444-L460",
+          "version": "repo-lines-v1:sha256:2eba28d9660bb602aab91dad33ad8095f44e4fcaec09507445ac81af5d32603d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3NjlmNWJhMjU2NTQyNDMxMWFkNDEwOTRlNDNlZjQ1NjM0YTFkMjZjZDkwMTI3MzBjZDVkOTAyYmViYjRhNTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwMWYyZWMxNzU5M2MxMDU0ZWI0NjM2N2Q4NDUzZWYyNGExNzNjZTk2YjcxMTdkOTFmOWE2OGQ0NGZlZjhiMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhOGI2MmZhNWZiODE5NTZiMjFmYjBlNjJlYjg0NTM0ZTE4ZTI1MGE5NGQ1OWJjNWJjMDYyNzllNjcyN2QzYTgifQ"
+        },
+        {
+          "resource": "repo://navbench/README.md#L61-L64",
+          "version": "repo-lines-v1:sha256:0d8955e32da115335507ed3b634df03e4fc9eef32360c8fc508eeab599e945b9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWMxNTE0Mzk1ODc5MGM5ZTBmYjFkZDM4ZjU0YTEwZDI5NGUwMzY5MzRiYjliZDEzNzhhYjJjMmViMzkyOWQwMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDdjMDZjNTYxZDVjMzI3MzQzNjg1MjY4YTQ2YjMzOTFmMzk5OGVlZTg5MGQyYmU1MWYwZDIxY2M0YTUzYWU2ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTA2MzE5YmU0MjZjNzNkMGEwZTFmYzQ0ZTZlZTRjNTFmZjg0ZDk5YzllMGNhZmU1ZWQyMWMzMjc5YjlmMzg1MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTJiMDcxYWIzZjM0YWUyNzE0OGE5Yjg4NjZhN2YyNzFjMWQ2Y2M0YTFhYjFmM2RkODUzZGJmYWYyYTgyNmM2NiJ9"
+        },
+        {
+          "resource": "repo://specs/011-backend-language-migration/contracts/navigation-api.md#L1-L3",
+          "version": "repo-lines-v1:sha256:965e47dd5ed51766c0b87b73aab9a1ddf02f384c393e2c9bbb3b8a3ecd061083:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmEyMjFiNDcxYzg3Y2E4NmI5NjlhMGU5OTk2MDdkNDY1NGY1NjdmMTQxODdkYTYyNGM0ZjkwNDc3ZTliYjYxNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDE0MmMzMmZhODQzMTE3MGQyODcxZGZjY2E4NmUyYjM4Zjk5MmVkNTYxODY5YjgxOGQ1ODRlMjY2NGViZDYzYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzdmZmM4MDc4YTk2YzI3OWUxNzYwMTQ0NDVmYTUzNzM4OGJmMzI3YzUwNWIyMzZmYTViYjQ3ZDEzNTg3MDdmNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4017802fda5f49129cd6b87a666cfd3e",
+      "statement": "Multi-criteria ranking is absent from the shared contract: packages/shared exports only types/* and schemas/*, its domain types carry no weighting, profile or normalized-cost concept, and no preference-profile weight constants exist anywhere in the workspace.",
+      "evidence": [
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L46-L46",
+          "version": "repo-lines-v1:sha256:190f7d3833b03bd0547129ae650ed9d0592bdd98c7409324a6892c14edd23caa:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTkwZjdkMzgzM2IwM2JkMDU0NzEyOWFlNjUwZWQ5ZDA1OTJiZGQ5OGM3NDA5MzI0YTY4OTJjMTRlZGQyM2NhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTkwZjdkMzgzM2IwM2JkMDU0NzEyOWFlNjUwZWQ5ZDA1OTJiZGQ5OGM3NDA5MzI0YTY4OTJjMTRlZGQyM2NhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzY3YTIyNDZlYjkyNjc4OGE0NmEwOGU1ZDQ3ODI4MjYyODc4YzVhYjMwNjJjMzhiZTVhZmFkZWZjNDRmMTc4YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjQ0MjM0NzViY2E2ODJkYTEzYTczYjIwZGRjNmU1MjM1MjRjZjM3ZWU0ZDZlY2ZhYzVlMGE3MTA0MGI4MzE1MyJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L24-L109",
+          "version": "repo-lines-v1:sha256:6fa00ae18190b267f1557e6a0ed6f7d9fe6f1363566f080de00097a1a3b3146f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMmM0ZmFmNzExYTE5NGM2NDliNTFiNzhmMjA2MjgwOTQ0ZjA1Y2M0YzE3OWUyZjFjN2I4ZWVmNjZjNDRhZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZTczZGM4OWVlZjk2MDMxNTE0MmM5NGJiYmJlNGFkMGRjNmJkNDMyN2MxMzE0NjQwNWY0ODRiODk3NTVmNTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0ZWJiOThjNWNhNjY1MDUyNzdjNGI3MGZhMjNjODI2N2EyZTBmOTY3OGY5MWYxMTc3MjNjMmQ3MDVkN2Y0MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4ZTdkMzU2MjkzODI0Y2NmYmJjZDI3OGMwOTY2YmJiM2RlYTNjOWEyNjRjZWY3ZmYyYTc4YmNjMTlmMGEwNWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9d796924588744a59a55bb4c86c47cfd",
+      "statement": "No response contract carries a duration, speed or arrival estimate, and the Mapbox Directions proxy deliberately forwards geometry and distance only, never upstream durations or instructions.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L85-L91",
+          "version": "repo-lines-v1:sha256:9fce540b41358e060e9f9da389aab4b63b6fc9a8db165a6df53f2407a2ee835a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODkxZTRkNzRiY2RiYzM5MTliYjJiMGVlZmE4ODJjZjhlNTM1ZGU3NGYwYWEzMTUyMjBmM2RiMGFhZDkyMzgxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDYyZjg2Y2JlODk3NzJlZWU2MjU1OTQ5ZTg2NTZjYzgyMmZhMzg1MTZmMjdhZDg4ZDE4ZjcyYjUzZDczMTU4OSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L24-L109",
+          "version": "repo-lines-v1:sha256:6fa00ae18190b267f1557e6a0ed6f7d9fe6f1363566f080de00097a1a3b3146f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMmM0ZmFmNzExYTE5NGM2NDliNTFiNzhmMjA2MjgwOTQ0ZjA1Y2M0YzE3OWUyZjFjN2I4ZWVmNjZjNDRhZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZTczZGM4OWVlZjk2MDMxNTE0MmM5NGJiYmJlNGFkMGRjNmJkNDMyN2MxMzE0NjQwNWY0ODRiODk3NTVmNTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0ZWJiOThjNWNhNjY1MDUyNzdjNGI3MGZhMjNjODI2N2EyZTBmOTY3OGY5MWYxMTc3MjNjMmQ3MDVkN2Y0MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4ZTdkMzU2MjkzODI0Y2NmYmJjZDI3OGMwOTY2YmJiM2RlYTNjOWEyNjRjZWY3ZmYyYTc4YmNjMTlmMGEwNWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e0ac8c0542f84a57920f546abdf2df26",
+      "statement": "There is no GPS-trace pipeline: no trust, score, hausdorff or MHD identifier exists under apps/, no trace table exists in the schema, no endpoint accepts a submitted trace, and no shared entity carries a score or badge field.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L60-L220",
+          "version": "repo-lines-v1:sha256:c004b2f3e3a7adca4fc5ebd09f8f1bb0e01c13d0354929b79320774b3010b0cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNjk5ZDFmYjhkN2EwOWQ3MGY0NDU1NDg1NzkzNTQ2N2JhYzVkOWQ1N2JiOWJjNTk5Njk5MTg5MDk4NzNhYTUxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjODY5NzU0OGJiOTFkYzhkYjA4NjI2NWU5YzQzZjBlYTdhMmZmMmMyNjk0MGE1NDJiNTEyOWE5Nzc2Y2Q0NzBkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4ZDc4MWM4OTllOTk0MWNlMjU5NDAzZjE2YzhkOGY4NTVmNGM3MmViZDY3YTNlMTI5NjYwM2ExYjg0N2FmNmMxIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI1OGVkYmIwNTcwNGFhYzFiYjkzNzViM2Y2MWNkODQzZWM5OGZjNDlkZTM0ZDA1NzBiZDRlYTlmZWQ5YTU0NDA3In0"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L47-L47",
+          "version": "repo-lines-v1:sha256:2ffe731c3478ec775336cede65d94fa80e1bf2fefe92dafd49421b859a894d40:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZmZTczMWMzNDc4ZWM3NzUzMzZjZWRlNjVkOTRmYTgwZTFiZjJmZWZlOTJkYWZkNDk0MjFiODU5YTg5NGQ0MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZmZTczMWMzNDc4ZWM3NzUzMzZjZWRlNjVkOTRmYTgwZTFiZjJmZWZlOTJkYWZkNDk0MjFiODU5YTg5NGQ0MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2I4NjkyMDg5YTNlY2Y4MWEzYjExMDM1OWZlZmM5YzJhNTQ4ZmVkNTUzMjdlMjI1NDhiNzk0MmQ5MmQxOTE4NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L24-L109",
+          "version": "repo-lines-v1:sha256:6fa00ae18190b267f1557e6a0ed6f7d9fe6f1363566f080de00097a1a3b3146f:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMmM0ZmFmNzExYTE5NGM2NDliNTFiNzhmMjA2MjgwOTQ0ZjA1Y2M0YzE3OWUyZjFjN2I4ZWVmNjZjNDRhZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZTczZGM4OWVlZjk2MDMxNTE0MmM5NGJiYmJlNGFkMGRjNmJkNDMyN2MxMzE0NjQwNWY0ODRiODk3NTVmNTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0ZWJiOThjNWNhNjY1MDUyNzdjNGI3MGZhMjNjODI2N2EyZTBmOTY3OGY5MWYxMTc3MjNjMmQ3MDVkN2Y0MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4ZTdkMzU2MjkzODI0Y2NmYmJjZDI3OGMwOTY2YmJiM2RlYTNjOWEyNjRjZWY3ZmYyYTc4YmNjMTlmMGEwNWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9de7f4d056604e2f9fbac5987579d1c9",
+      "statement": "The mobile app is still the React Native Reusables starter: its only screen renders starter copy, it contains no HTTP client of any kind, and its dependency list has no expo-camera, expo-sensors, @rnmapbox/maps or expo-sqlite.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app/index.tsx#L26-L65",
+          "version": "repo-lines-v1:sha256:62f6a57996cfb8499144d00f24060f9115033c5515da8d241960ced4d79fc789:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlYjZiMWI5Y2M4ZTdjNTYwY2QzNDU0YTkxNDhiODI1Njc1NzU0MmVkMWVlMjFmNDdkOTc3ZDZkNGUwNGE0NTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2ZTQ3MDAxMTdmN2QzNGVmNzg5ZWU5NGZlNTcyMzg0MDJlNDk3MWY5MDllNjE5NjVkNWY5MTI1NjAxZWQyNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlZjlmOGM0MmQ0ZDc4MjRkMTA0OTQxOTgzZDVlOTRmMmJkZWJjZDFmYTdkMmFkZjJjNDE3NDczNDQ4YTNlZjkifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L14-L67",
+          "version": "repo-lines-v1:sha256:5a3fa431be451b9bac40b0193ee8cb6e8f1a678e24ac373755942b0f71419dba:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzJkZDA3OGVmZjQ4YTY5ZGQwNzAwMjRjZDk0M2JkZDAzOGI1MWI1ZmUwNGE1YjMxZWMwMmIwYWI3MWI1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1ZDRkMzEzNmY1MWYwYzE0NzEzZGMxMWMyYmIyY2YzMjNmMjE2NzRhMjBjMmI1M2MxOTFjOGMwNmNjMjUyOWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e687d53491e542789b1a2a5b34463117",
+      "statement": "No fare arithmetic exists in code: no fareCalculator export or identifier exists anywhere in apps/ or packages/, and fare configs are stored and exported parameters only.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L36-L36",
+          "version": "repo-lines-v1:sha256:0207f37e1db8baeca158d26b3368a400541d433bf6c06ebe9fac0473c6ff416c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDIwN2YzN2UxZGI4YmFlY2ExNThkMjZiMzM2OGE0MDA1NDFkNDMzYmY2YzA2ZWJlOWZhYzA0NzNjNmZmNDE2YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDIwN2YzN2UxZGI4YmFlY2ExNThkMjZiMzM2OGE0MDA1NDFkNDMzYmY2YzA2ZWJlOWZhYzA0NzNjNmZmNDE2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWIwMzNjMzFlMTIyOTVhNjMyYjgzZTFlNzE1NzEzMDE3ODRlYmU5ZTAxOTBlNjdmYzc0YzU3ZTIzM2EyMGJlMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2RhYjkwM2M5Yzg5YjlhNWM4MWQyMTE1NmQyMzAxZjNmOTQxMmFkY2NmNWJmYmFlNzA1ZGM5ZjZiNTU3NDE4OCJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b3ed2a492685405d8ad6c29e98ffdea7",
+      "statement": "The shared Detour contract carries only a plain is_active lifecycle flag — as every other entity does — and no conditional-trigger fields: createDetourSchema and updateDetourSchema have no time-window or condition field, and active_timeframes and condition appear nowhere under packages/.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L94-L232",
+          "version": "repo-lines-v1:sha256:8cdc664c3f8b3bc02e51bf63590b115d7c424bff365ba46a524164c20895394a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhMTRjZjRhMGVlODYzYWZiY2U2NGE5OWE0YTY3MDk4YzM5M2ZjYzUzNTZiYmZjOTdjNzI1NzFiYWZmNThkZTFjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJhMTRjZjRhMGVlODYzYWZiY2U2NGE5OWE0YTY3MDk4YzM5M2ZjYzUzNTZiYmZjOTdjNzI1NzFiYWZmNThkZTFjIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI4MzAyYWUwYmU1MTRiMjM4MjQyZjIyZjY1YjczMDYzOTc3N2E1OTdiYTViNDE4ODMxM2Y0NzY4ZDUwYTU2YzVjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI4ZjI1ZTgxZmUyMGM2ZjU3MDcwNzRiYWM1ZmYyMmNjMDFjNTFlMDA0YWU1ODc2MjY1ZjZkOTE5YTYxMjE2ZTYxIn0"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L110-L123",
+          "version": "repo-lines-v1:sha256:66b6366251fab0fb0b3d0e828eb8889b8cc6bdaa68e2cab336d89408345ed27c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzMzE1ZGYxOGU3YjJlMjdlMDc4MDA0OTgyOWZhYzAzZmU0ZjM5YjE3MDI0ZDM2N2ZjNWExMDU0MmQ4MjE2NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMzk5MTM2MWQyMTJiNzI0OWFhODFmYmY4OWM1NzdhODFhMjhkMDEzYzRkZGViNWUzM2YyZmFhYjZjZTgxZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3MTlhOTVjOWY2MWM0MjYyNTk3MjNkMjVlM2I4MTQ3NWNhZWIxZmI4Yjg4MGI5ZmJmNzMwMWQ4NmZjZmFlY2IifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L63-L79",
+          "version": "repo-lines-v1:sha256:c371c7b36231940e777b4bd99b4fb6994d8726ae7445e105963123619965d60a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4Y2YwMjU3ZTRkOGJmMjZkY2VhZWM5ZTYwYzA3MmJkMGRiNzllYjM3Mzc2NmY1YzU2MTZmNzFlZjU3ZjIzMDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjODA4Y2EzODUwNThiNmZhZDE2NWFmNzcyMTQ0NjJkYjUzZTVmZDIxMDZhMWY5OGM1MjNhYzViYWI5ZDE1YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM4MTEwODAzMTUyZWM0OTY4MDU5ZWJjODI4Y2Y3M2Y2YTk5NmFlZGM4MjkyNjkzNDgwNjU2MmQ3NWU3YTdhNDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_986fbd8ec53a4f708a181721525a669a",
+      "statement": "Real distance and projection geometry is shipped but is authoring-time only: haversineMeters and distanceToSegment back server-side authoring assertions in domain/validation.ts, and the admin's lib/coords.ts provides polyline length, nearest-vertex and click-to-polyline projection for the plotting workspace — none of it builds a network or runs on a commuter request.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L48-L178",
+          "version": "repo-lines-v1:sha256:ca56f6b295fee015300cb27d8d3585f4c16a7347314e2d3610d28704a66a1091:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmMzFlNGY2YWFmOTM3NmIwM2I5NTE4MDlhNjY1OGQwNWY3ZDRjODM1ZThiOTI0NTMwODQyNDg3MTYxZjA2MTI2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2NzFiOTZmNjc5NWZjMDQ3NTFmZjM4NGEzMjQ4YTk3NDhhMTUzNzk2YmE4MzM5N2NlNjY1MjU1ZGQyZDEzMDNiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2ZWE4YmE2MmUwMWQzYzE2Mzk3ZTIyODRkZTA1NmI0ODMyNTQwNzAxZDQ5ZDIxOWY3YjgyOWY2MzQ3MTIwZjcxIn0"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L37-L99",
+          "version": "repo-lines-v1:sha256:070aed8f6e747d4f5257dfa5b26167859db084c0727bd28b3b236eb5f19c2508:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5Nzg1ZjkzYWQxZjUwY2E0MjJjNTc5NTdmYTVmMmQwYWUzOGVjZGQyNGNhMmRjNDUzMGU3YTBlM2ZmNGFkODgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmZjEyOGY1NWZlMzg4NDNhNmU5MjRiOTY1YmI3MzFkODM3OTNkZGQyZWM2NTNhODU3YWVmOWYzZTM5MDNhZTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRhNmQyNGIzZWUyODU5ZTEwYjEzYTE1ZmFjMTgxMDliYzAxYWI3YzBmYThlMTY2YWE4YmU0NjRiZTcyODY4MjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQzM2E0MjQyNWMxNzM1N2UyM2ZjZTk1YmNlOTE1YTdkYzY2MGNiMWNlMTYwODdlMzAzMDA4YzEzMTk0NGFhZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_587c104256ec460eae1a807e5cc87e74",
+      "statement": "The two meanings of snap in this repository are the admin Mapbox Directions proxy, which snaps a plotted path to the road network with a straight-line fallback and snapped:false warnings, and projectPointOnPolyline, which snaps a map click onto the polyline being drawn; neither is request-time snapping of a position to the transit network.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L287-L291",
+          "version": "repo-lines-v1:sha256:cf29b7e1d532ececb3689e0c8671eb039652c48716ce2cd36beaba9dce208b9d:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGU5NmYxMjA3NTcyZDhmNzRkMDBkYWY1OTkyY2NmNGRjOWE4M2Q3MTI1ZDExOWE1YWI3ZjYwZDE3MjY3NjFhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTY2MTQxOWYzOTI0N2RmMjhmZjY3ZjE1MzE2MzE2YmM4OTFhNzY4ZmIyOWUyYmQxMDI5YjFlYzZiMGUzMTBlMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjI0ZTBlMjFlOTBkMmE5Y2NmNjA1MmJjNzExYzFlZjI1M2MzNTlhNWZmY2ZlZmRjZjRiM2I4ZTYwOThkNGYxNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzA5MDAyOWY4NmZhMmZhYTk4ZGI5MWZhNmUyMTFkODRmYWQ0NDAwN2JmODY3ZWMwN2EzZDM4YmNhZDY5OGFlZiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L85-L118",
+          "version": "repo-lines-v1:sha256:443e65814b8364de3db8da778d2e9204d0df365b0c536443ff6282d5ea33f781:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MWU0ZDc0YmNkYmMzOTE5YmIyYjBlZWZhODgyY2Y4ZTUzNWRlNzRmMGFhMzE1MjIwZjNkYjBhYWQ5MjM4MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5OWIzMGNiMmU5NmQyMmQ3NTNhZmQ0ZmE4ZGNkYjZhYWY3NzI4Mjc1NmM4OGE3YzM1MzNjY2U5N2JiYmNmNDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_463c325a232a4a1d825433c59106b688",
+      "statement": "The intended design for the unbuilt layer has named homes that the wiki must not paraphrase: docs/BACKEND.md §3 (graph model), §4 (Dijkstra and profiles), §7–§8 (trust scoring and trace preprocessing), §10 (navigation request and virtual nodes), §12 (graph caching), plus the navigation-api contract and ADR-0003/0008/0012/0017.",
+      "evidence": [
+        {
+          "resource": "repo://docs/BACKEND.md#L119-L125",
+          "version": "repo-lines-v1:sha256:ec6c35863d8e0fc2aaa7bfe6e826afb1efe8f1c1478d19bd4040872534cf3306:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjI5NTYzMDUwN2MyNGFmODY5ZmQ4OWE2MzgxZTQ4ZmE1ZDA5YTQ3NWYzMTQxNjE2ZTVhMzFkNDcwODU0MjU4MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWZiZDNhYTY4MGY5Y2U5Mjg3NzIzMzA4MTE3NGFjM2EwYzAwMmU2OTVmNDViN2YwMTc3ZTcyY2M4YjYxZjU5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWJhZjZiOWU3YmNkMjg4Y2MxNjQyOWY3MjM5NDhmMTMwNjIwMDdmYjVhMjJjZDdiYmRmMTEyNjg3YTJjZTEyOCJ9"
+        },
+        {
+          "resource": "repo://docs/BACKEND.md#L198-L212",
+          "version": "repo-lines-v1:sha256:51395ba67f35817084ed6502a0ac57dd3dcc09e56fab50a24b842c077b3563d8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ZjhkZDE1ZDVlMGEyMDFjNTg3YjBjM2QyODIyZTc2NGQ4NjIyMjQ1ZTc3ZDRhNzlhOWYzMWNiYmYyNWI1YzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2YTNlZDllNTIzNjJlN2I2MzYzZmNmOTZlN2MwMzI0NTBmZGM2Yjc1NDYzOTBhYWZkZjhmYzI2ODQ3MzI4YzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwMWYyZWMxNzU5M2MxMDU0ZWI0NjM2N2Q4NDUzZWYyNGExNzNjZTk2YjcxMTdkOTFmOWE2OGQ0NGZlZjhiMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjZjdhZDZiOWMyODQwOTkyMzA0NjU2Y2Q0ZjY3NzIxZTIzZDJhNzM0ZmE4OTdkZTA1MmNmMDEyY2UwMmMzMDUifQ"
+        },
+        {
+          "resource": "repo://docs/BACKEND.md#L342-L344",
+          "version": "repo-lines-v1:sha256:93e36d697a54d775035526fb427a459ddca68fc7588dd95d7c06b0b42a2acd13:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTc3NzIzMTMxNTdmMGY4ZDYwMGNkOTA1NWI0YzU1NTMzMmZlMGI2NWYzZjFjODMzZmUzODA0MmVlZDQxNjk1MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDk2YmI1YjliYTlmZjczNjY1NDI5NzYyMDhjZWNkMDgxODQ2YjNhMDIwZDZmYmM0NjY2M2E0ZmI5ZjVhZDIwZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGVhZTM1OTBjMjNiNDdiYzZiMzY3OTgwMzYyMGQyMDYxOTE4ZDVjZGY0MTQ4NzA1Y2QzOWZmYjdkNmY0YzllMSJ9"
+        },
+        {
+          "resource": "repo://docs/BACKEND.md#L395-L401",
+          "version": "repo-lines-v1:sha256:9455d15a2d8777c5c4cd5e3604c24cb6284cbffd18fc5eea07e5869b60feab33:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyM2UzNDY0MmQ1M2RmMGNkZGUyZDc1N2U0N2ZhNjgxYTZhMjc2MDIwY2Y4YTE4YTA2MWRkYzMzZjhmOTNiYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWY3MGQ5YTk1ZmI5MDE4OWJjOTMwNzQxNjZmM2VlOGY3MGY0N2Y1OTViZWFjOTAxODQyMWRkMTY4ODFjYjNkYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2MyYWFkOTljNjY3MjJiYmZhYzIwYTRjMjA5N2FiNjdlMjgyOTE3YWIxNjVlZWMzNTk3Mzk5ZDllNmQ2NDU0YyJ9"
+        },
+        {
+          "resource": "repo://specs/011-backend-language-migration/contracts/navigation-api.md#L1-L3",
+          "version": "repo-lines-v1:sha256:965e47dd5ed51766c0b87b73aab9a1ddf02f384c393e2c9bbb3b8a3ecd061083:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmEyMjFiNDcxYzg3Y2E4NmI5NjlhMGU5OTk2MDdkNDY1NGY1NjdmMTQxODdkYTYyNGM0ZjkwNDc3ZTliYjYxNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDE0MmMzMmZhODQzMTE3MGQyODcxZGZjY2E4NmUyYjM4Zjk5MmVkNTYxODY5YjgxOGQ1ODRlMjY2NGViZDYzYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzdmZmM4MDc4YTk2YzI3OWUxNzYwMTQ0NDVmYTUzNzM4OGJmMzI3YzUwNWIyMzZmYTViYjQ3ZDEzNTg3MDdmNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_91fedefed6a94454a95b7bb118cf3f17",
+      "statement": "Code-versus-doc drift in this area is unrecorded: the design docs keep GET /api/graph/status as the graph debug surface (ADR-0005, restated by docs/DEVIATIONS.md D2) yet the server registers no such route, and nothing builds or maintains a graph at startup — neither divergence appears in docs/DEVIATIONS.md.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/status.ts#L18-L56",
+          "version": "repo-lines-v1:sha256:d2c42b240327dd18e0f41a53bf19499e56424a4538ab26725445fe8a5416cefc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiZDJmM2NkN2FmYmIwOGExMDg0ZjJiZGUwN2ZkZjg1MWU4YTZmYmNjNWE2ODAyNDhhMjM4ZWVlMDJiZDQ5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/index.ts#L6-L23",
+          "version": "repo-lines-v1:sha256:06be845e5b22e9cb09f7177b186faaedcbd1ebfb8409d84a8c1fb6974cae0223:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyNDNjMjc0N2VjZWUyYWQ2YmEyMTg0M2YwZDU1YTA4NzAxOGQxMTg1OGE0YzljNjY5OTYyNTY3Y2Q4NDZmYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4ZmZhN2ZlNTlkMjM3ODI0OTk2ZWU2MGQ2ZjgwZGZlNTMzMzExMzdiZmRhODZkZDlhMjM1NzE3Y2M3NmE5ZWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0NTg0Mzc5MjlhMDhkZDNjYzRmYjRjYWQwODZhYzQxOTdhZDAwYTg5Y2QyNDExNzA1ODg5NjA4MjE3ZGZmOTkifQ"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L30-L30",
+          "version": "repo-lines-v1:sha256:778da2f62e3c09b883c51c08e683d9f2397edc3f0f4e71ddfdd5cccd87064a45:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzc4ZGEyZjYyZTNjMDliODgzYzUxYzA4ZTY4M2Q5ZjIzOTdlZGMzZjBmNGU3MWRkZmRkNWNjY2Q4NzA2NGE0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzc4ZGEyZjYyZTNjMDliODgzYzUxYzA4ZTY4M2Q5ZjIzOTdlZGMzZjBmNGU3MWRkZmRkNWNjY2Q4NzA2NGE0NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDhjNTVhMjQ0MzZkNWIyOTI5MDRkY2YzZDU0MjlkNWMyNTZlODFkZTg2ZjY4MWNmOGE3OWZjOTg2ZWNhOTJhNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDk1MGQ4ZDczM2ExMWYzNWQyODYzMDI1ZjA1Y2Q0ZWE3MmUxM2M5YTg3MWNhNjQ5NGJjNzVjNGMyNmU0NWIxNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_27c64269b75c43c09f57668b13af55ee",
+      "statement": "No test in the repository exercises routing, a trace pipeline or trust scoring: the server's unit suite covers derive, env, export, geometry, mapbox-proxy, schemas, throttle and validation only, the integration helper mentions a graph only in a comment, and the admin's hermetic suite covers plotting stores, coordinates and geometry.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L185-L190",
+          "version": "repo-lines-v1:sha256:8732a6183a2799c872d11fcfc4f9ceed50653a7124694e658d74e400295f1dc0:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGJhOWIzNjI5YTQ1ZTFkZGYyMzEyNGZiNzRjMGVmYmE2YTgxNzcyMzFiYzNkMDkwN2VhMTI5MzljYzczYmM4ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzFlYmM2YzljNjVkZjdjMTZjZDhjNDE3MDIzNDc0YWVlNzFmYTUwOTgyYjhjYmU5MWRjOWVmMTJlOGQ1MGM1ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTNhNDgxNzZmMmJjZjUyMGY5N2U1MWM5Y2Q4ZmZmZGQ1MjEzMzEzMmUzMDNkYTY5MTM5ZmRmNTM5OWUzYjEzMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjFhNmFlNGZlMDViYmU2M2NhZjk1Mjg2NzhkZWMxM2M5OWJlYTRjZTdkNTkxYjZlYWEyYzk1YzE3MmJkNWM5MyJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/geometry.test.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:ffff041d4ce94ef1e3685faf5228cdaf0b3e07b059ba3c80cbd0ea66ee0cc480:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOTUwNmIyMWY0ODNkYzk1ZGYyZjJiMzVmNzBjMGE0NDNiMDUzYTdiOTY0OWY3NzQ2N2U2ODhhMzMyMDA0MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiY2M5M2IwNWRjMGY1M2VkZDNkYzMyMjk4YzUyNThmYzZlZTNhZmE4OTMzNjhjZTc1MzA2NzRkMTg2MTdlYWUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L1-L18",
+          "version": "repo-lines-v1:sha256:87b6aacaa5dfcdd5f4aaee205aa53d01430762d8cc82af88a058eaec9ce40a9a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkMTNjNmRhOWYyMGFiZThmNjMyODU4OWUyNjVmYzZkOWZlMmRhMzk1ODMxNjBhMWJmN2RmYWJjNjZiOTY0YjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhZWU0MmEzYjFlNTFkNWZiMTEwYTU0ZDU2OWYwOWFkNTM5ZGNkMzliMTNiMjAxYzA5MTUxMjUxY2E5ZWUwMTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

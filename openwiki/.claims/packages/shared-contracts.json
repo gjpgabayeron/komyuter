@@ -1,0 +1,474 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e6445c3ac309b5a5c08d87050202e56216a347414e51cf69bf4c81a31a98ba5b",
+  "claims": [
+    {
+      "id": "claim_0c72172fc47f4fc08274421887a481a7",
+      "statement": "`@komyuter/shared` is a private, source-only workspace package: its `exports` and `types` both point at `./src/index.ts`, it has no build/lint/test script, its only runtime dependency is `zod`, and its only consumers are `apps/server` (`workspace:*`) and `apps/admin` (`workspace:^`) — the Expo app `apps/mobile` does not depend on it.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L16-L16",
+          "version": "repo-lines-v1:sha256:400ab34ff4b8bca1e2a76e3cbb15291a1aae814d60a9f07f612170d1ebb1580b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDAwYWIzNGZmNGI4YmNhMWUyYTc2ZTNjYmIxNTI5MWExYWFlODE0ZDYwYTlmMDdmNjEyMTcwZDFlYmIxNTgwYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDAwYWIzNGZmNGI4YmNhMWUyYTc2ZTNjYmIxNTI5MWExYWFlODE0ZDYwYTlmMDdmNjEyMTcwZDFlYmIxNTgwYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTMwMzM2MGZhMTg1MzViMDRlMzFmNGU2NmExZmEyZWYzN2UxNDk1YWU5MjNkODY2OTk0MDZiNzIzMjljNmMwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzQ4M2QzYTM4NmM3ZWVkMjcxNzkzZWFkNmJiMmZmNzIwZmYzZWZiMjg1ZjE4MDg4NThmODA5OTJjMDg0NDA4MSJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L14-L45",
+          "version": "repo-lines-v1:sha256:f212a7edf6c1de751a6e5c39df24fddab5deee6632e830dbf14ca236f7ef9a06:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNDhkMTcwNjY4MGM0NWI3ZjFlM2U5MGZiMWNlMTM0ODBlNTBhMzc1YzczZmMyMTBkZGZhYTk5MDExMDNlYjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzJkZDA3OGVmZjQ4YTY5ZGQwNzAwMjRjZDk0M2JkZDAzOGI1MWI1ZmUwNGE1YjMxZWMwMmIwYWI3MWI1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlOGZhNzg3ZjliZmY5NjRjYjZjZjQ5MGZiODU5NTMyZTgyNmZkZTcwYjJmZDAxYWFjZjcwZGYzNjNjNTRjNmUifQ"
+        },
+        {
+          "resource": "repo://apps/server/package.json#L15-L15",
+          "version": "repo-lines-v1:sha256:520d451729e3a2823b5469c094482eec6602e661a709ecc36fbf70a4bb618124:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTIwZDQ1MTcyOWUzYTI4MjNiNTQ2OWMwOTQ0ODJlZWM2NjAyZTY2MWE3MDllY2MzNmZiZjcwYTRiYjYxODEyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTIwZDQ1MTcyOWUzYTI4MjNiNTQ2OWMwOTQ0ODJlZWM2NjAyZTY2MWE3MDllY2MzNmZiZjcwYTRiYjYxODEyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGY0NjU1NTBhNDRiYTU0MzU1NTA4ZWM1MWU4Yjk5YWUwMDBmN2QxODg0ZWNhZDU0ZDg4NmUwOTA2MjFkNTcwOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODc1MGIxYmVkZTVhYWU2YzgwYTk0ZDU2NDI0NzA3ODIyOTcxZWY2MzE1YmUyNjkyNTQ2ZjE5YTc2NDkwMjFkNSJ9"
+        },
+        {
+          "resource": "repo://package.json#L7-L7",
+          "version": "repo-lines-v1:sha256:e3bb9b0b7fba6ae6f3c4b98880a31b247dd8a1fe81dfaad332710f51190e2be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0NGIyY2IxMTk3MjNmNWYyNTRhZmU2MmE4NGJjMzQ0MWVlZGY2M2Y5MDVhODM0OTQ1NGFiMTAzZmI1OWU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/package.json#L1-L18",
+          "version": "repo-lines-v1:sha256:91951014d236385856accd7a75a7db9f1e52988057446500cf7ebfe20ad47fc5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8bc4f324d1224a3c8adb532897531ea5",
+      "statement": "`packages/shared/src/index.ts` is the package's only entry point and re-exports five type modules plus five schema modules with no subpath exports, so a name that is not re-exported from that barrel is unreachable to both apps.",
+      "evidence": [
+        {
+          "resource": "repo://packages/shared/package.json#L6-L9",
+          "version": "repo-lines-v1:sha256:3c14b3febb6f51fc5bc31e561d80aceb3dbe7bb050a65afd1865b19b61fdc446:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2MwNWJiOWY0YThiOTg0NTEwZjgxNWE1ZmM0MDc4ZDc3YzVhMjBlOTNmMzM3M2RjNWRkZTRhMzQxZDFiNDBjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDZjZGQ4YWUwMWYxYjdkYzk0M2YwZGFkMmY0ZDFlNmE2NjU2ZDUxMjIzMWI0MGM0Y2Y4YmYxODg1NTYxMjMwYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc4Njg4ODc1OWM1YzdkOWQ1ZDZiMGE4ODY2YmQ5ZmJhNzMzZDY3NTdhMjY5MThhZWYxZWJhNDRkMzFjZjlkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODhmNWVlNGU2ZTQxYTNkNjU3MzVmZTQ3MjRmYzU5ZjVkNWNmNGU2YzBkZTI5ODhkZmRhMDg0ZDE0MmQ2OWJjOSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6c2a0633d54844e3a91d55963825da94",
+      "statement": "`buildApp` creates Fastify with `withTypeProvider<ZodTypeProvider>()` and installs the zod `validatorCompiler` and `serializerCompiler` from `@fastify/type-provider-zod`, which is the wiring that turns shared zod schemas into server runtime behaviour.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L35-L39",
+          "version": "repo-lines-v1:sha256:2a43e3d2f77fd875cfb5c141135e44cdb3306671b33b179000147762a463cf9f:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDljZmE0ZTI1MDAxMDc4MWUzYWMzODVjNTQ5MWVjYzg3ZDZjMzFlMzA3M2Q3MDgxNGU5NzNiN2JkNzA0NGMzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTBhNjhkYWRlYjBmZmE3YzVlMTE2ZGYyNWNiZmM2M2RmMjkxYzAwYjkxMmE0OWQ1MTk0NTFkYzM3NzJiODlmYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGU5ZDEyOGI4ZjA5NjFmNTk3YWQ5NzNhNjNmZjk0ZWEwZjMwY2QwNzc4Y2YyZTMzODllZmJiMzgzZDI4ZmU2NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNjYzYzNzgyYjc2YTJkMTE0YTljY2ZlMjBkNzA0Mzk3ZGYwMjgzMTM3MDJlZjI1ZTdmOTA3NjJkNzBjNTMxOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d3bae6acd5514fc599b0f2f4ada4e09c",
+      "statement": "Twelve admin CRUD endpoints attach shared create/update schemas as `{ schema: { body: … } }` across six resources (routes, directions, stops, detours, restrictions, fare configs); the login body is the only body schema defined outside the shared package.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L12-L14",
+          "version": "repo-lines-v1:sha256:2035fba55ac5550c477e986680dec30dfecb4f7fb5bb7d21cefd65226a59769f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTIzYmY2ZGFmNjhmY2Y2NDcwMzdlZGM5YTdmOWMxNGQzYmUxZjU3MTVmMjliZWZjOWI1NmRkMzY1ODk5ODRmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDI2YmM3Njg0MjA2NTc0OWJjZjEwZTAxNGVkY2M1ZjMyM2QyODQ5MTk4OTdhOGVlMjhiZmVjNmQ3YzQwM2ExYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODA1NDRiNTA2MDVjNDBiMDMwZGNhYjU2YWQxMWFkNzZmMjlmZTJjZWNmYmZkN2Q0ZjRhY2IxOWZhNjVjNWM2YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmVmYjhkOGQ2YjY2ZDk1ODQ1OGU4Y2VjOGUwN2I0NjQyODA3NTFkYjI0NDI4YWI3NGNmZTdlMWU3NmJlODYyMiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L95-L99",
+          "version": "repo-lines-v1:sha256:dfff5ebcfcb2152e06912711b6a1a4555fd7692b6179c1365164013ad1a117bd:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjQxZWQ2NWI0ZDNkMGUxZTlmNWUyNGY2MzNiN2M2M2M4NGYwMGFjOTdiYTBhMzg0ZGRlZWY0ZTRkYTM1MGFkNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTU4MDNlODU5ZjlmNDk2ZjNlYTdlYjFlMmU0NDcxY2RiZTBjNTQzNGYyNGMzZjRjNjYxZTMzYWU2ZWQ0NDRiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjFhNjBjN2E0NzM1MDA1YjI3OGM1YWQ1YjVhYjM2OTU1MzlhYzY3ODQ2MmU1NzEyNTVkNzk1YmE4ZTQxMmRhYSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L252-L256",
+          "version": "repo-lines-v1:sha256:e8033656aeafd4892b1dd28df50d5ddc6f28f0b15bc4de880fd8b21217bd13b5:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWRkOWJiYjQxZGM0OTMxZGYwMGViZTk1NmQ4NmFjNTMzM2Y5MjVjNjgyZDViYmUyNDNlNjY2ZDQ0ZjA0MzY4ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWZlY2JmMzM0MTY4YjE5ODBlYTA4OWFiNDdiMzhiNWRlN2MzNDcyN2Q4OTFiYzEyMmExMDk1MGRjZGM3MTU1ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjk2MTFhZGNjNDNjNGYzNWY2ZjcyOTljNmNhYzdlZjAzZTM1MTJjZjZkYTVlMWQzNGQyNmRkYzk1NmVjZjIzZSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/fare-configs.ts#L94-L98",
+          "version": "repo-lines-v1:sha256:b41c57aa23adcc3329b933391867028f145ad70ce810bbcd0f22ed0798dd0530:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzk1MjEyZTY0MjlkZTM4ZDhhZmZiZDczYzlmNGQzYTQ4MTNkZjkyYmE2NzZjMWU3NjJiMjYzNWVhNzMyNzg2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGQ2ODFlMWY3Njk5Y2U0NmUwOTVmNTdiNjg4NjMwZGEzNGYyMDZmMWJlNTc3NWFhNTM3NDQ5OWRjODY4YTEzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTIyZjEyYzM0YjFhNTI0MzhkNGE5NTAzOTRlNTY5MDQwZmRmNmMwN2I1YzQxYTFjYzUwNmI1MGJmMjJkNTRmZiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/restrictions.ts#L42-L46",
+          "version": "repo-lines-v1:sha256:2d5acfaabcb0ea41cc6a6b4d9c820a460ae599711da1fbe2ee7f1e3491fe2afd:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjQxZWQ2NWI0ZDNkMGUxZTlmNWUyNGY2MzNiN2M2M2M4NGYwMGFjOTdiYTBhMzg0ZGRlZWY0ZTRkYTM1MGFkNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWQzYjc1YTM3YzM5OTEyMmRkYzliM2IxZWE2YzU4ZGQxZmUwYTUwZWIxNTM2NGQxZjUyMjg0YzIzMTU1MGZmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjFhNjBjN2E0NzM1MDA1YjI3OGM1YWQ1YjVhYjM2OTU1MzlhYzY3ODQ2MmU1NzEyNTVkNzk1YmE4ZTQxMmRhYSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L60-L63",
+          "version": "repo-lines-v1:sha256:a34a409c50f91f2ff6ba2d81260f23c2f99ec568893ed581b832d75d4526bf41:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWM5MmY5NDI2NTZiMzE1NDBjMGY0OTYxZGJmODU0MjlmYzM3OTExNWI2NTU3YzJlM2U0M2MyZGYxMmI1ZmI2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODczZjdhYTE0MDJiOTg3NTkzMDUxZDc4NDdkOTIzN2IzMjE4ZjI4ZTBhNmUzMzY2YmU2M2UzY2RmYmIzMzFmOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTg2Mjk4YWY1ZGI0ZmE3M2ZjYjViOWExYzc4Y2ZlZTQ3ZmNmZDI2MWFlYmMzZGNjYmNmMmE1Y2RmODliMzE4MiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/stops.ts#L39-L42",
+          "version": "repo-lines-v1:sha256:0ee931807e34820eb0cbacf5a40d7b3cfb45379e74c2aab0f9d54105961b6f90:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWM5MmY5NDI2NTZiMzE1NDBjMGY0OTYxZGJmODU0MjlmYzM3OTExNWI2NTU3YzJlM2U0M2MyZGYxMmI1ZmI2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzAwNDJjNmE1OTFkYzJmZTcwMWQ5YjdjNWI0YTM0NmZlOWFjNDg4MjY0ZTNiN2E0ZjllNzFkN2U4Y2U4YWFmYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjY5NWY1YjZjYzA5ZWFjYjI0MDY2ZWYwODJhMDlkZTk3NDc3ZGU3YjUwYjQ2Y2Y5NzY3MTJmMWJjOGM3MjczMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a69039e10a234b268bb79056ef4e3602",
+      "statement": "A request body that fails a shared schema is rejected before the handler runs: `buildApp`'s central error handler maps a validation error to `422 { success: false, error: { code: \"VALIDATION_ERROR\", message } }`, maps `ApiError` to its own status/code pair, and falls back to `500 INTERNAL` with a logged error; `ApiError.code` is typed as the shared `ErrorCode` union.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L66-L86",
+          "version": "repo-lines-v1:sha256:401b2f221849f774fe419ee255b3b18ec9e205c59a17cd725e87bc1e1a913674:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNGQ5Y2ExMWJkNjY0ZTk3MTI2Nzk3MDlhZTVhZTA1MTJmZWY3ZTI1ZmQ5YTgyOTRmZDNjMDcxN2VlYjU1NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyZGM5MDljNDA3YjdkZGRiZDU0NDI0M2JhZWZkY2JmYjA2MGE1ZDUzMDIzNDk3YWQ3MWJiOWE0OWE4MDAwNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjMjU0YmMxODI0ODQyMzk2YjhiMGQ2YzJmNjJjMWNjN2YwMjAxYWFhMTlhNzg0NDY0YjQ5ZmY4YmI1NzY5ZDAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/errors.ts#L1-L19",
+          "version": "repo-lines-v1:sha256:c81993bdd87c3f0a6bd0939c86c7e67f6d7e6839a542a1b9ab05e7f13eeae5e7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1MTVkZjcxYzcxZDUzZmNkMzIxZjQyZWNjNTZlYmExOTEwYmVjYWM0NDBkODBlNDIyMTVmZDM2ODBmZDAxMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyZDcxODkxZTRlYWMyMzkxMTg5MzA4YjE4NWE0YWE1NWU3ODZmMmJmOWEzYzYwYjJmMTY5NzE2ZDhhODgzYjQifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L246-L253",
+          "version": "repo-lines-v1:sha256:fb94deb71884e607f8af7a572e1adc4bb9dfc7a744bb14c268ad65839b5f8455:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjE4MDc2NmJhZDM5NjFlMGZkNGUwNDNkMWQ0MjRjYjM1MmNhYjc4NmFhZWQxMjNjMzM1MDdmZjFkNGEzMjExYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTIyZjVkNDc1NTI1MTZkODUzYmU4MTIxMGFkZDU0M2I3ZTQ5YWQ4YThjODFiNjFiOTQ5ZjBjODcwMWRmYzRhNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjMyZmUzOTBlMTMwN2UwNWU4YmI3Njg4OGNjZWExNDAzZGJmN2E5YTU0YmY4YzVjZDExYjYwYmIxODU0NjdkMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGEyOGRjYTIzOWM1YzAwMWEzNjZiZjJmZDQ0N2Y2NmZkOGFiMjA5MTljNzY3YTc3YmYxYjUzYTg3MTExMTQ3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2d40131885d04d84b9759c155c3bb7f4",
+      "statement": "No server route declares a `response` schema, so although the zod serializer compiler is installed, shared schemas constrain requests only and every success body is written literally as `{ success: true, data: … }`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L36-L39",
+          "version": "repo-lines-v1:sha256:9bb1b3549d0ea5a353362fa78c72554898e88bc5df54ee27de6ae2c77f449620:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2MwZjJmNmFiMTEyY2Y2MGNmMjk1ZmQ1YWFhMGM3ZjgxNTFmYjlmMGZkNDhmODgyMTczOTkwZjcwNDY2MmQyNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTBhNjhkYWRlYjBmZmE3YzVlMTE2ZGYyNWNiZmM2M2RmMjkxYzAwYjkxMmE0OWQ1MTk0NTFkYzM3NzJiODlmYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2ZmNTNkMTM5NGFiNTlkYjI3OGE0ZWE4OGFkYTZlNGEwMTJhNTI1MjVhODQ5ZjI0NWMzMDcxOTJkNjNkNTAxNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNjYzYzNzgyYjc2YTJkMTE0YTljY2ZlMjBkNzA0Mzk3ZGYwMjgzMTM3MDJlZjI1ZTdmOTA3NjJkNzBjNTMxOCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/export.ts#L10-L19",
+          "version": "repo-lines-v1:sha256:658179ae9d78c0088c1a08a165bf41004eb07fff944db7cb124b20906095693d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwNDEwMTk2M2Q3Y2M1ZjExZWEwNDVmMzBmZGYwNjM2MGVkNjBmNzY4OGFiNTViNmMyZWQ0OGE4Njg3YTM0MTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L49-L57",
+          "version": "repo-lines-v1:sha256:8a9b0d7333909719b84ba064738c7d54dc0ce12354c37e5bab30cd6c3cf710c6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzY3N2ZlMWYxY2QxYmEyY2ZjYzcwYTY2MWVlYjFhYjhhOWMyZjRlMmQxMmE5ZWYyNGQ1MTk4NjY0MmMwMTc5YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWQ5ZTEyNTQ2NDI1NTc2ZDNkZWFlOGM5YjlkYmYxMjhkNWQ2ZGRhZjVkN2ZlODU3OTM0OTI3ZGVmZmEzYjlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzMzYzEwZmJjYjM0MzFmNzJhZTA3YjI1M2IxZDkyZWE0ZjA1OTc0NjdjMmViNTIxMDE4NDFkZWNmYWNlNTA5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDExYjJhMDhjMmNkYTRmOGY2YTYzYjE1MzlmNTI0ZWNkM2NlOTFkYzIwZDkwYTg1YjI3Nzc2YjEzZTUwNDlmZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_34513214b5f74b0b8faa83fe50654a4c",
+      "statement": "The geometry contract is structural only: `types/geometry.ts` defines `CoordinatePair = [number, number]`, `GeoPoint` (`type: \"Point\"` + one pair) and `GeoLineString` (`type: \"LineString\"` + pairs), and `schemas/geometry.ts` mirrors it with `z.tuple([z.number(), z.number()])`, GeoJSON type literals and a `.min(2)` coordinate-count rule for `LineString` — with no range check and no coordinate-order check.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/unit/schemas.test.ts#L68-L74",
+          "version": "repo-lines-v1:sha256:b1eb677dda91d4be03bc9b7a4ad9172a96047a1ea2dec00d465c01d72a589237:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjM3MzIyNmRhYTQ3MzcxZGZhNTdjY2EwMzY4OTg0ZjU5NTYxNDVlNjZlYWM3YWQwZmMxYjI5ZGM4MTI3OWNlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmIzYmJlMzI2MmE1ZWFhMjBlNWE2Yjc4MDRjZjUwZmExYjQyOTQ5ZTY3ZjRlMzM4ZjBjZmI4ZDVhOTVjMGUzZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDcwZWE5OTdiMjRkYjg5ZDRkYzNlMDM1Yjc1MGEwYTkzOTI0ZjM3YmU1N2I1OTUwZjA4ZDFkZjNkZDU1YTNlMyJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/geometry.ts#L1-L13",
+          "version": "repo-lines-v1:sha256:04956b7108a17b9a062353274bfa32816f629914a808004ebf9a5169cd1a4618:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNDUyODY0YjBkOTZlZmU4NjkxNmZmNzQ1YTBmNzdhYzcwYjMyNjU4NWMwZWFmNWMzNGY5ZTRhNGY2ZmJmNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/geometry.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:4f8202aa0979931dc0a1103ff861ae051c852da9d27542ad7958a27514f9f52d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxOTM3NmI5N2IwNjliNGNhYWEwZDU1MDMzZTA2Nzc0NTdmNWZkODkxYjg0MmZjMjcyYjE5NWQ1ZDM4MzFkNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ce39ced9f68f409a86d63047278ecc43",
+      "statement": "Coordinate order `[lng, lat]` is a repository-wide convention settled by ADR-0013 (no conversion layer is to be added) that the two-number tuple cannot express; inside the shared package the only written statement of the order is the `SnapCoordinates` doc comment, and the order is otherwise carried by downstream consumers such as the write path's `ST_GeomFromGeoJSON` casts and MapLibre's native consumption.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/queries.ts#L12-L18",
+          "version": "repo-lines-v1:sha256:eb182f58c1ab8ad30748470a0e2618f2f00264d8b4ee6ff96a299637a7620504:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTgxZjZmZDQ1ZjJhYWI5YmE3NThiODUzMzJmNGRlYmJhOGMwZGQ4Mjk0NjE2ZmY2NGUxN2IyYjNjNjlmZmIyMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQ5NWYzMDgzM2Y2OTdkZGZjNzQ3OGVjZWQxMGRkNDhlOTJmNDZmMmU0OTk1ZjczYjQxMzM1NTUxMjM4NDE0OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTk4NjRlNDQ0ZWIwZDgwNTllNTUyNTY1ZmQ0YTY2NmJkNmEyYzRmNTY5ZGQwODkzODAzZTkxYTE1NDllZWZhNyJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0013-admin-maplibre-mapbox.md#L15-L15",
+          "version": "repo-lines-v1:sha256:b0b73926fb0eec1ce7aa06753c1e8d2cd22cd9e34a7b944b9a1090d7e90f3c61:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBiNzM5MjZmYjBlZWMxY2U3YWEwNjc1M2MxZThkMmNkMjJjZDllMzRhN2I5NDRiOWExMDkwZDdlOTBmM2M2MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBiNzM5MjZmYjBlZWMxY2U3YWEwNjc1M2MxZThkMmNkMjJjZDllMzRhN2I5NDRiOWExMDkwZDdlOTBmM2M2MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTc4ZWJjYjBjZTc1NTJiODdjYTI1MTc2YjM0YzE4M2M1OGI5NmFlNGI5MTI1ZGQ4OTk4NWI3NWMxMTk3YjM2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzVhMDQ4MzJhYjIzNDM1MTE4NzJiZDFiMDVlOWE5NGY3ZjViNTIwM2NiODJmYjA2NDcyMWFlZWI1OWI3YjJlMyJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/mapbox.ts#L14-L14",
+          "version": "repo-lines-v1:sha256:8ab9fc13b76815c35a815a707b59316a459ed09777327ec06b2e40d2e2a6c411:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFiOWZjMTNiNzY4MTVjMzVhODE1YTcwN2I1OTMxNmE0NTllZDA5Nzc3MzI3ZWMwNmIyZTQwZDJlMmE2YzQxMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFiOWZjMTNiNzY4MTVjMzVhODE1YTcwN2I1OTMxNmE0NTllZDA5Nzc3MzI3ZWMwNmIyZTQwZDJlMmE2YzQxMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWI1MTEzZTU3ZDNlOGQ5OGZhOWIwNWE0YzQ5ZjQ1Yzg3NzBhMTMyMTk0ZmJlMDJmZjdlMDI4MTdlNDgyZTE1NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTBhYjBjZmQ0YTRmNzAwNzIzMjM1Mjg4YWUxZjkwNTYzNzdjYjYyZTlhNzk4YzdmODM0OWZlODE2YmI0ODNjMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_38c6b3c588de46f4b2d60bc50c905a21",
+      "statement": "`apps/server/src/domain/geometry.ts` layers a geographic range guard (`validateGeoPoint` / `validateGeoLineString`) on top of the shared geometry schemas, adding finite `lng ∈ [-180, 180]` / `lat ∈ [-90, 90]` checks and naming the coordinate order in its message, but no shipped request path calls those functions — their only importer is the unit test, so on the live API the enforceable geometry rules are the shared ones plus the write-path cast.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/stops.ts#L70-L75",
+          "version": "repo-lines-v1:sha256:4c93c777f0640fee077a4745519b00014040f524335ece5f21c88c50be7c2bb4:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTdjZjA5NGU4YmE2NjMwNzk2MmIwMjlkODkyY2FkNTBiMWIyZjAyNTE0NzliMzgxYThkMmZiOWRiOWFlODQ4MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDA5MjQ2NTg2MDRiMjZkMDg1ZjQ5ZDE0NTgxZGNlZDEwOGUxOTg2N2E5Mzg2YjFiNzA0YjMzNTEzZWRhOTRkNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWRiYTdlYTQ5MTJjZDQ2NWNjYzFmZTI3MGQ4MTYzZjQyYzhiYmZhMmQ1YzQxNTM5MTc2NmVmOTNmZDI1YThkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjgyZTgyYmQ0NjUyYzUyMDM2OTg0YTk5ZTBmOTJhZWU3NWZiODI1YjM2OWVmNjAxYmIzMmYxMGFkZDE1M2MyNCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/geometry.ts#L28-L68",
+          "version": "repo-lines-v1:sha256:af820e1270cd9a11bceafe6adce8453fadbb92b2b1bcbb31894d35105ea5d797:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ZWRkYzdiMjhmMTRjZmI3NmFiYTgzNjA5YzVhOTgwZjBiMzkxMzM2NjRkYjNhNmM2OTg5ZmQwYTE5N2Y0ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ODQ3OTdkMTQ3MGE4YmZmN2JkNWE2YTAyMTRlOTViOWYzMzMwNzg4MWU2NmMzNWZmNzAwNTgxYzcyMDhiZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJhZGJlMTViMGIxNDE5ZWFlZDU5N2Q3MmU5YjRiY2ExYzk0NjBiYjA5ZjYzNzJkMzAzMTJmZjU4MDczMDc2ZGIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/geometry.ts#L70-L106",
+          "version": "repo-lines-v1:sha256:9b24ea18d3766071dc25eb7fb862ef17bbfd52384b869bedc76e6d4ed243b2fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxZDU0YmMwMzYxNzY3NTZhZjExODlhZjQxNjIxMDI3NGY0ZTIyZjdmNTcwZDRhOTNjNTc1NjkzMGU4MjU2ZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhNDVjN2VkMTVlNTNmOTI5Y2FmNjJlZjJlMTZkNmJkMjIzZWVhOTBmM2MyYzZjMGUwZDNjMzg4OTQ2MGI3ODYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/geometry.test.ts#L1-L5",
+          "version": "repo-lines-v1:sha256:c72001820c03d0b07c0edee3dff4ee97615389872a1f3e588eb515839a321af8:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI5NTA2YjIxZjQ4M2RjOTVkZjJmMmIzNWY3MGMwYTQ0M2IwNTNhN2I5NjQ5Zjc3NDY3ZTY4OGEzMzIwMDQwNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzZlNDM1YzNmMWFmMzA0ZDk3ODVlMzhiYWJlYjExMWQxNzdiMGQ0Yjk1MWJjNGQ1Nzk2Mjc5MTA3OWQ5ZTQ2ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWVmMzNmNTgxZjRjM2I3YTA0NDlhYmNiNmEwZmRlNmE1ZWY3MDUyYTgzNTM2MDRiMTQyMzZkM2VhNDM0ZTk5MCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_61e878f0c144477c99aa927d48020803",
+      "statement": "Enum string lists are duplicated between the type modules and the schemas: `types/domain.ts` declares `STOP_TYPE_VALUES` / `RESTRICTION_REASON_VALUES` / `RESTRICTION_AFFECTS_VALUES` as `as const` arrays while `schemas/domain.ts` spells the same literals out again in `z.enum([...])`, so adding a value requires editing two files the compiler does not correlate; `errorCodeSchema = z.enum(ERROR_CODES)` is the counter-example that derives from the const array instead.",
+      "evidence": [
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L4-L20",
+          "version": "repo-lines-v1:sha256:a2c076059f91b2ceec941c420117bfbbbe00c672e8e2c9f578f4f234ac1eaae8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlNGZiNTIwNWZmMjQ1YjM5NWMyMzlhNmFlNWExNzg1NTY4YWQ5YmE5NGFhNDUxYWI2ZjI1YTk2ZTY1NjY0ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1ZTI2Y2Q5MjM2NmY2MGQ4ZWQ5MmQwMjM5ZjA3ZmVmNzRjYWMxNGFhNjlhZGRmOWMyY2MwZDExZWIwMGE0NjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3Yzg1NzNmZjA5MDdkYzMwYjQzYTE5Y2QwMTY5NzBmYzBhMDc3MWJlZDgyNDU2OTc1ZTk0ZDA1MTE1NGViMWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlNmQ0NjVhZjE5MGJjMWViOTE2YzA5MTMyZDJmNjBhYmMwZDI5MjM3ZDk0MDdmZWVkMmFmMzE4YjlhZjgyMGEifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/envelope.ts#L2-L4",
+          "version": "repo-lines-v1:sha256:044bea57de04f0dc1a42d7546719565f20bf9a4d5008e16f2c822cd16896cd0b:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTA1MmMzZWMyMjk2ZGUyYzM1ZmVhM2FlMGE2MmQwZDM0YTM5YWEyYWFkMDViYTM0NTZmOGIwYTlkMGMzMGNkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWU3YjRiMTRjYTE5NTAxYjVlZDNjMjlmMTIwYmYxNzg3MDAzZTEzYzQ1ZDYyOGE3ZTE3YTI0OWYxMzE2ODNhOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjEsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODE0NTI4NjRiMGQ5NmVmZTg2OTE2ZmY3NDVhMGY3N2FjNzBiMzI2NTg1YzBlYWY1YzM0ZjllNGE0ZjZmYmY2MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTEwZGYxNzgwZjM1YTNlZTk3YTM5OWE3ZDdjOTk2NzE4MjBlY2UzNGI3NDEyN2Y3Yzc0MGMzOTk2MTAwNzFiYSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L3-L22",
+          "version": "repo-lines-v1:sha256:38ec5d2a8c877186977a42d3e1b51f1f1d3ca9b31914cf9b1f2e058c0abae7bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzNTQyZDFlZjliZTJmM2YyNDA0YWM1OTZhMTA0NWQ3YjI3ODRlNjZhZDRjYTA5NzJjZjE0NDMwNjQ5ZTgzODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlZmYwY2YxZmZiZTMzOWY0MTU3MWZlYzEwMzRhZGNkNDFhMjNjZmE1MWFhNTMzZjJjOTBmN2IxODM4N2IwMjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyNTQ4N2Q2OThjZDNkNTlhZDU1MTVjNmJiNGY1ZDM0YjgwODZmMzQwMTUwMjM3MGQyNzQyMDIxMDQ5ZGMyYTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA4MjU3ZjEwMzc3NjZkNTYwM2QxYTk3ZThkMzY4M2E5YWJmMDhmNjdjMTcyOTY0NGE5YmRlMjU4NGYwNzI0YzUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/envelope.ts#L1-L10",
+          "version": "repo-lines-v1:sha256:7ccb9ed79157263b0256ea8b2f87d142ca8b188a364eb563f807c66427aeb10e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlYjE2NGZiMjQ1NTY1NzNmYWU2NmRjOTU4MTNlODk1NDRkZjNjZjNhMzdhYTYzNGU1MjI0NTdlMThkNDAxOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjNWRhNTBjZmZkZWI3NmJmNTg2MmVmYzE4ZjU4MzhlZWU0ODYyMjFjOTVkMWMzNDdiMjA0NDA2ODJiMWRmZTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlZDI0MzRkMzM3NjZlNGExZGY2ZGI4NDViNTZiYTcyZTJiZGMzZGVhNDI3MjE4NDQyOWNkZjA0MjRhMWI3NDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_460da29606b4485caa2e4a0519e1afd5",
+      "statement": "Every resource in `schemas/domain.ts` follows a strict `createXSchema` plus `updateXSchema = createXSchema.partial().extend({ is_active })` pattern (routes already accept `is_active` at create), with schema-level rules that include the lower-case route-id slug regex, a hex-or-null `color`, `stop_order` as `int().min(1)` when supplied, restriction coordinate indices as `int().min(0)` with no `from <= to` ordering check, and absence of `stop_order` entirely on detour stops whose order is the array position.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L37-L50",
+          "version": "repo-lines-v1:sha256:a95240e6795935c48b866426052a568bcb49b5a09aad9234d61093e2b1923aef:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkN2I5MWFlNzNkYWM1OWU3MDUzMjI4YmQ4NzkzOTJiY2IzYjBiOWE0YzBlYWY1ZDY2YjJhMzgyNjA3Mjg0MjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwMGIxYWI1MDk3MmZkMWFkZTA0YzMyZWU4YjNiYzg3YTRkMmNmNDRmOGU5MjkzYjgwY2MzZWFlNjljNWQzODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3YTVkZDU1ZmY0N2Y0NTYyMjJkNjVjMmMzODNkMDczMmVmYTg5YTIzMWY1Y2YwYjEwMWEwNTI2Y2U5NTA2ZmYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/schemas.test.ts#L107-L139",
+          "version": "repo-lines-v1:sha256:fce372325f4b0f0ead188db2768ecdbec13c9cdd195d36ddba85bed77a122e35:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4Y2Q3ZGZkNmU2MjliMjcxNzBkZTc3YTZlYTAxMDdkODE3ZmFhZmI3ZTVkNGFkMjAzMWZlYzczY2IxYTliODciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiZDk3YmJjZTJlZjNiOTk2OTM3YTVhY2M3OGEzMDAwYTY4N2Y0YjlmYWMxMmUxMjg2ZTlkYzYyNWZlOWUwOWIifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/schemas.test.ts#L77-L105",
+          "version": "repo-lines-v1:sha256:46de3e880d5a390ed0fa0aa2eaf8e1c78659522d822dcf76164c3a506111fd3d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNjY4NGI5OTljNTA4Zjk2ZGYxOTg5MmNhZTM5ZTMxMWEyMDZkMTBiNDZmNzYwMTlkMDUzZTc3Nzc5Y2QxYWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlMDA0ZWI3NDgyNjM5ZjE4MDQyN2E0MGNiYmFmMjExODAwYzI4MzY2NDhjMjhkYWQxNDgzNTMxZWI0MTQ1ZWMifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L125-L137",
+          "version": "repo-lines-v1:sha256:e8abdcd54983c24786b84ed67d00402afe026b2cff13d2fec93bf23a7cef65c2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiMWM4ZjNmYjlkZjM1M2Q0YmVhMDhkYjI4ZjI1ZmZhMGQ3NmIzYjI0OGE3ZTRlZDQxNzllNzY1NWJkMDFmMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMzk5MTM2MWQyMTJiNzI0OWFhODFmYmY4OWM1NzdhODFhMjhkMDEzYzRkZGViNWUzM2YyZmFhYjZjZTgxZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhY2Q4ZThlMDkxNGExZmJmYmU4ODM2M2RkNjFhNTJiMmIyOWZlMzZkZTI0YjQ1NWQ4NTVjNDZjNGM5YTlkODIifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L22-L64",
+          "version": "repo-lines-v1:sha256:fc5e122d2e20e1ac1c149dd53ec43cfb6720b18276b04fb85305a8f88462cbb8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkOWI2OWE0MWU5ZDZjYzc4ZTkxMjg4NDFmZmRjZjg1NjczOWRjYTFiN2VlMzE2ZWNhOGY5YzI5YTFkNWZjNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNGVjMWQxZmY4ZjUxZmExMDM0NDRjNTJhMjZiYmNhODZmMWI5YzdlOGIyNzIwY2I4N2RmNTljNTZiMDJkZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhZGM0Y2MxMzMwYmVjZWQ5YWY2NWFiMzdiZjI0MzM0MGE5YmExYWRjYzNiNmRkYWM2ZTZhMzdjM2MzYTQyMDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_632ef8de31ab4e6796d6380bcc589d61",
+      "statement": "The fare-configuration schema validates stored fare *parameters* only (`base_fare`, `base_distance_km`, `rate_per_km` nonnegative; student/senior discounts clamped to `[0, 100]`), and the package exports no fare computation of any kind; the two fare notions and the non-additive LTFRB formula are ADR-0001's, and the multi-criteria preference-profile weights remain tracked as planned/not implemented in `docs/DEVIATIONS.md` D9.",
+      "evidence": [
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L20-L20",
+          "version": "repo-lines-v1:sha256:5acc9fc8e8a574bb0b0e988cda24fbcf4f8b236161d8a9265288cc2e549cf81e:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWFjYzlmYzhlOGE1NzRiYjBiMGU5ODhjZGEyNGZiY2Y0ZjhiMjM2MTYxZDhhOTI2NTI4OGNjMmU1NDljZjgxZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWFjYzlmYzhlOGE1NzRiYjBiMGU5ODhjZGEyNGZiY2Y0ZjhiMjM2MTYxZDhhOTI2NTI4OGNjMmU1NDljZjgxZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDg3NTY4NWQwOTE5OGQ2MWU4NDY2YTEzNzE5YTgyOTY4YjE0Zjk3MmQxNjJkMmExMDQ1NjVmMTIxM2JkZWIxNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjQ0ODk3YzEwMDRlNDhjOGMxZDRiZGRiNTA4ZjI1ODRmMWQwYmVjODRlZTQ3M2RmNWQzMDM3NzkzOTlmYzJhYiJ9"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L46-L46",
+          "version": "repo-lines-v1:sha256:190f7d3833b03bd0547129ae650ed9d0592bdd98c7409324a6892c14edd23caa:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTkwZjdkMzgzM2IwM2JkMDU0NzEyOWFlNjUwZWQ5ZDA1OTJiZGQ5OGM3NDA5MzI0YTY4OTJjMTRlZGQyM2NhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTkwZjdkMzgzM2IwM2JkMDU0NzEyOWFlNjUwZWQ5ZDA1OTJiZGQ5OGM3NDA5MzI0YTY4OTJjMTRlZGQyM2NhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzY3YTIyNDZlYjkyNjc4OGE0NmEwOGU1ZDQ3ODI4MjYyODc4YzVhYjMwNjJjMzhiZTVhZmFkZWZjNDRmMTc4YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjQ0MjM0NzViY2E2ODJkYTEzYTczYjIwZGRjNmU1MjM1MjRjZjM3ZWU0ZDZlY2ZhYzVlMGE3MTA0MGI4MzE1MyJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L139-L151",
+          "version": "repo-lines-v1:sha256:736814a67417c916b68bab8ef074ea2280f5087fe1e47a713387361c4d592631:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3NDNkOGI0ZGIyNTlhNjcwYjkwY2YxNDFmMmY4ZjA2NzZiOTgyOWY3NmRjYjkwNjMxYTU3Zjc2Y2I0OGZiN2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViYzA5ODYxOWIxYjdlN2Y1YTAwYjkzMjg2ZGNmMDQwNzBiNjVmZTlmN2Q0NmE1Y2QzNTRlMDE4OTJmNjFmZGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L109-L120",
+          "version": "repo-lines-v1:sha256:da7e888373753edc24990aa6d9063153b38d8a9348732369564c1b3b7f119cdb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZTczZGM4OWVlZjk2MDMxNTE0MmM5NGJiYmJlNGFkMGRjNmJkNDMyN2MxMzE0NjQwNWY0ODRiODk3NTVmNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjODA4Y2EzODUwNThiNmZhZDE2NWFmNzcyMTQ0NjJkYjUzZTVmZDIxMDZhMWY5OGM1MjNhYzViYWI5ZDE1YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_98b0bdf97fe446689bb72794c2cc87c8",
+      "statement": "The wire envelope is declared twice but enforced nowhere: `types/envelope.ts` owns `ERROR_CODES` (six codes), `ErrorCode`, `ErrorBody` and `Envelope<T>`, and `schemas/envelope.ts` mirrors it with `errorCodeSchema` / `errorBodySchema` / success, failure and union envelope factories — yet in `apps/` only `ErrorCode` is imported (by `apps/server/src/api/errors.ts`); the server writes the success object literally and the admin unwraps it in its axios interceptor, which also rejects with client-synthesised codes (`NETWORK`, `UNAUTHORIZED`) that are not members of the shared union.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/api.ts#L45-L62",
+          "version": "repo-lines-v1:sha256:0bcd292953c1187294a49892542a84f15eb38ef882e4803ec381cec2975405ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjMmRkYzBjNTVlMjQ1ZjA0NTQ5NDQzYjA4ZDU1ZjZjNThhMWE3ZmJjYWRhOWY2OTY2MWIzMjc5MjU0NzYzMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1NzI0MTM1Nzg4ZDQxNDY1OTVlNDcxMDU4NmY1YTkyZWZiZmQyZWIwOTYyOGEyMzBlOWQ4ZGE3N2RiMTFkN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI1ZjJlNDIxYWJmZmEyMjQ4ZTAwZTgwYWRjNjBkNTA5NTVlYzFlNGFjMGVkZTQ4NjAzNGY3YmM4MWNiNDAxMjQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/api.ts#L87-L99",
+          "version": "repo-lines-v1:sha256:4411c142f0f9e7bf4b40061c99227ea7a7d972eeb6eecaf1d9dd9b664068d87b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxMTA5MmVlNDM4MWQxZjg5MzFkZGFmYjE3ODAxNDExMjFmNWU2N2JhODcyZTBjOTJiYjM1YzFiMjI0OTVjOGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliYmFmZjkyMWZhNWNjZWNmMmRmODJiNWRiYWRhY2EwYzYwZDAzZTE3YjA0MmJjYWM2ZTgxMzhiOTZmMjkyYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwYWE2MTVkMDkwNGZlOTQ2NTlkNjk1MTMzNWY3MTFkNTBlODQ1MmNiMDRlOGExZjI5ZDZiYWQ4MWY1ZTllZGYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L66-L86",
+          "version": "repo-lines-v1:sha256:401b2f221849f774fe419ee255b3b18ec9e205c59a17cd725e87bc1e1a913674:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNGQ5Y2ExMWJkNjY0ZTk3MTI2Nzk3MDlhZTVhZTA1MTJmZWY3ZTI1ZmQ5YTgyOTRmZDNjMDcxN2VlYjU1NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyZGM5MDljNDA3YjdkZGRiZDU0NDI0M2JhZWZkY2JmYjA2MGE1ZDUzMDIzNDk3YWQ3MWJiOWE0OWE4MDAwNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjMjU0YmMxODI0ODQyMzk2YjhiMGQ2YzJmNjJjMWNjN2YwMjAxYWFhMTlhNzg0NDY0YjQ5ZmY4YmI1NzY5ZDAifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/envelope.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:6db5ccebf3332f85379cf0b94eff0b38ac90d642d19218af26cb2bd1511f10ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNDUyODY0YjBkOTZlZmU4NjkxNmZmNzQ1YTBmNzdhYzcwYjMyNjU4NWMwZWFmNWMzNGY5ZTRhNGY2ZmJmNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjMjAwMTY2NzAyY2FlNTAzMDg0NmRjZWVmZGU2NWIwNzBmYmE3ZTYyOWE3ODE5YjIyZTFhMmM0MTlmZGMyNmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/envelope.ts#L1-L18",
+          "version": "repo-lines-v1:sha256:27845c8df72d527ddcb4da1ba44016dd5d5ced093465777e4c1268904345c896:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlYjE2NGZiMjQ1NTY1NzNmYWU2NmRjOTU4MTNlODk1NDRkZjNjZjNhMzdhYTYzNGU1MjI0NTdlMThkNDAxOGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2NjBkZDI2NTA2ZThhNTM1NjMwZjJmMmExZDViM2UwNjVjZDRhMmNmMGRjMTQ3MjhlZmVjNTBlMGU2Njk0MzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f9309b60318d4607b19a66ebdc4296e1",
+      "statement": "`types/export-dataset.ts` is the single source of the export document's identity: `EXPORT_SCHEMA_VERSION = \"1.1\"` and `EXPORT_COORDINATE_ORDER = \"lng_lat\"` are used as `typeof` literal types in `ExportDataset`, the assembler imports and stamps the same two constants, and the zod schema pins them as `z.literal(...)` — so bumping the version is one change that moves the produced document and its validator together.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L11-L14",
+          "version": "repo-lines-v1:sha256:6d01fe56fef0659746c2a6aacfd3ea9e8f62432d5adf66e37d3023d0473aad87:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTgyMDA5NjRhOTc4NjM1NTIyYjJhYjA5MGM2NTA2NWQ4ZWY4ZTg1YzQ3MzBiYjJlYjA0NjBkMzRjNjc3ZGRiYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTczMWYwMDk4ODEwNTE5Y2M3MTg2ZDdjMjdkMDcyZDUxYWViOGQxOTc1YmQzMjk3MGNjY2QyODcxYTExMWFkNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTRkZGU2Yzc0NzExMzc2MTY3YmM4ZTlmZWJjZWM5OWVlMjk4YjNjNTIyMzY1ZWY5YmZmNzNlMzhlNWU2OTkxYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWY3MDZlZTY0NWJmNTA3N2VmNzdkZWZlY2M0ZDEwZmE1NGRlNjI5NDMyMmVkNmM0NDU4MGQwYWMzNWQ4MDM0YiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L222-L228",
+          "version": "repo-lines-v1:sha256:a792f2bb6605f6c0c6b4afd7ac56c3367a339536cec990a845a4ef971f75dcc7:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDk1ZmEwZjExMTdiNWVhNDA0MzQxNDBkZGUxYTM0MGM3MjBkZGJmMzI2MjEyZTE5MTgzOGQ0YjE1NmQzMTZiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjhmZGQ2OTdhZWY1N2I5ZmYyNzI5YzU2MTRhYWIwYWYwNzg5MjRlZDIwZTBhMTBlZDBlNWVhMzQzYWU2MGM1OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzZjOGFkOWJiYThjNDYwMzJkN2I2ZmU3NTBjMjg1YWZkZDFhZDA1OGM4MDFjNDRhYjVjMDdjYTZlZTUyZGJhMSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/export-dataset.ts#L90-L95",
+          "version": "repo-lines-v1:sha256:7c038f28fcec9e28414f245dcb0ae62e0b5de43a90b6b8526128cc864e977944:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdkZWY0N2E0ZjVmNGU2NjcxYjI5NGFkMWU3ODI3NGRiYTY4ZGZhMmQyMjA4NTZjMzgzZjJjNTE4MGJhMTcxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDAyYzJhNDMzMmY2YjhlZTIzZjdiMmY3ZGNlMmVkYWI3OWUzMGRmZjc2N2Q4MzE3NzcxYjFmYTZhMThmZjZhYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDZmYWFlM2IwOGM3NTk0ODBlODdlMGUxZWI3ZmIwNDY4YmE3ZDMyZTNhMzIwNzlhYmIwMjAzMDNhNjk0NDk5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L4-L5",
+          "version": "repo-lines-v1:sha256:4673d4e5116a494faf80f24725d6ceaacbc6476e65fd102bd2a633ff8659102f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTcyZWEwM2U0ZjRhOTQyNzk5N2U2YzEwYWM3OWUxNTgzNzU2MzkyMTI3NzgzYzBlOWFhNjkwOTVhNThlM2QyZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzZhZjk4ZjAxODQ0NmRmZmI5Zjk2Y2MxM2U5ZDk5YTNhZTRlMDA2MDYzMGYyYTJjNjQ4Mzc4MDg3NzkyNzI0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjAxMTk5YzQ5ZWMzYjM3ZTE1YzRmODNmMWMzNWFhNmVmNTJmZDQ3ZWJlMDQ4MmU4ZTlkN2QzOWE4NWQ1ZjQ4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmZhOTNhNmEzYjlmOTQyNzg2MTJkNWNkNjc1ZGNhMTFiNjMwMDFkNmNmN2E1MTFiMDA1M2VhMjU1NTEzNDUwYiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L82-L88",
+          "version": "repo-lines-v1:sha256:c39daf2ea2d6b82d273b720435ba37de3f7ecc6cac6ea9804dd6e3b858861570:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWEyODdiMDU1NDRmNWM0NWU0YzVlMzllZTA0NDEyODkwOTU4ZTBlOTAzNmI1Yjc5ZGE3MTc1YmYzNzA1NjhmZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTgxMzhlN2NkMDcxNzAxODc4ZTY2MzMyZDRjMDFjMGRmODc4ZWVlN2E0YmU5N2Y4ZTEwZDg1OTQ3MDExOTU0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_385e8d704e1146ecb3e39201f0a5a3cd",
+      "statement": "The export contract's zod mirror (`schemas/export-dataset.ts`, including a `additional_distance_meters: int().nullable()` rule looser than the write-path `.min(0)`) is imported by nothing: `GET /api/admin/export/dataset` streams whatever `assembleExportDataset` returned, while the enforced contract is a second artifact — `specs/001-local-supabase-backend/contracts/export-dataset.schema.json` with `additionalProperties: false` at every level, compiled by Ajv in `apps/server/tests/helpers/dataset-schema.ts` — and the referential `referenceCheck` pass is exercised only by tests.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/export.ts#L10-L19",
+          "version": "repo-lines-v1:sha256:658179ae9d78c0088c1a08a165bf41004eb07fff944db7cb124b20906095693d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwNDEwMTk2M2Q3Y2M1ZjExZWEwNDVmMzBmZGYwNjM2MGVkNjBmNzY4OGFiNTViNmMyZWQ0OGE4Njg3YTM0MTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L341-L386",
+          "version": "repo-lines-v1:sha256:ef0d1a4e86755a8ef097008f6fedaa1d7bd6b14c91ce33a35fd462be50ecee0a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MjcyOTk1ZGY1ZmY2Njc1NDcwY2JhMGI5ODRjYTZkN2EwMDk1ZGRhM2UwNzRhNzMwY2VkNjBmYjUyNDM1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYjZiMWQ3NDRhZjg0MmY4NmY5MmJhNzM5NjVjZmE3YTEzYjNlMjMxNjlmZTJjOWUwZWRlYzlhODU0NGM4NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/helpers/dataset-schema.ts#L1-L35",
+          "version": "repo-lines-v1:sha256:d7b93082a5812f436cc031c68f41af12b766dc76ed99d7ec7a4207b570938aab:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwYzRkNjY0MmYzZGU1ODY2MDdhZTgyYWFkMjYzYTFhNjE2ZDk0N2ExOGRhNjE1NzQxYjI0ZjA4NTQ3NWZmOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/export.test.ts#L90-L98",
+          "version": "repo-lines-v1:sha256:d635f155f3fbabfdac3e08ece57f4ab695f65aea0798391d0647624a14f22474:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzMwOWJlNTZlNDE0M2MwYTdjMDczNjdmZjNlM2JhM2MwNTQzNTY4YmFkZmIyMTk2YzI5ZWM4NDQwM2ZlODIwYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTMwNmM3MDNkYjc3YmYzYWE5MWFkYjZmYWM4OTJlNGU3ZTExYTFjYzFhMjQzYWJjMGE5YTAzZDNlMDE3NDEwNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGVhZmE2NTk5NmQwMTE1N2MwYzFiODYyYTI3N2Q3NTJiOGRkNTIzY2Q0OGQ4ZGEwMGUxMWU2MDg5ZGQzMTRlMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjUyZmEwOGVhNzRiNjYwYTg3YWNkNDcyMjc2YTg4Yzg1NTQ2N2NiMWNjYzA2NGVhODI5YjhiMDdhZTUyMDQxZCJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/export-dataset.ts#L13-L95",
+          "version": "repo-lines-v1:sha256:0997434296b17724a9020533afaf837ee2cbcbef464fb2ef9d26dcb89b920634:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY5Mzk4ZGVhN2RlOTIwMTc4NjQwNmUyYjE5ZDM5OTE2YzY3ZDRjYzFmNWVhNzc5YTkzNDY0NTEwNmZkNTE2ZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwMmMyYTQzMzJmNmI4ZWUyM2Y3YjJmN2RjZTJlZGFiNzllMzBkZmY3NjdkODMxNzc3MWIxZmE2YTE4ZmY2YWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5NWM4Y2JjY2M2NTNlNGVjZGZiMzFmNWQwNGI0YmNlNTVmNGQ3MzhlMzk2YzY4YjhiMTU2ZGVjNTIxMDg2YmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://specs/001-local-supabase-backend/contracts/export-dataset.schema.json#L7-L21",
+          "version": "repo-lines-v1:sha256:a9acab3c382f7e163fd10eec51b0e4fe1d5a67317cbb2c0a1da7043078741f19:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNmQ3M2JhZWQ5MjQwM2FmZjUyOWNlMjU0ZjJiM2UyZjUwZDRiOGQxYTJiYWU4ODEyMjI4Yjc3Mzg3MzEwYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1ZWE1M2VhNzQwODY1ZjNkNmE4MjcyMDU3YzdlOThmNTM4MmE3NzBjNDdkNjJjMDA4Y2VjN2M5MDRhNWRiMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhMWMyOWY0MDIwOGQ2NTkxZjk3ZGE2MzMwMjYwMzI3MWE4YTY2OGU5NTE2N2VmNmVlNzE0ZDNjMWY0NzQwODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a430adfd7bdd4563beb9c0eeef137250",
+      "statement": "The Mapbox snap contract splits into an unapplied wire schema and a used-but-divergent type: `schemas/mapbox.ts` declares snake_case `distance_meters` (never attached to the route or applied by the client), while `types/mapbox.ts` documents `SnappedPath` as the camelCase counterpart with `distanceMeters`; the admin's `snapPreview` types the response as `SnappedPath` with no mapping layer, so `usePlottingStore` records an `undefined` `snap.distanceMeters` even though the server emits `distance_meters` — a latent disagreement with no current user-visible symptom, invisible to the store's tests because they inject camelCase fakes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L201-L210",
+          "version": "repo-lines-v1:sha256:245e26c2175262acb18be17ca05442caa648e1c1c811e2f51ec1befca80b542f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NTdmOTQ3YmE3NDNjZGUzOWNlYjEyYWZjMDQ1OGExOTQyMDQxMjUzOTJkNjkyZWUxZTQ3OTM3MzgyNTQyYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1NDU4ZjMwNjQ4MzRmOGYzNjhmZWU4YjdhOGEzYzBjMmZjNTI2ZDZhNWZjZmM5NDIwYzBkMWIwOGUyMTY1MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxZjFkYzUwYzMyNDMxMmM3NmZiYWU3MDE4NDRiZTg5ZjllMWZkMTczNmM2MDQ4NDk0MWYwZjQzNTI4M2U5YjgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L565-L572",
+          "version": "repo-lines-v1:sha256:12e58a9e623ecc428629fa153fc6f0740390869c194c8ac1b24de035be1a3d55:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmY1YTI2MDJjN2I4ZjMwNmM1NjBkNTIxNjQyMjk3ODFlNzM4MWQxYWZkMzQ2NGQwMzM1ZjBkYzAwZGRhYTljMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzZiNTViYjk0MGVjOTdiNzdmMjYyNDI2MGNhOTQxNmIzODUzZmVhMjY0MzAzZjc3YzZjODkzYWRiN2FmZDBjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzViMmRjZWM1NDNhODIzN2ZiZWNiMTBhYzQ4ZGFkMTNjZDFlMzZjYWEyYTQzNjU2YjE0N2U4YzlmNmM0NzE5MSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L514-L520",
+          "version": "repo-lines-v1:sha256:9087334a5dcb02205cfcb25a115cc681dd93aba71c992396e708ffe73b1b623a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2FiZGM1OWU2Nzg2OGExNmI2N2Q4NTkwMWJhYTA5YWQzZDg1NWFiODU0YjExNmM2NDUwYjg2ZjQwMmJjMTdkMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDA5M2RjZTAyZmEzZTVjMGI4YzFjODZhYzY3ZTg3NjNlM2EyNDlhYWFkMDFmOWE4ZWRlMmQ2NzI3MTUwYmQ3OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjBmMjljMmEwMzVmNTVkZTVlNThjYzFhODRiMWY3NjcwMTVlZjhhYzdhZmVjMDBkM2Q5OTY3ZjNiYTQ5ZWU1NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGYzNzBiN2FjNWU5MmE1N2FjNjg2YmVjMTU1MjZjNjU5ZDhiNjU2MWJkZDlkNTZlYTJiOTIxMTc5ZDcxNzk1NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L354-L356",
+          "version": "repo-lines-v1:sha256:04b99e72214679b02caf99b2a43bd1fe94c5d716129fead18a724a9fb13a1d0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTUzMGVhOTgzZTIxMjM2NTRlMjE1MDJlYTM2YTM5YTEwOGQ1MjlhNGQwNmJjZDAxNTdlOGU1MmNhZGZiOWMzNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGQ2ZjZjOTQ5MzRlY2U0MWY0ZDJmNTQzOTk1ODg2ZjlkZjIzZmNjYjdlOWY1MzA1MTEyZjgyNGFjMTQ1YzI1MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmJiNzMyMTU1OGU3ZjBhMDY4MTA2YWFiNWJjODhhMzhlOWZhNGFmMmNhZWJmNGExZGY0ODI5NDcyNmQxYWM5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzkxYzZhZTlmM2ExYmU2ZmU0MDAzNDJlMTIxZWE2ZThlY2EyYTAzYzM1NTE0MDczZjljYTg4NzRmYmU1ZmEwNiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L145-L155",
+          "version": "repo-lines-v1:sha256:2a04faf1b0e060ff0c350dabf225e30365dc703869e84154fad5f81b9117a47b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MGVkYmQ0ZDc3ZTY1NzVkNDZiYTQzZGM1MjUyNWIwYTExZDY0NDY1MGE1MTY5N2I3NWFjMTM2YzQ1NGY4OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNjczYWJkNDU3YTk3ZWVhMTdhNjAwNjJlYjBmYWVhNmJkZjA5NDg2OGNjNmI4ZjhjMGViZGEyZjYxZWQ0MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwMjU2YjhlYWM1NjA1OWQ5Y2MyMzc3YTU0MTQxNTQxMWVlYjFlYjFkYjRlMmNhYjVhMzVhM2U2ZDdhNWEyMTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5MDcyZGYyZDQ2NGU2NDBkMjI2ZmQ3Y2JmM2YwMmFmMGNjZWJiNDdiYjdmZjRhODRjYWJmODM5NWEyNjYyZWQifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L164-L168",
+          "version": "repo-lines-v1:sha256:6c1c45a142042e2dfc04b3e3ee494bf92a4af8defcd549025f134c6c3912b379:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTk5M2Y5ZDI0M2U1YzQ3OGZlMWRjNjQ1N2MwMTZjMWYzNTRkMTM3NzgyYzNmMmVhN2U0Y2IxNDBmMGFiODViYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQ1ZjNlYTYwYjEwNDI4MDZjYjhmZTViOTIxOTU2NDIwNTA0Yzg1ZTRiM2E4NjdiZDAyNzg2ZjE1M2E0YTIzOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2ViOTU2NTQwNWZlYjhkMjg0MDhhNmNjYTRkNmRiMThkNDZiY2U5YmJhNDc2MjZkYzc2NjkyYWJjZmIwOTNkYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTRiNTU5NzU2YjBhNGQ5ZGRkMjljMjk5NmJmNGNjYzI4OGIzMmQ3NDg1ZTZmMmE5NTNjMGFhZjFkNzI2ZTMwNiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/mapbox.ts#L1-L18",
+          "version": "repo-lines-v1:sha256:f5c36a0d020a10f20d484298586f867b2ab7dd9d67613a626c65054c8e776dd7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNDUyODY0YjBkOTZlZmU4NjkxNmZmNzQ1YTBmNzdhYzcwYjMyNjU4NWMwZWFmNWMzNGY5ZTRhNGY2ZmJmNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjOTAwNjkwODUxNWNhYjM0ZDE0ZmE5ODAxYWQ1NWJjN2EwZjVmMzdmNDcwYTgzOTQ5M2Q2ZmI1MDIyZGZjMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/mapbox.ts#L1-L15",
+          "version": "repo-lines-v1:sha256:7617850ecf7457e46d2b6e711adfb1db34968338412df6abe48580e0e34db360:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4ZDg3YTFhODVjMTFlODUxNjcxY2Y4YWEyYjBmM2FlYzM0MzIzZGY3ZGZlNzFkNTdlMTFhYzBlNjI0Y2IyNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwYWIwY2ZkNGE0ZjcwMDcyMzIzNTI4OGFlMWY5MDU2Mzc3Y2I2MmU5YTc5OGM3ZjgzNDlmZTgxNmJiNDgzYzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a46c386a76734ff4b963265ba55e9150",
+      "statement": "The overview read model is a type-only contract: `overviewRouteSchema` / `overviewStopSchema` exist so `apps/admin` can compile against the inferred `OverviewRouteEntity` (route cache, overview helpers, `listOverview`), while the server's `/api/admin/routes/overview` handler builds the payload from `loadDirectionFull`, declares no response schema, and therefore ships full stop entities where the declared shape says lean stops.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L111-L118",
+          "version": "repo-lines-v1:sha256:fdb66e7ee31a4a857038d866ed71c3cdc92bf1c751a63a2aac519659e09d48f3:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE2NjQ3N2JiNWY0MGEyNTc4ZjEzNDdkMDc4ZjMwOTRmNThiYTk4ZmRmNDYwZmIzNGYwMjM3YTk2YzVhNTYyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjU0NThmMzA2NDgzNGY4ZjM2OGZlZThiN2E4YTNjMGMyZmM1MjZkNmE1ZmNmYzk0MjBjMGQxYjA4ZTIxNjUwMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzgzZmM2MDY0MTc1MDc3YWI0MWM3MDNlZmM0NzZiNzRhYjMzZTA1OTJmN2ZmZjM2NWY5NzU4NDM2YTE5NjI2MyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L112-L157",
+          "version": "repo-lines-v1:sha256:19030cb40dd4fe0e11d45f9417e4276b4a862adfe0ffdbcfb296eca6bb71aefd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZWFlYWY1YWU3OWMxY2JmNTk3MjgyODgzODI2MDNmYjFjNzQwOGM3ZDRiYWY5MmM3ZTYyM2IyZWIxNmYzNjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0M2RiMTNiNDU0MGZiODUzOTZhYmRkN2M2NGJlMzU0MjM1OWE5YjdhYjQxMGJmYzFjNDkyNzRiYTM1MWIzYmYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L13-L27",
+          "version": "repo-lines-v1:sha256:9b3d226b1220a4674d3b77ab2b9a3e2e006edecac54222c82254fa2983dc22ad:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYTAxODA2MjcwYjI0YTY2YzVkMzQxMWIwODFkMDUyZmIzMGEwZGMzNDUxMTBlYTFjYjFhOGUwZmUxOWE1ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1MGU2ZWEzYTIwMTZmYjQ2YWI4ZjE0MjhlYTJlNWNkNzE0OGQ4MzQwOGJjZjkyODU2Mjk0OGNjNTJkNGE1MWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzODAwNjBlYTczZTEwMGU3YzFlMmQ2MTg0YTY4ZjBjYzc2OWM4NTU4OGUzMWZhZGU1NDYxZTU0YzcxNWI5ZjIifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L66-L92",
+          "version": "repo-lines-v1:sha256:5a08796991bf2ff12c8737e4dfab04d57e32680fb72e5703b3cbe4b56ed8b1fc:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4OWJkMTY5MWVkMmNkNzA3MzQxZDEzNjhhMGQ5ZGE4NjM2ZjI2NDMzNTU2ZTFjNmI3ZmYwZjU0YmE0YzQzZTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjNzJmYzhiMmM5NTI2MjM3YjUzZWY3YTQ3NjIyZTFiZDk2ODgyZGExOTc4ZWJkOGNkZGIxN2VjMTNmOTA1MzEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhNGFhMjEyNGEyNDgzM2M3MWMxOTAwMTFhNzNhZGViODBmNDI5ZmFhMTBjNjhhZTE4YjI1MGMxM2QzYTBlZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2YzI1YTBhZDU1Mjg3Mjc2NDE5OGUzNzRiMDRmMWFkZjI5NTczZDNiZTBkOTVlM2E4YTRlZDYxNjI5N2RlYTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a2085f0b78f54931a0ea0c883c80dcc3",
+      "statement": "The full domain entity interfaces in `types/domain.ts` (`Route`, `Direction`, `Stop`, `Detour`, `DetourStop`, `Restriction`) are hand-written rather than inferred from the schemas, and only `FareConfiguration` has an importer (the admin fare API extends it); the server declares its own `*Entity` interfaces in `apps/server/src/domain/entities.ts` and the admin declares per-feature row interfaces, so the entity interfaces are documentation rather than a shared type every consumer uses.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/fares/api.ts#L12-L19",
+          "version": "repo-lines-v1:sha256:9e7e4e065bd86b327e71c31db15a6a20107a39019f89f7d6f8db3f954ad5e916:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTI3NmQxNDlhZjAzOTlkY2Y4MjQzNTYxZWY3ZGYxNzU4NGJhNzllYmRhZTMxNjcwOWU1ZTEwZDg1ZThmODc4MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWExMWFlYjhhYzAzOTJiNTdjMzhlOTUxNjBmNzBmYjdkOGI0OTNhMGUyMmJiYTk2MzJlOTY5ZTg0OWZiZWQ2MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWE5MDk1NWRiMWE0NDlkNmMyNjQwZmZmZjE4MzMyZjQ5OTUwODU0ZmE4ZjQwM2RhN2NkMmY2NzUzNjE0MDQwNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODAzOGYyZmIzNmM0MGUzODExZDBkNjY0YzQ0ZjM0M2U2MGQwM2E0MzI2NDFhMTU4MzE5YjkyZTdiZWFmM2YwMCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L13-L98",
+          "version": "repo-lines-v1:sha256:a8a04a752d0a98c2993cbd7a6a8002b66f45a4287773848d6f77dc8bd1d0dfa4:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjYTAxODA2MjcwYjI0YTY2YzVkMzQxMWIwODFkMDUyZmIzMGEwZGMzNDUxMTBlYTFjYjFhOGUwZmUxOWE1ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1MGU2ZWEzYTIwMTZmYjQ2YWI4ZjE0MjhlYTJlNWNkNzE0OGQ4MzQwOGJjZjkyODU2Mjk0OGNjNTJkNGE1MWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkZDM5M2I2ZjQzMWJlN2ZkYWIzNTFhOGZhYTJjNjMwNmI4MDZmNTIzYzZlNzM3NDM2MTAwZmI1Njc3ZTkzMjIifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L24-L120",
+          "version": "repo-lines-v1:sha256:fd3d0edc6456061840bc6b26a23449d4ed87feb79b47af76530463bf975f62f7:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMmM0ZmFmNzExYTE5NGM2NDliNTFiNzhmMjA2MjgwOTQ0ZjA1Y2M0YzE3OWUyZjFjN2I4ZWVmNjZjNDRhZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0ZWJiOThjNWNhNjY1MDUyNzdjNGI3MGZhMjNjODI2N2EyZTBmOTY3OGY5MWYxMTc3MjNjMmQ3MDVkN2Y0MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_43cde00f3fe74f6e9161234a29370e5d",
+      "statement": "The package has no test script of its own; the behavioural tests that pin its schemas live in the server suite (`apps/server/tests/unit/schemas.test.ts` and `tests/unit/geometry.test.ts`), and CI runs format check, lint, root typecheck, the admin suite and build — so a shared-schema regression reaches CI only through typecheck, with the behavioural tests left as a local pre-merge obligation.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L23-L39",
+          "version": "repo-lines-v1:sha256:90b6b5fe91868807a41829985395d906bd8b5873a6626e49cb5e015c2deab200:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhMjE2MTIwNTY3MjZjYjc3MGQ1ZDA4Y2ZiNDdmMDgwNjYyY2MyYTk3ZDIzYzQ3ODkzNDc1ZTQxMmFhNGE0YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMmQ0NDlhNDJkNDY2NWQ4NWIzZTMzZjBiZmRkN2FmMjBkNmJkMDIxMzE3MzA0MWUxMGE4ZmJlZjIzMTJkNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjNDQzZGZkMTliZGM2YWUxYzI2ZWY1NDRjMDYzMzQ4ZjZhOWVmOTI2NDg3YTg2MTUwYzc4M2VjYjVhNDE1NGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/schemas.test.ts#L1-L9",
+          "version": "repo-lines-v1:sha256:c4c0a1cb81664b844d3aa123abc99c3c926d47ce5aba2bc04f816fe133edc58c:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI5NTA2YjIxZjQ4M2RjOTVkZjJmMmIzNWY3MGMwYTQ0M2IwNTNhN2I5NjQ5Zjc3NDY3ZTY4OGEzMzIwMDQwNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTczMWYwMDk4ODEwNTE5Y2M3MTg2ZDdjMjdkMDcyZDUxYWViOGQxOTc1YmQzMjk3MGNjY2QyODcxYTExMWFkNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2FkOWQ1Y2U5OGNiN2FjNWI3NTg3Mjc2NGFiMGJlYWE5MDE3NjM3NjdjYjg2OWMyNDBhZmVlMjA4YzZmZjhmYyJ9"
+        },
+        {
+          "resource": "repo://package.json#L7-L7",
+          "version": "repo-lines-v1:sha256:e3bb9b0b7fba6ae6f3c4b98880a31b247dd8a1fe81dfaad332710f51190e2be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0NGIyY2IxMTk3MjNmNWYyNTRhZmU2MmE4NGJjMzQ0MWVlZGY2M2Y5MDVhODM0OTQ1NGFiMTAzZmI1OWU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/package.json#L1-L18",
+          "version": "repo-lines-v1:sha256:91951014d236385856accd7a75a7db9f1e52988057446500cf7ebfe20ad47fc5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cbaa69a39c9148db8a097eeb24e33c6b",
+      "statement": "Detour stops are the current shared contract model (`detourStopSchema`, `DetourStop`, `ExportDetourStop`) backed by the `detour_stops` table created in migration `0005` after migration `0004` dropped the `detours.notable_stops` JSONB column — so the `notable_stops` model and the `notableStopSchema` still described by `docs/DEVIATIONS.md` D7, ADR-0012 and `docs/ADMIN.md` no longer exist in this package.",
+      "evidence": [
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L35-L35",
+          "version": "repo-lines-v1:sha256:c646f844959c3584df1828b99cc70f3289d71487d5880a48666c139c0d5314ec:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzY0NmY4NDQ5NTljMzU4NGRmMTgyOGI5OWNjNzBmMzI4OWQ3MTQ4N2Q1ODgwYTQ4NjY2YzEzOWMwZDUzMTRlYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzY0NmY4NDQ5NTljMzU4NGRmMTgyOGI5OWNjNzBmMzI4OWQ3MTQ4N2Q1ODgwYTQ4NjY2YzEzOWMwZDUzMTRlYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTY2MGU4MWE1N2Q5ZWQ2MDIxYzhlNDFjMGE1MGY0ZTE5MWY4MDk1NzA5ZWVkY2JjYmFlY2Y4Yzk2ZDI3ZjVhYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTI3MzVkYzhkMjVkNzFkMTgwZTM5Y2Q2YWM5ODI1NjY2ODk2YTg2ZWUzZTM0ZTQ0YzFhOGFlZWMyOThlYWE4YSJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0012-detour-conditional-triggers.md#L9-L9",
+          "version": "repo-lines-v1:sha256:f087442e740eba0f73bea6cd4a257cc35aeb57eae1ec880a502f08c14a5e91fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjA4NzQ0MmU3NDBlYmEwZjczYmVhNmNkNGEyNTdjYzM1YWViNTdlYWUxZWM4ODBhNTAyZjA4YzE0YTVlOTFmYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjA4NzQ0MmU3NDBlYmEwZjczYmVhNmNkNGEyNTdjYzM1YWViNTdlYWUxZWM4ODBhNTAyZjA4YzE0YTVlOTFmYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWZjYjBhZDZhZWJjMjU4OTdhYzY4OTA5NGFkNTQ5NmFmN2U0ZTY2OTA0YTA2ZWI3ZmRmMDMwNWM4Nzk4Y2UxZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2IxNTdhNmQyNzY3ZmY3ZjQxMzNlZTI3NjUxMzY3YzZmZGZmN2FiNGZkOWJhM2NiNDI2MmUyYWE0NDkwY2NhMyJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L45-L54",
+          "version": "repo-lines-v1:sha256:3e18e070b70f1bdb7f2f07c58ae5b6f39f5fb0416496b93f24ad70c76663c1fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlZDIzNjhlMGFkODA4NzFhOTk1NjgwMTgyNDkwMDEzMmI3NDQ1OGFkNGVkN2YwYjc4NzE5Y2NhYWQ2MzZlMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMzk5MTM2MWQyMTJiNzI0OWFhODFmYmY4OWM1NzdhODFhMjhkMDEzYzRkZGViNWUzM2YyZmFhYjZjZTgxZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExYjNlOWMxZmQ3NzE4OTM1Y2M1YWQzMDc1ZjcwMzg1MzIxZmQwOTEzYWJjYjRiOWI4ZmUzZDRiNGU1NmQyMzUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L81-L94",
+          "version": "repo-lines-v1:sha256:246427726f3ad5b36ee8fafe55eb2fdb1901ffd1d95b37d688ee503a19a49443:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NDk1MTZkMTMxMmM5OTYxMWFlYjNjYTA0M2YzMWJkYmIwMjYwYjA1ZTkwMTRmZWYwNTVhNjVlMDIwNGI1NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjODA4Y2EzODUwNThiNmZhZDE2NWFmNzcyMTQ0NjJkYjUzZTVmZDIxMDZhMWY5OGM1MjNhYzViYWI5ZDE1YTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3MzM3ODFkYTIzMjQ0NzU1NjYzYjNjNzE1MTEwYTBkZWViYjNjMzZlYjJjMzkwODNjMGUwMDM5Y2Q0OTcyM2EifQ"
+        },
+        {
+          "resource": "repo://supabase/migrations/0004_drop_detour_notable_stops.sql",
+          "version": "repo-file-v1:sha256:2eb9263eaf5ade7205ce620d60640851bd4e5fb318372a2475338e35a2a21c3b"
+        },
+        {
+          "resource": "repo://supabase/migrations/0005_detour_stops.sql",
+          "version": "repo-file-v1:sha256:f3ec0b9f439635bd6159a27008a4a3cfccfa31d6399b1ab310616737c5eef1ea"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

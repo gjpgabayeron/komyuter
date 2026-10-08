@@ -1,0 +1,498 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:fbbd721f8b15bf8cedea1917c160103a78b688d15d7afbae97b1f1c4418f05a7",
+  "claims": [
+    {
+      "id": "claim_917366b422db4982bc2c74b7935c80ce",
+      "statement": "CI's only test step is `pnpm --filter admin test`: the admin suite is hermetic (node environment, no database), whereas apps/server's integration half needs a live Supabase stack and remains a local pre-merge obligation — so a green pipeline proves only that Node-importable admin behaviour is intact.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L32-L36",
+          "version": "repo-lines-v1:sha256:d2886427f0c5a9a58aa7f9083802c0d6bb35ba6bb0f30e30a8b191d5af40aed9:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTRlYzFkMzE5NmRiYTI5NDllYzc2ZTQ0YmJhNTc1ZmQ0MjZhYTIyZjQ4YzQ0ZWJmY2ZkYTc4YTRlZDFmZWI3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTgxYzJlMGY5OTEzMzljOWM1YmY4ZDNkMmI4ZGFmNDg2YjM2OGQ4ZTIxNGE1OGJkYzBiYTFmZGQ1NGM5ODUyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDE3MzA1NjI2Njc0MTkyMzJmYTBhOWExZWNlM2YwYThjMDE5ZmIzNmIwMmM2YWYzZmY4YWM3YjY5ODQ3MTIzNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGU3ZmFiYjYwNDAxMDNkZjBmNTQyYjg4ZTE0NmUwMTU0Y2YyNWRmOTgwNTU3ZTVmNjJmZDFiNzNjMmI0MzZiMCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/package.json#L10-L10",
+          "version": "repo-lines-v1:sha256:d04fb2f5a462577422df1b091ac1508715d7237dda8a058bfebddb45c621c5e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzljYWViZWU0ZDY4Yzc2NTc5MTg5YjdiYWUyNmEzMmY0M2I2YTIxYTNiZjE0Yzg5Njg3YzlmZmY0ODA5Y2FhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTgyMWYxNDMwN2YxMjI3OTQ2YWVjY2Y1ZDA0NTE1YzBiNDY2NDc5YWY4OWRmMzZmMzk4NzU0ODRkOWVkMTQ0NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:95145163067b26972444b6f90ed1af156699cc5c8e3be096e5ea50d1a808580c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkzNmRmN2E1YTNhYWYxODBjZmZkMWQ2NWM2NDZlZjZhZWEzNTJjYzI3Nzc0Njg2MTk5Y2Q4ZmIzZTg5OWM3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGU5NzViZTczN2YxN2Y2NzJmNDM2NDQ0YTE1MjJiNzFjMDNhOGY5ZDhhM2U4ODQ4YTY1NDIxZGJjZGNhMWViYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ba85138126b54cd68ceec72cbedba243",
+      "statement": "The suite is one `vitest run` over 23 test files in apps/admin/src/tests, configured with the `node` environment, an `@` to ./src alias, an include pattern of src/tests plus test.ts or test.tsx, and `passWithNoTests: true` — so a broken include pattern or an emptied test directory still makes the CI test step pass with zero tests executed.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L23-L25",
+          "version": "repo-lines-v1:sha256:19700bea4d8dee6eb9fbeed93547625834a06d4d8f445357db84e04f09664651:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTdlMTQ2Mjg0NWY5NzBmMmQyMjE5NDExMzk5ZDBjNGQ5NDFlODIwZTg4NzY5ZDNkY2NmYWViOTJkMDVjYzQ5MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RiNTcxOTMyZTE1MDZmYzNhN2E2ZWU2ZWI5ZTA0NzFkNzIxNTQ1MzJjOTdiYzdmNDlkNWFhYjM0OGEwMGI2NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQ0YTVlYzVjOTQ3OTg5NWRjMjQxMzg0ODA3ZjZjYzVmNjUwNTk3YmZmMmQ3ZWIwYTRmMzM3NWUzYWNjNDdmMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTMwMzcyZjA0Y2E4ZjI3MjAxZDk3MjFhMTFlMjVhYTJmNmVkNzFiMGJlNGE4NDA2MTNmMDNiZmVlMTYyMThhZSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/package.json#L10-L10",
+          "version": "repo-lines-v1:sha256:d04fb2f5a462577422df1b091ac1508715d7237dda8a058bfebddb45c621c5e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzljYWViZWU0ZDY4Yzc2NTc5MTg5YjdiYWUyNmEzMmY0M2I2YTIxYTNiZjE0Yzg5Njg3YzlmZmY0ODA5Y2FhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTgyMWYxNDMwN2YxMjI3OTQ2YWVjY2Y1ZDA0NTE1YzBiNDY2NDc5YWY4OWRmMzZmMzk4NzU0ODRkOWVkMTQ0NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L4-L14",
+          "version": "repo-lines-v1:sha256:e1fdebcc63015a12fa2a6c478b3fe895494a25f384fef198a1cc5efac175044e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5NTU2ODExYWM4ZDk0OWJjZWVjZjE3MjAyNGYzODZmYzZkZDRmYzE0NmFlNTlhODg4ZGUzNzVkMjFmOTQ5MGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d391f34ed0eb4412b6b6b461afc376a3",
+      "statement": "No component-level test exists: the vitest environment is `node` and apps/admin declares no jsdom or component-testing dependency, so React components are verified only by typecheck, lint and the Vite build.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L35-L46",
+          "version": "repo-lines-v1:sha256:be90e9fde9035ed1b111e43fdc272f46b803865520bd54c6c0e5ec0c3d2087ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYzRkZTdlZDM1YTIzMzY0NTM5ODY0ZGFkYjkzOGI4NzIzMzM3OTE3OWQ2MjkyYjlmZjVmNjE5YTZjMTMxNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjMWM3YTljZmQ4ODAwNmVjNzRkNWU4NDU4Njc3MjBmMTM4ZGMwYzE0ZmVhYTcxNmU5M2VkZmMzYTk0MjdmNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:95145163067b26972444b6f90ed1af156699cc5c8e3be096e5ea50d1a808580c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkzNmRmN2E1YTNhYWYxODBjZmZkMWQ2NWM2NDZlZjZhZWEzNTJjYzI3Nzc0Njg2MTk5Y2Q4ZmIzZTg5OWM3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGU5NzViZTczN2YxN2Y2NzJmNDM2NDQ0YTE1MjJiNzFjMDNhOGY5ZDhhM2U4ODQ4YTY1NDIxZGJjZGNhMWViYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_122e62a5c5914db8a616cc6601a7ba5d",
+      "statement": "The draft and overview-cache modules take their storage through an injected minimal `StorageLike` interface (defaulting to a noop when `localStorage` is undefined), which is the seam that makes them unit-testable in Node.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L38-L53",
+          "version": "repo-lines-v1:sha256:894d9a19f656b2aa573de7d7f42a1aad6cc23c5926f2a34c302a518f9017e87e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyODI1MjU2ZTU3ZjRiNWQ2ZmUyZWIwMTNlOTgxZGFjNDNlNGE1YmY3ODViNzk2M2UzOTE3MjEyNjEyYWE4ZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQxZjFiNzk3NzkwZTcyMDhhY2Q3MmVmNmI3ZjlhZDcwOTUzNGI0ZjFiODc2YWY5OWI3Yjk4ODc2MGY1ODg2MjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiOWNjNTc0ODk3MzBiMDU3MDRjY2E2ZDc5ZmUzMjY1MTE3ZGVkM2Q2ZmNkY2Y2ZjA3NWVkMGM0OGMyMDA4ZGMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overviewCache.ts#L22-L37",
+          "version": "repo-lines-v1:sha256:894d9a19f656b2aa573de7d7f42a1aad6cc23c5926f2a34c302a518f9017e87e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyODI1MjU2ZTU3ZjRiNWQ2ZmUyZWIwMTNlOTgxZGFjNDNlNGE1YmY3ODViNzk2M2UzOTE3MjEyNjEyYWE4ZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1MzkwMGQ5ZmQ5NzE2NzRhZTliYjMyMmVhMjMzNWRlNzM4NWY3ZmMxYmYzNjBhNDE5ZWEwM2M3MWFjMjViNzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5ZTNiYzllODRmNzU1MjJiN2RjYmI2MzFmZTRiODhjYjkwNDA4ODg5NzA3MjhkZTI5MTUwYWY0ZWNlNjdkMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c32f41db38f24d509a018d7bb231a2bc",
+      "statement": "The client-local draft contract is: key `komyuter.draft.{routeId}.{directionId}` (with `no-route`/`new` fallbacks), a 24 h TTL, an expired draft that is deleted and never returned, corrupt JSON treated as absent and dropped, older payload shapes normalized to safe defaults, and an empty payload that is not saved at all.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L55-L120",
+          "version": "repo-lines-v1:sha256:9f4e9279dd4e8a3fd29f601c1cc61abd666ea46f9688af85a93636962568f4b5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzODJlMGM2Yzk1NjU2NzJkMjFlOGU1NmM0MDM2MDc0MmZhMDVmMWVkYjlmY2E5MWNjOGE3NGNiZTM1OTQ2ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiOTk4ZmVkYjc2N2I5MDdiOTE4Yjk0YzRiZmFlYjcwZWVmZDM2N2NhNDIyOWMxYzUwNjYyOTAxYWY1ODAzMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhOGIwY2VkZTQ2M2MyZGI5YzU4YjMxNzA1NjMzOGY2YzAwZTVjNjUyM2VhNjlkMTcwMjliNzQ3NTVhYTExZjYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/draft.test.ts#L60-L167",
+          "version": "repo-lines-v1:sha256:37b88591679d2618e4ee099e30e44d01e41b5f917152468cb642bb632b2490bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwY2NmZmYxOGQwZGYwMTJlMzRiMDAxZmQyYTY2ZjNiYTQzY2MyMjUzOGMzOTgxMjg0NmY4Mzg1NGJlZmE1MDI1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2NDc5MjFkYTA5M2M1MjRkNWMwNGQ1YzFkNWQ0MTMwZDdjZWNhNDIzZmMwZjE4YWVmMTY4Yjk0Y2Q0MDY3NTk3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_5717be10475b44a1a77596f788172559",
+      "statement": "The debounced draft writer coalesces rapid edits into a single ~500 ms write, offers `flush()` for immediate persistence (beforeunload / before save) and `cancel()` to drop a pending write.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L188-L229",
+          "version": "repo-lines-v1:sha256:3653c71bd4b07ec2af61375fbd0f09d34a37ccdc4d81203e0d7481812ced3112:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1NzgzMjA2YTc4NzM0ZjU5ZjJkODc4OGM1ZTk0NzE4ZTZhNmFlNTI5ODE0NTBiYjEyNjJmMTZlNDY3ODNmNmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/draft.test.ts#L114-L145",
+          "version": "repo-lines-v1:sha256:181e6311f518a813106ec27a31b9de1f88f7540300eb9e8fe5e005e0ba01f7fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlZTk3MTM5NDM0ZTQ2N2UyMTBhYWMyYzliNGVmNGI3OTQxZWNhOWFkYjEzYmUzNWEyYTg4MDg0MGRjMWVlYTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0MWI0M2E1NjkyMjUxNDc4MWIxZTE5ZTE5ODI1ZTliNGFjOGU4N2U5ZmNiOTkzN2E5YmQyYzFjN2VmMmI0OGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dc61580805bc4659b17a60c0ecda17e3",
+      "statement": "Detour drafts are persisted through separate helpers (key prefix `komyuter.detour-draft`) with the same 24 h TTL and injectable storage, but no test covers those storage functions — the detour draft test only covers the store's `serializeDraft`/`restoreDraft` snapshot round trip.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L130-L186",
+          "version": "repo-lines-v1:sha256:72d55f368f72d67894da5ed29f5e8f90aa2ad509ec38affeb70f9f65cd3021a0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2YTExOWNiYzQ0ZTk3OGM4N2I2MzBlNTc3ZmZkYWJhMGZkYzMxNjRjNzFlYjdlYjg4ZDQzZTBkODgwYjAwZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzNmQzMjMwYTZjZmFlOGJhNDdiMTgyMDA4N2EyNWZmNTA5Njk5MDQ4MzdiZGViMWExZWU1ZTdhZmM4YzA1NGMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/detour-describe.test.ts#L203-L223",
+          "version": "repo-lines-v1:sha256:c325c37ab59244c09f269f0bfdc197e1a44c79f02ab5582916be7fbbba9997db:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTdkNjY2NGFhZmMxMjkxN2FhOTUxNThlZmYxZjgyYTA4N2Q0MDkzNTFmN2Q5ZTkyZDU3MzlhZGEwOTZkYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/detour-store.test.ts#L341-L366",
+          "version": "repo-lines-v1:sha256:279d5f2b04ba4ddbc23926f4940c00b439ac33be7fb08aa1cf865db53c3f9245:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxMDk1YzdlZTdlYWZiZTU2N2FjMjNjMzFiZDlhNGM0ZTQzNjYzNDVkMWJjOTI2MGMyZTJiMzQ0NTcwMzcyZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3baf35d7748742659398738fa8e6ba45",
+      "statement": "The overview geometry mirror honours the same 24 h TTL, returns null for corrupt JSON or a malformed shape (routes not an array), deletes the key when an empty payload is written, and swallows storage failures because the cache is an optimization only.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/overviewCache.ts#L44-L95",
+          "version": "repo-lines-v1:sha256:7a15d86e5506424cc1ce1b23462488a7df7f3ec63e55bbc495a57f5b1c14c688:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxOWNhNDYyNDJhNDM0YWMzNTA0NDhkNGIzNjU1NDZjNWM5ZDA3YTMwYjJmOWI4YTA1MGU0ZDQ5ZGJlNjM3ZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmNjYyZGZmMmNlNDEzM2IzY2QwYWRjOWE4MzEzZDcxMGI1ZGZhZWQ3YWRhZjA3YzFhOWQ1ZGVjZjU2YWVhMTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/overviewCache.test.ts#L52-L120",
+          "version": "repo-lines-v1:sha256:0928ca2cb94b614ae51c727962b85e7832500a091c48853b6a3778e346abace3:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4ZDUzMDcxZjM3MGEzNzdjYjc2YTIxMDc5NmIyYWNiNzU1M2RiMjkxMDhhODIzM2RlNzg4YjhjYThmYTY2MTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlMWEwZGQyNGRlYTQwYTgxZjM1Njg0MTJjZjVjNjhhODRiNTQyNmNlZTkwMjAxZDk3NzI5YTA5NmI0MWY1OTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_663ccbefc29f44a6b5a9f0dcfe03da83",
+      "statement": "The plotting store's snap orchestration state — the fetcher, debounce timer, generation counter and last-edit entry — is deliberately module-scope rather than store state so timers and the fetcher survive `reset()` and are never persisted; the app binds the real snap call once via `bindSnapFetcher` in the workspace provider, and tests substitute a stub fetcher and tear down with `cancelPendingSnap()` and `bindSnapFetcher(null)`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L166-L175",
+          "version": "repo-lines-v1:sha256:befbff5590f570241e11fad1d498f1e961e4914aa21673e6c77e02a93dbb1ad5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkNjgxNDlkYzViZjUxZTZkMWU5OWM4NDFhMTE5YzM4ZGJjZDQ2M2ZjMjdiNzVlZTFiMTY4ZDY0NzRjNGU4NzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzMDdlNTdmNmRmMzgwNmI2Yjk5NmQyYmM5NjNmNDFiNmFiODA3ZmZlNTE5YWQ2ZmI4YmJhOWFjYTg3OTQxNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwODc4ODFiYTgxYzM5ZTViYzZiNDBlZGRlZTllNjE0OWYzNTg4ZTkzNDM4ZDNmMThhOGY5MzY3ODc1MjMzNjIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L229-L258",
+          "version": "repo-lines-v1:sha256:d20e238f3cf1bdd3937270c1b5b3d47d2e8f4848deeff2cf8d4f9e1ed9e1f1ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZWNhZTIxYjMxYjRkNWM5ZWZiYmQ1MDllNmM2YjlhYWM1NjJmYjQwYzAzZjgzYWY4ZDA5MDhmNmRlNTlkOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMDYyOTk0NjQ2ZTZjMmE2NjYzZjMzZmJjMzA5M2MyZDY0ZjUyMzQ5NzBmZGNjMzgwMGMzMTg4NjY5MDIzODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkMjc1ZmUyZTc3MTUxMDdjNGM3ODVmZWRlYTkzMWQ3ZDM3NjcxNzM1OGM0NmM4ZjQzZTJjYWI4MTM3NTY1MDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b68adffa83ea4ce8afd479a8b34e7267",
+      "statement": "Snap commit semantics are pinned by tests: the request is debounced after the last placement (timing taken from the exported `SNAP_DEBOUNCE_MS` constant, not from a literal), state moves pending to applied with no apply step, only a road-snapped response becomes the committed polyline, a `snapped: false` straight-line fallback is recorded as a warning and never committed, and a stale in-flight response cannot overwrite a newer composition.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L387-L398",
+          "version": "repo-lines-v1:sha256:c17ca2b77c0df2bd702baa6aaa0df6d3f9265c721903503c70dd3042df7735d2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZTY5ZTA4OGU1NTc5NjY1YWM5N2I5NTlhM2VmZDY2Mzk5MDllMzZkMTUxNWUzNzQyOGU5ZmQyMzFkYzM5ZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyZDZiNWI1ZjkzYzBlOWIxYjhkNjFmOTRiMGRmNTM3NjliZGY5ZDE1OWQyNDJlNjUyNzVkZmY3MDczMDUwNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkMjdkNzZlMzNkMDUyMTJiZWUxNDNlYTNkODkwNjQyMDZkMDBkMDMwZmRmYjk5NTEzYzQwYzE3NDYwYzM4N2IifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L373-L473",
+          "version": "repo-lines-v1:sha256:7efbbb2c6d25e542c23572aaae787115fae86bf528e4351e44a6cbc28d77db77:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAxLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzNzVkNDQ2ZDZhNDU3ZGNkZTQ3ZWU3N2FmOGJjMTM2YzE4NDdlNzdkNWRjOTFiODhkOGU3OTU0ZWE2NzQ0NzI0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJjMGUxZGNkOTBlZjYyOTg4ZWIwZjkwMmE5ZDgzZmQ5YWVmMWIzM2U5MmE1NDNkYjMxOTI2ZmZhNjg5NjQ1NDM0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5MGQ4ZTljN2NhZDY0Zjc2NjgwMWIzNmY4YWEyZmE4NmI0Y2M5MjE3OWM5NTZlMGY5MzMxNDVkNTZhZWY1OWQ5In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_ae0cb1900c98461ba7ec56b6981de8b4",
+      "statement": "`pathStopIds` is the save guard's association between the committed polyline and the ordered stop ids it was derived for; save requires it to match the current chain, and restoring a draft whose association no longer matches the restored chain nulls it and re-snaps so a stale path can never pass the guard.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L294-L298",
+          "version": "repo-lines-v1:sha256:a8c750594a877a6062fe63aedc300d5aa054a9cc8a29c5443a1d28a74e095ff2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTFiZGNjMjEzMDI5ZDMwZGMzNTI1OTdhYjYwNzNiNTY1MDQ4ZTdiNzNjOGE2M2E4NjNiMDFjODIzMGIxNGFhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQyMzQ4MjAzNDI2MDY2OTFiZmQyZDExZDM2MmFhOTQ2NGQ1NjJmYWQyNGM4NmE2YzFmOGM4M2I2ZDgyZWViMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTEzYTNjNzNmMDhjYTZmMWIxYjllNDU5OGFhZTkxNTY1MzBjYTEzZDBmMmZhZmMzMDkxYThiZWFmYjhhZDI2MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTVhYmJkNDU2NGUwMjJjNGI5YzEwZGFmMjQ0Y2E4Mjk5YjUwMzgxNDczMzg3ZWYzYWUyMWI2MjEzYTZkYTAwMyJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L1225-L1282",
+          "version": "repo-lines-v1:sha256:7af2fd70c7215f8eae6f34605047259492c354ae775fbd480c97c0fa7dbda30f:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4ZjcyMTE4NWFmMTFlOTczZWU2M2M2NmQ0YTUzZTRkMDRmZDVjMDY4MDFhYTU4Y2FhM2E2Y2U4NjAxOTdkMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwZTFkY2Q5MGVmNjI5ODhlYjBmOTAyYTlkODNmZDlhZWYxYjMzZTkyYTU0M2RiMzE5MjZmZmE2ODk2NDU0MzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0YjE5MzQyMDkwODNiYjcxNjllZmZmYTVkZjAwZDE2MGI3MDE0NjMzMGY0NDU5ZTAxZmNiNGY2NjE1NWJlZTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_21a94489a288497086fb02fa7875a049",
+      "statement": "Dirty tracking compares the draft by value against the captured saved baseline (`captureSavedBaseline` plus `draftMatchesBaseline`), so undoing back to the baseline hides Save, while with no baseline the draft can never be confirmed clean; edits outside the four history kinds (for example a reorder) stay dirty even after undoing everything.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L172-L215",
+          "version": "repo-lines-v1:sha256:663766e1f9090a606944bfcede24284db06ec65f2a8ee15aa3c5578c0451a9d1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0MjQ0NTg0MDEzY2E4ZmZjMjBiZWZhYWJjMzNmZTgyZDkxOTVkZDQyMjIxMjNiZTA0MDk2Mjk2YjVkZjY4ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZDYwNGZiNzk0MzhjNTgwMzgwMTcyYmFlNmRhNTdlYjZhMzVjMDdiMGI0ZGM4ZmM1MjE4OTc5MDE4NjI3MjcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L706-L779",
+          "version": "repo-lines-v1:sha256:bdbdab839ebbfe9a6ea35a3482c7ae6fc6278287e549b8a252d86a712b5564db:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwOWI1ZGMzNDQ1MDkxNDFjOTdjOTBjYzIxYWMxYTViNDBhYWExZDU1N2M2NWZhNDAwZTljMWIzYTM3NTY5YTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2OWY2NDZkMzYzYzY5ZDU1ZWI2OTkzMTI3YmZhMDlmNGI5YzQ2NzkyNzFmYmEzZmRmM2Q3NTVhOWFlYjhkMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0ODBjZTg1OTQ2ZTcyYmVhYjg3NmRlZWM1YTQ1NjY3NmU1ZGM3NDY3ZDFlZjY4NzM2MmUyZThiOTJhZDUyNTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_090773dafc0d4a4e82800d96793bae69",
+      "statement": "A snap result merges into the history entry of the edit that triggered it, so one undo reverts the edit and its auto-committed path together; undoing the first commit clears the path and its stop association entirely.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L32-L100",
+          "version": "repo-lines-v1:sha256:b29ecffc72f02f9c6f11a3c970a91884e8b421052866aafd74095ea778caf899:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1NDljN2U1ZWUwZDhjNWQ4MjY1MjBmZGI2YjQ4YjY2MTU0ZTI1NmVmYjg4NDNhZjJmODFlNjAyZGQ4Njc2MjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM2ODBjMzhjNDlhZmZjYTYzMDQ5MTBiNDY0OTU2MzQ5MDA2MWZiNjVjYzQzYWIxOGU4OGEyZWViM2IxZjBkZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzZWRlYTg5MzFmYmYxOWZiOGJhMmExMGZiODJhOWRiZTczNDU4NWU1MWMwYzUwNGM0NWVkNjdhYTU2YWQ5OWIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L782-L813",
+          "version": "repo-lines-v1:sha256:b96aaee0c41b6df7bccad91ae4eba13b29990770e2b5bbd9a3ae3ce0fec4b1dc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4NDdiZTRlZGY4MDlmYzczYTk4YjYxNjY2Zjc4NWQwODFjMmFkMjg5N2YwOWExMmM1MDA2MTEzNDNkNTY0ZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ2M2EyMjRhNmViMjVmN2Q2MjY3MTBjZjBmZmExNzA1Y2U3YTEwYTIxYzVlMzY0ZGFjMTNlZDQ3Nzc0ZDEyMjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6f5fab72d6da4e0c8f878571681fe18c",
+      "statement": "The undo/redo transitions are pure exported functions testable without zustand, scoped to four edit kinds (stop placement, deletion, drag, and property or snap changes), with `pushHistory` cutting the future branch after an undo.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L119-L132",
+          "version": "repo-lines-v1:sha256:502cf2d60aee2b3ebc64ca85dc8a0b61906eac28355a2e6417e1e1f62295f284:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxZWViZGNkODM2YTE2YWM5YzM2ODFhMDRiOTZkZWRmNjY3MzU4YThlOWM1NmQ4M2NiODExYmI5MzkxMzMzZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI3YTNjN2UxMGJhMWRmZmM1MDAzYzQ4YThhMGQ3Nzk4OTM5YzU3NWNhNTEwMjI4OTgyMTUyMDc2NTJhYTIwZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyZTIxOWEzM2Q4YzI3NjcyNTNkZGNmZjNiYmNhMmEzMTgwZGE4ODY4ZThhN2YxMDRiM2YyZDJlYjJhZWIzNTcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L14-L30",
+          "version": "repo-lines-v1:sha256:6aa73969b162a602d42e808f82df4bceedfd02cbe311de384b94aa5224ad6a22:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4MWNmNWIxMjhkYWY5M2IwODcwZDRhMWMxZGNmOGM0YjAxZDlhYjliZGYyOWVhZmVmOWY5MWJiNmE5YjA0ZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2NTYxZjk2NWU1OTgxYzllNGEyZWNlNjFmODYwMmQ3NDgyMmZmOTJhMzcwNjU2YjA1NjYyZTk5ODI3MzQ0YTQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plottingHistory.test.ts#L34-L70",
+          "version": "repo-lines-v1:sha256:00557d3abd4c9421450b10a5f882e9157eaca0770c3a7e1a440c74ecbcc13a9c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhY2Y2NmQ0NTQ1NTljZjQ2YWYyOTU5Y2Q1NzkwM2QyZjRjODBjZTIyYjkyMTE0N2JkMzRkZDcxMDFhYjc2Y2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiODhiZTYwODQzODljMzIwODU2YWY3NTZhZmQzMzY1MDU3YTZiYzY2YzBjMGRjZmQxMjBjYWUzZTMwMzlmODciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhNDY5ZTNhOTg1NGQ2MTkxMjE0MmM5OWJjYmYyODZlNmEzNTU0YjQ3N2M5YmExZmIwNmJmNTUxNDc5ZGNhOWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7acf7fd75d6a47f98aff57cfc75838b1",
+      "statement": "The detour store is created through the `createDetourStore(snapFn)` factory whose `LoopSnapper` argument is the road-following seam; the app's singleton `useDetourStore` uses the default Mapbox snap proxy while tests always inject a stub snapper.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L293-L293",
+          "version": "repo-lines-v1:sha256:58bc6df73d0c4b9f5516188c58f6ee8af01f5c0d18def783393c799c9afdc191:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNThiYzZkZjczZDBjNGI5ZjU1MTYxODhjNThmNmVlOGFmMDFmNWMwZDE4ZGVmNzgzMzkzYzc5OWM5YWZkYzE5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNThiYzZkZjczZDBjNGI5ZjU1MTYxODhjNThmNmVlOGFmMDFmNWMwZDE4ZGVmNzgzMzkzYzc5OWM5YWZkYzE5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTIwNDBlMDk1YTk0ZTJhZGE3NGU0MjFmMzcxODc1MWE5MWE4MTBiZmQ2NmY0OGY0ZTkzOWM3Yjc0ODBlYjY3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTQyNThhYTkzOTVjMmM2Y2Q2NWNkZDNmNTJjZDg5YjA4ZTlkY2U4ZTMxYWRhNzY2OTJmZWExZjdkMDQwYjNkOSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L718-L718",
+          "version": "repo-lines-v1:sha256:3e8862d63130b863fbf64aa991aac27ae1ab7a66db86e3844a9c95625f7f6a16:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U4ODYyZDYzMTMwYjg2M2ZiZjY0YWE5OTFhYWMyN2FlMWFiN2E2NmRiODZlMzg0NGE5Yzk1NjI1ZjdmNmExNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U4ODYyZDYzMTMwYjg2M2ZiZjY0YWE5OTFhYWMyN2FlMWFiN2E2NmRiODZlMzg0NGE5Yzk1NjI1ZjdmNmExNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDVlODczOWNlODFkOWY3NjAyZmE2MzVjYjM5ZmZjYTRkMDI2NDI0YzdhOGQ0N2Q2MDlhODJiNmRkOGRhZDY2NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L75-L78",
+          "version": "repo-lines-v1:sha256:6f8d17c1fc824dfdb63095c78e5d15a7f0cacc026a48ce337ba9583959978ae9:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjgyYjhiZTRjM2U2NGNiNmVkNWI5NjA5NmM4NjkxZmZiZjhiZmU4NjU5Mjc1MTE4YWVjNGY2MDc0YWZlMjdkNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzllM2U2YTg1YTc5MTU4OTUwMjA1MjY2NTY2MDZmMDhhZmY3MTBmMjcwMGE2OGFlMzI5NmJjMzg1ZDUxMTM5NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWYzNzEwZmEwOTFjZGZiYWVlNjY1MjQ0MzdmMDE1NGNmNzkwY2Q0MWVmNzZjYjIzZWZiY2Y2NWNjMjMxYWExNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWRiNGRlY2RmZDAwNDAzNGFmZmYxMTQxMjI3ZTUxNDY1NjYyZmIyYmE2ZDFiZjM0Njg4MjBiN2Q5ODYxMTY3MCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/detour-store.test.ts#L46-L60",
+          "version": "repo-lines-v1:sha256:573b4b062dd571510c3e153fdc42c8d4b467cea44088f5d7276911c848cc62a5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5ODMzYjg0MTEwMDVlMzc3ZTAzNTE1YmFhN2I4M2Q5Mjc1NzQ4MmQ0YzExZDRmYTQ5MWRjNTA2YWJiMmE5MTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyMjlhNDIxMzcxMDE1YzhjODlmYmNmZmNlZDMwYmM3NTdmMWIyZDQzOTY4MTYzMmUyYzllZWQ5NmQxY2Q3ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyZTZiNzkyNWNkM2E2ZTU5YWY5NzU3ZWU1ZGI4Zjc3NDUyODVhNGUyMzg5ZjNhZjFjZjA5NWJkMzFjZDk2YzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_91961a78da794b8cbde6eb86a71e3d72",
+      "statement": "Detour authoring is the branching-node flow — split, then merge, then clicks that add detour stops — and invalid node pairs are refused visibly: an out-of-order merge yields a refusal of kind `order` that holds the refused tap for a one-action `swapEntryExit`, and a merge inside the ~30 m degenerate minimum yields kind `degenerate` while leaving `exit` null.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L80-L97",
+          "version": "repo-lines-v1:sha256:5367d3c03d543e26dfd6bb582a78860319456f9d656a6947a236517f7bd350b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyYTkyZWIyZTM5NDJlOTdmNmQwZGJkMzE1ZTcxYTM3Y2M4Y2RmYzdhMzY2YTYzMjZjZDk0Y2M0NWVjZjBmZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NjM2NmJiYTNlN2IwOTZlZjIzNjEwNzQ5OTQxNWI2MDBiZTBlNDlkZWYzMzQwYWZjODBmZTc2NmY5NjllZDUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmMzk2NmM3YWM3ODI1Mzg3NjYxNzczYjgyYzI3NTMzYjI5ZjcyNzk3MDljZDg2NDVmMWI2Y2IyYTI4OWEzNzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxYmI0NDQxMzc4MDEyMWMzMmFjNzNhMDQ3NjZjZjU5NDcyOGE2ZTgwYjEzZmZmN2JhMzFjNGZmM2RjZDZmY2QifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/detour-store.test.ts#L74-L143",
+          "version": "repo-lines-v1:sha256:44a91cd6ea8f42981ca0c8317f743665e4e8182ad9bdd0364a8e0ae5ae9a924f:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjOTRkMzUzNjcyMjY4YjNjZWE2Mzk0ZjQ0MTNiNDA2ZGM1MjdkOTc1ZjIyNWNkMmViNGM2ZDc1ZjczMDFjYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwMGIyMWU1MmYxYmFiM2I0MGQyYzUzMmZkODJkMjFhMGRhNTc5YjBmZmM3OTNiNDIxZDQ5ZTE4NTU4MDU5M2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRiYTJkN2U0MWM2NzIzOGJkZWUwZDgwMThmOTgyNjc2ZjhmMjliOTNhODQxMTVlYzdiODBjZWJiZWQxZTI4YjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8981de797ded4c8cb90e27f9baf0e2e5",
+      "statement": "The detour save gate is pure and blocks before any HTTP: `validateSave()` names the first missing piece (split, merge, detour stops, instruction), never fires the snapper, and on success returns the exact server payload (entry, exit, detour polyline, additional distance, both instructions, detour stops).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/detour-store.test.ts#L144-L201",
+          "version": "repo-lines-v1:sha256:a7f1dfa78a52fc155178807ae942b18e6b2b3687c070c561ac560095038e7195:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNzNlOTYzN2Q4ZGM3NmIyN2M2Yzc4OWYwZDAyNDg0MzNkNGM0OGQwN2VmMTVmOTk0OTk2ODdhZDMyZGY1NDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxMzY1ZTNiMGE3Y2UwNTVkN2Y0OWFiMWE1MmQ2OGJlNTI0ZjdiYTY3NGFkZWZlOWQ4NDUwMGRhNzk0NjI5YWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_40fded2eae34421dad45073f2421d892",
+      "statement": "Detour undo/redo stores full composition snapshots trimmed to `HISTORY_LIMIT` (50), whereas the plotting history stack appends entries without any length cap.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L120-L122",
+          "version": "repo-lines-v1:sha256:7c75d73842868e6847590fbdf4b9a6de8b7d3fcb8f2fc4397c59d001a69f8385:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTRjMzhlMWE1NTBiNjcxMDQwM2M5YmZhNTI0NDhiN2ZhYzZmYzg1ZWNjMTcxMTI3ZDc0MTVhMzE1ZTk2NzY5MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzlhMmY5ZjRjZWQ5MzhiMmVhMTY3Y2I4YmEwNDk0MTFmNGQxYWY5ZGEyYjdiOTE5NzFmYWExZmE3MGJiNzE0YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTQ4NTJlY2UyZTllZDNhOWJmOGJkZDVjNWQzMTFiMTBiMDA3MDk4ZjQ5MzkxM2I0MTQ0NTY1YTViNTk4ZTljMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjY5ZWM5YmUyZDc3OTFiM2FjZDAwMjMxNWIzMDE5MzNmMTVmOTQ5N2I0M2RjZGQ0YTc0MmI0NmI0OGE0YWNlNiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L300-L300",
+          "version": "repo-lines-v1:sha256:a8d232bc06d57d8a655580da16149f475977e92fd173d6c09151f696edd41ebc:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYThkMjMyYmMwNmQ1N2Q4YTY1NTU4MGRhMTYxNDlmNDc1OTc3ZTkyZmQxNzNkNmMwOTE1MWY2OTZlZGQ0MWViYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYThkMjMyYmMwNmQ1N2Q4YTY1NTU4MGRhMTYxNDlmNDc1OTc3ZTkyZmQxNzNkNmMwOTE1MWY2OTZlZGQ0MWViYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNjNzE0NDc2MjU3YzEyYzhjMzMzNDY0OGJiNGYwZmY0Y2Y2YzI1MjU2NDEzYWUxYjE1NWZhNjdkMzBlNzVhOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjIxZWE2YTUzZGExYjZmMGM3NmNkOTFjMjg5MzAwYWMwZGNjNmVhMDU0ZWQyYjk0ZTg3YTMxY2Y0MTRhMTc1MiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L119-L124",
+          "version": "repo-lines-v1:sha256:0166fe2844003899e93685dcdf079fd92971455a2f70968374d991d564e94a8d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDFlZWJkY2Q4MzZhMTZhYzljMzY4MWEwNGI5NmRlZGY2NjczNThhOGU5YzU2ZDgzY2I4MTFiYjkzOTEzMzNkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjdhM2M3ZTEwYmExZGZmYzUwMDNjNDhhOGEwZDc3OTg5MzljNTc1Y2E1MTAyMjg5ODIxNTIwNzY1MmFhMjBlMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzAzNjViNjFjN2M3MWFjYTVjNGIwODljZGM2YWQyNGI0YWRlN2IyMDhhMDg5OTQ2YTlmZWNjYmJhYzQzYjY5NCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b9746f82b8d74dada5bd87bddb4caefc",
+      "statement": "The detour save HTTP call itself is outside the suite: the store only produces the validated payload, and no test issues the corresponding POST or PUT.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L209-L210",
+          "version": "repo-lines-v1:sha256:0b34da8b2e901fe2e8d864a41a83d0045c5385adf32773e9eb469c1c953ca9b9:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzk2MmYyNWM5YWYyOTI5Zjg1MjhjMjg0MWMyMTY2YmYyODg0OTc3OTVkYzM4ZmRhN2IyOTNkN2ZiZjM1MDUyNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmE4MDM5NDhlYjY0NDliYmEzNmRjMmU3MzIxYTllNzUwZDViZTU2MTIyOWQ0NDA4YzEwZjQ4NTU4N2ZmNzNiNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGI3N2JmZmU5ZjhkN2JlNzY1YmRmODBkZDdjMDBmNmNhYWIxMTYyOTVlODQ5YmM1MmExYTc1MjZjOWQ0NDkzNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDYwN2M0OWEyYTgxMjZkODY0NWUxMzgzNzFmMzAxNTBiMGU0YWZjZWIwNTYwZjM3MmU5MTQzNzA3MmNiZWM1NSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/detour-store.test.ts#L144-L201",
+          "version": "repo-lines-v1:sha256:a7f1dfa78a52fc155178807ae942b18e6b2b3687c070c561ac560095038e7195:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNzNlOTYzN2Q4ZGM3NmIyN2M2Yzc4OWYwZDAyNDg0MzNkNGM0OGQwN2VmMTVmOTk0OTk2ODdhZDMyZGY1NDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxMzY1ZTNiMGE3Y2UwNTVkN2Y0OWFiMWE1MmQ2OGJlNTI0ZjdiYTY3NGFkZWZlOWQ4NDUwMGRhNzk0NjI5YWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1247924bd9dc40ec857c34ee6b5ad24e",
+      "statement": "The chain algebra is pinned: `setStopLink` rewires the from/to slots (reversing the edge when the requested predecessor is the stop's own successor), clearing a link affects only that connection, and `connectionsFromStops` rebuilds the consecutive chain — with the rewire trace verified on a closed loop where flipping half the chain would otherwise go unnoticed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/connections.ts#L1-L9",
+          "version": "repo-lines-v1:sha256:62b2af15f9f33e550a990fa32337c51b0aa856f1aea49f374446a421c21e20ed:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGMzNGNkZjg2MjQ5NDY0ZmJlOTliMTVmOGQ3NjQ5ZTgzN2ZkMmJlYTg2YWQzZTAzODlhMTE0YjM3ODc4MzA4OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDIxYmU5NjIzZjdkZTgwNjRmMDJlMzcxZjg4NzhjNjZlMWZkOTA1MDg5NjhmNmFlZjg1ZmQ4ZDA1YzhhYmZiMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzA0MWQ4MjljZmE3ZDQ2MWYwYjNjZDY3ZjY2NjgwZTcyYjQyZjNkNDVmNDViNzU2OWJhNGJmZWY0YWZkYTFjMyJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/connections.test.ts#L243-L275",
+          "version": "repo-lines-v1:sha256:a8d08388a9288e9264ee19595182c2f77bf9862bc2a889c306cc0ff8bc9d47de:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzYjM0ZTRiYzc2ODZiODA0NTEzMWFkMzUzNWM2MmIxZmFhNTU2YjAwZDA3ZDE0ZDI3MjQ4ZGUxNzViNzk1YTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2ODE1Y2Q3YWFlMWNhMDE1ZGI0MTkzYzA3OTA4MDY5MzE1NzY3ZGZkNjk1MGRiYTdkYWQxNGQxOTA4Y2E4YmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIyYzRlNjZhOWMyMGEzN2JmZjU0NjU3OWY2ODE1NDQ3NGMwMjU1ZDYzMGI1MzNlY2ZjYTgxZDQ4MjEyMDBiZjcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/connections.test.ts#L41-L106",
+          "version": "repo-lines-v1:sha256:0c1b4115e41d8f86f77cef9ee2b2e5e413edad9361dc620b6345adcde4f21c5b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwM2ZjY2Q5ZTA5NGI0YThkZmNiYmMxMjhmZDU4MWEzMDM2Y2EzMjM3MzlmNjJlYzFjODhkMjI1MjgwYTVkMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4ZDVmOTQwZmEzYWRmYTBlZDQ4NDk5MDU1NDEwNjYzM2JkMGJiMmNiZjUyODc4NGMyOGU1YmI3MWQzMzg5ZTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a3bc46a02d8407597a54d4236c66f80",
+      "statement": "`LOOP_CLOSE_TOLERANCE_METERS` (150 m) is one shared constant governing snap waypoint closure, chain closure and the transient connecting stub, so the three closure decisions cannot disagree.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L64-L67",
+          "version": "repo-lines-v1:sha256:21a30cc0803a3845888c21e1627a1a2844de775e0cb8cb885f4fbdb596f78066:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWYzZmJkNTgyYjMxZmQ5MTZjNjM5ZDhkNDRiOTRiZDZiNWM1YjY3ZTYzMWFlZDViMDM1MGE2YmZmYTZlYzBmNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTA0ZWNiNDkxMjM4MjJiZWZmZDE5OTYxNmNmNjllNzRjY2JkYjY1N2FjNDM0NWU5NjUyZWY1ZWU2M2VkM2FmOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzA1OTkyMWIwMWM5NjE2YTE5MTI1N2NjMTc4MzhhMWMyOTljMTZiODE5NWEzNGQ4YzUxMTRlMmJhNjEwNGRlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzlhYjE4ZmRiNWVhNjU5YzAyMWRlZjJjOTBiOGY4OTk2NDYwYmY0MDZlZDI5ZWEzMWUzZTY1Y2M2YmFkMzYyNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e58cc91e131d434e94c6b433d0f58e11",
+      "statement": "The coordinate suite pins parsing and equality, nearest-vertex lookup, Haversine distance, detour projection and replaced arc length, flank inference including loop routes that wrap across the closing arc, the chain-line override of the connecting line, and endpoint legality (`pathEndsOnStops` accepting a loop that ends on the start stop and failing with start or end reasons).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/coords.test.ts#L192-L548",
+          "version": "repo-lines-v1:sha256:001b918e8b05053f62806b3550af812aade14d0a66dc89d97adb8f1cdcace10a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzU3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMmNjNzdkNjRmN2ExZmU1MDU0ZjM4MDVhZTFiNzIzZjQzYzgyMzViOTczZmUyMGIxMTg2ZTg1ZWRjMzBlYTk2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNzc5ZDExOGQ2ZTNjYmY0NTA1Mzk3NDhkZWU3YTQzMDdhY2JlNjQ0NmNiYTI5N2YyNzYwZmE1ZDBiYmExYmMyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJjNjc2ZTkzYmIwYzY3NmZkYzY5ZmY4ZjhiZWQyOTM4Zjk0YmY0MmQ1NWYyN2IwMmFlNDcyYTdiNGE2OTVjOWI4In0"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/coords.test.ts#L21-L131",
+          "version": "repo-lines-v1:sha256:1791b6e9f653588f6297cf20aded4a1de84721c9de8fa137cd658c9f9cfcec1e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTExLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxNmQxZTFlOWQ3MGVjY2I2ZDQ2MzY1NTQ3ODNiNzQ2MWZiNmI5NzRhMDBjZjc1MmZlYmM4NjI1NDI5MzNiNTk3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNTRjNTlkOWU3MDljZDc4MzNhMGU1OTU0YTIyOWEwZDczYzM1NGJiY2RjYTZmY2Y3ZTVhZjE4ZDk1Y2VmZjAwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5ZmE2YjdhYWQ3Y2E4MjBjODVhZGQ0ZTJiMTE4ZTFmMTM4MjNiZWRmYWZiMWZlNTUzNTc2MzExZDQ0YTM5OGRjIn0"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/coords.test.ts#L549-L651",
+          "version": "repo-lines-v1:sha256:93dee7e43ffd2a56556cbff1b5999935f9baa1ba8d42861d75fde166520634e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4ODkxYzdiYTRiZTk1Y2M0MzZjZDBlYTA5MjVhODk3MDRkNmQ4Y2FkN2M5MzQ2OTJlMjZkNjE2OWExY2ViNWMxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNzc5ZDExOGQ2ZTNjYmY0NTA1Mzk3NDhkZWU3YTQzMDdhY2JlNjQ0NmNiYTI5N2YyNzYwZmE1ZDBiYmExYmMyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_faeea5df46244e0cacab3aded11b229c",
+      "statement": "Overlap detection matches only passes whose vertices coincide within a meter tolerance and whose local travel directions are opposite (same-direction convoys are ignored, and self-overlap additionally requires the vertices to be far apart along the line), then shifts each overlapping pass laterally in real-world meters with a taper at the run ends.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L4-L42",
+          "version": "repo-lines-v1:sha256:fbef21822f4ff115e53d1ca6b7f4f671b8aaa2b4b4bd76e21b1210e7d686e768:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk5MTMxZGE4M2YyNzI2NzBhYjZkNTIwMzBjMmU5Njk0ODkxYjdjNDQxMjU3Yzg0ZDgxODQ0ZWQ2NjM1NTMwNmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjMWJkOTJhMzIzN2E3MTYwMTQ2MWY5ZTI5MGI1NjI0YzZiODhjYmI2MDQzNWNkNTdkMTExYmEwMTc4ZDI0ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5NTdjYmY4MDFhYThkY2EwYmRjYjg0OWNiNzg4MGM4YjZhNzczMjZhZmYyN2UwNDZjZGY4MmVkMTY0YTM0OTMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/overlap.test.ts#L35-L110",
+          "version": "repo-lines-v1:sha256:9ebd3e1c9abe43b55341a5ecad9d4f75aff62079d6e9fd5f3df2f5689e14da04:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhMGU5ZGNmZTEyYzYzNmMzYjllYTJjOGFmNmZhOTliMTZiMGNkNTI0YWY5ZDZiYzQxNGJkZmZkNWZjZDQ0YTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmNDJlMTllYTg2YmYxZThjMmM4NGJjYTJmNDdjOTM2ZjhkOTg0OGZjMjBlN2I3NDRiYmE5M2I5M2UwY2M1MzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUzMzNjYWNjOWY0ZjQzYmU5NTU4N2QwZTA4ZDllMzQ0YzJlM2U4Njc5MDU5OGM2ZGUwNjQ0OWNiNjllM2MwNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmYTNjMmExNTc4MTFlOGYwNWVjZWU5ZGY0ZjZmYWEyMDM0NDU3ZmVkMGI4OWE3NzVhYjExYTY5ODE5NjcxZjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c0e851c950a1455cbdff3abc7b249715",
+      "statement": "The only covered part of the workspace feature is its geometry: the fixed layout tokens, `computeMapWidth`'s viewport arithmetic for overview, focus and edit, and the 400 px map-gate boundary.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/geometry.ts",
+          "version": "repo-file-v1:sha256:653f3b7bf5fbfefc66e800dee00de90b2a35e987d1f7998d30323b51e870faa0"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/workspaceGeometry.test.ts#L9-L56",
+          "version": "repo-lines-v1:sha256:69955d691d820c06591757a81b4e6859cfd58a71c2c36f06c0775d823ce9a627:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMmI3NWVjNWYzN2U4NDY4YTQzZDEyZWZkN2Y0ODUxNWI3OTUwNDljYjZhNjZmNmI3YjcxODE4MjdjZmNlZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExOGQ3ZTc3NmJlYjcwYTdlMTkxMWI0OWU1OGM1YWYwMzk1ZmRiNTAzNzZmMDc4YmVjNmE0NTA5N2U5Y2JlZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3318e2bff88c461ebd6bafe1e87f4b42",
+      "statement": "`deriveUiState` implements the four-state workspace machine (empty, overview, focus, edit) as a pure selector over structural inputs (a route count rather than the array, plus route ids), with an opened route beating a focused one and the empty state never flashed while loading; components hold no ui state of their own.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L40-L72",
+          "version": "repo-lines-v1:sha256:a3e9ef642c4f3cf142faef6389134963e6ac110878beccec590042052c8afec2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYxMGFkYmI5MGY4MzNhN2QyYTc4MmVlYmJmMzdmNGI4NDFiZDU1NDczNWQxMjBjOTZkZmM1ZjY1ODBjOWRlMzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkNTlmODZjNTA2NDZkZmE3MDNjMGVjNWMwZmY5ZjlmMDZiNDVhZTllZWM3ZmI2YmUxMGM2MzFkMGFhZGM0MDEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/workspaceUiState.test.ts#L5-L40",
+          "version": "repo-lines-v1:sha256:0c78843d1bd6192a0d652ef494bffce838b9bd6fe928474be294f6a189960cd8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg1YTdhMjhiYzAwMWJlZjQwMjg5ZTYzMjMwMTIyNjE0ODdhMDhjODg0ZWNlMjM5Zjg1MDkxNDM3YTA3YjI3MzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZTcwYjU3NGZmMDQ4Njg0MTFlMmVkMTI3MmVhZWNhNGY5ZDdmNDk2ZGY3YjkxMDJmMDI4ODA2NTY0ZTM4ZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4fb3b33276640b491e9bca8a9706bf5",
+      "statement": "The auth redirect helpers accept only an internal single-slash return path (absolute URLs and protocol-relative host values fall back to the root path, which is the open-redirect guard), treat the session-expired flag as true only for a literal boolean true, and re-sanitize the sessionStorage-saved path on read so a tampered value cannot escape.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/redirect.ts#L1-L44",
+          "version": "repo-lines-v1:sha256:e5427c480fca146551712bff5a38f6499d5a4b5f335362698920143b59d10e12:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3Zjg2ZGJmZWNjOGVjMzI2YjBmNWFlNjczMjA3ZjYzMjYzY2VlM2QyMTU2MTgxNjQxNmNhZjE5ZGIwMDY2ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/require-auth.test.ts#L29-L97",
+          "version": "repo-lines-v1:sha256:7d855348120a098b15992e3fa9a4753dbcd9ab8a64cb5a8db801b62e7efa9e5d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwN2EwMGUyOTVlYjlmYzFhODVkM2JkZWViNzM2OGI0ZmM2MjQxZDcyNGQ2ZTliOWJjOWUzYTkyYTlmOGFjMmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NzYzYjYxZmI5YjVkODMxNzEyZTQxYmUwZTQxMjJjOGUzNDUzYzkxODY3NmViN2FmYjU0YjAxOGI0YjZlMWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_630e037f71e94c0694687937c86ca238",
+      "statement": "The 401 path is pinned by tests: on a 401 whose URL is not the login endpoint the interceptor clears the stored token, saves the current pathname and search as the return path and emits on the session-expiry bus (fan-out to every subscriber, no notification after unsubscribe); a login 401 is deliberately exempt and other failures never emit — all asserted by swapping the axios adapter, so no request reaches the network.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/sessionExpired.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:3e2471046c2abd8ecc216c6441aac81e3f3baa1dafce465014977d49ded069ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkY2I2NDY1ZDMzNDhlYzBjNjBhYmE5YzAxOWEyN2M2ZjQ0MzhhYTcyMDc4OTEwY2Q1ZTFhNmIxOGE4MTEzNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/session-expired.test.ts#L55-L160",
+          "version": "repo-lines-v1:sha256:e3c07c025e00f2c9078ef927b1d31d984b80583a2c0e621341d80ad463ea9d17:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4MmVkODRkYzhlNzM5OTY4YzQ1ZGVjMzExZDJlOTU3NThmYzIwM2M0ZWRjYzk3YzkzODk2ZmIyZWExYTFhNzNjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiZDBmMmQzYTNhYWRhMjc1ODY0NTc4ZDBhNDM5MTU2MzhkNTQzZmVjYTJjOTQ4NThkYjk0MTIxMWU4NmNlZjJiIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_8752ee7052f64c75adc467dea0653dc7",
+      "statement": "`restoreSession`'s outcomes are covered — unauthenticated with no token (without calling the me endpoint), authenticated on a valid token, token cleared on a 401, unreachable with the token kept on network and 5xx failures, sign-out with the token kept on other non-401 failures — using a mocked auth API module as the HTTP seam.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/restore.test.ts#L5-L96",
+          "version": "repo-lines-v1:sha256:b35cb243279c2ac54583ccfba66c85399a1c0030bdded76467fd922a2995be76:eyJzZWxlY3RlZExpbmVDb3VudCI6OTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkMDhjMThiZWZkOGI0ZTAwYzc5NjUyZWY2Yzg1NmNlZWQzYjRjYjYwYjE3NDMxMWYxZTFlNzdjMmNkZjhjMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5NGM5NjlhYmQ0MzdmNmFmMTRmMjU2NGJiMGJjMTc4NDY5NzMxYzgwNzRhMjIxYjBlY2NiNDhkMzVmNmE5YjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b314042665a745ae98fe01e2c24671b7",
+      "statement": "The overview fade helpers are pure and tested for opacity arithmetic and frame stepping against a hand-built map stub, but real MapLibre layer and style behaviour and the rAF driver that consumes them in RouteOverviewLayer.tsx are unverified, and lib/mapLayers.ts has no test at all.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/overviewFade.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:ed8c38cfaa02c3ddb15f0ace7b25f7db502dc23a032a4366e7f0ebdc3af5ce99:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczNjBjYzA1ZWJkMTE2ZTQ0MTA2ODM4MTI0NmYyY2Y2OTc4ZTJlODcwYmJkYjI4N2U5NmNmZGZiODBhNzhkYjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkzNWUyZjUyYTNmNjQ0MTk5MTg0NmFkNWI4YTdiZmFhNTY4NWE3OGVmODg0MjU5YzNkOWQ3NzNmMjVjZTIyYWMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/overviewFade.test.ts#L43-L89",
+          "version": "repo-lines-v1:sha256:ab20462f2999eebb368e9e150253251ef7ac37271763f6c67fc2c3a7d2eea8b9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjMzOWU5ZjU1NjViNjBjMjIyYTM0YTBlNTE1NDY3NjU5NGE1YjgxZjQ5YWM0MzdjMjM1MjIyMmQ0NTdhNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmNjIwMTlmODM1ZTlmYzMwODNhZDE5ZTMwOTZkODBlMTBhZWEzM2I1MjQzMGFlM2VhNTI5ODY3YzI5MzZlNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9adb78a1df894387b4b8202f90774ecb",
+      "statement": "The wiring that joins store to screen — the workspace provider's snap-fetcher binding and its draft subscription — runs only in component code, and because no test mounts a component those effects are verified only by typecheck.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L166-L216",
+          "version": "repo-lines-v1:sha256:06f1db2610d8788cfad0466ba49b18a53b6887833c9ed7a073ca88ed3f364d34:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkNjgxNDlkYzViZjUxZTZkMWU5OWM4NDFhMTE5YzM4ZGJjZDQ2M2ZjMjdiNzVlZTFiMTY4ZDY0NzRjNGU4NzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzMDdlNTdmNmRmMzgwNmI2Yjk5NmQyYmM5NjNmNDFiNmFiODA3ZmZlNTE5YWQ2ZmI4YmJhOWFjYTg3OTQxNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkOWRiMDU0Y2Y3OTcyOTUwNTU4NmM0ZDdiZmNmNTk2NThiZjNhMDY1OTJmMTVkN2ViY2Y4NWI2M2M0ZDhlZDUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:95145163067b26972444b6f90ed1af156699cc5c8e3be096e5ea50d1a808580c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkzNmRmN2E1YTNhYWYxODBjZmZkMWQ2NWM2NDZlZjZhZWEzNTJjYzI3Nzc0Njg2MTk5Y2Q4ZmIzZTg5OWM3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGU5NzViZTczN2YxN2Y2NzJmNDM2NDQ0YTE1MjJiNzFjMDNhOGY5ZDhhM2U4ODQ4YTY1NDIxZGJjZGNhMWViYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ac858979f28543f3b56f1d9a2ac54fb4",
+      "statement": "Plotting-store tests isolate the zustand singleton by resetting it in `beforeEach` and, for snap tests, unbinding the fetcher, cancelling the pending snap and restoring real timers in `afterEach` — a lifecycle the module-scope orchestration state forces.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L361-L371",
+          "version": "repo-lines-v1:sha256:415c201f5d4f3528cc2956b1c0237eb531a2903e67268d8cbdc6aab3719e4f18:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0ZmYzNWE0OWU5MDM4ZWMzNTY5Njg3OTU5NGVhYjA1NmRlMjQ0YmVkNTEzY2U3NGUyOWFhMWJkYzU5NGIyYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5MjRlN2I5MGExOTdkNzZjOWU5MzNmNzhhNmQ0NzI0MWY0NDUwNTZmZTU0OWViYzFiMjgwYjQ1ZjM5ZDRjZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4ZWIwNDQwOTI3MDA3NzNmZGFlNWI4ZTYwYzM0YzE1Njg5YzNlNzVhMjg2Y2Q3OWJiZjJiNmE2NjMyOTM2ZTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d5e168b086894dd29d9d9a9e6e8dbdf1",
+      "statement": "Smaller pure helpers are covered too: fare number formatting and fare-config validation (including raw-string decimals mid-edit), route colour and timestamp formatting with the deterministic detour contrast colour, the stop-type shape and colour mapping plus the invariant that selection is never conveyed by shape or colour alone, the OpenFreeMap basemap style URLs, the section registry and its path resolution, and the Nominatim URL builder and parser.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/fare-format.test.ts#L4-L41",
+          "version": "repo-lines-v1:sha256:b0ac9dacf46a19570bb7362b9d0d17b291324acb65cec8526b8f9b39f8a4dbbe:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5YjQ5Y2VhNDNkMWM0OGUzMTc3M2RmMDI2Zjk4YzZmY2Q5ZDUwMzczYzA3MTVhNTA2OTljNWNhM2Q1YjI4YzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExOGZmMDU4ZTM2NTc3MTBhZmI1NDFkNzcwOWI4MzJmNjY4MDg0YjE3NGI5MmJhNDMxNjI1OTkxZDRjNzU2OTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/fare-validation.test.ts#L20-L40",
+          "version": "repo-lines-v1:sha256:bfe4a381a827362091bb7b37adcedf83f5ce2ff93ba5d1278b13a398a984ead6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwNGU2NzdhZjcxNjVmYTFhMjMyZTQwMzE0NTMyNWMwMDhjZDIwMDAwNDNmNmJjNTQxMTNmMTA3Y2U3NjZiN2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5MmUyNzRmYzgxYzhkNGJiYTM4MzA4ZjY4YmU1ODAyNWExODBiYjE0NzIyNGI0MmI1NDJmZTY3YTY4YTViNTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlZWQwYjQwY2QzODZlNWYwYzY3ODRiNTk1ZDkyYzM5YmVjZTRhMDAxN2I2MDYyMWRlNDM0NzFmZDI3NTcyNDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMzUxYjM5MGY1YzFkZjdhODk0M2E0ZWQ5MTI2ZTY0MDM0NWUyNjgxNTZmNTk2YTdlMmUxYTIwNWQ5NTkzYTMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/poiSearch.test.ts#L8-L55",
+          "version": "repo-lines-v1:sha256:069cb0d21a4f75a154031b840c0be801aca82dd340d109b2d43ca1606a284bd2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMjFhNmZhM2FiNWUxOGYzNjViYmEzOTBhZjhhNjUyNWVmYzIwNWJkZWQ5MDkzNmIwMjJmZGQxOGE3NWJjYjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZlN2VkNTE4YjNkNzc3NDBiOTRlOGI0NWZkYmVkYjc0YjM0MmNiNWE0NzM2YzlmMDJhMGQ0MzM0YTRhMzc4NTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/routeColors.test.ts#L10-L70",
+          "version": "repo-lines-v1:sha256:999916ee86daf6473424698821c15437a2d00bbb1da7f519af04d60b615548ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0M2U5ZmEwMmI4YjU1MGZmNTNjYjc1ZGFiODIxMThkYjBjZjA5ODY3ZGUxMjNhZWU3NDIwMTQ3YmMxNTRlODEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiN2E2ZmE4YWEzYzQ0NTQ2YTliNzQxZjA5OThiMTgxMDhhZWMxNzBjYzJhYzI0YmUzZjQ5YTlhZGViZDliOGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkMTJlNWFiM2JjODEwNDZkNDBmN2QxOTU1MzMxN2NkZWRiOTAxNjYyNjg4ODE1MTM4YzYwMWI4OTk4ZWQyMTgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/sections.test.ts#L4-L30",
+          "version": "repo-lines-v1:sha256:1991d70b8f2c47d3b9f136dbea41b482f5bc8fea4159a36d9127b2de9cbeaf05:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMzkyOTVjMmRkZWUzNGYwMTZhNTYyMjJhYTkzM2JmNWI1YmQ4OGYyYTQ3ZTdmOWVlMTljN2JhYmJlODc0YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4NTA3NDFiZWZlMzBjOTE4YWQxZTUzNjczYTUxZTBjZTVkNTJjY2UyZWE0MmYxMjY5ZGQwMDQ5N2ExZGZlMDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3MTE4NWQyYWFjZTQ0MjczNjA0N2VmMDdkZTBiYmQ0NjU1NDIyYzM3NzI0NDFlYWYwNWYzMzEzMzEyZjczNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcyYzFmMTRjNTkxYTQ0NDgwMDA0OWFhOGE4NzJmZjgyZTQ0ZWEwZTIzYmM1YjMwM2VkNmFhMTAzZmNhYjFhMWQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/stopShapes.test.ts#L4-L40",
+          "version": "repo-lines-v1:sha256:94f8759f9987cf7cf0295c29f2699cd8bbbd33118b2e5827c25e25f461f21eda:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0M2ZmNTk1MTg2ZmM5NWE2MDY1ZmYyYzcyNzE2ZGJiMmQ0N2JjOTMwYTQxNzIyOTEwZDM3ZmQzY2Q5YTlmMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjMjk3MmFkOGUzYzQ3NTQyZjEyYjFmYjQ4NjgwNjUyMGEyNjg1MGMxOGY3MmNhZDZlNTc0NjBmMDhiM2YwMjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkZGQ1YWNmNDE1OGZmYWYyMGI2NzRiZDc2Y2MzNjRjYzQwZjM3NjdkNjMwOTgzNzRiZjZiODgyNDNjNjRiNzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkMWJjNDg3OGM5MWQ3MThjZGQ3YzlmODVlZTk2YjMyYTc4OTFjM2RhMWMzMmM3YTNmZmUyNWRlN2YzNWM1NzcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/tiles.test.ts#L4-L30",
+          "version": "repo-lines-v1:sha256:66207d0d95ab6799e0343d90c9b5013548594acd411c6c27702fc908cf00b392:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1ZTNjZWNkNTg4YWZhOWQ4YmI0OGU0MjQ3ZmFlYTU1ZWI0NzQyOGRiYzE0ODc3NTQ1MjU1ZGZiYTI2YjMwNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlMmI2NTU1M2JmZThkODAyYzk0YTY3ZTVmYzA2NmY5ZjAzYzA4MGZmNTQzZWVkNzQ3Y2I1MjcyY2QyYzBhNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

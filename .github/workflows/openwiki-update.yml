@@ -1,0 +1,31 @@
+# Inert placeholder — intentional. Do not replace with a scheduled workflow.
+#
+# OpenWiki scaffolds a *scheduled daily* version of this file, but only when the
+# file is missing and only during `openwiki --init` (see `ensureCodeModeWorkflow`
+# in openwiki/dist/ingestion/code-mode.js). An existing file is read and
+# preserved verbatim, so this placeholder permanently blocks that scaffold.
+#
+# This repository keeps OpenWiki on demand: the wiki is refreshed locally with
+# `openwiki --update` and reviewed as an ordinary diff. There is deliberately no
+# schedule, and no CI job that would spend provider quota or open docs PRs.
+# See AGENTS.md and openwiki/INSTRUCTIONS.md.
+name: OpenWiki Update (on demand)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  on-demand-only:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain
+        run: |
+          echo "OpenWiki updates are run on demand and locally, not in CI."
+          echo
+          echo "  openwiki --update"
+          echo
+          echo "Review the diff before committing. See AGENTS.md for the"
+          echo "authority ladder between this wiki and docs/adr/."

@@ -1,0 +1,4 @@
+# Files
+
+- [Shared package: types, zod schemas and cross-app contracts](shared-contracts.md) - How packages/shared (@komyuter/shared) publishes its zod schemas and inferred types from one source-only entry point, which parts of that barrel the Fastify server validates with and the admin SPA compiles against, the geometry/envelope/export/Mapbox contracts it owns, and the contracts it declares but nothing imports.
+- [Shared UI primitives and the TypeScript config presets](ui-and-typescript-config.md) - What the two supporting workspace packages actually provide — @repo/ui's two starter components, its stale subpath exports and missing consumer, and the three @repo/typescript-config presets that define strictness, module resolution and emit for admin, server, shared and ui, plus the rule that lint lives only in the root flat config.

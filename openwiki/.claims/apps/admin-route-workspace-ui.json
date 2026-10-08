@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:abbec6dbc6fb9f1de51f6ff51ce669d70c26fe4eec0ce9453dbb21861dc0e586",
+  "claims": [
+    {
+      "id": "claim_d919334909bb4f3f9ca9456e0b48d60d",
+      "statement": "The workspace's four UI states are produced by the pure selector deriveUiState from four structural inputs (loaded, routeCount, routeId, focusedRouteId) with a fixed precedence — empty when the route list loaded with zero routes, edit when a route is open, focus when a route is only focused from the map, otherwise overview — and a not-yet-loaded route list derives overview so the empty state is never flashed. RouteWorkspaceProvider is the single caller and publishes the result through useRouteWorkspace(), so no component keeps its own uiState.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L134-L145",
+          "version": "repo-lines-v1:sha256:6f67700265a6d40ad97199194f026ee4481f29cfdb53a001837b414e88b62197:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjY2M2NTRlZmQ3MTJkYzFhMDRjNDgzNmI5MmM2MDVhYTliZDBiZDFiNWQ5ODVmMWZiNjI1ZDU0MjBkNmYzZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk5YzFhN2ZjZmRmMzk3M2MxMTU3NzRiOTExYzA4NjJmYzgxMzZiMzJjMTY4NTcyZjVlOGYwYWI3YzQzMmM5NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyYzk2NDdkNjA0ZTQ5MTk4OTRmODJmNWY1MTUyNzI0ZjNlZmM0NjcwMzlkNmU1NTM3N2I4ZWQxZjA4MjUwNWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlMDUyOWViNWRjOWE2ZWEwODkyNDQ3YjhmZWRkMGRhNDM0ODhlZDg0NzY5NmViNWZjZGI4MTAyZGU2NzI2ZWMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L40-L72",
+          "version": "repo-lines-v1:sha256:a3e9ef642c4f3cf142faef6389134963e6ac110878beccec590042052c8afec2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYxMGFkYmI5MGY4MzNhN2QyYTc4MmVlYmJmMzdmNGI4NDFiZDU1NDczNWQxMjBjOTZkZmM1ZjY1ODBjOWRlMzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkNTlmODZjNTA2NDZkZmE3MDNjMGVjNWMwZmY5ZjlmMDZiNDVhZTllZWM3ZmI2YmUxMGM2MzFkMGFhZGM0MDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0e818ff214d24dd38a78b507da2fe705",
+      "statement": "openRoute(null) is the leave-the-editor transition: it resets routeId, directionId, stops, polyline, snap, selection, tool, poi, routeMeta, connections, draftDirty, saving, focusedRouteId, seedSource, history and savedBaseline in one set, which is why closing the editor lands in overview rather than returning to focus; openRoute with a non-null id additionally fires requestFit().",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L603-L635",
+          "version": "repo-lines-v1:sha256:59954cef1096e3c43a3db19e6c3f363049583619700dc8acf348cc07c2311fe0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4Mjk4MGM2YTYzMjhhZTliZTU0YzQzZjQ3NjJkODg4Nzc4YjVhYjIyMjYyYmNmOTNkM2Y4ZjM4NjM5NjE1YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkMmYwODdkOTg5Mjk5M2ZjOWQ1YzQ4Njg3MDU3Y2FhYTc2MTgxYmYwYzA0MWY3MDZiMGRkMzNkMGNmZDdkZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNzkzZDU3M2JkMjY0OTE2M2NkODIxMjZkN2JmMDFjZTk4NmFlZjc1OTg2MTI2N2U4MjM2MzdkMDM1YTVmZTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_111958b80adb44dca689ee8a5c302e39",
+      "statement": "The workspace page keeps one full-bleed always-mounted map backdrop: <MapProvider> wraps the page, main absolute inset-0 hosts RouteMap, RouteOverviewLayer is mounted conditionally for the overview and focus states only, DetourLayer is always inside the map, and the plate grid is a separate overlaid sibling — so state changes never remount or resize the canvas.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L139-L160",
+          "version": "repo-lines-v1:sha256:10deea524b0630a1a45e75e7bc2bd2073ea3577bdc7b17ec9c6b5046935cd08c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MjE2ZThlOWMwYTFhNjhkMDZjMmZiYWE1ZmQyMTM5NDgyYjhlZmQwYTE5MzE1YjkxNWU2Y2NlODQ5ZDg5ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMDg5ODdhZDIzOTFhNmJhOGZhZmQyOWJiZmUwNmE1NmMyZDY1ODA3NGVlODIyNjY1Y2RjNGYzODlkYzcwMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwZDlhODMwNjk4Zjg5MDk2ZWViOTE2NWQyZDIxOWM0OTk3NmNkMWVkZDkzZmUxNGNkM2EzNzc4MjZmOWE3MjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3MGM1ZjdlMTAyNTViOGViNGUwN2ExZjg5ZmIyZjgwMzNlYjdmOWU1NTFmMjUwOTM0MjYxMjQ1MjNhOWYwM2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a92f63344db4d7a8568f14d9257da4d",
+      "statement": "WorkspaceColumns lays the plates over the map with five identity-stable grid tracks in a fixed order (left plate, left spacer, transparent centre, right spacer, right plate); hidden tracks use display:none rather than conditional items, and the container is pointer-events:none with pointer-events:auto only on plate wrappers and chrome, so clicks in the free map region fall through to the canvas.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/WorkspaceColumns.tsx#L46-L129",
+          "version": "repo-lines-v1:sha256:2adf5436252377b7a62cbcebac13e26fdd4ead19f90a96d0705d3cb02edafd9d:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwMTQ0MzlkNzllODA5Y2JiZmQ2ZDhjMDE5NWE4MGYwMjRkODFmOTAyOWM0NWRkNWY2OGExZDZkNTQ1MjE0MTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlM2VmZjY5NzRlODk5YjM0OGMzZjRmZTMxZjFmOTlkNGI1Y2E2M2VmOGIzZjIxMmE0NjlkOTJhYTkwM2E2NjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7bf322b7fc9c42f1baef6c00626866ed",
+      "statement": "The workspace geometry tokens are leftCol 256, rightCol 336, gutter 0 and minMapWidth 400, and computeMapWidth(viewport, railW, mode) returns the free map region between the plates; focus and edit share the same right-column footprint, so the canvas never resizes between those two states.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/WorkspaceColumns.tsx#L58-L63",
+          "version": "repo-lines-v1:sha256:5dbad14238332a6b94c37ee93254ebc0685760c534cee81c33cbedbb582bd612:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRiZjEzMjhlMjJhYmZjZWJmOGU1NjEzNGYxYzdjOWY1M2RhNDU2OGE0NDU5MGU3NDY1ZTZlMjlkODliODUxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWJiOTM3MDVkOWYyODg1MGFjM2ZlNzkxN2I1ZGJmNmYyNzE0MjE3MDU3YTlmNzI0NDhmOGE4MGIwNzlhOTRmMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODYzODc2MTk3MWQ1MzE3NGM4ZWE1OWQ3NGNiMDgxMzVkNzM4ZGVmNTI1YjY3YTkyMDUwYmFmNThiZmViMTBlZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTYwZWU5ZWJiZmU1NTIwYjBlMDJmYTBhYzRiZjBmM2E5YjI3ZWFhNmI2ODhiZTQ2MjQyZTE0ODc3MzMzMjY0ZCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/geometry.ts#L17-L47",
+          "version": "repo-lines-v1:sha256:d295e4f6cdd505d6340eeeb291ef19276390dd8865309deab9e5db2fde7081f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhODRkMzlmMTFmNWFkN2VhZTgwN2I3Y2RmYWM4NzdlMmUxODA5ODIxM2MyNjkwZmZjMTZlODI5ZTAzZjZhMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkZTM5ZDllMTNmMjJmNGJiNDU5ZjdkMTFhOWQxN2MyOTBjNjJhNjZiYjNhYTExZWE3NWY2Zjg0MTE1ZDE2MGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM2ZmJlYzlhNGQ3ZTJiOWNiMTAwNjllZDIyNmJhOTI3ZjBiMDBhOWIyNWQ0ODY2ZDljYjYwOWJhNDRhNTE5MWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ff5eb5d15c724ef5bbfb20908237fd6a",
+      "statement": "RouteMap owns the viewport as local state seeded at ILOILO_CITY and memoises the basemap style object on layers.baseStyle before passing it as mapStyle; the memoisation is required because a fresh object per render makes react-map-gl call setStyle on every re-render (marker toggles, opacity changes) and flickers the route lines.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L177-L195",
+          "version": "repo-lines-v1:sha256:ea82a0aaa630ac0652868f2be347ea42d8b4bb7f216fcca77441828598a95baa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkMWFkYmE0MzdjYTViMjQyYzdmNzM0MmQ5YmM3ZmMwZDE5YzVkOThkNDQwZDI1ODI5YjE3Y2YzYTY4NzMzNzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgwN2U4MWUyOGEwOWQ0MzU2OTk5MTJiZGFiODIzMzE2YTJkNjlmMWVhMGMzODlkYTMwYzc3NTUxOWFkMjRmODYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2MGVlOWViYmZlNTUyMGIwZTAyZmEwYWM0YmYwZjNhOWIyN2VhYTZiNjg4YmU0NjI0MmUxNDg3NzMzMzI2NGQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L51-L59",
+          "version": "repo-lines-v1:sha256:25a0e55193135d82f34638fc2cf4b9997e790d9888f414ceec5df94486318918:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWJmMjJiMDVhYjgyYjYzMGQxZTkxZDUzNDhkYzhkZDFiOWY3MWJhNTBiNDNjZjE1MjQzNmRiMzI4ZjMxMGM5OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGU0NDhhMTBlZTI2ZWQxM2FmNWNkZmE0Mzc1YTFhMGFkMWUwZDQxODRmYThiZWVmNDYxZmVhNmQwZTQxOWFlMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzRmMTg5YjU5MDAzZWI3MGI5NTk3YjI2MTNiOGU5YzYxNDk2MWMwZDU4MzJkMzYwMzJkMGYyYTdmOTVkOWRjZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_08a1706ae10241c597bf8b3baba24010",
+      "statement": "RouteMap routes every map click through one handler with a fixed priority: clear the temporary POI marker, then if the detour editor is open either delegate to the detour store (add tool) or close the editor (any other tool), then no-op when no route is open, then clear the selection for the select tool, then place a stop at the exact clicked coordinate for the add tool. Stop dragging is enabled only when a route is open and the tool is select.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L90-L130",
+          "version": "repo-lines-v1:sha256:ac6f018654bbbd96230d092221a26b3e9a0b4acfa0768bdd898e997cd2928cfa:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlNmQxMjE5ZDM5OTNiN2ViNTNmYzM0YWU5NzhlZWM0ODcyODM0NDhkZmYwOGRiNjUxMjc5MzBlOGNiMTE5NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmMzRjMmU4ZTNhZTE4YWMyMWQ0ODJjMDI0YjEyNmM3ZDAwMzkyZTFiZWJmMjg0NGIwNGM2NTE2OWZhN2M2YWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3ZDQ0MjcyODg3YjZjZTg2Njk0NGU3NTdlNjNjYTc4MzU4YzMwMzQwMjk1YzEzOGU1ZGIxYjc3MDQyYjQ0MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU2ZjRmYWY1ZDI0MzkzODAzMzEzNjJkNjAzNTIwY2RmYjRhZWU4MjJlM2QwMTE1M2MzYjIwMDQ2ZGQzNWJlNjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4b1dd1086f9d4e6291df98049268c347",
+      "statement": "Stop and detour point affordances are rendered as HTML react-map-gl <Marker> overlays (draggable, clickable, ARIA-labelled), while all polyline geometry is drawn as MapLibre GL layers on the single shared map instance; base stop markers are filtered by the per-stop-type layer flags while their numbering keeps the index in the full stops array.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L239-L296",
+          "version": "repo-lines-v1:sha256:1a170a6fe88eb60c32dfe0b7d06eb008f9e4c559360af26bc5df5c7d308aa125:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY1MDY5YmY0YjE3NzkyYmIyMjdmOTMyYzI1MWU1Yjk4NGI0YjYwYjIxOGUyZDdhOGVmZjcwMGI3NmI4N2ExOTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhYTEyZDg1ZjRmY2JhODJkNGIxYTE2MjA0NDEzMTNiNDIzZjljZGIxMGE0MDgzYzdhZjBjMmZjZWQ3ZTgxNDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0ZWFlNjNiOThkNDdjOTBiYzYwMTFhNDI5YTg0N2E4NDM4MTJiZWM5YTAzNDhjOGE5MzExOTg4OWIxODZhYTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlNDZmYzE2N2E0OWVkM2RiZWE3ODBjNGEwNWJkM2UyZWUzZDZkY2ZmZjQ5ODIxOTFhYzZjZjEyNWU4NjNhZjgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L217-L227",
+          "version": "repo-lines-v1:sha256:454db12d0c0529db0cb140ae2d11af5f00d31d14b9aea91fdf8771a128b36909:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3MDMzMWIzMjg4YjI1Mjg1YjRjMWEyMzM4ODc2OTdhYWRmOGFkOGFlOTQ2ZTdmODliZDhlYThiMzQzYmI1NzQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e1e895c29ed041158702d337924f7c61",
+      "statement": "BasemapController writes layers.baseOpacity onto every layer of the active style using the paint property that matches the layer type (background/fill/line/raster opacity, icon and text opacity for symbols), skipping ids prefixed route-line-, overview- or route-arrow so overlays stay opaque, and re-applies on styledata and load; PerspectiveController tilts the camera to pitch 60 only for the '3d' style and levels it to pitch 0 otherwise, both over 500 ms.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/BasemapController.tsx#L12-L62",
+          "version": "repo-lines-v1:sha256:7348a5c406689c40355d6ae7c430038a8aec2b3b4f329dd2fd68361590898118:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTYxODg5NzI4NmQxOWRiYzEzMjQ5NTU4NDFjOGQ5MGExODA2YWRjMGI1OThmYjA0ZWYxYzExNjUwZDUzMTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzZDg4NjljYmEyMjJlMDAwM2IwZjI1YmExODMxM2I1Nzc3YTU1MDkxZDdmZjE4NjA5OTZkODg3NzY1OTI0ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc3ODM5M2E3NzYxZTUwYjA1ZDk2YTM4OTUyOTNmYTFlOWRiZGJmZTBmMGRjMWNkYmJhODQ5ODY5ZmRjODY4Y2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/PerspectiveController.tsx#L11-L24",
+          "version": "repo-lines-v1:sha256:d30b46b5691bf59ac93e5d79237f20b2fe9ef3c8f9d4e831f8778990a02ecabd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4YTZjNDFhYzI0N2E0ZGM2Y2ZhYmZmN2RlNTRiYzBlN2Y5MGM2ZTAyMzE2MWVlMDBjOGU3M2M4NGY0M2UwNzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzZDg4NjljYmEyMjJlMDAwM2IwZjI1YmExODMxM2I1Nzc3YTU1MDkxZDdmZjE4NjA5OTZkODg3NzY1OTI0ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU0YzlhZWI4OTY4MmQ1YjZiOGI4ZGJlODg3Yjk0NjM0MDVmNDYxNmI0ZmJmMGI4MDhjNzg2ZmZjNDgyZTk4MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/constants.ts#L51-L57",
+          "version": "repo-lines-v1:sha256:8f2fa1e14c4564221d0f0f509170d419052a2df85b69dc8e66606376f03872d4:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmE3MjYyNTZjNjlhNmIyNzJmYjYyYWU0NWQwYmZlODUzODJhOGZjMzlkNmVjY2Y1NjdkZDk3YTliZDQ4MTc3MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjQ2Mjg2ZTk3Y2ZkNWY4N2VjY2Q3YjY2NGFiOTg2MTgyNGIzODkxYzU1N2FjM2VjYTQ2ODljYTUxY2Q4NmE5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f3f2589246264f9d979802b69bccbfd5",
+      "statement": "Camera moves are driven by three small controllers that read fresh store state inside their effects: RouteFitter fits bounds over all stops plus the committed polyline whenever fitCounter increments (padding 80, maxZoom 15, 450 ms), SelectionPanner eases to a selected stop (450 ms), and clicking an overview route line focuses it and fits its base polyline plus stops (padding 90, maxZoom 14.5, 500 ms).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L463-L472",
+          "version": "repo-lines-v1:sha256:fcc0688d5cd5c3b73eaccc39a409621293229cc1aa74b807e54a52f09b4548d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjY2JjMDE4MTlmODJjNWIwODQyZmUwMGYzZTBmM2ZlMTNjYzFiYTMzODI2MTYwZDJiMjBiMzM2YTQ0N2VlZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZhZDhjZWMxYTIzMzEzZDMzM2YxMDRjNmMzNzczZTQxNjc3Y2ZkMzcxNmFlMzMzNzQxMjg5YzBkNjRjOGI4MzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmMzM2YWMyMjc1YzM3NDNkYTY1NWY3YzcyMmMwNDE1MTNiMjgwY2IwNTgwOThkNTU5NGI5NTRmYTU0MDRmZjMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/RouteFitter.tsx#L10-L38",
+          "version": "repo-lines-v1:sha256:7de08daa293cb1f060b233fedb2cb81ebcd9bd26765d0f7e0608d11ff5878189:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiNzA2OWU4NTU3YmYxN2M2NDQ2ZDExYzI2N2M1NGMwNDI4MDkwNDgxNGQ4ZGM3NWI2NDBhODRmODZjYjc1ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzZDg4NjljYmEyMjJlMDAwM2IwZjI1YmExODMxM2I1Nzc3YTU1MDkxZDdmZjE4NjA5OTZkODg3NzY1OTI0ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MWNmYjY5OWEzNTU0MTZkZjcwZmZkNGM3OTU2MmYzNWM3YzlkYWZkMTYyNDkyYjRkNTI3ZTA3OTFkZTk5YmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/SelectionPanner.tsx#L10-L26",
+          "version": "repo-lines-v1:sha256:9aa99b28789b7cf198705c6087068c901313ad9e995c33872cf2fa283d29c0fa:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlNWNhMDg1MmY1ODgyODhiNmExNWIxMzg2ZmEyMTEzZTQxY2FlZDQwOWMzMWJkZDNjNjQ3NWY2NDU5OTE1MzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzZDg4NjljYmEyMjJlMDAwM2IwZjI1YmExODMxM2I1Nzc3YTU1MDkxZDdmZjE4NjA5OTZkODg3NzY1OTI0ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkYmI4ZTFhNGFhZmJlMTgxMGJkNTkzYWY2MzVjOTc2MTg4Yzc0OWMyYzRiOWRhYmY0OTFlMTVkOWI0OTkwYmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/overview/helpers.ts#L107-L127",
+          "version": "repo-lines-v1:sha256:9dbde6f404e6418fd75472a3e0b7670e549c78dce335f942e88361a3d8acbb4f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwM2EzYjAyMjYyNzNkODcwYjg0YTllYWE4NGQwOWQ1YThiYzAxYmFlNDliMTNjZWExMGU5ZjY0OWQ4MWQ4NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBlMjA5MjU1OGFmNThiNzRlYWY2MGU2MzExOTVlY2UwYTc5YTNkNWU2YWUxMzFjNzMzM2ViNzczODQ4NzNmNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_31653e1d345d407aae0c96cc12439c85",
+      "statement": "useDrawWhenReady is the shared imperative MapLibre drawing lifecycle used by every polyline pipeline: it marks a draw dirty, ticks only when the style is loaded, runs ensure() once, compares a caller-supplied content signature before calling apply(), clears dirty after a write so a settled map stops redrawing on idle, polls a bounded 150 animation frames as a retry safety net while the style flaps, and invalidates (clearing the ensured flag, dirtying the draw and resetting the signature) on load so destroyed source/layers are rebuilt and the data redrawn even when the content is unchanged.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/mapLayers.ts#L82-L181",
+          "version": "repo-lines-v1:sha256:0deeb9c1d3c56df994fab0f68b772adb2a106aaa021ac2856a912f822bf72fdb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlYWYyMmNmMDczMjU5MmMyNDcxNDFjYmU2MWVmYTExMDEyNjEyZjVhMzEyMmI5YWY5YmJhZjUyZjU3MjRkMTk0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5MjA0MGUwOTVhOTRlMmFkYTc0ZTQyMWYzNzE4NzUxYTkxYTgxMGJmZDY2ZjQ4ZjRlOTM5YzdiNzQ4MGViNjcwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_65af7a5b189e4633b04c331ac25bda61",
+      "statement": "The useDrawWhenReady styledata handler deliberately does not invalidate unconditionally: when the caller passes its layer ids and all of them still exist, the update is treated as paint-only (ensure the source if missing, keep the signature), and only a missing layer — a real style reload or explicit layer removal — triggers invalidation; this carve-out exists so the crossfade's per-frame setPaintProperty writes do not force a full redraw per frame.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/mapLayers.ts#L134-L153",
+          "version": "repo-lines-v1:sha256:ee3d460a195986ca50c38cf3bcf328c2fdbe84aee1dea4f281bf3bdf47c4d2fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzOGJhYmZkMmM5NGUzOTRlMWE0ZGQ0ZDIxMzllZmQ0ZjZkMWMxZDYzNDU4ZjUzODExYjM0NjZmODA1OGIyNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlZDhlNzA0ZGU4MmRhYzkxM2I5OTRmZmIzY2FkNGVhMzI4NGVkODg4MmY1ZWQwMTEzNjg4YmMyZTc2MWJlODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4NmRlM2YyMjY1Mjg1NzQ4MDhjYWUzMzUxMGExN2Y3MzM3NTY4NTViMDUwNDEzZDcwYTdkZGJiYzZlNzMwZTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b0fbbd79c274b64b0b4e748b47be0e7",
+      "statement": "Signature identity dictates when a pipeline redraws: RouteLines serialises kind, colour and coordinates into a JSON string so a stop drag that keeps the same vertex count still redraws, the overview returns its memoised feature array identity so a data change yields a new reference, and apply() runs only when that identity differs from the last applied one.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L344-L357",
+          "version": "repo-lines-v1:sha256:952b9af357ffba796416aa19c971ae5286bf848c302d113f521829256a93d1e1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczY2Q2ZmEwZDUyMjdlOGFmOTA3MjJjMjc5NTA5NWUwMjllZDA0OTVmYmI1NzZlM2M0OTliZGE0NzBhYTFmZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJlYTkxMjA4YTEzYzI4OTAxZTBjMzg5ZGIxNjZjMzZiYjI0ZTEzZjgxMDFiODY1ZmMwMWUxNGIxZWQzZjRhY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE3MzBhNjY4NzMwODMwZTllNmU3MGVjNWI0MmJhNTFkODkyYzJiM2IzMmVmMDM0OTg2NWFjMWM3M2M3YjhhZDEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/RouteLines.tsx#L144-L169",
+          "version": "repo-lines-v1:sha256:afc5170b81fe099f2ef29aa619ab80f875a51028a2bb821924fee29c38008c03:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkNjk0MjJhNGY0ZjczNzU0MjU2MWUwMGMzNTBhZWMwN2VkYWU3NjE3ODE1YTJmN2IwYzNjMWViODY3OGE4NGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkZGRmZDEyY2IwMmQzOGJmZjc1MTA3MzAzNzY1Y2VhNTA2NzUxNzNlMGI3NGJkMzI1MmFhZGUzMmQ0NTQzMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkMTlhZTcyYWYyYTJhMDdjN2Q4OGRhMWVhZWQwZWEwOTczYzdhMzE1MDJkYzliZTZiZjU2OGJhNWYxYzExMTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ae19c58c3f684f7aada4cb5b6178cf14",
+      "statement": "The overview draws each route's base polyline in full on its saved geometry, but draws the derived return direction only in the contiguous runs returned by divergingSegments — runs whose vertices all lie further than the default 20 m from the base corridor and that contain at least two vertices — so a shared bidirectional corridor is never rendered as two coincident lines.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L108-L190",
+          "version": "repo-lines-v1:sha256:ab1d1d621e54e162def3a219144a7971b9153ed5dad7a2141b6d717c9e753a9e:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4OGZjYWY4YmEzYWE2MmE5M2MwMmRhNTJkZWE2NjE5ZWVhY2Q0OGQ5ZDBjZGZiNTdkZWEyZTcxMjgxYTE0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxZjc1MGU1NDk3N2RjNzc3ZWQ5NzFmZDhlYzFlMGJhYTE5OWFmMTllMDBjMTRlYWVkYWQ2ZGVkMjUwY2M2MjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNWYzNmUzZDMxYmQyMmMzNjlkYzA1NmQ4MzZjZjc4Mjc2MTM5ZWE3ZDg3MDRiYzUzMjMxNzdjNDhlNWJiZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwOGNiZTRkYjlmMjU3YTQ0ZDBiMjZlZmVmMGFkMTc2ZGJiMzg3NjBiM2I0ZTk0ZjA1Y2M3NzA3ZWU2MGU2YjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L85-L117",
+          "version": "repo-lines-v1:sha256:c507a86600ed60dbe8b594f4daec12894b3f2e0e5cc6a8122f803c71708e0275:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzYWNiNjI0MDRjMDE1YmUyOTgzMWE3YjU3ZTY4ZjJjZjU2ZThiYTEzNzllODY3NTI3OTJhMDY3NTJiZTQwOGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d97ca54f47de457a987f9ce08e3dafdb",
+      "statement": "Opposite-direction shared corridors in the overview are separated by a lateral offset expressed in real metres rather than pixels: findOppositeOverlapRuns hashes every route's base polyline into a 20 m spatial grid, projects to flat-earth metres at the dataset's mean latitude, matches vertex pairs within 20 m whose travel tangents are opposite (dot below -0.5), requires at least 100 m of along-line separation before a single polyline counts as a second pass, ignores same-direction pairs, and shiftOverlapRuns then displaces each matching pass 1 m right of its own travel with a symmetric 30 m taper so the shifted stretch rejoins the line without a kink.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L230-L275",
+          "version": "repo-lines-v1:sha256:59ba7a964c66e7d547943843a687039f755fb38a6ae11433dc1ebe919b6ddfc6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3OGQyZjQ0YWQ2MmZkYWRmZTQwYTljYjIxNDM1ZjdkNjAzNGI3ZTgyMTQ2MjNkNDM3ODU5NDY0MmFkYzkyOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5NDI2NmFmNzBkMTg1MjFmYzZmMDIyOWViNDhkOTZjNjNiY2EzNjU1ZGU3YTg2YjdlZmVhODM4YTRlMDRjNzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L27-L42",
+          "version": "repo-lines-v1:sha256:d113e736e6d27e46734a2a8e9bebe1242c5a1ce2c946013af053bbcd66565a88:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwNzhhZjMyZDlmYTZjMWMyNmY4YWM1ZDk4ZDhjMTNiMWE4ZDQ3ZDZhZGVhNDE0OTkzYTllMDk0N2Y4ZTI5N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk5MTMxZGE4M2YyNzI2NzBhYjZkNTIwMzBjMmU5Njk0ODkxYjdjNDQxMjU3Yzg0ZDgxODQ0ZWQ2NjM1NTMwNmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNGM4NmM0MTUxNjIwZTFlYjg3YTI5NzQ5NTI0NzViNzZkN2U4YTk4MDIxNDg3MjcwOTM3NjBkODZhODVmMjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5NTdjYmY4MDFhYThkY2EwYmRjYjg0OWNiNzg4MGM4YjZhNzczMjZhZmYyN2UwNDZjZGY4MmVkMTY0YTM0OTMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L89-L221",
+          "version": "repo-lines-v1:sha256:e9f5ccaf7b4c9f425353280ab9fbaedde7145acd8bbbe6097fde0b2aecedf0f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1YTUyMTZiMjA4NjE4NWQ0NjhkNzZjYTc2YzY3ZTgyYjBiOTc1MDJkM2EzYzM5MWE2NmZhNjJjYzc2NDMyOWU0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIyODQ5MzFjNjNkYTNiYTVkNjAwNWMxOTg5NmMzNDk4MzJkNDdjY2QwNjI4Y2QwYmFjM2IwMWQ5ZGJmZjFhODA4IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIwY2FjMTkwMDhhNDU4NmRhOTMxOTViOTNjNjg0MmIwOTVkYWRiYjFlNWNlODk1MGY5NDEyOTEyZmVjNDg3NmMzIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_17470e47aa31425b8e1c7582a51ab937",
+      "statement": "Direction in the overview is shown by per-direction symbol layers placed along the line: symbol-placement 'line' with symbol-spacing ARROW_SPACING_PX (200 px), an SDF icon image 'route-arrow' generated from a canvas triangle and added with sdf:true, icon-size 0.7, icon-rotation-alignment 'map', and icon-allow-overlap false so colliding arrows are dropped rather than stacked.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L305-L339",
+          "version": "repo-lines-v1:sha256:7dfa759e5b6f2a28b392b1ecd730afd966d36b01a730de6ec285fae3ccdb4583:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjNDU5YjM2ZTMzMzcyOWEwMDVkOTc0N2MxZjJlZjU3NTEwYzYxNmM2MWFlOTA3M2JjM2MwMjk1ODFhMzUxYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5YjZkYzAxNjBjYzRlYjlhYzFjNmVkZWY5OWZlOWVlYmI3MTA3Y2Y3MTAxMjEzOTg4YmRmYjI0ZGIxNWU3MDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3ZmY3MjcyZDUzNjM0NzZiZjMyZjgzNTcyZTI4MWE1NjQ2YTYwMGQ3MDE0NDJmNjc4MTkxMWYwMDE0MDA2NTYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/overview/helpers.ts#L10-L46",
+          "version": "repo-lines-v1:sha256:8cb26d667f50522e4d2c16cea1e6100591bfe5055c82f728b3900d2749ed9f0d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxMzM4ZjcyYjM2MGZiOTZkYjhlMDg1MWM5NTViYjY0ZjRkMmQ0MmE5M2Q2M2Q5ZTIyMDlhNzQ4YTc3YTk0Y2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwNmM5OTkwNTU4MzFmY2QzOWNkMDU1ZWFlYWUyNjM0MTJiZmU4ZjgxMjJiNDVlMDc5Nzc5ZjBmZjQyMDY2YWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlZTg5NzI1NWQxM2JkODA2MDI2ZTc2Y2JiOWM0YzllYjkwZTMzOWQyZDhjY2VlY2ViNTgyYzMwZjM2NmQ0NWEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_30fe03898af24fd48d43a0dd82c0b0b0",
+      "statement": "Overview hover and focus emphasis is carried by MapLibre feature state rather than rebuilt geometry: the shared paint expression resolves to 1 for a hovered or focused feature and otherwise to a numeric 'dim' feature state (0.5 while something is hovered, 0.3 while a route is focused, focus winning, null at rest), and the interaction listeners are registered against all six overview layers including the casings so hover and click targets stay wide.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L431-L512",
+          "version": "repo-lines-v1:sha256:8e5d3d69ed828700397e2f4a9e839a153d7d7daef38e834d76d3030b7df5fd97:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5NjZmYmZhODg5OThkYTc0NjU2YzUwMTk0OTU2YzI1ZjA4NDk0NTc2NjBjMDA5ZmU2M2QxZTlmYTlkYzkzMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4MDVhZWYwNTA2ODQ3MmU1YTllMTI1ZTRjNGM2NjRjYWJhYjdjM2YwNTI3NGQ2ODYwYWVjOGE3MmRhMjU4ODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmNmI3MWFjNDFkNWUxOTNlNmQ2NjdjMTk1Njg1YmQzNmUyOTNkMDExYzA4NmNmOWJmMjJlNzkxYjEzMzAxYmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjMzZlNDcwODhjNGViODU5ODRmMjUyMTc4ZDZjZTc4NzJlYzM4Mzg5ZTZiMTI5YjA4ZDM0MzRiOTYyNTdlOWUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/overview/helpers.ts#L9-L17",
+          "version": "repo-lines-v1:sha256:c098caf9676d6eeb5969c3785064130ae35d2b1384f5a340d116d4fbbcdca7a6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTk5YmI2YmU0MjJiNGMyOGQ1MGM5ZWI5ZmEwOGE2NDYyNzE0ZGNlY2ZiMWNhYjkxOTFmYzIyMjc5ZTg5MzA0MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDg5MjY2NTI2MzQxMDg0ZmQyNmIwYmI3MDE2Mzg1ODNkNTEwOGFmYjlmZjBkNmVhYmY1YzdlMGUxZmRhZWFjMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjhlNTMzNzI3ZmViNWQwMDQzZWE4M2Y5ZWVhYzBlMTJjODdlZDY5MWM0ZjNhM2FhYTM5OTI3ODlmNWMxZDVhMiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overviewFade.ts#L16-L41",
+          "version": "repo-lines-v1:sha256:dcb5c3cbf2794a01c3d59cea18f919f4b7f50270ba1d8a007b676d57081e29d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyMWVjZTJjODQ0MGJjYjc4NTczNzU3ZWQ0YzVkOTFmOTRhMTRmNTgxZWFhNzhmNTcxZjNkMWE2ZmVkZWY1MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyMzc5NTgyMWU2NmViYzk5MTNmYTU3OTI1OTVhNjk5NmQxNjExZDczNDViNjcyY2RkYWNjOTQ0YjhhYjRiMWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViMTZmZjA4MmY4YWViMjE2NmQxYmU5MzVjZDQ3ODYwOTY4ODgyMjZmNmFhM2QzZmI1M2ZmNWQ1MjUyYmMyODkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_34d8d2fa6096481d893e21b9547a4670",
+      "statement": "The overview fade-in is a 0 to 1 timeline over OVERVIEW_FADE_MS (250 ms) stepped by a 25 ms setTimeout (not rAF, so it is immune to frame starvation) behind a module-level single-flight guard; opacity is written as the shared hover/focus expression scaled by the clamped factor, and freshly created layers are zeroed before the first step so they never paint one full-opacity frame.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/overview/helpers.ts#L48-L94",
+          "version": "repo-lines-v1:sha256:b678996d9dec2808eb5d908ebf3ba4969dd9406fd129c58ab6aacc380140bcd2:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5ODQ4ZTI1YzM1NDJlNGZiZGMwZmQ5NGUwMDY0YTMzNzQ0Y2I4ZGI4ZWNmZTM3Y2VhMTVhNmMyZTBjNjg0YWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlY2M1YzQ3YTdjNDQ1MDg2ZmU4NGZhOWY3YTFhMGQwN2QwMDc0NzljZWNiNDg3ODcxOTU0Y2ExYWRjZDEzOWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overviewFade.ts#L13-L41",
+          "version": "repo-lines-v1:sha256:5cf3f10240d3d5d5af75dcdb641f4750dae1c9f7e38e20a20705df5af605618a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwYWMzNzkwN2YzZjU5MThiYTcyMGRjODkyYjc5MjAzYzg0OWQ4ODg0MjcyM2VjMDU2ZDU5ODI1MzcwMzg4MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0ZDI2ZmRiODE4ZjVkNmUwNWJhY2ViYWFiYTc4MTU1MDEyMzBhMGRhNzQ5NmNlNjJiOGNkNGE0NTcxOTE3MjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjViMTZmZjA4MmY4YWViMjE2NmQxYmU5MzVjZDQ3ODYwOTY4ODgyMjZmNmFhM2QzZmI1M2ZmNWQ1MjUyYmMyODkifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overviewFade.ts#L62-L92",
+          "version": "repo-lines-v1:sha256:16e034e7f256ea88dbea2cc5dedddcebb1f04cdc7eb25bd516751f10c78baf5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzNDhmOWJiMDg0NzY5N2E5MjQyYzBkYjVhNGJmODg0ODg0ZGM1NDg4ZDZjYmFiMzdjODgzMzEyMzE2ZjMzMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg4OWY2NTVlYTlmOTA4OTY5NzQ3YjgwNDExOTE1NzJkNjExZDIwMGMwOGNlMzc4NmU5MGQwZmYwMWUwMGRmZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzNzYzYzYyY2ZlNjU3OTA0OWI5YjQ4YjYwNTAzYjdmNTdjMDhlMDYxZWYxYjc4ZWQzZTg2OGM3MGE3NWJmZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b6dd2521cf874dfd913d4ae248e23aaf",
+      "statement": "The overview decides between a fresh fade-in and a survivor restore from MAP state: before the ensure can create the source the layer records whether the 'overview-lines' source was already present — absent means a fresh overview that fades in from 0, present means the layers survived an edit round-trip and are restored to full opacity immediately; the trigger effect retries until the base layer exists and runs at most one fade per mount, so later data changes swap geometry instantly instead of re-fading visible lines.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L191-L236",
+          "version": "repo-lines-v1:sha256:d61f481a63f4565c9edd7c16ccd5ebdd0aeb00c0d645cdf4225a925550f5e99a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdiMzZiMmMwNDM3M2Y1NGE5YmMzOWMzMjgzOTNlOGI0ODk0YmUxOTkxZDM3YzljMTRkY2ZhOWY0MzNjMmU5YzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlODgyNDBlNDgyZjgzMzk0N2I5ZjMxNDMwODNlNjFjYWE1YzZiZjA3ZmEwOTI2YjQ4YjQyMWVmYzZhOTIzYTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ5OTMxZmVlZDQwNmJhOWMyYzgyMjUxYmZiOTFmNTBmNDdlYzUzNTIxOGI2NDMzYjYxNGY4MDAxNGIzOTdhZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0YTA0YmEwNmY5ZDdhY2VhYWIxNGMyYzM1MzQxNjU1NWIyMGQwN2Q3OWZjZjQ5OTE5NWU1ZTcwNDhjNTlkMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0ca3a62a831d4e578660967e5cfd36f3",
+      "statement": "Leaving the overview is a crossfade rather than a cut: on unmount the six overview layers fade out over 250 ms and only then are the layers, the 'overview-lines' source and the 'route-arrow' image removed; each setup claims a fresh map-scoped mount token (__komyuterOverviewMount, stored on the map because module state is unreliable under HMR duplication) that aborts an older teardown's fade-out and delayed removal, fadeOutLayers starts each layer from its currently painted value and returns a cancel handle, and every animation step probes mapIsUsable because react-map-gl can destroy the map while timers are in flight.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L359-L428",
+          "version": "repo-lines-v1:sha256:e07aff761b691a90b00d63bb892196a5eb9aaf5d7e8c24836fb072ad569bb55b:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE1MzZjZTJjMWIyY2JjZWYyZmJiMTUzZTNlNDE1MTczNGRjZDcxNGU1YWRlMGM2NTgwNWNhMWI1ZTMzMTRiYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1NDZiNTU0YTZlN2NmY2UwNTRiOTMyMzg3NWRkYzgyMGE2MDIzYTVmMWUyZmY2NmQwOGUzYjk4ZTdmNDEzY2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwMmFiNjU2NTJhNzE5ZTBmMjZkNDdhZGI0YjNiMDJhN2NhNWYzYTY3MThmODAxZmVkNDcwMTZmMzg4M2M3ZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmZDlhZTE4MDQ5MWYxODMyMDg2OGJjMTk4YWYwMzg1ZjcxOGYwOTBjMmVhNDEyNWRkZjQyNGY0NDg2Y2MwNWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overviewFade.ts#L120-L170",
+          "version": "repo-lines-v1:sha256:f3de23e9e6bba584e283e333e7dfae3ba1d05a6b447f254ef233dd75e492bb8b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5M2YzNWVjZDg3NzU4YjE5MGUyYjQyOGE0NDdkNjU0MzRkNGZkMDI5MTBhNmRjMzU1OWE0MmRjZDU0MDFmMTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNmMDkzMWFlMDdmZjIxYTIwOTBjZjIyYjMxOGJhOThlOGM1ZTczZjkxZWFiZWRhZDM1MzIxODI1MGJiNzc3OWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overviewFade.ts#L43-L53",
+          "version": "repo-lines-v1:sha256:9c7a375c04c0260f9e214535afdcf5bda4397321d825ffc8241239134ed318be:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkYWM5MmFkOTAzMDM2NDIxZTE1OWRjN2EzMGUwYWU4NTEzOTA5MjVmZmRhZWExZDhhZjcwMmY1Yzg5MTJjZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjMDcxZDFiYjc0MzMxMTEyMjZkYzNhM2IyYzhmMTRjN2JkZTJiMmYxNmYxYWQzYzg3NTQ2NDYwNDRhMDZiNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk2NjQzNjAyMmY3YjE5MTAwYWMxZWRiNzZmMzA2OGQ3N2EyZTc5Mzk4NjI4ZjhjYThhN2MzYzRlNWEwZWJhYzcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88efbacdaad141b3b5f0597b9794b637",
+      "statement": "The editor's committed draft line crossfades on open and close: it fades in once per routeId (so snap auto-commits during editing stay immediate and the fade re-arms for the next route), and when the draft becomes null while geometry was showing it fades out over DRAFT_FADE_OUT_MS (200 ms) with the apply step pausing its setData so the line is not cut, clearing the geometry only after the fade completes and only if the route is still closed; opening a new route mid-fade cancels the fade-out, unblocks the apply and re-arms the fade-in.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/RouteLines.tsx#L38-L116",
+          "version": "repo-lines-v1:sha256:637a2665770d27a24010ff31e42b994d1ab6c7fdea372a04f396ef41a3abc90c:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhOWQ5MzM0NjY4NDUwNDdjZDZhM2E2NWQwNzk1ZmEyZGNkOGY0OTBlZDE1NzFjY2ZjZDE0NDg5MGVhY2ZmYzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzNzlkYjRjYzY2ZGIzNmUyOWY5ZmViZTY0YjM0YTliMmQ1ZTQ2YWUwMWI4NzBhNmI1ZTJjNzYzMTVlZmNiNTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY5YTEyMGZlOTdhNjAwYmM3YjY4YThiY2UxMDRiN2YwN2M3NDhiMTEyMzRmYWQxN2ExZTczMzAwODZmZTUzYmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0YTA0YmEwNmY5ZDdhY2VhYWIxNGMyYzM1MzQxNjU1NWIyMGQwN2Q3OWZjZjQ5OTE5NWU1ZTcwNDhjNTlkMmEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/constants.ts#L4-L9",
+          "version": "repo-lines-v1:sha256:ce99c9646ace5537e0b8d0d4b2124fc707be587774e10d924af4dfa24152a4b8:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQ3YzkwMjUyZWY3NzU0ZDg3ZWNmMGIxYjI3NzI4ZjA1MTgyODAxNTRkOThiYWUwODE4ODg2NTAzOWFhYTYwNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjBiMWE1MzlkYWU5ZDJhZWJhNWFkNzYzMTAxYjZjMjNiMTA4OTFlYjNmNzYyNjI5NWRlNDJmYTIwZGI2OTdjYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDY5MGYwZTAyNmZkMzI4NTkwM2Q5M2E0MzZmYWVhMWE3YmMzY2I2NTg5Yjk3NWZmYzA5MzdmOGI0ZWE5MTZmNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTlkYjllOWY1MGI2Yzk5MjI5NTYzOGQ3MGEzZGI5OTU0YWYyYjE3MWY2OTIyMGU1NjNkOGM5Mjc0MjQyZmNiOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_88f8476a3c0a4ee39bfa1fb29b0d3276",
+      "statement": "Layer visibility is one merged LayerVisibility object in plottingStore written through setLayers(patch) and read by the map stack: layers.routes decides whether RouteLines receives the draft and connecting geometry at all, layers.markers[type] filters the stop markers, and the detour flags gate the detour lines, markers, labels and split/merge indicators; the LayerVisibility.base flag, however, is never read by any component or written by any control — basemap visibility is expressed only through baseOpacity.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/PlotActionBar.tsx#L72-L245",
+          "version": "repo-lines-v1:sha256:6ed41944ba65551d1f01bd27495a53a12fea8c4ab39fc1b60426f45f9ea95a12:eyJzZWxlY3RlZExpbmVDb3VudCI6MTc0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwZDU2Njc3N2MzMGFlODM2NDRhOTVkZTY2YmZlYjIxZWY3NzY4YjU4OGUzNzFjM2VlZGFiZDdkMzRlMGI3NGQ3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxZjNlYzI0OWY4YThhOGM0OTYzODUxZGQ2MjI1NmMxYWJmNTZkY2E4NDgxMjY1NWVlMmVlZmFkZTFlMzdlYjZlIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwOTRmYzBjMTczZDFlYzNmYzUwMWQ3ZGZhOTI4NTUwMWM1MjdjZmI0NzEyNTgzZGEzY2MzNjE4MDU2NmI0YmUzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkYTZmOGM4NGIwZjkxZGQxMTY4MTNiMzAyOGM3Njc4Mzg5MGM1NmMxNTc2MjY0MDhmYjdiM2Y2NzE5YTliNDViIn0"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L219-L226",
+          "version": "repo-lines-v1:sha256:4dffbb1daf0ef92304fd4b3634bb0931e819dc65364e1cee2b08b0db06acbca2:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWNlNGUyNjIwYWRmYmJjNThiNjVkODFjYTUzMmZhZjA5ZjczYjdkMWY5YTI5ZTQ5MjViN2I1MmJkNWIzMmFiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRhNTkzZWI4M2M3OWZlOWM2ZDI2OGQxYzFiODc4N2EwOTI4MTA4NjJiMjFmZThhMWQxNjJmNGYxZDFmMzExYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjA3ZDdiMzdjYTk3NTg0ZGYxNjJjYjM3YTE5NzcyMjllMDJlMmY5ZTNhZTEzM2MxMDA1ZmFjM2Q2OTJkZWE2OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzgwMTU1NTgxZDdlZjBmMjJmNjAxYjc5ZTA2MWJmYzUwNjU0Y2E4ZjQxODFlOWI1ZTViODY5ZjQ5ZTM5ZGFjNiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/map/BasemapController.tsx#L12-L19",
+          "version": "repo-lines-v1:sha256:fd0c6b56532876a454cd5c387d17d4f01a07c0d13b34fc55d73740a56cc955aa:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODRlNjE4ODk3Mjg2ZDE5ZGJjMTMyNDk1NTg0MWM4ZDkwYTE4MDZhZGMwYjU5OGZiMDRlZjFjMTE2NTBkNTMxNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjdhM2E2MGY4MjY5N2U0YjA5NGQzOTA2OTM4MjhkNDg3Y2QwNTVjYmMzZDYwMThkNzkzZDZiODJiYjI4MGUyNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzc4MzkzYTc3NjFlNTBiMDVkOTZhMzg5NTI5M2ZhMWU5ZGJkYmZlMGYwZGMxY2RiYmE4NDk4NjlmZGM4NjhjZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZThlMTQ0MDI0NTRhMThmYTI2Y2Q0N2JlNzY4NmRiODY1ZGNiZTRjYWZiZDM2NWEwMTQ5YmMyOWNiNGMzOThjZiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L104-L147",
+          "version": "repo-lines-v1:sha256:1e07a9017f72c9f174b27148457dc36d244bb24c2fbf525f556d7759d9e98aa5:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExNDcyMWQ2OWE5ZDhlODFmODNlMmQzYjRmM2E3YTA2NTcwZGFlZjM1NzE0YmFiMzE2MjM0YjJiYzU2MDNkMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiNTExM2U1N2QzZThkOThmYTliMDVhNGM0OWY0NWM4NzcwYTEzMjE5NGZiZTAyZmY3ZTAyODE3ZTQ4MmUxNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiZmY2ZTczOTY0MTQ4YWI2YmY1MmUwY2RjMWI5YjlmOTY0NzdmOGViZjAzNjhkNTcyMDcxNDdhMzI0OTZiYmUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a09ffaff5db4a3092f8c38f8be2a48b",
+      "statement": "The basemap style choice resolves through baseMapStyleFor to three keyless OpenFreeMap vector style URLs — default to bright, minimalist to positron, 3d to liberty — and the production build's Content-Security-Policy meta tag emitted by apps/admin/vite.config.ts allowlists https://tiles.openfreemap.org for img-src and connect-src (alongside the API origin when VITE_API_URL is set).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/tiles.ts#L17-L31",
+          "version": "repo-lines-v1:sha256:f9b5547f8408d18bb821202090d9449fcdf82ba6a908643302a3f409e17aa882:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5ZTIwOTRmMzQ4MDZhNWI1OTYzYzJjNmI5MDY3NDkwZGNkMWFlNmM3NDhjOGY3NTRmNTdmODA0MGJhNTM0MzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxYjhhNGM1MDE0MjkwYmFlZDExZmViNjk2N2E3YzczZTZlNDFjYTMyZTM4MGNiYzE5ODNlOGRhMzNiMzlkM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/vite.config.ts#L16-L62",
+          "version": "repo-lines-v1:sha256:b3a60efafad805ffe617ebd479f8120ac78ae673e78d04b3b6b2bd31452d455c:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjNDg3YjU5OTQzNDliZTAwM2NiNTBhYWVhNjYxZjM0MDNjZjU5ODllOWE3NTE0ODkxNzRhMDhiNDI1NjRhOWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1ZTdjMWVkODU3NzQ3YmJkYTJlODA3NTkyYWVlMjUxMTBiNWRlM2Y2NzY0ZjMyZWMzNzE5ZTRlNmZjZGUzYjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzMjlkYmMwYmY0MDBmZjc4YmVhYTIzNjZlZGM1NmM2ZmI4MDc0OTM2ZmJmMWFlZmY5NDgxZDdlZDg4M2VhNjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a550fa7b7de042bda60d6f5b086f49d3",
+      "statement": "While the detour editor is open it owns the workspace's interaction surface: the map's click routing checks the detour store's open flag before any plotting tool, and the page's mod+s, undo/redo and Esc shortcuts all defer to the detour store (Esc closes the detour editor before it would leave the base-route editor or clear a focus).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L90-L108",
+          "version": "repo-lines-v1:sha256:ec94f277ca98271e0ee5852b4b12ec87afa1fb79003f19e706297c5f447b31af:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlNmQxMjE5ZDM5OTNiN2ViNTNmYzM0YWU5NzhlZWM0ODcyODM0NDhkZmYwOGRiNjUxMjc5MzBlOGNiMTE5NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3ZDQ0MjcyODg3YjZjZTg2Njk0NGU3NTdlNjNjYTc4MzU4YzMwMzQwMjk1YzEzOGU1ZGIxYjc3MDQyYjQ0MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmMTM3NzYwNWUxOWZmMzAwOTgzOWZkMDJjNGIzMGRmNzczZDZmOWY3OTkyNTM5MTE5MTJmYmY3NjFiZGVkNGQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L78-L137",
+          "version": "repo-lines-v1:sha256:bffc1d39b13825b33534bba32acb5b234ae29ff3dbe348a9b2a82f1aa9c8310b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4Y2QwZTJiM2I2ZmUzNjE0NTI0M2Y2NmNlMzY1NGZmZGIzZGQzNzdlNGFjOGFkZTUzMmY2ZGNmMGFiODUyMDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhmYmQ0MmYxMDA4OTMyZjEyNTMxOTUzOGI4MjAzYzBmMmVlMzdjMWVhNTYwZTM5NTViOWY1ODRmYzYyYjViZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyOWIzMmExZTQ3NWM0MjBkYzAzN2UyMDYzN2I5ZGMzY2IzYTRmZDYzMjdjZjExOGFjYzYzMDNmMTgyZDBjZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ce48f5b236b24b9491f1da6a8d2df6c5",
+      "statement": "The pure parts of this surface are pinned by Node-environment tests: workspaceUiState.test.ts covers the five deriveUiState rules, workspaceGeometry.test.ts the geometry tokens and the free-map-width formula including the 400 px gate boundary, overviewFade.test.ts the opacity-expression scaling and the monotonic fade/fade-out/cancel behaviour with stubbed rAF, overlap.test.ts the opposite-direction run detection and tapering, tiles.test.ts the three OpenFreeMap style URLs, and stopShapes.test.ts the shape/colour mapping (including that selection never leaks into it). The React components, MapLibre rendering and network paths have no automated coverage.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/overlap.test.ts#L1-L40",
+          "version": "repo-lines-v1:sha256:6c6675362e6aee71cc6cccad9a590765916fec88d633b9adbf0ed90eefcdbce0:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOTUwNmIyMWY0ODNkYzk1ZGYyZjJiMzVmNzBjMGE0NDNiMDUzYTdiOTY0OWY3NzQ2N2U2ODhhMzMyMDA0MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5YzJhZGE5NjEzMjU1NDgzMTM3ZGNkMTdmM2FmZWExNzdhMDJjNjc3YTJjMDgyODNjMzFkNmNjOTRlOTUzNTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwNzE0OGQ1NGU2NDM5MDRjYjM2NTVhNDM3ZDBmMjI4MTE5YzNjNWZlMzY1YTI1YzMzNjZkM2NmODJlOWVmNDcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/overviewFade.test.ts#L20-L41",
+          "version": "repo-lines-v1:sha256:a7e701a11ee7aa17aa222370618c59910759981b29317185ded37c8e715f27c1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwNjBjNzFkZWI0ZGJlMjQxMjQ3Y2Q1NjQ0NDg1M2RiNGNlOTBmYWViOTA4MzliZTFjYjFjNDFlODdlOWY3M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NWIzOWFiMTE3YWM2MGIyZjU2ZmQ3YmJiMmE0MTBmNmIyM2E1NTM4MjE1Njg5Y2FjYTY4NTQ2NTgxMTFkYmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhNGRjZjJkZjhhYTZlZTQ4OTA5MzE4NGM1ODBlZDdhNzk5ZGY5OWNlYTRmMzQwZWQ1M2YyNGUxOWVhYmU4YWIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/stopShapes.test.ts#L4-L55",
+          "version": "repo-lines-v1:sha256:a3264f32e8ddf3d06b7fa810a6a7a0eeb9809fb833d49b7f4dee03efb2c71da0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0M2ZmNTk1MTg2ZmM5NWE2MDY1ZmYyYzcyNzE2ZGJiMmQ0N2JjOTMwYTQxNzIyOTEwZDM3ZmQzY2Q5YTlmMzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdkZGQ1YWNmNDE1OGZmYWYyMGI2NzRiZDc2Y2MzNjRjYzQwZjM3NjdkNjMwOTgzNzRiZjZiODgyNDNjNjRiNzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/tiles.test.ts#L4-L29",
+          "version": "repo-lines-v1:sha256:5bcaeae6ed2a7e61792ad25552d6b6274e7e6d0ea6645b94c4139e346feece19:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1ZTNjZWNkNTg4YWZhOWQ4YmI0OGU0MjQ3ZmFlYTU1ZWI0NzQyOGRiYzE0ODc3NTQ1MjU1ZGZiYTI2YjMwNzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlMmI2NTU1M2JmZThkODAyYzk0YTY3ZTVmYzA2NmY5ZjAzYzA4MGZmNTQzZWVkNzQ3Y2I1MjcyY2QyYzBhNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/workspaceGeometry.test.ts#L9-L56",
+          "version": "repo-lines-v1:sha256:69955d691d820c06591757a81b4e6859cfd58a71c2c36f06c0775d823ce9a627:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMmI3NWVjNWYzN2U4NDY4YTQzZDEyZWZkN2Y0ODUxNWI3OTUwNDljYjZhNjZmNmI3YjcxODE4MjdjZmNlZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExOGQ3ZTc3NmJlYjcwYTdlMTkxMWI0OWU1OGM1YWYwMzk1ZmRiNTAzNzZmMDc4YmVjNmE0NTA5N2U5Y2JlZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/workspaceUiState.test.ts#L1-L41",
+          "version": "repo-lines-v1:sha256:cf925415b3d1ed1abef9d3eb694640aa9a425fe931325f76364189e2cff1aa18:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOTUwNmIyMWY0ODNkYzk1ZGYyZjJiMzVmNzBjMGE0NDNiMDUzYTdiOTY0OWY3NzQ2N2U2ODhhMzMyMDA0MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

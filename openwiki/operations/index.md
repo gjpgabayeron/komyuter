@@ -1,0 +1,4 @@
+# Files
+
+- [Configuration, environment variables and secrets](configuration-and-secrets.md) - The two configuration surfaces in this repository — the Fastify server's zod-validated environment schema (required vs defaulted vs optional, and what each value drives), the .env auto-load guard plus the injectable loadEnv source that keeps tests idempotent, the admin SPA's single build-time VITE_API_URL and the production-only CSP meta it feeds, and which artifacts are committed versus gitignored.
+- [Server API surface and response contract](server-api-surface.md) - The complete Fastify route inventory of apps/server with mount prefixes and guard placement, the { success, data | error } envelope and its two exceptions, the error-code to status mapping, zod validation sources, per-resource delete semantics (hard, soft, cascade), the reserved "overview" static-segment trap, and the numeric/date serialization rules.

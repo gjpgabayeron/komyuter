@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ee40307f0b24cb4f74ee01a7203b6b790fbca3613fe958ea890ec8962243569a",
+  "claims": [
+    {
+      "id": "claim_d5983d0cd20d4a43b43fbf9be8025093",
+      "statement": "apps/mobile is a pnpm workspace member whose package is named `mobile` and which is still the unmodified React Native Reusables \"Minimal (Uniwind)\" starter: its README records the template init command (`npx @react-native-reusables/cli@latest init`) and app.json still carries the template identity (`name`/`slug`/`scheme` = `minimal`, version `1.0.0`), so the app has no commuter-app naming, branding or product configuration.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/README.md#L3-L9",
+          "version": "repo-lines-v1:sha256:1600f13913c1d6f2b9414c12eb5025266a33d7977f046b8d8967aa36985bc696:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTg1NmQyNTc1ZGFlOWIxNTQ3MWY0MGNjMjdhMzczYjU2MzUzN2RiZWRhNDY1OWUxZThiMGUzZjMyM2JjZWY0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDdjMDZjNTYxZDVjMzI3MzQzNjg1MjY4YTQ2YjMzOTFmMzk5OGVlZTg5MGQyYmU1MWYwZDIxY2M0YTUzYWU2ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFmZjU0NTZlYjc3ZmNiZjQ2OTcwZTc2YjU1YTkxZmMyMjc0YzgyNWE5ZTYyMDc1ZDkyMDg2OTJmMWZhYmFkOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWI0ZDEzNzJlYzFmMGViN2MzOTE5YjNkZDg3YzhjYzBmNzljMjEwYjU1NGIyN2I2NWI2NmRmMTQyMTg3NTM2ZiJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/app.json#L2-L9",
+          "version": "repo-lines-v1:sha256:c92558f28fb5be369eb2f1ff6e8540c92022b653529f1065ecea290084bacd2b:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2VlNjQxZDQzNDRiN2VhMzBkZmQ0MjgwMTUzYzYyOWE5YzU1ZDNmOGUxOWQyZGUzYzc4NGE1ZWE2YTU4N2RlZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDVkMjlmOTcyNzMyZTIyMWE4N2UxYWIzOTFmZWU4OTBhNzhiODRlOGViYjAwOTE3OTlmNzE1NGZmZDU5NmMxYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjEsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzBkNGE5YTA4M2I2N2Q3MjU3MTllNDhhM2RkNjA3NzU5YzBkYjU1NjU0M2ZhOTM3MDNmOTg4Y2UyYjg1YTNkNyJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L2-L3",
+          "version": "repo-lines-v1:sha256:dfee0ea5df2d353d3b1b113b313633d2ed0f1abaafdaa154dc98c91dc4d29c7a:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzYwNjczZTAyYzdjN2YxM2Q3MGJmZDZjZmFkODI3YTM2MWIzOGNkNzA2ZjFlNTI1OGFiZTBlYmU1MzU5ZjhmNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmVmZDIyNmUzNjMxOTkzMDIwNjZhZjMxOTM0ZmQ2MzQyZGY4N2Y4N2VmZTc4OGQ5NTRmNTQ4ZjJiMmI4ZTIyNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjEsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWZlMDA0MjkyNDcwYmI1MTI4NzBjNWJmOTMzYzU5ZmUzMGQwNDZiM2IxYTU4OWZhYjE4Y2M5MWYxODVhMmJmMyJ9"
+        },
+        {
+          "resource": "repo://pnpm-workspace.yaml#L1-L3",
+          "version": "repo-lines-v1:sha256:08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWRiMDc2ZWI4MGFkZTE5ZmVhM2UwYTQzMTk4NmI2NTVmNWZhNTllZDYyNjdlMTA3ZDY4OGI2MWMzZjQyMTc5NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODlkNjdjMzRmZGJlMGVkMzRlN2Y5ODcxYjA4OTU5ZjgzZTJmMmYwOTM3ZDAxZWU5Mzg0YWU4YWRlYjFkMjU2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_767cfe0628be413f94684d174a605319",
+      "statement": "app/_layout.tsx is the only Expo Router layout: it imports @/global.css for its side effect, wraps the root `Stack` in a React Navigation `ThemeProvider` driven by `useUniwind().theme` with a `?? \"light\"` fallback, renders the `StatusBar`, mounts `PortalHost` from @rn-primitives/portal as a sibling of the stack so overlay primitives escape the navigator, and re-exports Expo Router's `ErrorBoundary`. There are no route groups, tabs or nested stacks, so all navigation is the root stack.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app/_layout.tsx#L1-L24",
+          "version": "repo-lines-v1:sha256:fa9c738b1da5289e16ffd8a79b3902c0e0b8755ae094eeb194b7a5d7e42a074f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4ZmNkZWQ0YzcyMzg0NmE0ZjAxZWFiOTYwMmYyYzA4NjM3ZjQyNzAyYjljZWNkMzZhYmZlNTY3MDg2YTE0MjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c6eccd0c2f2c4fb5a7e254ea22084fbe",
+      "statement": "The package declares exactly three route modules and nothing else: `app/index.tsx` (the root demo screen), `app/+not-found.tsx` (unmatched paths, rendering one Text and a Link back to `/`), and `app/+html.tsx` (a web-only static-render document that sets `<html lang=\"en\" className=\"bg-background\">` and ScrollViewStyleReset).",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app/%2Bhtml.tsx#L8-L29",
+          "version": "repo-lines-v1:sha256:d16c81cbfd3f217be0b1a02e82594fce921a5eec8f07eea3fe15014d64daf383:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2NTQ3NzVjYmIxZDE0NzQ4OWRlOTcwZTI0ZTY1MGEzZDIzZjE3OWMyODE1NmUzZjM0OWJiMmJiMmQxNzQ0MzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1Yjg1M2VlNjQ2Nzk4YTQ0MzE2YjBmMzA5MTkzNmVjYzhhMzA4OWU1MWE2N2I3ZjI0NWY0ZWRjNDQyNjA1OWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/app/%2Bnot-found.tsx#L5-L17",
+          "version": "repo-lines-v1:sha256:c1f98514dd85413d92f00fb1a2fdac32e87ee8eb8499502ebf3ddc55905f868f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkMjhmODQzM2NiMmE0NDE5Mzc2ZWI2MmU5NzRiMTM1NTY3NTIyMTU1MjQyYTQ5ODU5NmIwMDYxZWRiMmYyYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkN2M4MjBjOTZkMDJmMDhmNmNkYjMxMmQ0OTE3YTlkMmQ4ZWZlMjY2ZDI3YWE2OTQ5MGViZTFkZGU2ODM5MDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/app/index.tsx",
+          "version": "repo-file-v1:sha256:2220aca20ce32b7170074292a3fb1192e28493920df1fc8a88d6b7e678de9db1"
+        }
+      ]
+    },
+    {
+      "id": "claim_385bac0145394cc4afc4a98f6f508a2d",
+      "statement": "The root screen owns its own header through `Stack.Screen` options (title \"React Native Reusables\", `headerTransparent: true`, `headerRight` set to the theme toggle) instead of the layout, its only actions are two `Link asChild` buttons opening external URLs (reactnativereusables.com and the GitHub repo), and the not-found Link is the app's only internal navigation link. The header toggle calls `Uniwind.setTheme` imperatively from `onPressIn` and is the only mutation of shared state in the package; no storage dependency exists, so the app itself does not persist the choice.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app/%2Bnot-found.tsx#L12-L14",
+          "version": "repo-lines-v1:sha256:84a693e16a8a736b8b18b3bbbb646d819edf79b94c6de98dcd85ad9c8bc1e2f3:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWNiM2I3Y2Y4YWI0YTgxMDhmMWMyZWFkZGVmZmExMGQ2NjY0ZDM2YWRmZTFmMmI3NmQzNTMzODFmOGE1YWUzMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmFhMGNiYjI3Mjg3ZGQwYzUyM2JjMDRhMmNlZDAyZjhlYjZlMDFkZGMyZGY2ZmIyMTc2YTY3N2U1YjhlZGQ5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWE5NGNlMzQwNzJhMGFiNDE2MTFiYmRlODg2ODljYzNkYzY5MGYzNGU3OTQ5NzA4ZjdiNWQ1OGE1ZjYyOTk5YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmNmMmEwMzc2MTQxZWViY2I2ODczZjBiOWQ4YTA5YzEwZmI3NGUyZmRhZjlmZDhlYzFmMTNkMTViZTRiNjFiNyJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/app/index.tsx#L15-L19",
+          "version": "repo-lines-v1:sha256:ae87439ca245aa473917fe3056ea308b127eb59b3b5d19c46c941fe819a654b4:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjkzM2E3NTRhZmZmYmRmMDgzYmE3YWJmMGI2MjYzMTFhNDljNDYyMzRmNTk5NTU5YmRiYTZhOTM1YmY2ZGUzNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGYxNzM0Yzk4NTgyMWJlZWJjZDM4MjJjZDc1NDI2NzUwMWE5ZjdhZTM1YTk1NTE5MTM2ZTE5Y2E2YmJmZTdlOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTAwOGYzZmY1MzJlZDQwMzg0YTU1YzdhMWYyMTE5N2VhMGNiNGFjNGQ3ZjQ1ZDUxNTU3YmUzODYwZDMxNmNmMiJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/app/index.tsx#L46-L61",
+          "version": "repo-lines-v1:sha256:c0ee68237ac3cbc69e80b285ddc22dc66f2643e4493edcb18428f337a7e28197:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxYTE1YjMyMjRiOTgxMGJlMDNiMzdlNzViNTBiMzY5MmVhZmE1MDRlZDIyZDgxZjU1Njg0ODU5Yzk4NzAwMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhMjQwNmQwNGIzZWEzY2FmZTc1OTBhMjhhMmUzODA1Nzk1MDdmMmZjZTE0ZjZjYWQ5ODA5ZWU3Y2UyNzllMmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYwNjRmYjI3NjIxNDhhMzc1YTYzOTNlZGQ0M2JkZTYyMzE3OGJmZmZlZmM3MjZkMDY3MmVmNzIxMmVkNzY4MzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjZjJhMDM3NjE0MWVlYmNiNjg3M2YwYjlkOGEwOWMxMGZiNzRlMmZkYWY5ZmQ4ZWMxZjEzZDE1YmU0YjYxYjcifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/app/index.tsx#L67-L89",
+          "version": "repo-lines-v1:sha256:19920b2ca4665a3f02fa76c472408e138b4763bff957e25e4d7864f043df2e89:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmNzA3ZGM1ZTk5OTk2ZDVmZDUwYTVkYzU2MjZiYWQzZmUxY2Y3M2JkZDhhZmRjYzYxZjA5ZjdhMWEzNWVmMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3e07b9ebd2d543bfab35b8b22343a03a",
+      "statement": "Theme values are defined twice, in two colour spaces, for two consumers: global.css provides the full oklch `--color-*` token set under `@variant light` and `@variant dark` that makes Uniwind `className` utilities resolve, while lib/theme.ts holds a separate hsl palette and maps only six colours (background, border, card, notification, primary, text) into the React Navigation `Theme` object consumed by the root provider; the chart and sidebar tokens in global.css are consumed by no component.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app/_layout.tsx#L16-L23",
+          "version": "repo-lines-v1:sha256:5d8f1677d7b0a7d0a3c3d25e915d9ae1cb7e6392bc40590ed8928649501b467c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmU2OGZiMjc0MmJmZDBmMDZmZDE4MWQ1MTIzNWJhZmRjZWIxNjE5MGY2ZGUwZGIzYmMxY2ZlOWQyMjE4ZjIzNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWI4NDBjYTZjZTFkOTAwYTQ4YmY5ZjYxZjUyMzJhMmJmZWE3NzMwMjQ4NDI2ZGI5ZWQ1ZDYzYTdlYTliZDBjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTg4ODFhZmZmN2VhMDA1MmVkZWNkOWZhZDE2OTYzN2JmMzYzYjg4MzFlMWE1ZjkyMmQ4NzNmMWRhNWFkNmY1ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2I4YjYwMGE1YjQ0OGIxZTRkMDJkZjA5NzQ2ZWQzY2EzMTcyZjc1YzRhYWJiMDFkZGUwODBlMzZjYWIwNzRiNCJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/global.css#L16-L85",
+          "version": "repo-lines-v1:sha256:63f1ca4cc88e9f20e369305aa0139bba356dd5b5b3922cf7f1ee2eebb53e8fd2:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1NmNkNjdiZDk1ODljZDg0YWIzOWIzZjY5YmIzYWRhYTg4YTc2MzQ0YjRlZTE5ZTJlYTkwZGM3ZmUzNGQzODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVhN2IyMDI3NjJlNzAzMjNhZjZmYThmZmY1NmJjMjdjMTQ0ZWE4NjQwZTlkNDVkZDcxOWQ4ZjM5YWE5MzU4NzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/lib/theme.ts#L7-L85",
+          "version": "repo-lines-v1:sha256:1eddfa40870869b756167df11fc8c6727d9d9210a491d3eb3f0019e7d6b4b835:eyJzZWxlY3RlZExpbmVDb3VudCI6NzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0M2U0MWNmZGZmM2I5MWIyMjA3NGEyYjZhOTM4MzQ4YjgwOTJjY2IyMDgxZDE2MzY0NThjNDVlOThiYWIxYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFjNGQ4YzUyNGQ1YjIxMzY2NzBjZjc0NmNhODgwMWMxYzVlZTRhYjYwYzg0NmViYmExNjcxMDk1MzRmY2Q4ZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7f96de0fab5c44f9aa34fff72dfe6db1",
+      "statement": "Uniwind `className` support is wired at the bundler level: metro.config.js passes Expo's default Metro config through `withUniwindConfig` with `cssEntryFile: \"./global.css\"` and `dtsFile: \"./uniwind-types.d.ts\"`, and the generated uniwind-types.d.ts declares the `light`/`dark` theme tuple and is marked as generated, not hand-editable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/metro.config.js#L1-L12",
+          "version": "repo-lines-v1:sha256:87c48db80b4345034cfdff4c498f4e614a2c5529cf273c04ad560ea4dc0dc092:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkYTk1N2IzYTRkMDllYWQzN2NhMzQxMDI1NDZjZTNiYTJhMTM2NDkyYTM0MzhiZjcyOWYwNzg5ZDU1ZmI3NzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/uniwind-types.d.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:76ec5781c81168a735a9a7ff21f952809da88b0ef2032f5eff275156c8367386:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjRiZjAwZTM2YjFhNDdmMzZjYzBmNjkxMzMxODE2ZmQ2Y2FhNTcxOTU4N2NiODUwYWI2Y2QyNjFmYWEzNzk5YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWU0ZGYwZDA5OGQyYjQxZGFlMWRkNzQ5YmEyMWJjMjAyYmJjOTQwNDJmNzExMTA1NDU2MzJlMjBhODE0Zjk3MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c344b8b8546f44c183c3378d58e7df99",
+      "statement": "components/ui contains exactly three RN Reusables primitives that share the `cn` helper (clsx + tailwind-merge): Button (a Pressable with cva variant/size maps that publishes `buttonTextVariants` through the exported `TextClassContext.Provider`), Text (variants default/h1-h4/p/blockquote/code/lead/large/small/muted, merging the ambient context class, using `Slot` when `asChild`, and setting heading roles/aria-level), and Icon (a Lucide wrapper whose `withUniwind` mapping turns `className` into the width and color style props). The context is what lets a plain Text or Icon inside a variant-styled Button be styled without restating colours.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/components/ui/button.tsx#L106-L123",
+          "version": "repo-lines-v1:sha256:0f32fd8235d284c5c15203ae711b7fde663eeaa3643ef86ada9e7f7ed518b44c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1NzE0NzZmOTNiOWIxYWIyNmNjOWM3YzAzZDk0MzQ0MDAxMDcyYjY2M2Q1NDMyMTFmYTE3ZTE1NjQ2NzJmOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwYjgxMzJjMjVhZWZhN2Y1NGY2MThkMDkwOTAwZDg5OTVkMTIwMDMxMmY4Zjg0NzM1NTZlNTE0MGFmYjgwZjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE2ZjZhZWMyZGJjZTVkZWUxZWE4NGUwNmY0YmY0MjljN2RiYTBkYjFlYWU2NzcxNDZlYWY4M2E0ZTliZDlhMGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/components/ui/icon.tsx#L15-L55",
+          "version": "repo-lines-v1:sha256:fc53749a131d87150955183e60de9e763604f04e9110e874899a2a92055e3d12:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlNzk4NGM4MDg3NDIwNGFkYjA1MDZkYWVjNzUwNWI2Nzg5Njg2YTY1Yjc5ZWE4NTZmMmMxY2JjODkyOGNmZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlODNhYmY0ODZiZDdmNWIzMWU2YjkzNDhmZWNkOWJmMWZmMDM1ZmU2ZTk5Y2EwY2EwNzYxODg1MGI1MWFmM2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyZDFhNTg0MGU1NDhhZjQ0ODNhZmQ1YzA3YjQ4NDYxNjk5YTdmMjE1MDEzOWU3MDgwNWI1YjMzNzM4MTRjNmQifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/components/ui/text.tsx#L71-L95",
+          "version": "repo-lines-v1:sha256:f415f35037d1832b10da70c56b23628057b3d310f4a36dc5a8b7a77fc8a0628d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2NThlZDRiYWE4NDUzMWE0YTRmMGFiZjVlZGRlMTk5NzBlNGU3OTM3YzAwNGE2OTM0Y2JjYTdlN2QxODk0NzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0MTA3MTY4ZjRiNmVhYTUzNDcyMDQzYWFmOGE0MGVmZTFlNmMzOTM5ZmJhOTg0ZGQzNTUyMmMyZWZiMmZiNmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0M2JmMzUyZTJlMTJhMjA0Y2U4N2ZjMTk2YmQyYTczYTA2N2NkMWU1NDQxZjVlNjRiZjYxNGJmZjkyNDU2MTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/lib/utils.ts#L4-L6",
+          "version": "repo-lines-v1:sha256:42f5c00d203593bd0e3d43b46fdb964a78998d8765a04b192170c86a836cd6cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjZhYzc4ODYzNGI4NGUzODU5NzIzNTA4MTU3NjkzNDdiNWI0NjI4NWYwODNjMTU4MjgxMTU5MmFkYzM5YmM5ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTRiODA1MTk2YjM4NjkzNjFiY2E1ZDdhNjU1YThkZmJhMWFhNTVkMzBlMzY4ZTE2ZWY3ZWU3NGVlNWNiYjBkYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9e8ee6594ab4d97b6fa7e268edcd398",
+      "statement": "The sanctioned extension point for more UI is the RN Reusables registry: components.json configures it (style \"new-york\", baseColor \"neutral\", css global.css, `@/components`, `@/components/ui`, `@/lib`, `@/lib/utils` and `@/hooks` aliases) and the README documents `npx react-native-reusables/cli@latest add …`, including `--all`. The `@/hooks` alias currently resolves to a directory that does not exist.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/README.md#L33-L43",
+          "version": "repo-lines-v1:sha256:849941e9e345ecd0cdc5d48eca932d6405d9fe81318d8da2bfb11b48d86adb1a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0MWM3NTBmZjVkOTE4N2RjYTE4NWRiMjVhYzY4Y2Q1YTk3YzhhNjk0MDMzZTY1YWExOWJiYzgwNzUyMzRhZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2YjVjMmIxZmY4NjgyMTI2MTZlMzRkMWU5MDM1YjFlMDI5OGQwMGFhYWY0NzhmMmIzYzQ3YzRmNTIyNzI5N2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwZDhiNTU4MmUyNDhhYzllNTdmMGFjYzYyOTBkODY1YzZjNDQwZTQ5N2M4NDQxMTY3ZWU0MWY1ZjgzZmIzZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlMGQ0N2NmZjM2M2Y5YWY5NDQ5YzBmNjY0YTI5Y2ZlOTIwZTIyMzJiZWJjMDUzM2M4ZmRmYTdjZmJlZTk0YTMifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/README.md#L45-L52",
+          "version": "repo-lines-v1:sha256:ce19db3720b5c1433557fa08d28b0dcbf7ad5438460ce4d76f1f198890ef21d1:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmQyYTBjYTBmM2JjNTM4ODBmZGJlZTcyMmUzMDZjZmM1OGM4ZDViZjRjMWRiZTc3YTAwZDdiOWMzNTVhYWVhYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjIzOTIzZWFlMDdlM2QxOGQ5NjAxNzI0Y2IxMzUwNDE4ODhjODFlM2E0OWExYmFlODFhMzE5N2U4MWUxZTgzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODFkMGJiNTY3MjNhY2E3ZGY1Yjc1ZGNmYWVmZjAwYmYxYTE1NzVmNTA4ZjFmNGQ1YjgwOGQyNjQ5ZmU2MzYyNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGM0YjVlMjFkMjJhZjAxOWMwYjVhMzgxNjg3NGI3NzgyZGVhZWVkNTY3N2U0YmUxZWE5NGU0NGI2M2FhOTJjOSJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/components.json#L1-L19",
+          "version": "repo-lines-v1:sha256:3d1d2dc7832e5f3a8c32c00dd4a69e00185ad9dbdad0c77bbabfc9d2f88d2545:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3OGJlZjUwZDliNjAxZjBkNGM0NzRlY2E2NjQ3YzBjNjYxNmU0ZmJiZjhiYWI0M2I5OTA0NzA2M2Q4ZTI1MzUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0890d16beff840acb44b836555a70d7e",
+      "statement": "The package has no state layer and no service layer: no state library is installed (no zustand, React Query, Redux or custom store), no file under apps/mobile calls `fetch`, and there is no API client, base-URL or environment read and no Supabase client reference anywhere in the package - the app never contacts apps/server, and the only app-wide state is Uniwind's theme.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app/_layout.tsx#L1-L8",
+          "version": "repo-lines-v1:sha256:c9b1071e55c21f140913559ea844d4fe4842b22a1b3e7d20cc01b0577c596302:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZThmY2RlZDRjNzIzODQ2YTRmMDFlYWI5NjAyZjJjMDg2MzdmNDI3MDJiOWNlY2QzNmFiZmU1NjcwODZhMTQyOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjRlNzIzZWNlMTE0YjVmZTY1OGY1YzY0NTgzZGRmODAyMmQwYmIyZjM5MzY1Nzg1MjJiZDU4N2ExYThkMDFiMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2Q0Y2U0ZWM4YzcwZDE3MTdhNjJiMGYwNzNmMDRmY2Y2YjhjYjdiNTBiMjZjM2U0ZmNjOWYyOWUxMDYzMjA4MCJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/app/index.tsx#L1-L8",
+          "version": "repo-lines-v1:sha256:5d0daf387cda8c125736991f838e56b12a1c2a06f18898fa966b3fc28343792c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjVmZjdiNjllMDY2ZjJiNDM5M2E3YzIzMjA3MDY3NGUzMGUzNDY0MGU4MjlmNDNlZDQ5ZjU3M2FhMWI1NDYzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGVhNWUzMWZmZTFjZDQ4Nzg5NGE1ZWU1Mzc5MWE5Njc4NmZjYzQ5ZDY0MTFmMzE2YzRiMWM0Y2Q0MTE4ODJmNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDA1YWVkOGJiNmRiYTc4ZDRiZTFlYjE4MDg5YTQ2YTI2YTZmOTZjYmEyZWM4ZjJiMzk4YjYxOTY2ZDYyZDg5NCJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L14-L66",
+          "version": "repo-lines-v1:sha256:1fef99b88a2da40e9b8594f1eb03c9e7b5de9ea84c949f564b7b65b1ce6b2820:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYTEwZTBlZWRjNWNlNjk1NmFjNzU3MzZjNzQ5YTAyNzY3ZGZkYTJlNzk0NDliZDg1YWViMTA2ZmUzYTdjMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzJkZDA3OGVmZjQ4YTY5ZGQwNzAwMjRjZDk0M2JkZDAzOGI1MWI1ZmUwNGE1YjMxZWMwMmIwYWI3MWI1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1YTQzNGJiYTdlZWNmN2U4MTQyODM3M2U0ZmZlOWI0MmFkOGNmNjZiZWZiZWIzZjJkMGVlMjZkZTgzMTZhZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b2c4d33d89794e559a546fa420afc646",
+      "statement": "No map, camera, sensor or offline-storage capability exists: `@rnmapbox/maps`, `expo-camera`, `expo-sensors` and `expo-sqlite` are not dependencies, app.json declares no camera/location/sensor permissions or expo.extra keys (its plugin list is only expo-router, expo-splash-screen and expo-status-bar), and nine other declared dependencies (react-native-reanimated, react-native-gesture-handler, expo-haptics, expo-updates, expo-linking, expo-constants, expo-system-ui, react-native-keyboard-controller, react-native-svg) are imported by no file under apps/mobile.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/app.json#L25-L39",
+          "version": "repo-lines-v1:sha256:0c38b98d557c0d10ab81f6e0cfc39ac2ed3323f55daba9a65434989fb3dca8c6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYzVjMjU4YjY0YjYxZjJkODEwZmY3NzJjNDliYWEwNzhmYjUxNGNmNmZkODMxZDgxZTQ2ZmMxOGIwNzhlYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjMGIzZmQ3YTA5NmY1NWZhYTU3NjFkMzFmMjQ1YjYzZTY5YWUwOGZmNDYxNjcxZDdmOWNlYjY3OTJjYTFhYjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/app/index.tsx#L1-L8",
+          "version": "repo-lines-v1:sha256:5d0daf387cda8c125736991f838e56b12a1c2a06f18898fa966b3fc28343792c:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjVmZjdiNjllMDY2ZjJiNDM5M2E3YzIzMjA3MDY3NGUzMGUzNDY0MGU4MjlmNDNlZDQ5ZjU3M2FhMWI1NDYzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGVhNWUzMWZmZTFjZDQ4Nzg5NGE1ZWU1Mzc5MWE5Njc4NmZjYzQ5ZDY0MTFmMzE2YzRiMWM0Y2Q0MTE4ODJmNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDA1YWVkOGJiNmRiYTc4ZDRiZTFlYjE4MDg5YTQ2YTI2YTZmOTZjYmEyZWM4ZjJiMzk4YjYxOTY2ZDYyZDg5NCJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/components/ui/icon.tsx#L1-L5",
+          "version": "repo-lines-v1:sha256:60e225399182f99df3ac5cfb306874d4d796afa2db31e3bd4b9660c081e9f9ba:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWFmNjA3NzI5YjM4ZTEwYjYzNWUxODFlY2JhYzEyYTYxMDUxM2I2MWU1MTk1YWJjOTgwNmJjMjg2ZGQ3M2E1ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTM3MTJkMTExMDYwNDc4YzgyNmFiM2ViYTRkMDNlZTRjZGU5YzZmOTU2Njg0YmU5OTQyOGM0MzdkYzlmZTI3YSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWM2YjM2NDUwNGI3MGVlODg4MWM4ZDdlYjZkMTc1ZTBlNjU2MzJhZjVmMzJkM2FlNmNlM2QxYmZmN2E5ODcwNyJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L14-L66",
+          "version": "repo-lines-v1:sha256:1fef99b88a2da40e9b8594f1eb03c9e7b5de9ea84c949f564b7b65b1ce6b2820:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYTEwZTBlZWRjNWNlNjk1NmFjNzU3MzZjNzQ5YTAyNzY3ZGZkYTJlNzk0NDliZDg1YWViMTA2ZmUzYTdjMWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzJkZDA3OGVmZjQ4YTY5ZGQwNzAwMjRjZDk0M2JkZDAzOGI1MWI1ZmUwNGE1YjMxZWMwMmIwYWI3MWI1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1YTQzNGJiYTdlZWNmN2U4MTQyODM3M2U0ZmZlOWI0MmFkOGNmNjZiZWZiZWIzZjJkMGVlMjZkZTgzMTZhZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a94f2ca4ccd34cb88af42c60012ec5d7",
+      "statement": "The commuter-feature gap is tracked planned work rather than a defect: docs/DEVIATIONS.md section 2 (D10) lists AR wayfinding, `@rnmapbox/maps`, an `expo-sqlite` offline trace cache and MHD trust scoring as Planned / not implemented, states that apps/mobile is a template with only an unused react-native-reanimated, and notes that no server trust/GPS-trace endpoint exists either; ADR-0006 sets the commuter app's identity model (anonymous by default with optional sign-in), for which no auth code exists here - docs/SECURITY.md records that as its commuter-identity/M1 gap.",
+      "evidence": [
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L19-L19",
+          "version": "repo-lines-v1:sha256:9fa8dc09f4660b7c0235b2ab0c4d3aeeaa8866558a4011c2067d196a1639066d:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWZhOGRjMDlmNDY2MGI3YzAyMzViMmFiMGM0ZDNhZWVhYTg4NjY1NThhNDAxMWMyMDY3ZDE5NmExNjM5MDY2ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWZhOGRjMDlmNDY2MGI3YzAyMzViMmFiMGM0ZDNhZWVhYTg4NjY1NThhNDAxMWMyMDY3ZDE5NmExNjM5MDY2ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2ZmNGZjOGMxNTU3ZDQyNDgxMTQwNDY3ZjM3OGNjZTcyM2Q0NTAxMmNmMDQ0OTA4NjJlZGI2NTY5YmJlODIzNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzc0M2E0NDg1MjZjNWU5NGQ5YjIwZGM0ODk1ZWNjMThiNWQyZjU1NmNhMzdkOTgxZTcwNWIyMDMxNDI4OThlNiJ9"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L44-L47",
+          "version": "repo-lines-v1:sha256:10a433b23b933492a6b53e0754955e89d19e395faf1dee2bb5b960672a07df08:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjkzOWViN2U4NzlkZmVhNjRjOWEwMTY5Y2FjMzdjM2E1MGMxMDcwZmY5MzZmZTBhNjkwYTA0ODFiMzBhNjUyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZmZTczMWMzNDc4ZWM3NzUzMzZjZWRlNjVkOTRmYTgwZTFiZjJmZWZlOTJkYWZkNDk0MjFiODU5YTg5NGQ0MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzRhMjRlYjljODBhY2JjMjA2NmFhMGVmYjIzOWUyOWRhZmJkMWY0YzBkZTA3MGQ4MGIyYTkzZGFjMDUxNWNmMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        },
+        {
+          "resource": "repo://docs/SECURITY.md#L41-L41",
+          "version": "repo-lines-v1:sha256:c8776397e0f69414bba2520c6d34c8c4d5e6f32c134978a5042e05f61e296a5c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzg3NzYzOTdlMGY2OTQxNGJiYTI1MjBjNmQzNGM4YzRkNWU2ZjMyYzEzNDk3OGE1MDQyZTA1ZjYxZTI5NmE1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzg3NzYzOTdlMGY2OTQxNGJiYTI1MjBjNmQzNGM4YzRkNWU2ZjMyYzEzNDk3OGE1MDQyZTA1ZjYxZTI5NmE1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzI5NGM5ZTI5NWZhNTY0OGI5NWUxMzRkNmY3NGQ2ZWIwYmNkMWJiZTVhYjQzMzI4YjYwNWFlYTk3MjMyM2Q4ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjgwNjY2NzY2NzIwZTIwNTQwOGM0OWZkMjZiN2FhMGQyOGNlODNlNmE3Mjk1OGI0OTQwYTQ0OTEzZjczNWMwYiJ9"
+        },
+        {
+          "resource": "repo://docs/SECURITY.md#L92-L92",
+          "version": "repo-lines-v1:sha256:60ab69829e5c1838adc9f8d6061148b9ef0bbc94c7be72ef6491802ad01d3918:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjBhYjY5ODI5ZTVjMTgzOGFkYzlmOGQ2MDYxMTQ4YjllZjBiYmM5NGM3YmU3MmVmNjQ5MTgwMmFkMDFkMzkxOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjBhYjY5ODI5ZTVjMTgzOGFkYzlmOGQ2MDYxMTQ4YjllZjBiYmM5NGM3YmU3MmVmNjQ5MTgwMmFkMDFkMzkxOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDMxZDRjNWEyMzUzNmEzNDViOTAwNmRhNmU5ZmZkZWI4ZTUxZWIxODU5ZWFjNjEwNTQ1Mjc4NWNkMThmYmY1MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0006-supabase-auth.md#L3-L3",
+          "version": "repo-lines-v1:sha256:fe25bc5acdb085ff09bddca344b28213792bdcfbea36a3b66675e94e64370290:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmUyNWJjNWFjZGIwODVmZjA5YmRkY2EzNDRiMjgyMTM3OTJiZGNmYmVhMzZhM2I2NjY3NWU5NGU2NDM3MDI5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmUyNWJjNWFjZGIwODVmZjA5YmRkY2EzNDRiMjgyMTM3OTJiZGNmYmVhMzZhM2I2NjY3NWU5NGU2NDM3MDI5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzY0ZDJiMzMyYjkxODEzODM5YjhkYTAyYjM3Y2JhYzMyNDU0NGMyNjMwNzMyMDEwYTIwOWI3N2M1MmYxNzZjMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWQwNjE0ZmY4MDc3M2JhNDMxMGQwNzRhMmU0Njg3NWE5M2EzNzc2MTcyNGMxMDQxYTYyZmIyYWExYjY0YWJkOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_93773a88bdc24f8b883a18cb34700094",
+      "statement": "apps/mobile is compiled by the repository-wide gates: the root `typecheck` script runs `pnpm --filter mobile typecheck` (tsc --noEmit) and the single root ESLint flat config scopes eslint-config-expo/flat.js to apps/mobile source globs with a TypeScript import resolver pointing at apps/mobile/tsconfig.json; CI runs format:check, lint, typecheck, the admin suite and build. Both gates currently report no errors for the mobile package.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L23-L39",
+          "version": "repo-lines-v1:sha256:90b6b5fe91868807a41829985395d906bd8b5873a6626e49cb5e015c2deab200:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhMjE2MTIwNTY3MjZjYjc3MGQ1ZDA4Y2ZiNDdmMDgwNjYyY2MyYTk3ZDIzYzQ3ODkzNDc1ZTQxMmFhNGE0YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMmQ0NDlhNDJkNDY2NWQ4NWIzZTMzZjBiZmRkN2FmMjBkNmJkMDIxMzE3MzA0MWUxMGE4ZmJlZjIzMTJkNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjNDQzZGZkMTliZGM2YWUxYzI2ZWY1NDRjMDYzMzQ4ZjZhOWVmOTI2NDg3YTg2MTUwYzc4M2VjYjVhNDE1NGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L14-L33",
+          "version": "repo-lines-v1:sha256:f8cea206450643e5ce2858748b86cc9319583248fdc1be55a8b203237d7fb3cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhNjIxZDAxMzVmYzQzYmFmMDZkZTNkYTA3ZTVmNjkwYjE4NjBkNGEwYzgxYzc1M2MxOTMwZWEyOTdkYzEwZTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhZTVkNzllYjE0MGMwNmFmZjBjZGFjMGFjNDY1ZjVkNTlhZDliNzE5ZDllNDEyYzlhNGM4MTYxZTE2MGY1OGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0NTY3MzZmZTE4ZjY1ODNkMWJlMGUwNTdhN2UwNDY2NGJlOWY5MDBjZWYxNzY2YjY4NTVhNmUwODg1NTUwNDIifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L81-L91",
+          "version": "repo-lines-v1:sha256:aeae1e64d5945101adba00f922bfd42eace4cebcf4526d1152947f010a0bbc64:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkMGQ2MDEwMjI3ZjM2MjMzMWM0MzYwZmE3YmQ4YWNjYjNlMzQ4ZDdiNTk5YjMyMTJiMDIwOGRmN2Q1NmNlYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1ZDYyMGQ1MjVkNmNjMWI5NzVhODY4YzA4OGNjMDZjNDU3OWZjYjIyYjNmMDZiZDIwNTQwYmFlOWQ2OTk0M2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkNDQ4OGQ3NzNkOGFjMjk1MWI1YmM2ZTc5MmUzYjZjMjU5YzMxZDU4MjlmZTlmNmIwM2NmODM1MGQzOTU0NTkifQ"
+        },
+        {
+          "resource": "repo://package.json#L7-L7",
+          "version": "repo-lines-v1:sha256:e3bb9b0b7fba6ae6f3c4b98880a31b247dd8a1fe81dfaad332710f51190e2be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0NGIyY2IxMTk3MjNmNWYyNTRhZmU2MmE4NGJjMzQ0MWVlZGY2M2Y5MDVhODM0OTQ1NGFiMTAzZmI1OWU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_eb99f9f113f144fca77079212cb0ed92",
+      "statement": "The mobile package declares no `test` and no `build` script (only dev/android/ios/web/clean/lint/typecheck), which is why `turbo run test` and `turbo run build` skip it: root lint plus root typecheck are the entire automated verification of this app, and there are no mobile tests.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/package.json#L5-L13",
+          "version": "repo-lines-v1:sha256:09122b94fc1311935c8a5996a01befa26dfdb06e39f1e9420895aea03d045052:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQxNmZlMzA0YThhZGNhMzBlYzc2NmYzN2Q4ZDlhZWQxOTM3ZjM0YTBlMzFiYjU3YmFhYTYwYWI1ODJmYTVhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU0ZDBmNDc5ZDBjZjAyOWQwY2E5MWUwM2Q3NmRiOTVmZDcwYmE2NjJiNGI1MjEzNWZmZGQzMzE5NTgxNDJlOSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L3-L17",
+          "version": "repo-lines-v1:sha256:8b031d32123985d7d36611e16b044f130197469326738152578da245af9938f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2ZTIzYjQ5ZWQ3ODBkMzgwMzk3YWVhNzllM2NkZTgwZmU5NGM4YzU3YmZmODc1MjJjODMxNjM4MDhmN2M3OTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1YTg5NTdkMTljNTY5YzU0MmJjZjI2MDEzYWEyMTA5ODVjYTM3N2Y3ZTAzOTIwNzIwZmJkZjMxYWI1YmRlZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_928ee95e5034437483a6dc760e4ba107",
+      "statement": "Running the app is Expo-driven: `pnpm dev` is `expo start -c` with android/ios/web variants, app.json bundles web through Metro with `output: \"static\"`, enables the `typedRoutes` experiment (so route types are regenerated into .expo/types and Link hrefs are type-checked), and the README states the project runs in Expo Go for device testing.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/README.md#L11-L31",
+          "version": "repo-lines-v1:sha256:dc8f605d7b151df6a6c4cb401a832d250bc10ccabf8356011cfb38631ae06e86:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNjk1YWIxMGFlOWFiZGU2MGRkYjZjZGMxYThlNDI1YWQ3NDRjYjYyMDMyZDY4N2M5MjQ0OTIxNmFhZjlkNzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzYjVjNTIyZjdmMjkxMTczZDA3MjU2MmJhNjEzNGQ5YThjN2NmOTUwMDhmOWFiZDUzZmRiOGMwODNmOGUyZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRkYjMxZWUxZjRlOGE2Yjc2ZDcxYjE1YmYwNzhiMzQxOThkY2MxNTNjYjI2ZThkMjY2MDVjMzFiMTE5ZTMwMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1NTg3ZGQwYmQzOTdjYWI1OTUxZTFhYzIzNjQ3ZjRkOTEzNzZlYmQ4Yzc2Yjg3YjZlYTBkZTRlOGZhOTAwMGQifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/app.json#L20-L39",
+          "version": "repo-lines-v1:sha256:92fdd00fb161e2df0190ff2aa3d10de2c4856f89699cdbe7ba80d56fb57931f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5ZDE0ODc4ZTI0YjkxNjZjYjI0YjgzNWRmMzEzNmIwZTQ0ODEyZWJmMGZmYTg4ZjI2M2EzN2FhNjYzNDEyOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyM2U5Mjk4ZjVjZjBhNmNhZWVmYjM4NGQ1NjRkYTUzYmY4OWFkYTY1Y2M4N2Y1NTY5ZjJlM2U0YWNiMjgxODQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L5-L13",
+          "version": "repo-lines-v1:sha256:09122b94fc1311935c8a5996a01befa26dfdb06e39f1e9420895aea03d045052:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQxNmZlMzA0YThhZGNhMzBlYzc2NmYzN2Q4ZDlhZWQxOTM3ZjM0YTBlMzFiYjU3YmFhYTYwYWI1ODJmYTVhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU0ZDBmNDc5ZDBjZjAyOWQwY2E5MWUwM2Q3NmRiOTVmZDcwYmE2NjJiNGI1MjEzNWZmZGQzMzE5NTgxNDJlOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_03681b7fe0e24d99bc58682942408d35",
+      "statement": "apps/mobile/.npmrc sets `node-linker=hoisted` and `enable-pre-post-scripts=true`, differing from the root .npmrc, which sets only `auto-install-peers`: dependency linking for the mobile package is flat while the rest of the pnpm workspace keeps the default linker.",
+      "evidence": [
+        {
+          "resource": "repo://.npmrc#L1-L1",
+          "version": "repo-lines-v1:sha256:b0b7209a6d51e77a192aa6b93ccb3eb48ef285118fcbc59eed35b0ca38581192:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBiNzIwOWE2ZDUxZTc3YTE5MmFhNmI5M2NjYjNlYjQ4ZWYyODUxMThmY2JjNTllZWQzNWIwY2EzODU4MTE5MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBiNzIwOWE2ZDUxZTc3YTE5MmFhNmI5M2NjYjNlYjQ4ZWYyODUxMThmY2JjNTllZWQzNWIwY2EzODU4MTE5MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/.npmrc#L1-L2",
+          "version": "repo-lines-v1:sha256:a4b404ee7ae2fcc2168f9335fbc700643168143408c76992e47f9728a984ba6f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTI4YzlkODZhODk4MTA0OWQyMDNhZDE2NGNmZjFlNzUzZWQ2MWRjMDQ2MGVlODc2NTMxNmNiYjNkMDAwN2QwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTE2ZTQ2YTA1MjIzMjg3YTEwMGRmMmQ0MTIwYmFmN2MyNzI4NDZiYWUzYWI3ODJhYzgyNWQ0YWUwN2I2NDU0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

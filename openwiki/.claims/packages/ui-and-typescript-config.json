@@ -1,0 +1,332 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:8590af71aeac0477d6e5f9571d503fbb37ebb4ac4a643b0d8c9811dba10bdcaf",
+  "claims": [
+    {
+      "id": "claim_65b49eb7169f4c07830c525338fa3bdb",
+      "statement": "`@repo/typescript-config` (packages/typescript-config) publishes exactly three tsconfig presets: `base.json`, which is the root preset and sets `strict: true`, `module: \"ESNext\"`, `moduleResolution: \"Bundler\"`, `isolatedModules: true`, `declaration` + `declarationMap`, `skipLibCheck: true`, `esModuleInterop`, `composite: false` and explicitly `noUnusedLocals: false` / `noUnusedParameters: false` (no `target`, `lib`, `jsx` or `noEmit`); `vite.json`, which extends base and adds `target: \"ESNext\"`, `lib: [\"ESNext\", \"DOM\"]`, `noEmit: true`, flips `noUnusedLocals`/`noUnusedParameters` to `true` and adds `noImplicitReturns: true`; and `react-library.json`, which extends base and adds only `jsx: \"react-jsx\"`.",
+      "evidence": [
+        {
+          "resource": "repo://packages/typescript-config/base.json",
+          "version": "repo-file-v1:sha256:c8db54ca0e4ab8f1171b75e56b1b10960dacc7067078ca022104ca3525269d5d"
+        },
+        {
+          "resource": "repo://packages/typescript-config/react-library.json",
+          "version": "repo-file-v1:sha256:583d7792ec2991008fbaec247c4126f51a07c5d5c8f16450ca4877256fcbfa63"
+        },
+        {
+          "resource": "repo://packages/typescript-config/vite.json",
+          "version": "repo-file-v1:sha256:d9765f6fb5fa9e6cfa0c383b3f54bd8e18992dddd083e44d5acfc3427f5b3726"
+        }
+      ]
+    },
+    {
+      "id": "claim_6045ade69e8e4af5a41270190e2870ba",
+      "statement": "Preset consumption is fixed and one-per-project: `apps/admin/tsconfig.json` extends `@repo/typescript-config/vite.json`, `apps/server/tsconfig.json` and `packages/shared/tsconfig.json` extend `base.json`, `packages/ui/tsconfig.json` extends `react-library.json`, and `apps/mobile/tsconfig.json` is the only project that opts out of the shared presets by extending `expo/tsconfig.base` with its own `strict: true` and `@/*` path alias.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/tsconfig.json#L1-L10",
+          "version": "repo-lines-v1:sha256:4816fb860453475bba8f16132e223d3f2ffc1cccaf4fabc6684124789915a539:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/tsconfig.json#L1-L10",
+          "version": "repo-lines-v1:sha256:33fbec05014adb7efa753ebc06c71b741c1cb91639d3fecb1f1c0ce081584282:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tsconfig.json#L1-L8",
+          "version": "repo-lines-v1:sha256:3c9e7dc72531b259d13a6bd3aff3faa5947d94b4749f8bede48c8dbd8bba1954:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/tsconfig.json#L1-L4",
+          "version": "repo-lines-v1:sha256:b6024defbbb40272b6d412a6da9093f5099e6a636eb9fd636e7476a803df0d6a:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://packages/ui/tsconfig.json#L1-L8",
+          "version": "repo-lines-v1:sha256:614cb0bdea9f07aaa1234c567a31bbb82ea06d403daf45cfeece7c0a351cab05:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ba6b9fb2e2854d2b99720f3815c9f3c6",
+      "statement": "`@repo/typescript-config` is a private, script-less JSON-only package (`\"private\": true`, `version 0.0.0`, no `dependencies`, no scripts) that consumers pull in as `workspace:*` / `workspace:^` devDependencies and reference by package specifier in `extends`; it is never built and never published, so it is consumed purely through `extends`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L35-L46",
+          "version": "repo-lines-v1:sha256:be90e9fde9035ed1b111e43fdc272f46b803865520bd54c6c0e5ec0c3d2087ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYzRkZTdlZDM1YTIzMzY0NTM5ODY0ZGFkYjkzOGI4NzIzMzM3OTE3OWQ2MjkyYjlmZjVmNjE5YTZjMTMxNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjMWM3YTljZmQ4ODAwNmVjNzRkNWU4NDU4Njc3MjBmMTM4ZGMwYzE0ZmVhYTcxNmU5M2VkZmMzYTk0MjdmNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/package.json#L22-L32",
+          "version": "repo-lines-v1:sha256:10f18cdbeb45127eab8d42ac32d2cc48f56c71b56ec4386f5a5de02ed3613fde:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYzRkZTdlZDM1YTIzMzY0NTM5ODY0ZGFkYjkzOGI4NzIzMzM3OTE3OWQ2MjkyYjlmZjVmNjE5YTZjMTMxNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ODY0NTFhOGFmMTRhMGNjZjYxYmM1YTAzYzI0ZTQ2YTNhZWIwY2MzNzQ5YjMxNTkwMmMwMmUxOGRmNzcyMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://packages/shared/package.json#L14-L17",
+          "version": "repo-lines-v1:sha256:4ece10363f0899dc8626887e323fac5aad0ffd12c7678610defa2c264a297502:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRjNGRlN2VkMzVhMjMzNjQ1Mzk4NjRkYWRiOTM4Yjg3MjMzMzc5MTc5ZDYyOTJiOWZmNWY2MTlhNmMxMzE2NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGY5MGQ4NWNhZmQwNzA2OTI3YmEyNDA4ZWE5MDM0YjdiY2M0ZWI0MDljNjFkNjk3Y2JlOTZiNmM2MTA5ODM0NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        },
+        {
+          "resource": "repo://packages/typescript-config/package.json",
+          "version": "repo-file-v1:sha256:1b052630b59910c9273f185b3dff166efd6c7f00cca006f34d93e358912eaf4b"
+        },
+        {
+          "resource": "repo://packages/ui/package.json#L15-L20",
+          "version": "repo-lines-v1:sha256:9b864318dfa655a7a6e72adbeeb81aa79944c15d9b010cfa822e286a22e56931:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWRjNGRlN2VkMzVhMjMzNjQ1Mzk4NjRkYWRiOTM4Yjg3MjMzMzc5MTc5ZDYyOTJiOWZmNWY2MTlhNmMxMzE2NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGM0Yjc1ZWRhMzkyMTFhM2RkNDU1MWU4ZmJiYzNmMWM2YjQ2Y2I4ZmUwMDc3NDAxZWY5YTZjOTkyOTFkMjgyMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d75db10ac1e0436292e57faf15dc7d0d",
+      "statement": "Extending the shared TypeScript presets is an enforced project rule rather than a convention of convenience: `AGENTS.md`, the repository constitution's \"Shared, Never Reimplemented\" principle and its Engineering Workflow section, and `docs/ADMIN.md` all require strict TypeScript to come from `@repo/typescript-config` and forbid redefining tsconfigs from scratch, which makes `strict: true` single-owner.",
+      "evidence": [
+        {
+          "resource": "repo://.specify/memory/constitution.md#L131-L134",
+          "version": "repo-lines-v1:sha256:88f1e8cecfa8d451e66ed64ebbef5085035883cd90fe5580792009166d9ff860:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYThkODQ0ODM4ZDJhMGE3MDMxYmMxOWM5Y2YzOGFhZWZkMGYyNDEyODlmZWI5ZGMyOTg2MGQ0YTMwYmQ0OGVkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDFhZmU2MmE4YzA3YjU2ODFmYTM5MGJjMjM2ODc1MjgxNTE2ODI1ZDFlZGE1NWQ0MzExNmZlZTJmMWQzZDNhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTE5ZTQ0YWM0NjZlYzk2ZTM3MzI1ZDZlYWM1NjUwOTMwYzFjZDU3YTQ4ZDU4ZmQ4NWNmYTYzYjIwYWVmZmVlMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiM2YxMDE1ZTc5OTYxOGE2NTdiNDk1OWUyNDAwYTQ3ZGI4YWJkNWMzNjRjMTEwNGEyZTRjM2UxMDU2YWZlYWYyZCJ9"
+        },
+        {
+          "resource": "repo://.specify/memory/constitution.md#L67-L75",
+          "version": "repo-lines-v1:sha256:b25ae86ef115509fd7f6268ac87cf659e2060b273f241fc114049bbb17c503ae:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2NlZTRmOWM5NjU3ZmNmN2QyZjliZDM3NmQyZDY5MzMzYjU3ZmNlYTU3MzVlNTcwNTZlZGUyZjk3NGJkYzQxNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzA2NDQ4ZjQ4MmQ1ZjdhMWUzMTlmNDI1OGFmZjA5OTE5NWIyMTExOWRjZjM1NzYzZGRlMGQzYjY2MDlmZGUzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzJmMjE5NzlkZTlhNjgzMDkwMjdhNTk3MDY1ZmRkNDk1MzgzOGFmMzMxOGM5ZjRlNjViZTA2NzA1NmZiMGIzYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjBiOTJmZTRmZWI2ZDAwMzcxNTllMDM4MzRkZWNmOTBmN2RiOGRkNjU5ZTBkMGM3OWU0NTE0MzNkNGRkNTg5ZCJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L32-L32",
+          "version": "repo-lines-v1:sha256:53ea98d35868e6c2a20d305efeeb5fcf2ab8f0dd66518e6d1d8aca24a4c44277:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTNlYTk4ZDM1ODY4ZTZjMmEyMGQzMDVlZmVlYjVmY2YyYWI4ZjBkZDY2NTE4ZTZkMWQ4YWNhMjRhNGM0NDI3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTNlYTk4ZDM1ODY4ZTZjMmEyMGQzMDVlZmVlYjVmY2YyYWI4ZjBkZDY2NTE4ZTZkMWQ4YWNhMjRhNGM0NDI3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWE3NjIxMzYyMTllYTBlYzRiZWUxM2Q4ZGJjNzQ4Y2IwYzU5NTc1MGJiNjVjODI0NWU0MTM4OGQzODVmOWZjNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWIwMzNjMzFlMTIyOTVhNjMyYjgzZTFlNzE1NzEzMDE3ODRlYmU5ZTAxOTBlNjdmYzc0YzU3ZTIzM2EyMGJlMyJ9"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L50-L50",
+          "version": "repo-lines-v1:sha256:e511c8310bdbb2752bfcd95d73b02304a5e8055488851fb6b5dcbec74ed2458b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTUxMWM4MzEwYmRiYjI3NTJiZmNkOTVkNzNiMDIzMDRhNWU4MDU1NDg4ODUxZmI2YjVkY2JlYzc0ZWQyNDU4YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTUxMWM4MzEwYmRiYjI3NTJiZmNkOTVkNzNiMDIzMDRhNWU4MDU1NDg4ODUxZmI2YjVkY2JlYzc0ZWQyNDU4YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTkzZGU3ZWRmODNmNzUxNmM3ZTY0Mzg1OTFlOTJhNDkxY2UzNmNhNjlkZjVjN2U3ZDM3YzYyZWY5ZTM1NjQyYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWYwNTg5YzE3NWU0N2FjMGZiZDVjYWM2MmZmOGJkNmI4M2UzZmEzM2FhNWY2NjQ5MjMzNDk0NzJiM2U3Y2ExZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2c224061556c4d8989a19d8ed360e8c2",
+      "statement": "The `module: \"ESNext\"` plus `moduleResolution: \"Bundler\"` pair inherited from `base.json` is what permits the extensionless relative imports used throughout the preset-consuming projects (`\".../api/app\"` in the server entrypoint, `\"./types/geometry\"` in the shared barrel, `\"./components\"` in the UI barrel), which `NodeNext` resolution would reject; changing `module`/`moduleResolution` in `base.json` would therefore affect `apps/server`, `packages/shared` and `packages/ui` at the same time.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/index.ts#L1-L4",
+          "version": "repo-lines-v1:sha256:edb4ab6eb41bd6966b21633d284a60d196d6bae12f48cf6e72e31b3f6e79e8dd:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjE0OTY4N2NmNzQ1ZjQ5MTkwODY3MWUzYWFjNjg0NmFjOTJkOTFiNTFkYmZiZjQ2ZTY3NGJhMDU2ODYwNTY2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg4MjlkMDRiZDkwOWMzY2U5ZWM4NDkwNzA5MDE1OWU2YTZlMTNiYmUwYWZmMWVmZjQ2NjMzZDA3ZTc5ZTQ2YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGFkYTQ3YjYwNTZjMjgzMzRlOWY4MmNhMDJlOGFjN2IxZDg0MzNlZmI4YjA5NGMwMTU4MWU0NTJmMDBjMWEyOCJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L10",
+          "version": "repo-lines-v1:sha256:e30b6d52094e974646e00fc63fae68e3773b371e74e363dff25f412f2bd9a619:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlNmFmM2VkOGZkYjg3NTIxYjFmNTE5ODAyZWE3ZGM5ZWE1ZmMzODg5ODk1ZmRkNzVjYjUyMjMyYmZkZmE4YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkifQ"
+        },
+        {
+          "resource": "repo://packages/typescript-config/base.json#L11-L12",
+          "version": "repo-lines-v1:sha256:d71d747c0066166abfc772612647ef1d5ff0c539a9249f26fc0853a28bc68717:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGE3NWRkMjJjNjFiZDVlNzNjMWZmOWRhNDg1MWRkZTdkN2VlYmJiZDVmOTE2Yjg1NjkwODE3MzZhMzA0ZDdkMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjVkMjk1ZDQ4YmFhOTUwMGEwYWE1NmU0YTBkYjk1OTE1YjA5NzMyMDhhYWZlMTNmYTRiNDI4MGFiYTEzYTllOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWQwMGIwOGFiOWZiMjAwYzU0Y2QyNDg0YmI4NDhlOGRmZDQzNWM1OWJiMmVhZTQzZmM1MDYzZmIwY2E3MThhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjdiMWVlNzMzZDEyMzU1ZTJiMjljZDRmYWY3NTMxNzcxZWZmNzZjNTE5M2E4Zjk5ZDc2NWEwY2RhMjY5MTQwNSJ9"
+        },
+        {
+          "resource": "repo://packages/ui/index.ts#L1-L2",
+          "version": "repo-lines-v1:sha256:7d613302f587bf47bdbcee734bb1be1b7cd62934bb246cb366e453e879356ec5:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdkNDYxMGY0MmFiMjQ0YmY5MzQxMmY1ODdhZTdjNmY3Y2ZlODA2YWE4ZDczZGZiNmQ3NmJjMTk5NDdmOGZlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGNkNmYxMGI2MDgzMDk3NjBhYmMyNGZhOGQ4NmJjYzhiZDllN2QwMDM1NmVhZmE2MWVlOWFhZDMxZTA0OTcxOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ee1576f197454b3793c178889f9e422a",
+      "statement": "`vite.json`'s `noEmit: true` makes the admin's `tsc` build step a pure type-check (the script is `tsc && vite build`, so Vite produces the bundle), whereas the server inherits the opposite posture from `base.json` (`declaration` + `declarationMap`) combined with its own `outDir: \"dist\"`, so its `tsc` build emits JavaScript plus declaration files.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L8-L8",
+          "version": "repo-lines-v1:sha256:2acee42e37b797f29d1204ae3c1b3584e900e9eebfc46a2287c672f75b60a637:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmFjZWU0MmUzN2I3OTdmMjlkMTIwNGFlM2MxYjM1ODRlOTAwZTllZWJmYzQ2YTIyODdjNjcyZjc1YjYwYTYzNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmFjZWU0MmUzN2I3OTdmMjlkMTIwNGFlM2MxYjM1ODRlOTAwZTllZWJmYzQ2YTIyODdjNjcyZjc1YjYwYTYzNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzY4MjlmNDAyYjVmODk3NGVlMzNkYjdhNzQwZWU1NWQxNTVjOTRjZjUwYjI3YjE1Njc3M2Q4MmM4ZmYzNzFlZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTI3MjYxNDU2ZGVjMDNmYTM4NDAyMTEzODgzYWVjZjJmYzI5NmYwZGYzY2ZmZTIyY2VkMWEzODVmNzllODAzMiJ9"
+        },
+        {
+          "resource": "repo://apps/server/tsconfig.json#L1-L8",
+          "version": "repo-lines-v1:sha256:3c9e7dc72531b259d13a6bd3aff3faa5947d94b4749f8bede48c8dbd8bba1954:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://packages/typescript-config/base.json#L5-L6",
+          "version": "repo-lines-v1:sha256:7f4c26adced4bfb9bfa838736867a84716d043ca75f0a258d65918f6e6f55fef:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk4MmRiMGU5NDhjNjUzNGI5N2Q3MjkxNTYzOTdiZTQwZmE4YTZjNjMwMDFhMDRlY2UyYWIyN2VmMmE3YTRlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWQ4Zjc2NmE3NmJiZjcyN2FiOGRiNmM1MGM1NjZjZjk0MGE2YmM0MThhOTNhYWUzNjM2ODY2YjVhOGYzNWRlYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDNiNmMyOWMwMTIxNmY4OTA1MzIzNDRlNzk3ZmFkYWJlNDgzODc0OGE2YzRlNmI5ZmRmMWFhOTA3NmYyZDFiYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWZjZjk2ZWFhNmRiY2JmMjA2NTY2ZmEzM2JmZmQ0OGNhYTU1NmE0NTBhN2JmYTM2YTQ0NGRmYzBhYzcxYmNkYyJ9"
+        },
+        {
+          "resource": "repo://packages/typescript-config/vite.json#L10-L10",
+          "version": "repo-lines-v1:sha256:3cee7d6797ff10d1c9cb292c2c766c64e75927119598c74d505bf0d68ccf2bcd:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2NlZTdkNjc5N2ZmMTBkMWM5Y2IyOTJjMmM3NjZjNjRlNzU5MjcxMTk1OThjNzRkNTA1YmYwZDY4Y2NmMmJjZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2NlZTdkNjc5N2ZmMTBkMWM5Y2IyOTJjMmM3NjZjNjRlNzU5MjcxMTk1OThjNzRkNTA1YmYwZDY4Y2NmMmJjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTQzY2IwN2EzN2U3MDg3YjU5Y2VmMjZlOGQ3OThmOGEwMzFmODcxNjAyYTQ3NWNmM2IxMGE5MTYzMTZhMTMwNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBhZjk4YzQ3YTZlZWNkZjc3NWJiNzY2NGFkYzIwOTUyN2MwZDUzNTJmYjJjNmU0ZTQ3YTU4YmRmY2FjOGM1MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c7dddcef5f8740dea7d7e6ed653e9595",
+      "statement": "`packages/ui` keeps the starter's two-level barrel as its whole public surface — `index.ts` re-exports `./components`, which re-exports `./header` and `./counter` — and that surface is exactly two unstyled React components: `Counter` (`React.FC`, no props, a local `useState(0)` count rendered as `<button id=\"counter\">` and incremented on click) and `Header` (`React.FC<HeaderProps>` where `HeaderProps = { title: string }` is not exported, rendering `<header id=\"header\"><h1>{title}</h1></header>`); neither uses Tailwind classes, design tokens or the `cn` helper.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L5-L9",
+          "version": "repo-lines-v1:sha256:9b0895f2ed2958b2a356a6f654aa41a57cd40f20bc57aceebfe4614e463f19c6:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzkxZDQ1MmMyZjdhMDQyY2ZkZTliOTAzY2U4YWQ5NTQ0MGY0YmIwZDEyYTRjODJmZTg5YjAwMWU4NzY4MWUwMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQzOTVkMjEwNmU4YWZhZWUzZTFiNzM2ZDhmYzkxMjljYjNmMDgxYmJlOGI5MTliZTRjZTk3NzJiMTg3YmIwMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTNiOWVlOGEwZTRjMTM2NTE3MDVmZWNiODc4MGQxNDc1ZWYwYjU1YTBiYzk5NmU2OTg1ZDJkODk4MWVmNTkxNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGQ3ZDJmNGExNzE1MzMwNjRhOGE5MmU3OTg1NmJiYWQ5MGM2NTYwZDM2NDBlNTdhNjQ2MjkxMjM5YjEwNjVkMiJ9"
+        },
+        {
+          "resource": "repo://packages/ui/components/counter.tsx#L1-L11",
+          "version": "repo-lines-v1:sha256:dab6f7daf3d8f2566033ec92fd332be0b68fbd664798c79fcfa3cdbbe0916f8e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg5ZTRiNmUzM2U5YmI2MWQ1NmI2ZmI3MzE0OTFjY2I2NzEyOGEzZmEyMWRhZWMwOWYwMDQyYzMwNDBiZjEyYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/ui/components/header.tsx#L1-L13",
+          "version": "repo-lines-v1:sha256:112313e13ca44d5bbad3df294871f355dc1e7817caf7341a59ec51747d38eea5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkODk3NjY5NGQwODZhZjMxYTIwODE3MWEwZDA0NGE1ZWVkOGJiNGExNjlmNTlmZWMzZmE1MTJmMDUyODA5YjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/ui/components/index.ts",
+          "version": "repo-file-v1:sha256:62f80fee98b557a4b2e8ab0b61f1f9d6ef5e8093bb4fe3efba45603388dc77de"
+        },
+        {
+          "resource": "repo://packages/ui/index.ts",
+          "version": "repo-file-v1:sha256:7d613302f587bf47bdbcee734bb1be1b7cd62934bb246cb366e453e879356ec5"
+        }
+      ]
+    },
+    {
+      "id": "claim_0f2249767be64d3eb6fc6ade43c63a93",
+      "statement": "`packages/ui/package.json` declares four `exports` subpaths but only the root one resolves: `.` maps to `./index.ts`, which exists; `./counter` maps to `./components/counter.ts` and `./header` maps to `./components/header.ts` although the actual source files are `counter.tsx` and `header.tsx`; and `./setup-counter` maps to `./utils/counter.ts`, a path in a `utils/` directory that the package does not contain at all.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L19-L22",
+          "version": "repo-lines-v1:sha256:3efc99bf6d8798159ead4705441f317f40fc652320e926e46622be6ef6c4f595:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWZiNDRkN2ZlZTIyZjYyNzk3NGQ3ZTA2MGVmNjhiMzNhMWRmNTdlNWU4N2I4NTI2Njc2NGNiYmM0YTE0ZWMxZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmViZGQ0MTQwNzc0MWQ2ZjQ4YzhlYWQzMmIwNzg5ODY5NmNkZjE1MDg4ZDRjY2I5ZTdlNjUzNTBhZWVkZGU0NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjU1NTQzZGNiN2M4ZDlkZmJkNzg4MTc1ZDAyNTIyNzc3NWZmYmJkZDgyMGIzNjYxMGU4M2E0YzBlYzRlNTc4NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTA2NDAxZDJmODc0Y2RiNmU4NjRlNzQyZWYyNzJiYzg2YWMwNjU1MGRlZmY5MTRlNmRlNmQwMjZmYmZhYzAxOCJ9"
+        },
+        {
+          "resource": "repo://packages/ui/components/counter.tsx",
+          "version": "repo-file-v1:sha256:dab6f7daf3d8f2566033ec92fd332be0b68fbd664798c79fcfa3cdbbe0916f8e"
+        },
+        {
+          "resource": "repo://packages/ui/components/header.tsx",
+          "version": "repo-file-v1:sha256:112313e13ca44d5bbad3df294871f355dc1e7817caf7341a59ec51747d38eea5"
+        },
+        {
+          "resource": "repo://packages/ui/package.json#L4-L9",
+          "version": "repo-lines-v1:sha256:9a18b968ba5eba814f50910f2c3e1df95f02ea51f79e097ec11632fb08f05eb5:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2MwNWJiOWY0YThiOTg0NTEwZjgxNWE1ZmM0MDc4ZDc3YzVhMjBlOTNmMzM3M2RjNWRkZTRhMzQxZDFiNDBjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTIzYzY3NjA3YjNkNTYyNzQ1YWIxZmZlMWFkMWEzNTFmYTUxZjQ2MGQyMGM5Mzk1N2NkOWQ4MDU0ZDI2YTY5NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjdiNjhhNTkxNTYyYWI5OTg3MGQwZGM1ZGI4YmU4YTc0NDcyMDYwMTQ2ZTI1MTc1MzI3OWJmZGU3YjU3OWM5ZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_38942685db3d44a3bae607489d3dd0f8",
+      "statement": "`packages/ui` declares `react` and `react-dom` `^18.2.0` as regular runtime dependencies while its devDependencies type them with `@types/react` `^19.0.1` and `@types/react-dom` `^19.0.2`, so the declared types are a major version ahead of the declared runtime and React is declared as a regular dependency rather than a peer dependency — meaning a consuming app would install a nested React copy instead of sharing its own.",
+      "evidence": [
+        {
+          "resource": "repo://packages/ui/package.json#L11-L20",
+          "version": "repo-lines-v1:sha256:03e002ab4eb68b4af24f32c8a0104476ee7b7b6139be75f2587c8360595d2e87:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZlNjcxN2IwOTA3NzhhNjQ4MTYxYjZhOGNmZWFkNjdhZDY5ZWNkZjJjNzE4Y2JiMWU4YWJjYWVhMjUzYmJmNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c55eb07b72fa483cb5fe2faaf0d92da8",
+      "statement": "`@repo/ui` is consumed by nothing: no workspace package declares it as a dependency and no source file imports it, while the admin SPA builds its own component layer instead — `apps/admin/src/components/ui/` holds 18 locally generated shadcn-style primitives built on `@base-ui/react` and `apps/admin/src/components/shared/` holds the app-level pieces such as `Plate.tsx`, `NoticePlate.tsx`, `SectionLabel.tsx` and `BrandMark.tsx`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L12-L34",
+          "version": "repo-lines-v1:sha256:8f0e4b36b7d52fa9ada982d4c3473e21a56396aec16daae89a16279cc81ff8b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyNzI2MTQ1NmRlYzAzZmEzODQwMjExMzg4M2FlY2YyZmMyOTZmMGRmM2NmZmUyMmNlZDFhMzg1Zjc5ZTgwMzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1MDZlOWNlYTFmNzg3Njc1OWM0YjM2MDcwOTQ3MGZjNDQ1MjNjZTFkZjBhYWJhZDU1YzAxYWQ3OGVmMGU0ZDYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/shared/Plate.tsx",
+          "version": "repo-file-v1:sha256:09145cde73623a8c68e2255c209411b5d6485593066b69b6ab4ae494f551ccad"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/ui/button.tsx#L1-L6",
+          "version": "repo-lines-v1:sha256:53ce220a41a7caeaae105ba4fc1bdb5e7c56a779644d929aad0aed8007e8adda:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTM0ZjdjZWY4NTM3OWU5NDViNTlmNTM1NTU2N2Y5YjI4Zjk3ZDhiMDMwZjM3N2U4NTY2ODU2MzIxM2IwYjJhNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODEzNDA1OTAyMjI2ZjBlYTVhZWEyN2ZjODM3NmY2OGE2MmU2MWExZTczZjM0MDBmOTY5YTFmODBlYjU5NDM3MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzUwM2E3ODdkZDI4YWY1YTU4NzU5YjM3ZmIzZDI3YjM2YThhMTI2YTE1MmU2MDkzOGRhNmI2Y2U0MDE1MzczNCJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L14-L67",
+          "version": "repo-lines-v1:sha256:5a3fa431be451b9bac40b0193ee8cb6e8f1a678e24ac373755942b0f71419dba:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzJkZDA3OGVmZjQ4YTY5ZGQwNzAwMjRjZDk0M2JkZDAzOGI1MWI1ZmUwNGE1YjMxZWMwMmIwYWI3MWI1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1ZDRkMzEzNmY1MWYwYzE0NzEzZGMxMWMyYmIyY2YzMjNmMjE2NzRhMjBjMmI1M2MxOTFjOGMwNmNjMjUyOWIifQ"
+        },
+        {
+          "resource": "repo://apps/server/package.json#L12-L21",
+          "version": "repo-lines-v1:sha256:3d6325a24eed235bd8c854df9150df8044034f7a2a7d3f2da271c382737276b5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgwY2I0YjgxMGZiMGJmNWViNWJkZGY5OWVkNWM0MjY0NjEyZmExZWZkMzQyNjIyZDY1ZDdjMjQ1MWQ0ZmU1MDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU2ZDAyNTU2ZDUyYWUwNTYzMmNlNDAzNTUzZTJkMzJkMDkwMjQwNjQ0ZTE5MjUzM2NiNTg3MjAxMWU3OTU0MTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3a298b51a24b42bb8b9cdfb056aec599",
+      "statement": "`packages/ui` declares no scripts at all (no `build`, `test`, `lint` or `dev`), ships TypeScript source resolved by the consumer toolchain, and has no test files; its only verification is the root chain — `tsc --noEmit -p packages/ui/tsconfig.json` as the first of five projects in the root `typecheck` script, `eslint .` through the root flat config, and the root prettier glob `**/*.{ts,tsx,md}`.",
+      "evidence": [
+        {
+          "resource": "repo://eslint.config.mjs#L9-L13",
+          "version": "repo-lines-v1:sha256:815f0efc770b8e8fd35b7784b4d8a2c30713a4157b415e3f7e3358eed7346991:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0MjQyZDEyZDAyZDdhMjk1ZjUyZDI4YzFmZTc1MjAzZGE1ZTNlN2E1MjYzN2FmZGM3Y2MzZGQ2NTc3NzI1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzZlYjFhZWNiOWE0MDcwNWYwZmQ5MjM2OTRhMTI4ZTI1MDc0YTg3YjJhYTg2YzA1YzBjMDk5MWNhOWQxNTYzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNmNDdhN2ZmOGU4NmNhMDFmOTgyZmI4NjVmYzhhZTllZDg5ZTNkMGZhOTk2M2Y3M2RkNzgxNDFlMmMwNzg2MyJ9"
+        },
+        {
+          "resource": "repo://package.json#L7-L7",
+          "version": "repo-lines-v1:sha256:e3bb9b0b7fba6ae6f3c4b98880a31b247dd8a1fe81dfaad332710f51190e2be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0NGIyY2IxMTk3MjNmNWYyNTRhZmU2MmE4NGJjMzQ0MWVlZGY2M2Y5MDVhODM0OTQ1NGFiMTAzZmI1OWU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSJ9"
+        },
+        {
+          "resource": "repo://package.json#L9-L10",
+          "version": "repo-lines-v1:sha256:f9921901ce79c6e7293a6a39d67d8e6218c1ee5e0a0c9b9b420d494594dc6c23:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGExZDJmYTU5YmJlMWVkYzA0MGU5MjNmZDQ3M2Y2NjNiZDhjNzgyMDgxOTE2Y2QzZTU1NzA3MTlhZmNkNzcxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGMzNmM4NGRjZWQ4YTFhYjVmNmQ1MWYxNTEyOGY3YWNjOWMzYzEwNmM4YjNlMGZmOGNjMzJmZWNjM2Q5OGM5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFjZWI4OTE3OGJkZGE1MTIwNGI5Yjg4ZTc3OTQ4ZDdkNjFiMWJlYmVmMDkxNmI1Y2I3MjI3ZjQ5NWEwZmRmNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc1YjQxY2EzZDA1NTI0YjQ3YjllYTk3Yzg2ZGNmMDNiZGVlN2ZhN2UzYTZiY2VkYTBkM2NiMzI3N2MwYTVlMiJ9"
+        },
+        {
+          "resource": "repo://packages/ui/package.json",
+          "version": "repo-file-v1:sha256:c0e3891b2d9e06431fb601498bca2afc51668cfcb140ba574c71ba7dea8f19b2"
+        }
+      ]
+    },
+    {
+      "id": "claim_029e51342ca64427a9fbe0596bf3c7ef",
+      "statement": "Lint configuration is owned solely by the root flat config: `eslint.config.mjs` is the only ESLint configuration in the repository, `pnpm lint` runs a bare `eslint .` rather than `turbo run lint`, its `webUiFiles` globs cover `packages/ui/**/*.{ts,tsx}` with `react-hooks/rules-of-hooks` as an error, `react-hooks/exhaustive-deps` and `react-refresh/only-export-components` as warnings, browser globals and `@typescript-eslint/no-non-null-assertion` off, while `serverFiles` gives `apps/server` and `packages/shared` node globals and `eslint-config-expo/flat.js` is re-scoped to `apps/mobile`.",
+      "evidence": [
+        {
+          "resource": "repo://eslint.config.mjs#L52-L80",
+          "version": "repo-lines-v1:sha256:f8fbbe461c686ec25ec2d5481c81dfa7fe1fa1e10e555024a5c4797db3e5ca79:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxMTFmMjM5YWM2NWM5ZmVjZDRmNzk3NWQ0ZWUwYzY3N2I1OGE4ZWE2Nzg1MmVhMjVkMjc5MjM5MjUxOGQyZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyZDllYzJiNDc2M2E2OGI5Mjk2NmM0NDIwMDY5Y2E4OGJhOTkwOTMxYWQyMDI0MzkxZjRjYWU1NGVhNjE4NGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ2ZmQzOTU5ODM0NTg3YmZhM2Q2YmRlM2MwMWQ1MDRmNDZlNDE2NTdlMzE0YWU0NjMwYjA1OGIyMzAyMTU2MTgifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L9-L15",
+          "version": "repo-lines-v1:sha256:aa65094e9af184e86258d8cb6815f35bfa8ba5d5d40504b48130c436adc2a0c5:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0MjQyZDEyZDAyZDdhMjk1ZjUyZDI4YzFmZTc1MjAzZGE1ZTNlN2E1MjYzN2FmZGM3Y2MzZGQ2NTc3NzI1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTU3MWMxZDYzMzQ4NjQzZGNhNTYzMzBkMDMxMmUwM2Y4Yjk2NDhjZTllYWFiNGM3ZTkzYzhiZjUwOGQ1ODlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzZlYjFhZWNiOWE0MDcwNWYwZmQ5MjM2OTRhMTI4ZTI1MDc0YTg3YjJhYTg2YzA1YzBjMDk5MWNhOWQxNTYzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjE4YWQ5MGQ3MzQwMjE5Y2YyYzZjMWYwYTdlNDhjMTFlOTMyOTI4ZmE3MjA4ODY0NDA4MzI1MmQxMmMwYzVlNSJ9"
+        },
+        {
+          "resource": "repo://package.json#L6-L6",
+          "version": "repo-lines-v1:sha256:101d31924443e772aa6841c660942dbb624b21f459a52ae92222eaec96eb4666:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTAxZDMxOTI0NDQzZTc3MmFhNjg0MWM2NjA5NDJkYmI2MjRiMjFmNDU5YTUyYWU5MjIyMmVhZWM5NmViNDY2NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTAxZDMxOTI0NDQzZTc3MmFhNjg0MWM2NjA5NDJkYmI2MjRiMjFmNDU5YTUyYWU5MjIyMmVhZWM5NmViNDY2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTQyZWNkMzNlYmViMmY5N2I4YjNkNzQ5MjFlNWYzZTQ3MjIyZWFiY2JhYzRkNDdiZjA2NzA3NzRlNjdiM2YwYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWU0ZmJiMzc4ODgzNmJjZGNhZjRmYzg5YjU1NWQ2YjNjNTNhOWFjZTMwNTQ5YWZlMTc4OGI4OTJkMDAwZGFhZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_34f9b58566e64db691b6122e6b2e146b",
+      "statement": "`@repo/eslint-config`, all `.eslintrc.*` files and all per-package lint configs were removed in favour of the single root flat config, and `AGENTS.md`, the repository constitution and `docs/ADMIN.md` all state explicitly that they must not be recreated — so covering a new package with lint means adding or widening a scoping block in `eslint.config.mjs`, not adding a config file to the package.",
+      "evidence": [
+        {
+          "resource": "repo://.specify/memory/constitution.md#L69-L75",
+          "version": "repo-lines-v1:sha256:c052cea9eaceb595d384e25532671d841efc8a42c9f67c73b90d9ab4da2d7543:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmZiODhiOThkNzgxNjczZWNhYTIwMjBkZDI5Zjg1Y2U2YTRmYjgxNTEwMWE4ZGMyMWM5YTRiMWNjNGZmZjcyYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzA2NDQ4ZjQ4MmQ1ZjdhMWUzMTlmNDI1OGFmZjA5OTE5NWIyMTExOWRjZjM1NzYzZGRlMGQzYjY2MDlmZGUzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGU0N2IzZjUyNmFjYTU2Zjc2NWI1M2FhYzJiMTk0NGI2OGU4MTRmOTQ5ZWEyMGMyZDFkMTI5N2Y0Y2Y4NzMyNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjBiOTJmZTRmZWI2ZDAwMzcxNTllMDM4MzRkZWNmOTBmN2RiOGRkNjU5ZTBkMGM3OWU0NTE0MzNkNGRkNTg5ZCJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L33-L33",
+          "version": "repo-lines-v1:sha256:99ecce6d0fc12665a915d4287c4be0e69fc57d2eeeb0522888dfa602fcb325e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTllY2NlNmQwZmMxMjY2NWE5MTVkNDI4N2M0YmUwZTY5ZmM1N2QyZWVlYjA1MjI4ODhkZmE2MDJmY2IzMjVlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTllY2NlNmQwZmMxMjY2NWE5MTVkNDI4N2M0YmUwZTY5ZmM1N2QyZWVlYjA1MjI4ODhkZmE2MDJmY2IzMjVlOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTI2NGY0MzA2ZDRkODQxOTVlYTNkYmNmMzI4ODc1NmU1M2RmZGM4OGFhOGY2M2U2NWVmYjkyYTk2NzY0OGNmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDhjZDBiZjIzMzk1ZDY2OWNkMjE3MzNlYmZiZmE5MGU5YzkyYjdhZWYwNWIwY2JhODQwMjRmNGI1YzBkMTE3NyJ9"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L29-L33",
+          "version": "repo-lines-v1:sha256:eeda67e68727e30cadf069930d68f40468dac1195771ace75f1f9ff953e715e4:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGI2ZGM4ODM3OTcxMjUxNWQ5NzU3YWE2N2Y2OGU1MGI5OWJkYjYzMDk0NWU0NjgzNWIzYWVhNjJiZWJiZGYzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2Q3YTNkNjYwYjc5N2JlNTc5OTUwMWZkOTEwZmE5NjkyMzFjMzM0ZGEzNzUwODZiN2VlZjBhZmMxMzVmYjYzOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzg5N2NmODJjYmMxMmZiZjgzOWNhZDgxNTdiNDRlODNkOTNkMGJiNzcxNjI4Mzg2NmMwZWQzZmZiY2U5NmUzYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjA0ZGU0ODIzMTMzODcyMDM2NmVkYmIxYmUwNzRjYjU4MDZhZTlhZjEwN2I3NmRhNmJmMWUwNDgxZWZmOWYwMyJ9"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L35-L92",
+          "version": "repo-lines-v1:sha256:42a4695e25944548bcfa66bfd22930f7668cc87489999776fad3d1157ff3243a:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjYWYyYTY3Mzc4MDcwZjNkZjAwZjk1M2JjZDU3MmFiMTNmMDdjNzBhYTQ0ZDYyNzMzNGM3MjJmZmZiNzBkMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkY2UyZTk3YTVjZDNmNGEyYTljMGRiMmRjMzNmNDhlNTc0YjU5NjY0ZTQxMmRmZDMyYzU1Y2IzMDIzYmNhNWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI5YWNiZjVhMjZkMTI2ODFhMGFhOWQxY2Y0NDMyOTZhNWE4N2IzYjkwYmE5MTY0YjI3YzFlODNjOWJhZTI2MGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d0fce0d9c014784a1677a5f060c00a0",
+      "statement": "The root flat config still carries a stale reference to the deleted `apps/web` app (`webUiFiles` lists `apps/web/**/*.{ts,tsx}`, an app removed in commit `c9bf984`, so those globs match nothing), and the root `README.md` still advertises both a `web` app and an `@repo/eslint-config` package that no longer exist.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L21-L21",
+          "version": "repo-lines-v1:sha256:b0fe2a2a3aac30e8837b6bf4e175cd8eb29f710aa80876a29d1047227f590738:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBmZTJhMmEzYWFjMzBlODgzN2I2YmY0ZTE3NWNkOGViMjlmNzEwYWE4MDg3NmEyOWQxMDQ3MjI3ZjU5MDczOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBmZTJhMmEzYWFjMzBlODgzN2I2YmY0ZTE3NWNkOGViMjlmNzEwYWE4MDg3NmEyOWQxMDQ3MjI3ZjU5MDczOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzY4ZmUxNjVkZDQxMGM2MjNjMjA0ODMxY2U1NDllZWUzMmEwZjA5NTQxMzA3ZGIzNTVjYjI2OTRiYmUwMTYyZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjA2NDEyMjA4OWVjNjY1ZTkwZTM2MzQ2OGU2YWFmMjhkZWVkZDcxNTM2MWI0NDZkOTM3NzYxYWFhNDdjMzI3MCJ9"
+        },
+        {
+          "resource": "repo://README.md#L17-L22",
+          "version": "repo-lines-v1:sha256:97af6405d34734333cbbd7a6cb6b0709540a190638566a84523bf94d327ce76d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTIyYmRiZDNkNGY2MWE4YmZjMGJjYjE0OTExZWM5Y2Q4NTE2NjdjNmFmMWFhYmMyNzIxYTE5YjMxMmE1YzQyMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmViZGQ0MTQwNzc0MWQ2ZjQ4YzhlYWQzMmIwNzg5ODY5NmNkZjE1MDg4ZDRjY2I5ZTdlNjUzNTBhZWVkZGU0NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWI1YTM4NTA3ODJmMjk2ZjQ5MWRjNzliMDFjZTVjYWRmMTY4ZTUwODczZDhlMDA0MWIzMjIyM2IwZjY4MTJiOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTA2NDAxZDJmODc0Y2RiNmU4NjRlNzQyZWYyNzJiYzg2YWMwNjU1MGRlZmY5MTRlNmRlNmQwMjZmYmZhYzAxOCJ9"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L9-L13",
+          "version": "repo-lines-v1:sha256:815f0efc770b8e8fd35b7784b4d8a2c30713a4157b415e3f7e3358eed7346991:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0MjQyZDEyZDAyZDdhMjk1ZjUyZDI4YzFmZTc1MjAzZGE1ZTNlN2E1MjYzN2FmZGM3Y2MzZGQ2NTc3NzI1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzZlYjFhZWNiOWE0MDcwNWYwZmQ5MjM2OTRhMTI4ZTI1MDc0YTg3YjJhYTg2YzA1YzBjMDk5MWNhOWQxNTYzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNmNDdhN2ZmOGU4NmNhMDFmOTgyZmI4NjVmYzhhZTllZDg5ZTNkMGZhOTk2M2Y3M2RkNzgxNDFlMmMwNzg2MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2439a1f1ecb84869a487bd1a0485f6b8",
+      "statement": "`packages/typescript-config` contains no lintable source: its files are JSON, so no block in the root flat config matches them and they are outside the root prettier glob `**/*.{ts,tsx,md}`, which means the only formatting enforcement they receive is the commit-time `pnpm exec prettier --check` that lint-staged runs over staged `.json` files.",
+      "evidence": [
+        {
+          "resource": "repo://eslint.config.mjs#L9-L15",
+          "version": "repo-lines-v1:sha256:aa65094e9af184e86258d8cb6815f35bfa8ba5d5d40504b48130c436adc2a0c5:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0MjQyZDEyZDAyZDdhMjk1ZjUyZDI4YzFmZTc1MjAzZGE1ZTNlN2E1MjYzN2FmZGM3Y2MzZGQ2NTc3NzI1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTU3MWMxZDYzMzQ4NjQzZGNhNTYzMzBkMDMxMmUwM2Y4Yjk2NDhjZTllYWFiNGM3ZTkzYzhiZjUwOGQ1ODlkZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzZlYjFhZWNiOWE0MDcwNWYwZmQ5MjM2OTRhMTI4ZTI1MDc0YTg3YjJhYTg2YzA1YzBjMDk5MWNhOWQxNTYzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjE4YWQ5MGQ3MzQwMjE5Y2YyYzZjMWYwYTdlNDhjMTFlOTMyOTI4ZmE3MjA4ODY0NDA4MzI1MmQxMmMwYzVlNSJ9"
+        },
+        {
+          "resource": "repo://package.json#L13-L16",
+          "version": "repo-lines-v1:sha256:88878b0da8f802b1a325c2a7ced77d636a440ca3ca53493f0d001b03de98e00d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdhZGRlYTcxNmZkYzQwNGZmN2FiZTJjMTdlMDJiODZiZGVkODgyNWE4Zjc2MWJiZWQxOWZkYTFkOTRlOGYwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFjZWIwZTE5OTgxMTYxN2Q5MmM3N2E3YzNhM2UxZDkxODlhMjA2OWM1NWRmMWEwMjZhNzVjYzE4NmU0MWFiYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWQzN2ZkMzYzMThmMmVlZjNlNzJiZmI3ZDI2MDIyMjJhOTRmMjhkMGRlOWM0YjQzYmM5MmE0NDVhNzY3ZDBjZCJ9"
+        },
+        {
+          "resource": "repo://package.json#L9-L10",
+          "version": "repo-lines-v1:sha256:f9921901ce79c6e7293a6a39d67d8e6218c1ee5e0a0c9b9b420d494594dc6c23:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGExZDJmYTU5YmJlMWVkYzA0MGU5MjNmZDQ3M2Y2NjNiZDhjNzgyMDgxOTE2Y2QzZTU1NzA3MTlhZmNkNzcxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGMzNmM4NGRjZWQ4YTFhYjVmNmQ1MWYxNTEyOGY3YWNjOWMzYzEwNmM4YjNlMGZmOGNjMzJmZWNjM2Q5OGM5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFjZWI4OTE3OGJkZGE1MTIwNGI5Yjg4ZTc3OTQ4ZDdkNjFiMWJlYmVmMDkxNmI1Y2I3MjI3ZjQ5NWEwZmRmNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc1YjQxY2EzZDA1NTI0YjQ3YjllYTk3Yzg2ZGNmMDNiZGVlN2ZhN2UzYTZiY2VkYTBkM2NiMzI3N2MwYTVlMiJ9"
+        },
+        {
+          "resource": "repo://packages/typescript-config/package.json",
+          "version": "repo-file-v1:sha256:1b052630b59910c9273f185b3dff166efd6c7f00cca006f34d93e358912eaf4b"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

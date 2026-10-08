@@ -1,0 +1,478 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:ab6277adfaa9c7eb6771ea4423ba263a43d71436f9db1ec1831362288afa1acd",
+  "claims": [
+    {
+      "id": "claim_f77bbc67c91b4471995a965e7e80251b",
+      "statement": "Detour authoring state lives in its own zustand store (`createDetourStore` / the `useDetourStore` singleton), separate from the base plotting store: it owns the split/merge nodes, detour stops, the road-followed loop, label and instructions, additional distance, its own history and draft, and it never writes the base plotting store.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L130-L211",
+          "version": "repo-lines-v1:sha256:9801c14defa7e2d3929046441dc472f31b90d835e4a2e4be95b299f3fd7bb517:eyJzZWxlY3RlZExpbmVDb3VudCI6ODIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcyOWFlZWFlYzU1ZDBkMTkwOTA5YTU2Nzk4OTVlMThiMWNlMWFhNGE5MzJlODk0NjBhNjcyZWFiZDU1N2NhNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE0YjhmNWI3NTY1ODIwM2RlNGQ4ZDllYTE5ZDRmMmJjYmEzN2ZmNmQ1ZWZkMWRkNzkwOWVmNDExZjM4YjBmOTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmNWExOTI5NzQ4MTdlNTU0MmViODZlMWEzNGZmMjk2MDEyZDZiMzVjNWM2ODM3NThkMGMyZGE2NWM3ODZhNDcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L17-L34",
+          "version": "repo-lines-v1:sha256:4ba0e1cb4d1dab715361b8ce3a0f3786b3effad89e85af1b86fe818fc4ac105d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1MzI2OWY0ZDljZDAzYWQxZGViYWFmMWU1MjljYjA1MWYwY2VkN2Y3MWZiZmYwNzhlNTQzMmQyMjM1ZTc2MDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwMDhiOGQ3NWJkZTMwMzM4ZGUwYmEwMGE5YmNlZjlmZTM3NWFhODgzODhhNDgyODAzMTBmNTk3NGFlMDc3ZjAifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L717-L718",
+          "version": "repo-lines-v1:sha256:addce8d871c738d51d74d4bfb049696d35c9e1dc340ba840812d5be529b9b576:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDYyZTkxYTE4ZTJlZTg0NzlmM2ViNTdhNjhiZThmNTIzOGUzN2JhNWZiNjMwMmFhOGU4ODVmYThkYzJiODZkZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2U4ODYyZDYzMTMwYjg2M2ZiZjY0YWE5OTFhYWMyN2FlMWFiN2E2NmRiODZlMzg0NGE5Yzk1NjI1ZjdmNmExNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmQwZjJkM2EzYWFkYTI3NTg2NDU3OGQwYTQzOTE1NjM4ZDU0M2ZlY2EyYzk0ODU4ZGI5NDEyMTFlODZjZWYyYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_32135ed4f4044356b0343d9355ee417b",
+      "statement": "The detour editor is opened with a snapshot target built by `buildDetourTarget` from a loaded direction (directionId, directionLabel, routeId, routeName, basePolyline, existingDetourCount, chain-ordered stops); `openNew` resets to IDLE_STATE with the auto label `Detour {existingDetourCount + 1}`, `openEdit` enters `waypoint` mode pre-filled from the saved entity and keeps it as `editBaseline`, and the direction's stops are late-bound exactly once through `setTargetStops` because the directions list response does not embed stops.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L100-L112",
+          "version": "repo-lines-v1:sha256:47b704ad75d05abe9a9c34d2ad31ec84a81c8691aee02878ea9b4346b19b0516:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhNjQ1MjQ2ODE4ZjE3MzBiYjcyZDQzY2JjMWE5Zjg0OGIzMTgzNTE0MTdhNzNlYTE0ZTg0YmRjMjc4MTg4ZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkMDFjZWM4ZTBjNGE5MDE2MTA3Y2U0NmMzZjM2ZTg1MThiYTgyODU0NGQ2NDg4MmZhY2Y4ZWQzOTBiNDQ4MzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwMzA2MzljYWJjMDc4NmNjOWEwNzQwM2MxZGE2YWI5YzYwYjkxMzViOWIzYjVjZDdhYjk3ZmZkY2ZlODRhMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3M2FlZmIxY2Q1MTFiYmJjMmZiMDBhYmI1ZTUwNzRkNjliMDFlYzJjMTg3MmViMDI3YzZjMjA4NzBkYjM1MDEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L309-L355",
+          "version": "repo-lines-v1:sha256:7c556ecbddc9e2d594c07cf6fe2b7fabb838ffb3b6f4c3da55deb31682983cfc:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxMmJlZWRkNDIzZTMyMmJhYzNjMTFhNmRjZDBkN2MxYTE5NGEwMDIwZGU0MzIzZWJjMWYxZWQ3NDRhNTJjZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYxYzhmMGMxODRkY2VhY2VhMDkwMzlkYzE2N2Y0NWQ2OGFjMDUyYjllZWQ4M2YxYjA4NDAwODBjM2NkM2ZiOWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkM2Q4NGU4OTI0NjMzNmMwOTMyM2MwZjZjM2NhMGQxYTFlOTBlNTg5ZDZlZTk0M2U0NWJlNTQzM2NlZjNjZjkifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L569-L573",
+          "version": "repo-lines-v1:sha256:d07c0534eac65e7051fce2eb026110517321e2bec6d24a82fa922181661bedc7:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDNlY2NkMjRkZjNiZTQzOTIzZmExNDViZDE5NzhjMzdkYzZmZGRmOWU1ZDkyNzJjNWUzNzk2MTBiN2YyNWJhYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjk3OGUyNTAzYjhjZjM3YTA2ZjdkNmYwYTNhNmI2ZmUzNTY5MWZiY2FiNTBiODc3NWNhYjZmYWJjNzFjNTkyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzljNWM3OTUzZjIyMmMwYTY3ZGRkNTRlYjY1YjEyMjMyYTQxOThjYmM0NzJiMzY1MTdiMTA2NTEzNDhiMjkzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjc3M2U3MDM2ZTkzNWY2NjNjOWFlMjNjNjM4NDEzZGQxMTk0NTZiNDhlZmYzYjdhMTUyNmE4NWFhYWRiZGNiZSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/target.ts#L4-L31",
+          "version": "repo-lines-v1:sha256:ede3a5202b21e6b10f7ae23a1713f8395773db21fde171ef1301a6cd263ae660:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhOWQwMzY2NDFmMGIzYThlNDJiNmMwZWI3NmExYzRjMDUzNDdlNjkzOTc4NDc0YThkODBiZmQyNzFkZjRiODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9abc799ca13d4afd95bfbd9c0659925d",
+      "statement": "Placement is a three-phase click machine (`mode`: entry → exit → waypoint). In the two node phases each click is projected onto the base polyline with a 5000 m corridor; a click outside the corridor sets `composeError` and places nothing.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L362-L391",
+          "version": "repo-lines-v1:sha256:5a3b1fe5141b1c9ce1c38f4dab867d1b5def489aa6b9f64620857df89ae2eec9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOTk0MjQ5MmRhNDkyYWYyYmI4MmFkYTEyZTVlYzU4NzYxMTlkNWVkMTVhMTRlZTc0ZTFiMjg0OTU4ZTM2OWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmN2QwOTc5ZWVlNmNjNmFhNWI2M2Q4ODBhNDUyYjgyMDg2MTcwMjQ2Y2NmOTBjZDA1NWRiZDdlNjMyMjUzMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhYzFhNmE5NmZlNzlkMDZiMmY0NmJkNDdlNzk0MDU2N2E4Y2FmZDhiYmUzNWVlNjg4YmYzNzU5ZmEwZTUxMmMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L80-L86",
+          "version": "repo-lines-v1:sha256:3f0f8e251805c422956f3d1dc905904302229479429ca2f740251eda4991303b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjJhOTJlYjJlMzk0MmU5N2Y2ZDBkYmQzMTVlNzFhMzdjYzhjZGZjN2EzNjZhNjMyNmNkOTRjYzQ1ZWNmMGZlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWE3MTJjNjZmODlmYWM2YjI5YjNmNjZkMGY1ZGEwYWJlNDZmODRjZTFjZDkwNTk2ZjAzZTBmM2Y1OTdkNzc1ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2YzOTY2YzdhYzc4MjUzODc2NjE3NzNiODJjMjc1MzNiMjlmNzI3OTcwOWNkODY0NWYxYjZjYjJhMjg5YTM3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWMxZDA1NjA1MDQ5MDQ3N2QxYWE1ZTFiODQ0YTkxOWY1ODAwMmFhYmZmMGNhNDkzNDU5YWRjOTAxMDMxNDRlYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_0a9c51ac67af457d9c8d7a384d5d7477",
+      "statement": "The merge (exit) node must lie strictly further along the base arc than the split (entry) node: `snap.index < entry.index || (snap.index === entry.index && snap.fraction <= entry.fraction)` is refused as `{ kind: \"order\" }`, the refused projection is retained so `swapEntryExit()` can accept it as the split in one action, and `mode` stays `exit` until a valid merge lands.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L393-L429",
+          "version": "repo-lines-v1:sha256:48227771d3a95752d2adb028bc920ac9712dc656b3255a25b311ebea66c79183:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZWUwMmNhNTZlOWM1OGI2NmY4ZGE1ZjUzN2JjYmM4Njk0MDlhOWE5ZjQxMDgxOTNjZDhiMTMyZjhlZWY2ODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4OTdlYmUxZmQwYjY3YjdiZTFmYTkxYmFkOTQ4ZmI2YTZkZjZlZmZkYmFiMzNhNTQyNTQyYjI3NjdkOGJjYWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyZjA0MzQyZjZhNTdhNjgxOWE4M2M0NzJkYjM0OTdiMDJjODE5ZDYxNzNiOTRjYWRkYWE3MmNlZWM1ZjI3MDUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L459-L472",
+          "version": "repo-lines-v1:sha256:c5336fe2abc720f835fcaea609a46e96e12bb732886f1beaa0271ef9cf2e29a4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4YjcwOTA4NTNkOTBjOWEzOTY5NTJlZjM3ZWI1ZmU0MDgxMzg2NTZhOTE4YTdlOTU4NjUwODg0MWYwNTgyY2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzZmM0NzM2ZGY1ZDZkYWYyY2U0MjUxNzY3Nzk1MDZjYTM1NTc2MTI5NGMyZjU1MTgzMmE0MTMxZWRiMjEwM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllYWFhMGRiNGQ1Y2U2NTU2MTlkYWU0ZDNlYzg5N2FkNzAyZjc3M2E1NjNkYmNhNTc1ZWQ1NDJmZWRlNmExNjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_da9b50b4e4cf4d40affda0824726a369",
+      "statement": "A split/merge pair closer than 30 m (`NODE_TOO_CLOSE_METERS`) is refused client-side as `{ kind: \"degenerate\" }` with `exit` left unset, mirroring the server's 30 m degeneracy tolerance so a composition that passes the client gate is not refused for the same reason on save.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L412-L418",
+          "version": "repo-lines-v1:sha256:0c8757060b172939443a142cd061ba69b5a75d63c48c89ebda61625d8788a53b:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjVlNDI4YWI4NmQ5NDZjM2JjNTY3MmJjMDc3MjQzZGNkZjE2ZDI2M2UxNGFlZDNhZjU0MTI5YzM5MGFjZDViMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODgwMDVkNTcxMDZhMzYyZWIwMDBkYWYzZGE0Njc0YzgyYjUxOGZmNWEyZTJmNjdlZThlNzU3YTMzM2MyYWY2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDJmMThiMmU0M2FkMzM2ZWZmMzk0ZDc3ZDE4NDBhMmQ4NjU5NjVkOTc5NjcwNWVlZDQyZjQyMDBkNzlhOWFjYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjA0ZTczMzg0ZTU5NjRmZTNjMjg5YjI3Y2RjZGM1MDM1NGMxOGY5MjVjMWNhNzhiMTEwNTNiYTJmZGY1Y2UwYyJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L80-L83",
+          "version": "repo-lines-v1:sha256:6307d7304465c0add6e5719b790468a79a7ef4e426529835bf45494e6c42a912:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjJhOTJlYjJlMzk0MmU5N2Y2ZDBkYmQzMTVlNzFhMzdjYzhjZGZjN2EzNjZhNjMyNmNkOTRjYzQ1ZWNmMGZlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTYxYmVjNWQ1ODJlOTMzNDRjY2NkYzgxMWZmYjc1NGNkNGZhYjVmODBmOTcwNDJjMGFkMjJmM2FjNmVkZGY0OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2YzOTY2YzdhYzc4MjUzODc2NjE3NzNiODJjMjc1MzNiMjlmNzI3OTcwOWNkODY0NWYxYjZjYjJhMjg5YTM3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGI5ZDYyMDM2ZDRiZTE5Y2ZlZTNkNWNiYjlhOWFkOTQ1NzZjMDYzZjhhZmE1OGE4ZTI1NGNhNjM0OGI3MTQyMSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L67-L75",
+          "version": "repo-lines-v1:sha256:cc8593a7f195b73011ec53a1374d16449ca5fd26a137b9a7ab630cf782876fdc:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2MzZmViMjRlMTQxNTAxMjJkZGQ2NTMwZTg0YzE4ZDE0YjU0YmM5YjYxZmZjMmViOGMxNmYzODQ1ZGVmNDhkNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjhkMGRiMmRlOTgyNjc4MzEwNjcyNGEzNGIwOWNmNDE2YWYwNzVjZmVhZTBhOGMyNzFmZGUxMDViOTdjNzc2YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGU4NWU0YWIzYThjMWJiYmIyODM1NDRhZDliOGY2Y2Y3ZWFhNzBkOGM5ZTFmMDZlYTliNTI4NGU5NTY4N2YzOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_45b0acefc969448eb6bd367eae94dd82",
+      "statement": "In waypoint mode every click appends a detour stop (client-local `crypto.randomUUID()` id, name `Stop {n}`, type `waiting_area`, no guaranteed service, no landmark/notes) and rebuilds the loop; detour stops are deliberately not projected onto the base polyline because they define the diversion; the first stop auto-fills `commuterInstruction` with \"Take the detour\" only for a new detour whose instruction is still empty, never in edit mode.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L431-L457",
+          "version": "repo-lines-v1:sha256:75680bcf2ad1c13bbe463a210f094d5f1e08e8c33049b2721af7cdadda40a068:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxODFiZWM1MzIzMmIwZGYwMTY3Y2ZiNjM5MDExNzJhOTY4NGExN2M3ZWRhYjNkNmQ1ODU5YzczZTUwNTliOTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4OTdlYmUxZmQwYjY3YjdiZTFmYTkxYmFkOTQ4ZmI2YTZkZjZlZmZkYmFiMzNhNTQyNTQyYjI3NjdkOGJjYWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk5YjUzNzA0MTYyOGViMDNhZmU5MmExYWNhOThjZWRlMWRkY2FjMGYxZjNiZmE1MTA5NWU3OGJmNDQ0YzA1YmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3f05bdfeeedd4e179667a021a1a825ae",
+      "statement": "The split and merge nodes are draggable markers whose drop is re-projected onto the base polyline through the same 5 km corridor; a drop outside the corridor is ignored, which keeps the persisted `entry`/`exit` on the base line.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L474-L502",
+          "version": "repo-lines-v1:sha256:69d16ce584b2a494a4d333e97e3ed7d1cb5c65b7316fc4073d836f0e4fc77124:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlYWIwYTcyY2VmNTJiN2JlMTU1MmU0ZDBjMWNiOGFjM2Q5YTUwNDYzNjU0MjFhM2ExNmFmOTY3M2UzODliZTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAzZmM0NzM2ZGY1ZDZkYWYyY2U0MjUxNzY3Nzk1MDZjYTM1NTc2MTI5NGMyZjU1MTgzMmE0MTMxZWRiMjEwM2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkyZTllZWM3MGQyMDQ0MzY0YzM0MDk1MmFkYTQ4YzcxMTc2ODZhMTMwNjk1ZmY5YTA5ZGYzMjEwODIyNWU2YjMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L297-L351",
+          "version": "repo-lines-v1:sha256:e1609942c7717606dc54306c6c1cd9b58516cb297414e1e75694760e9ff8caa0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkZDEwYTcyOWNkNDU1ZjQ1NWJhZWJjMWFmNzUzOGQ3ZjRkNzllMjZjZmRjYmFjYTY5NjA0N2Q0Nzg2ODJlZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YjhjMTA4NWY5NWExYWZhYmU1ZDE1MmFkNThkYjlkYzI2MzM2YzEyMThlMmI4NDBhZTdhZDgyNmEwZDU3NDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjI0ZTBkZWRmNTEzYmFiOTc2MWI0NTExMGEwZTdmOWQ0NWI5NmQ5NjU2Yjc2MGI0YmVmMDcwN2YxYmFjN2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY0NTA0N2VjMTBjMTY3YzViNTNlNTk3NDA0Mjg3OWUzNWRiNzkwZDM4MzUwYmQyNjhhOWYzYWNjYjlkMTU4MTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e96a59eed57a444381de074291da6d3d",
+      "statement": "The loop is a road-followed line through `[entry, ...detourStops, exit]` produced by an injected `LoopSnapper` (default: `snapPreview` → the admin Mapbox directions proxy, which chunks waypoints at 25), guarded by a module-scope sequence counter that makes builds latest-wins and that is bumped on open, close, undo, redo and draft restore so a pending build cannot land on a composition the admin has left or undone.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L122-L126",
+          "version": "repo-lines-v1:sha256:d3ced1a2991e28152daffab4df02c9abf91703af47a70ca698b931387f32b6d2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzlhMmY5ZjRjZWQ5MzhiMmVhMTY3Y2I4YmEwNDk0MTFmNGQxYWY5ZGEyYjdiOTE5NzFmYWExZmE3MGJiNzE0YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjM5NGRkNTE4YmU4NGZjZDI0Mzg2ZWZiNTg1NDA0ZTgzZjkzMTU1ZGRhZmIyY2FkOWI2YjlkMTE5YTI2ODdjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTRiOGY1Yjc1NjU4MjAzZGU0ZDhkOWVhMTlkNGYyYmNiYTM3ZmY2ZDVlZmQxZGQ3OTA5ZWY0MTFmMzhiMGY5NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L241-L277",
+          "version": "repo-lines-v1:sha256:e2c7a6c5f5127e83d4f6a6bceb1d9903526e2356ca7aec22e441174a416ceb66:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUyNzRlODg1YWZkMTQwMTE2MTA3N2NmMzcwNDliZTg3YzJkNDc1OWJlYTY3Y2Y5NzFmYzJiZDc3ZmNlMGE4YjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmMWFkYjBiNDNlYjdlNGNlOWFiYTc2YmQwMDVlNTg3Y2Q4MzhhODE1NmY1YzQzNmYzMmZlMTlhMjczZWYyNmYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L575-L599",
+          "version": "repo-lines-v1:sha256:9220864155441ea7980bd97e65a0a0d93ff3d93eaffa0fe08eafb344bba5349c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkwOTI0MTA2ZDk4ZmVkYTliYTY2MjU2ZjJjMGQzOTU3NmViMWU0NDE1ZjMyMzEyMGE1ZmJjODhiODk3ZDVhMmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhiOGI1MDY5ZTU1MDkzNTBjYTJmOTEzM2E4MGNlY2ViMTBjZDdlMzAwMmQ0NGVkMzVmMzk4MmQ1NmMyN2I1ZWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2MzA0YzljY2FiZWM4ZTc0ODNkZGEyMTI5MzI3OGQ5ZTEzZGI5ZTVkMDA1NDY0ODllNDhhMjlmOTA1NGQyMzIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L124-L156",
+          "version": "repo-lines-v1:sha256:b0347f25e452c3ea1afc75d778a007d577a3f60ee518fe4bb0e49c0bd12aec25:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExZGY4N2E0NzMxNmM3MDhjNTUwMjA5OGU5YWY2YzQ0NTM0ZWI4MGJlYWRjZjYwNjMwMjhlZmNhODU5MzdhYmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4NWI2M2FmYTliYWEzOGEzN2Y1YmNhN2I2NjUyYTQ2OWYzY2Y1Njg2MWU2ZTM5MGE0NDQ3NmJhZTEzMTFlNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ZWMyODdjNzdmNzQ3YjExMmRiZTJlN2FlOGYxNGQ0ZjJmYmE5MzgyOTU4MGQ0ODI5YzQ2ZDQ2Yzg1MGQ2NDMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9ac5b19d0cca4534a47bcf0652963398",
+      "statement": "Loop-building failure semantics: a thrown snapper falls back to a straight `LineString` through the waypoints and sets `mapboxWarning: \"upstream_error\"`, while the proxy's degraded `snapped: false` straight-line response resolves as success and is adopted as the loop without any warning, because the store reads only `.polyline` and never inspects `snapped` or `warning`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L450-L455",
+          "version": "repo-lines-v1:sha256:bb1edf6b6cde6c4d86af3f07c6dd8b1f4c4653ba6c9cf59fa708eaa129f9c72f:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdmYmNkMTYxOWI0ZTE4MWZjZGVjYWI3NjNjZmVhNDBlYmY0N2IyM2IxYTFmNjNjNGU3ZGFlMGIwOTk2NjlkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzEzMDA0ODQ3ZTA0ZDg4NDEyZjk0ZWFiNmIwNTY0OWQ2MmIwNDIzZDA0OWJiNGIzMjdhODE2MzE2ZDY0NDNjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODcwYjMwNjA5Yjg3ZmU4YjVmYzk4NTI1MDMxOTg2MWU2MzFmMTVmMzgwZDM1N2I1ODljYTEzZGE2Y2Y1NzgwYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGNjNmVjODhlNDZmZmVhNzhiYWY4OGI1ZTIxYmJkYmJhOTU5MjlmNzA4OWJlNDQ4ODgyMjYxNmQ3YzY0MWI5ZiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L270-L276",
+          "version": "repo-lines-v1:sha256:19f5917e9ac0f904366f456feee0fe2b31bd4f096f6c234d2af3bb4ba082b97d:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDY1OTVmNGVlNWZmNjNkNTA5NTA0MTlkYzM0NDE0NTEzODUxZGM5NzM2ZmQxN2E0ZjdiZmE5MzBiMjYxYjZmMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTViZjNjZWNhMDJhZjZkZDU1ZTc3Yzk5ZWJiMWNlNjdlMWZhNTZlNDNiOWExNzcxZGY0NGU1ZWQ2MDVlYzU2YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzBiZDRhNzU4OWU5YzRmOWY0MDBlYmU4MWU3MmRkM2U1NDg1ZjM1YTNiZGIwZjVkNzNmOTAyMDBhNTFiYTU0MSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L201-L210",
+          "version": "repo-lines-v1:sha256:245e26c2175262acb18be17ca05442caa648e1c1c811e2f51ec1befca80b542f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NTdmOTQ3YmE3NDNjZGUzOWNlYjEyYWZjMDQ1OGExOTQyMDQxMjUzOTJkNjkyZWUxZTQ3OTM3MzgyNTQyYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1NDU4ZjMwNjQ4MzRmOGYzNjhmZWU4YjdhOGEzYzBjMmZjNTI2ZDZhNWZjZmM5NDIwYzBkMWIwOGUyMTY1MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxZjFkYzUwYzMyNDMxMmM3NmZiYWU3MDE4NDRiZTg5ZjllMWZkMTczNmM2MDQ4NDk0MWYwZjQzNTI4M2U5YjgifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L110-L122",
+          "version": "repo-lines-v1:sha256:6ca810ecb3c861615d8052b50554c685057511d5b72fecd3dbf9d4f7c31a61bc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3ZmQ1ZjQxZDMzYTk1NGNlYWEyNjVlNzdhYTJiNWZjMjJkMTFhOGE3YWVjODEyNmJiMjcwNWQ5MTRmZDE0NjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFmNmMzMmFiZmJiZGJmMTIyZWQxOWMxNWU4ZThhYjRkYzg2NGVjNGQ1NDkxNmYzZWFhNWQ1ZTRlMWExZjZlY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwNmFmM2E0YWZiMmQzNDZlNjNjN2FhNzQ5NWE4YmJkYjg3NGQwZWZjZmE3ODI3ZWY3Zjc3MTZhMjM4MmU0NGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5c35929b844a4a79b61be08ad7fc413f",
+      "statement": "The additional distance is derived, never entered: `round(max(0, polylineDistanceMeters(loop) − replacedArcLengthMeters(base, entry, exit)))`, recomputed on every loop rebuild. `replacedArcLengthMeters` honours fractional projections (entry-segment tail + full middle segments + exit-segment head) and returns 0 for out-of-order or identical positions, so a node snapped mid-segment never over-counts a whole segment.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L258-L269",
+          "version": "repo-lines-v1:sha256:a78c4ae42f905dc20f134dd3f4abe98cdab83d6bd0409d53fcb4b454d610d842:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3YmE0ZTA5ZjBjYjc4ZGFiODFiMjgyOGU3MWQzNjMwODEyNmMzNWFlNWNlY2RjYmRjNTdlOGQ1NWU1NTNiMTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU1YjNjNGZmYWNjZDYzNDMxZWIzMzUxMWQxMWY3MDQ2M2ZhNmRlYTFmMWVmZjgwOGYzNDU3MjhlZjJjMTBkZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzYTgzM2YyYTBmODNiMTlmYmJkMDMwNWFiNjczMDUwMTY2NWUyMDE1MzUzMDEzZjY0N2FkZmFiNjVkYzU5ZTgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L380-L417",
+          "version": "repo-lines-v1:sha256:d40350c97ec8aaeb72e63c1dd93a2d637aea8c4bb6b73a446f005480ef70b950:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlY2Y3NjgyMjk2MDU2OGI3Zjg3YTYyZWMzMmIwY2ZkNDcyZjdkNmZjNmI3ODIzODlkYTAyZTQ4Yzk0NjM0YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkZGU2NTg2NzUwMGY0NDQwMDY0ODRjYWY0M2EwYWY2Njk1ODhiMjhkZWJiMDVmYTVlMDgyODY5MjhlMDE3M2IifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L110-L119",
+          "version": "repo-lines-v1:sha256:2819605c29a5022e5275aae5a34e1f256dd0c95e7845fb0cc5f8244be898ce5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzMzE1ZGYxOGU3YjJlMjdlMDc4MDA0OTgyOWZhYzAzZmU0ZjM5YjE3MDI0ZDM2N2ZjNWExMDU0MmQ4MjE2NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjMzk5MTM2MWQyMTJiNzI0OWFhODFmYmY4OWM1NzdhODFhMjhkMDEzYzRkZGViNWUzM2YyZmFhYjZjZTgxZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5OTUzODIyZDBiMjM0MjMxMTM0MGQzMWZlYzcyOWEyMmU2YTM2NzgxZGMwMGFmNGIxNTEwNmFhN2YxYWYyYjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bacdc9d6b58743ad91dbe281b0c470ac",
+      "statement": "`validateSave()` is a pure client gate that either returns a reason or the exact POST/PUT payload. Its ordered checks are: editor open with a target, split node present, merge node present, at least one detour stop, loop with at least two coordinates, non-blank label, non-blank commuter instruction; on success it trims text, maps `driver_instruction` to null when empty, emits entry/exit as Point GeoJSON and `additional_distance_meters` (or 0). It performs no I/O — the store tests assert the snapper is not called by refuse/pass passes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L640-L712",
+          "version": "repo-lines-v1:sha256:04cba386c455cd50889f548d2989894b66af2a1121c991357b6084a5b660b7d2:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4YWQ0MGQ2NmQ4ZjA2OGE5MTQ4YmVjNmMyYjRmZTQ1NWQwYjUxZTBmZWRhYzMwMThjNmM1Njk4YmJjYTJmZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3MzgyN2IzZjEwZDAzNjc1MGFhN2VkZTYyOGY4NjEyMTU2NzdiN2Y5ZTBkOGI2NzA5OGRiODk3NGIyMzQwNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVkYzBiMWY1ZTFlMjczMmU3Njk2YTY4NTQ0MGFmOGUwMjRlZWZkN2FiNjY5ZDc5MGUwM2ViZWZhYTZhZTBkZTkifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/detour-store.test.ts#L144-L190",
+          "version": "repo-lines-v1:sha256:854140c842d3ce4e4d9e19d1cf16277e1d4d9346905fd008cc970c4dc344567b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkNzNlOTYzN2Q4ZGM3NmIyN2M2Yzc4OWYwZDAyNDg0MzNkNGM0OGQwN2VmMTVmOTk0OTk2ODdhZDMyZGY1NDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiNDljMGZlMDgxMzcwYTc5NjMxYmE2OTRiZjJjNGIxOTFhZWY3ODY0MGRhMzAyM2E2MTFhNTZmMDU1NTFmNWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a8609849bd82471e820db5c35802d555",
+      "statement": "The detour panel only issues HTTP after the gate passes: `handleSave` calls the store's save gate (or the edit-patch builder, which validates first) and sends nothing when it refuses, writing the reason to `lastError`; on a server failure the message is written to `lastError` and shown inline and the editor keeps its composition so the admin can retry (SC-014).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L238-L287",
+          "version": "repo-lines-v1:sha256:08b945161a8322fb28a3aeac513178f483237401307441d39360ec8f4ab622d6:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViMzlkYTgzY2E0NDE3YzM3NzJlMTkwMDA0ZGEwYTU1ZDIxOThlNzZmM2VlYTkyMGMzYzE1ZTMwNThiN2QyMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5MTc0OGM5ZjdjZjE0YTRjZDQ4OWExYmY4ZDQ2MTRlMjA2YmVhMWViYWU3YzE1YmFhNTA4ZWE1NDAxNzM0Y2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwMzI1M2EyN2M5NTQ2MDEwOGVhMWU1ZmI3YzcxZTdlYmVlZmNjNjUwODkwN2I2MDNmZTM3M2ZlMjA3MGIyNGYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L497-L501",
+          "version": "repo-lines-v1:sha256:316e6f75f4807be7c7be350463f05fa2203318999ed56dbc267488d860a8415b:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJlZDEyYjI0ZDU2YTFjMzY5YjQzZDQzZjJkM2I0YWVkMjdlZWViZTYxODlhYTA3YTVjMjU5MTg2NTZhNDUwYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzEzMDA0ODQ3ZTA0ZDg4NDEyZjk0ZWFiNmIwNTY0OWQ2MmIwNDIzZDA0OWJiNGIzMjdhODE2MzE2ZDY0NDNjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjdjMjUwMWJkMDA3YWU3MzZjZjhmOWE4ZWQyOThjNjcwNjIyODUwMzRmZTU3Zjg2NWM4NDZkNWE5YjU4ZmJiNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOThmNmUxZTNhODE3Y2ZhYjllMWM3ZTlkY2ViMjQwNWUwMTA2NzQxYTNhZjU1YjcwOThkNTIzOTM3ZjgwZmZhMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_4864b06c9b614173acf6557e3a6b70ac",
+      "statement": "A stale-list conflict guard runs before the gate: the direction's detour count captured when the editor opened (`baselineDetourCount`, seeded from `existingDetourCount`) is compared with the current detours query length, and a mismatch refetches the list and refuses the save with the \"Another detour was added or removed while you were editing\" copy. The guard is count-based, so it detects additions and deletions but not concurrent edits of an existing detour.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L238-L248",
+          "version": "repo-lines-v1:sha256:bc517939e3ae738d160c1189bb4b2803fd37a7dbd4b1ecc7e8b8401291def1e1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViMzlkYTgzY2E0NDE3YzM3NzJlMTkwMDA0ZGEwYTU1ZDIxOThlNzZmM2VlYTkyMGMzYzE1ZTMwNThiN2QyMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlMGRmNGNmYjUxYzVkZDhlNmUyN2Y3NjU1NGI2ZDc1Y2U0NjM3Y2E4YmMyMmQxM2I4NWYyYjcwZWExNGQxNWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5MTc0OGM5ZjdjZjE0YTRjZDQ4OWExYmY4ZDQ2MTRlMjA2YmVhMWViYWU3YzE1YmFhNTA4ZWE1NDAxNzM0Y2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhNzlkN2NlZjc0OTFiMDdlYTBiYjBiMzA2NWQ3NzRiNTVhMDU1MGM5YmIwMzExNWQ3OWU5MTI1MTExNDcxYjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L25-L26",
+          "version": "repo-lines-v1:sha256:f04d39fcea619258dccc3087405b6317426050f906b63f69d084a3134e921d8a:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTEyNTNmMGFkZDA0YmFjYjBiMWMzMjZhNGQzNzU3ZTQ2ZWQyYjRkYWU0ZDUyZDEwMTczYjkxMjY0MzY5MmEzZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzViNTU5NmZkNmU5ZmVjYjY3N2FjYTk2Yzc2MzIwYjkwYTc5OWE1MzE0ZmU4MGI4NWQwNWMyYzIxYTA1NTUwNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2Q3ODQ4MWRkN2IyZjc1MDg0Yjc3ODJmY2NkN2I2NWI2MmM1MzVlMWQ3NTcxZTZkZTgxZTgyMzg2YTNjN2I2NiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGU2YTc4NzFjMzY1NjE3ODhmZjk3MjU4MWVkNmU1YzU1MTk0NjViNDNjNjg2MzM4MjhlZjNjNjE5NDU2YWI0MiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L163-L164",
+          "version": "repo-lines-v1:sha256:4ead6c4914f0df6259f5f05dd6a9d17de6cfa74759929beeb9c3e0468245ae17:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWZmNGFlYWQxZjI1NjA1ZmNiODhiNGE2ZTE5OGY1NTdhMWVlMmFhMmE3ZDVmNmMyZmE1Yjg3YmEzNDhkNDFlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzRhOTg1OTQyNGFjMGJlMTE4MTFhYmNmZDgwMzA4MWY3OTI1YjA1YmFlNGRjZDFhYjYxMzM2YzI4ZDY5NjNhMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjIzNzFhZjZlNDk4N2ViNjkyZjcyYThjOGUzNmM0MTVjY2U4NmJhN2UxNjU0YjJjNjIyYjViOTI0MzM3NmY0ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2M5N2NiN2Y3ZmE2MWIwNTY0YmY2NzkxODVlNjNkOGMyMDY0ZWZkOTMxNDY0YmU5MjIwNGFlODE0Yzc0N2M0YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_553e1d63125144dc921363b2bd46f038",
+      "statement": "Editing a saved detour saves a computed patch of changed fields only: label, commuter instruction, driver instruction, and — when any of the loop, entry or exit changed — the geometry triple `detour_polyline` + `entry` + `exit` + `additional_distance_meters` together, plus `detour_stops` when the projected stop list differs from the baseline. An empty patch is refused with \"No changes to save.\" and the editor stays open.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L183-L236",
+          "version": "repo-lines-v1:sha256:e2c62e14329c2b58316e7f202cdd2fdfe0f9bfe1f58115cffdeacaaf434bdb80:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0MWFmMWMwZDYxOGQwZTc4ODUzYTY2OGQ3NDJmOTMxMTQwOTQ3NmNkYmI2NTE2ODI3ODc3N2YxZTMxM2VhZTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1ZjFkNjNhMDdkMGZjMDVkZGZmMTIwMTljZDk5ODBhNjVlYjQwNjA0MzEwNjc2ODc5OWU1Nzg1ZDc3MzM2MDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNlMWEwNmVmODBlNGUwNmM3NWY3ZjAzZWJmYjg2ZTlkYjZmNDEzYzlkNWE3NjNkM2Q4YTViNDZmZjIzYjYzZWQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L249-L271",
+          "version": "repo-lines-v1:sha256:7aa6b3191f7db50c5fa5bc39b0c532ed24cce94a2eb89598a1d6035180449bf5:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU2YTA5MGNiZjc4OWQwYjM3Nzk1NWMyMmZiMmIxMWVlNzBlOTE2ZWI4ZWUzNDgxZGQ2M2NjYzIzODRmMTY3MjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwMWYzMDM3OWYxYWJmY2ZlNTc5OWM5N2YyNzVjMWFhYTZkMTM0MWUwYjU2YzU3M2IyZmQxMDAxN2ZjNzc1MWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0ZmQyYmRkMGRiMDU5NzI3OTUyM2FjNjE1ZDQyMGQxMjc0NmY0NjlmNmIyN2Q1YzdhZWQ4ZGQwZDc2NTVjZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_72d9c210021640ddb7f8d6802a12aba6",
+      "statement": "Detour activation is a detached concern: the `Active` switch in the detour properties panel issues its own `PUT { is_active }` through the update mutation, while the editor's create payload and composed patch never include `is_active` (the shared schema accepts it only on the update schema).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L312-L330",
+          "version": "repo-lines-v1:sha256:ff46997c871708c68793ef20417775cb48c6789b6213444efbb29c3186b3a833:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiOTY4MTNlNjRjNDRjZTNkYjhhNzI1YWUwMmJhNzQyNDRhNGNjNGRkYmUxZGIxMWUxZTRjYjM3ZjQ1MWMwMWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxMzAwNDg0N2UwNGQ4ODQxMmY5NGVhYjZiMDU2NDlkNjJiMDQyM2QwNDliYjRiMzI3YTgxNjMxNmQ2NDQzY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFlODdkZjM0NTAxZWFmZDM5ZTk0ZDBlODYxNjU0OTZmMmUwZmQ1Zjc5YTJkYTI0MDVkMzQ1OGM2MDYxNjkyNDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZGExNDBjYTljMGUyN2IzYjBjYjgwOTA5MTk4MGZkYjEwOWIxYzkyMjRiNzhjYTdhYTFhMmU4NDZhOTZiNDMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L264-L266",
+          "version": "repo-lines-v1:sha256:be3a7cbb6fc7b8e4e92993eae3335202f64c114f37950d433c33e00850711e78:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJmYmM2NWM3NTAxMGY4M2UzMWE5ZjFkNGViY2NkMDBmYWQ0MmQ4Nzg5ZmEyZThjMGU2MjI2Y2FhYmQ2ZTNiMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTMyNGU0NmE1MjQwZmIwMWUwNjI0NjQ1M2ZiZTk4ODQ2YmQyNWRiMjBlMDk5M2RmNGY1Mjc1ODE1ZDkwMzRlMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzM2MmYwNDY2NjAxNTEwOGI3MGMxODI5NjQzZGNhYmE0OWUzZjk4OGIwNzdlZmFjMjlhODRjMWMxYThkZWJkYiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L121-L123",
+          "version": "repo-lines-v1:sha256:1a19daddaa9965aa58b3f9ffe2753786ecabf6b54c2c86898bf3442c1c3d7faa:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWU5YzcwOTNiM2I2YjMwNGNlMzdlZmJiMjFmMjFjZmZiOGQwMTJjY2YxMTU0ODQ4YmYyNjZiZGNiODg3ZDBmYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWE0YTNhNzViODA5YTNlYzEzODBhZWNlYmYzOWVhNmIzYTIzMjJkYzIzYWU3ZTY1NTkyYzdiM2U4NDA1Y2YyNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzcxOWE5NWM5ZjYxYzQyNjI1OTcyM2QyNWUzYjgxNDc1Y2FlYjFmYjhiODgwYjlmYmY3MzAxZDg2ZmNmYWVjYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b8c0a69c7fe84d8eb6ad6ed4131a64e9",
+      "statement": "On POST the server requires the direction to exist (404), validates `entry` and `exit` against the direction's base polyline with 30 m tolerance, validates the loop's first/last coordinate against entry/exit within the same tolerance, rejects a degenerate (coincident) entry/exit, and rejects a label already used by another detour of that direction; only then does it insert the detour row and its ordered stop rows and return 201.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L53-L74",
+          "version": "repo-lines-v1:sha256:1c13c95e06e201f5fa4e4ce0f7a5cdd40bd6ab7e46379fbb96833387fa24813d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMwMjk5ZmUxMDBkZDY0Y2VkZGZhZWVjZDcwOTNiNjZlYTJiZDJiYTMyZDRkN2MyY2U3YjY1MzliYjZiYzFlNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwZjFjM2YxMjY4YTgwNGY4OGY5MTE1ZTY1NjNhYjQ3NzcwYzZkN2E3YmRjZDJjZDljYTAxZjQ4OTRlYjJlMjAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L95-L157",
+          "version": "repo-lines-v1:sha256:cd89811058017c15764c8c72271d4431dfb6912a0b293baf7f86d1dbeb552cee:eyJzZWxlY3RlZExpbmVDb3VudCI6NjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZjFjYjNlMDc1OTFiY2Y4ZWJiN2RjOTUzM2QwMTUxMjk3OGE5YjBmYTAyZWUyODE1OWJhYjI5ZjBlYjI3OWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE1ODAzZTg1OWY5ZjQ5NmYzZWE3ZWIxZTJlNDQ3MWNkYmUwYzU0MzRmMjRjM2Y0YzY2MWUzM2FlNmVkNDQ0YjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwYjNkMzkyMTgzNzIzZTM1Njc4YTE1ZjJlYzIxMWJkZjc5NWRkMjhkNDIwMTYxNjUwODFiZjBhYWU5NWY5NTYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L8-L76",
+          "version": "repo-lines-v1:sha256:c1b7fe87b8cf867a3c531bf3dd0c2b1258dd9468357fc120d728b19fc02d86f0:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlOWI0MmYzYjBhMWQ5OGEyNzM3YjU4YTc0YTVhOWEzNzBkZWQ3MzU5ZWQ0Yjc3MTFlZDFiMTVkNGQ3YjYwMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0NzQ3NWM3Nzc0ZDUzMzQxZTg0NjQyZmExZDM2N2M0MzgzMTM2MWZiYzRiMzA4NjJiYzg2NmI2NjE1NWMxYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMTc2YjZiN2Y3NjdkYWNhOTFkZjQ4M2JlMWExYmVlMDhmMmM2NzMxYzgzNWQzNDc0ZTMwMmYwYWUxODY0NjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_11807d9176634fbf9adb7164a46a8a79",
+      "statement": "On PUT, `entry`/`exit` are re-validated on the base polyline when supplied, and the loop-endpoint (and degeneracy) check runs whenever any of `detour_polyline`, `entry` or `exit` is present — validated against the resulting triple (`body.* ?? current.*`), so replacing only one geometry field cannot drift the loop's endpoints away from its nodes. The label guard excludes the detour being updated.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L176-L208",
+          "version": "repo-lines-v1:sha256:c08cd75038b2e324719d89527de3d2faa7873def8b213c2f4147838883ee6b15:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4ZGE3ZTkzYTU1Nzg0OWFlYjhjNDRjNmZmOTA1NjRkOTcxYzE4NzAxMDVkY2EzYzI1ZDE0YzQ0NGZjODBhYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNzVjNzBkOTQ2MzYyNWUxMDc5ZmQ4ZmM4ZWU2MmFkMmU5MmM0MmJlYWFiZmQ4NWI3OGQ4ZTBhNDk3OWI5NGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmNTkxNmM2ZmViM2FlZGJmYWY0ZWY0YmM3NGU1OTdkNzlmYTM4Mzg5MmMwNzBlMmY3MWRhNTE2NWY0MzllNTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjMzA1ZTg1ZDVhNjkwNjE3NWU0ZmMzNjEyYTY2YmJhNzZiNDg1YzVjYjQ5ZGE2ZWQwMDY1OWMyODliZDlmMDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ddbfd726f5e74ebbb09272ad827fb7c6",
+      "statement": "`detour_stops` is a REPLACE operation on PUT: the payload carries the full ordered list, the handler deletes every row for that detour and re-inserts it, numbering `stop_order` from array position 0..n-1. Omitting the field leaves the stored list untouched, an empty array clears it, and a repeated save therefore mints fresh stop ids — client-local stop ids never survive a save.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L237-L244",
+          "version": "repo-lines-v1:sha256:1d9463c1a9f8f54500f47fd1b2c6cbe9f4e6a456992d566b4efd709cdf31d336:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDg0ZTJhMDliMWQ4YzJlYWQwN2U4MjA1Y2U1NmEzOGI5ZmUwZDQzYTc1YTk0M2I4Yzk3ODRlOTcyMWQxMzhhMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI2MmY2MGQ4NTkwYTU3OWNmNDZmOGQ2NzM3OGM0YzU3MmI5NjJjZWNjZGI5MGM3YTVmN2I0MmI5NjA3ODJhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmJjOTAxNWU1Y2M3NDUxYzVlMTQzYTAxZGViYmMwZTgxMGU5YTgyZmIzN2I1ODc1YzFhYmU5M2UyYzc3MTBkNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODM3MzUzZGZlYzE0NzdlNzRlN2RkZjllMzI5ZWI4MmQxMjRhYjc5ZjMzMmFiYjIyYzIxYjdkZTMyY2IyM2Q3MiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L24-L51",
+          "version": "repo-lines-v1:sha256:3648a8b05cebdbac5545f111bd99c66e0430228976a29f03734054f3ea4adb23:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxM2RhNTcxMTdiMTA0ZDhkMmI3MjY2YmUyYTExY2Q0ODk2YTlmMjM2NDdmNWM3MDg4Y2RhYTJiMWIwN2NiN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkMTE0Yzg2YzZhNDQ5YTNkNmMxZWY4OTM5Zjg5MzcxMjUxMzMxNDFlZWUyMWYxODBjNGFjZTUyNzMwYzE1NmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2YTc5NzNiNjNjMDIyM2Y0OWJjNDMxZmJmNzE4ZTg2YWMzM2RmY2IyN2FiYjdmZGEyMzEwY2YyOGQzZGFiZjgifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L748-L772",
+          "version": "repo-lines-v1:sha256:e77e157e6865079ad52660398f044688717508ca384b2caa5e474e5e8245881f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4MDU3ZDQyMDJjNjdiMGE5MGQxM2ZjN2RjOWY5ODU0Nzk5OTYyNTEyZWI4MjJlYzI4MzdmOWNhZTgzZTQ3ZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxOGNkNTYyNmZmMDdjNDdlNzAwOTY4OWRmN2Y4ODczMWM4Y2Q3NzA0YWI5YmQzMzEwOTk2N2M0YTViZDY2ZDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2NjcyNWRmMmZmYzIwMDg4NGY5YjJkNGNmM2JlYzI2NzkzNGM1ZTA3ZTE3OGNkNmEzMmVjMjA0Zjk0YjAxOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjNmFjYTNiYmZjYmFkN2ZmOGJhNGExMzVmYzZmZWYwYTBkNDlhYzNiNjEyMjBjZTFhYWM4ZDI2Yzk0MGRkMDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_592c09c15aab4ba58e3664809823b313",
+      "statement": "A PUT that touches only `detour_stops` must not run an empty SET clause: `detour_stops` is not a `detours` column and never enters the patch object, and the `UPDATE` executes only when `Object.keys(patch).length > 0`, because drizzle renders `update().set({})` as invalid SQL. The integration suite sends exactly such a detour_stops-only PUT and expects 200 with the replaced list.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L210-L235",
+          "version": "repo-lines-v1:sha256:6e5b0611a405b691e476240e1f0ac74dd9d4dbab33b8d2bc34ae8b7ecc9f0529:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmNTY2YjRkMzcwZGE2MGQwZDg2NGZmMzNlMWJkN2ExMzdlNGQwM2IyNzQ4MzVhNWRmYzA1NzVjMDczNzE5ZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjZWFhYWZkYzBiYTgyMGY5MTY2Y2EzOWFiODJhYWJlZTIwMmQ3YzViM2RjMWRjOGQ2MzRkM2ZlYTcxYzYyMjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwMTNmZTkwMmQxOTQzYTZlYTBhMmE0ZTNhNjkwMDliYzUzM2Y2MzgzZTIyMTNmZjRkMWEzMmU1Y2JhNTc3ZTAifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L748-L772",
+          "version": "repo-lines-v1:sha256:e77e157e6865079ad52660398f044688717508ca384b2caa5e474e5e8245881f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4MDU3ZDQyMDJjNjdiMGE5MGQxM2ZjN2RjOWY5ODU0Nzk5OTYyNTEyZWI4MjJlYzI4MzdmOWNhZTgzZTQ3ZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYxOGNkNTYyNmZmMDdjNDdlNzAwOTY4OWRmN2Y4ODczMWM4Y2Q3NzA0YWI5YmQzMzEwOTk2N2M0YTViZDY2ZDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ2NjcyNWRmMmZmYzIwMDg4NGY5YjJkNGNmM2JlYzI2NzkzNGM1ZTA3ZTE3OGNkNmEzMmVjMjA0Zjk0YjAxOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZjNmFjYTNiYmZjYmFkN2ZmOGJhNGExMzVmYzZmZWYwYTBkNDlhYzNiNjEyMjBjZTFhYWM4ZDI2Yzk0MGRkMDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d45353d133b7448ea5ef7662fe5fdbb4",
+      "statement": "Detour stops live in their own `detour_stops` table (keyed by `detour_id` with ON DELETE CASCADE and a unique `(detour_id, stop_order)` index) with full base-stop parity fields, and are never part of the base stop chain — the direction's ordered stop list consumed by routing and the dataset export is the separate `stops` table keyed by `direction_id`, which detour authoring never writes. A detour's route is entry (base) → detour_stops in stop_order → exit (base).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L212-L235",
+          "version": "repo-lines-v1:sha256:6a060d4a16bc9d35ef04c4357fe1e2c11b61836524b35aa3e50d0fe1cd8903f3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NDk1MTZkMTMxMmM5OTYxMWFlYjNjYTA0M2YzMWJkYmIwMjYwYjA1ZTkwMTRmZWYwNTVhNjVlMDIwNGI1NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1NDU4ZjMwNjQ4MzRmOGYzNjhmZWU4YjdhOGEzYzBjMmZjNTI2ZDZhNWZjZmM5NDIwYzBkMWIwOGUyMTY1MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzODAwNjBlYTczZTEwMGU3YzFlMmQ2MTg0YTY4ZjBjYzc2OWM4NTU4OGUzMWZhZGU1NDYxZTU0YzcxNWI5ZjIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L190-L218",
+          "version": "repo-lines-v1:sha256:cc506d74f1c74d461de3a3c2b12601caf469506faaa541da461bb6738e0b05ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NjA4MTk3ZGMwYjgzM2FiZTdlZTZjNzQ3MGE0NWU5MmY4YTRlNmVlYzU1MDIyZDUyNzk3NDcxYWM5MzI3MzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4ZTAzOWVjYmQ4NzJiZjQxNjFhZDk1NjA0MTc3ODMzYTY2MmFjODdmZGJhNmQzMDhkNjc0YTA5MTIyNDFlNTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc4OGQ5ZGMwMWQ4YmU5ZDI5ZjU3NjRjNDY0MmY0ZDRlN2MxMjhlNDVmM2I0YzlkMTA4MTJiYzlkYzEyODU2MDIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L136-L172",
+          "version": "repo-lines-v1:sha256:d52523b4af55401de882c2bf7ead5f2069afc2d39c6e4bf74f555b798e6e9a26:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4ZmE3OGYxMDg1NzE5NWZhNWE5OTMwYTRmYTAzNDQxMWQwMWI0ZjhhMDA0NDE2MmIzMzIyNjAxNzY3ZjMyYzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ODQ3OTdkMTQ3MGE4YmZmN2JkNWE2YTAyMTRlOTViOWYzMzMwNzg4MWU2NmMzNWZmNzAwNTgxYzcyMDhiZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwYTdkMGRjZjExZTdmYWY1MmFhZDg2ZmZmOWQxMWI0ZmMzZWNiODEyODkyZmFlNzE5YjU0N2MyYjc4YmI0ZTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f2f2c720e6f048169d0792747284d0ac",
+      "statement": "Unlike the direction save, the detour POST handler uses no explicit database transaction: the detour row insert and the detour-stop inserts are sequential statements inside one request.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L117-L138",
+          "version": "repo-lines-v1:sha256:5a6ce040554aee521a4886d32b3c8c4d44ea8debf6bd4ea428068e734941b93e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1YjQwOGRiYTY2MjY0MzAzYjE2MmJmZDAwNTE0MDU5NGE0Njg1YTI0ZmIxMDMyMzk0ODY5ZmMyZThkODZiMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ5OGQ2Mjg0ZjMwMzQ2ZDc2ZmFhM2RjMzQxZDY0MGZmZmY4M2ZhMTk5ZTE3NDNkMTgwOWYzOTBkNDU1OTI0MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlOTcxMWMwODE3M2U0MWI2ZWQ3NDBhZDk2ZmZjZTI3YWU2YzM1ODI0NjdlNGExZDM3YjgyZWI0NzQxMTBlOTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L58-L58",
+          "version": "repo-lines-v1:sha256:35347eea11c5a122160085a59352de370799269550241dff41a7ce9deb56d10c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzUzNDdlZWExMWM1YTEyMjE2MDA4NWE1OTM1MmRlMzcwNzk5MjY5NTUwMjQxZGZmNDFhN2NlOWRlYjU2ZDEwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzUzNDdlZWExMWM1YTEyMjE2MDA4NWE1OTM1MmRlMzcwNzk5MjY5NTUwMjQxZGZmNDFhN2NlOWRlYjU2ZDEwYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTA5MmYwMDc3YmYxZDFlNWE0M2M3MDFiN2EyMjA1YmM1MzYzOGFlMTNkOTM0MzBhZTI1ZGE3MTcwZTMyNTIxMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzc4ZjY0ZTE3MGNiNWY3MGRkNWUxODE3MDNhN2Y3NjcwMzRhNjNjYWY1M2I4NDc5MjU4MDU5YjlkNTZhODU1NCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_908d2085221648dbbf9bcccfd9028747",
+      "statement": "The detour store keeps its own undo/redo capped at 50 entries, recording a full-composition snapshot (mode, nodes, stops, loop, label, instructions, additional distance) before every change, clearing the future branch, and short-circuiting identity writes; undo and redo bump the snap sequence so an in-flight loop build cannot overwrite the restored composition.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L294-L304",
+          "version": "repo-lines-v1:sha256:16d43c51c0217acfe3c5c9555d671fa87fa45805c04bd1cfed08349f27a77d80:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzMTFmNDAyM2ZmOTEyYmQ5MzY2MTAwODExNjgzNWI4MzBlYjc4Mjg5YTAzZGEwOTg5NTgxZGFmNWQ5YzQ5OGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYxN2I4MzEwYzJiYTk2NjYwMzM3OTA5OWZhYjczNTYzY2NkYzAzOTBjMGU0YTQzNDE3MmVkMjRjNjk4NDFhY2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4ZTEwODg0YTY3ZDg4YTMwNWM4NWNmMTg2NTEyYjhlNjhjZmNhMjg1OGVjM2JjYTIxM2Y0YTJmNzQ4M2UzYWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L552-L566",
+          "version": "repo-lines-v1:sha256:cf86c0eb3c48028719b82b852e4df6f504369a15b20d2aa07e181a40a3ce73cb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjMmQ2MTcwMzdkMjQwYjViNmE0MWVlYzYwNmUxZWRmNTY2M2U1MmUzMGYzNDI2NjYyODE0NjBhMzczZmU5YWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmNGQ4MzM2MGZhNTVjNmZmZGZhNmYwZTAyNDExMjgwNWNlM2I5OGZjYWUwNzE0NjZjMmM4ZGU2Mzk1M2U5MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNmNzhjZmViMWM0YTRhMjE3NGM1ODQwY2QwMmI3NDAwZTE4ZTkzMDhkYjY2NmVlZWQ1N2IwMzk2MjVjNzBiMTgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L99-L120",
+          "version": "repo-lines-v1:sha256:d115119a5878d10d728789defcdc6e6d2911f718ab7e2414ab2cae40013992bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0NGExYjYzZDMwN2IxOTBiZTEzNTJkNjFiMjRiZDY0YmZlMjY1MzY3MTYyMTVkMGE3NGY4YWIzOGY3ZTU4YjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YzM4ZTFhNTUwYjY3MTA0MDNjOWJmYTUyNDQ4YjdmYWM2ZmM4NWVjYzE3MTEyN2Q3NDE1YTMxNWU5Njc2OTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiNTc0N2NkODBhOTU2YjM5OTczNDBkYTdjZGE3YWJkNTZiZTJiNWVjZTEyNmNmNjhkNzEzZTM2OTkxNjhhMjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjZTkzM2JhYmYzZjU1MWE0ZjYwOThkNGQ1MmE0ZGU4ZGU5YTdjMmI2YWY0M2ExNGIzNjIyMTY2OWEzNWNmOTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4d93796a4b024835bb6034f986a5e4a0",
+      "statement": "Detour drafts are a separate mini-draft from the base plotting draft: full `DetourDraftSnapshot` payloads (composition plus target, editDetourId and baselineDetourCount) written to localStorage under `komyuter.detour-draft.{directionId}` with a 24 h TTL, written per change but only after the composition is `touched`, so a pristine open never clobbers a leftover draft. Restoration resumes editing the same saved detour with the same conflict baseline, and the offer appears once per direction.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L135-L179",
+          "version": "repo-lines-v1:sha256:9227eeb63702bc2b5fb711c10cdd0c55215f7c9c16d1d18ef2d95c77f8d7107e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkNWViZjdjZDVhMDgxYWFmNzRlNDFlYzhiOGNjZjM4NmMyNDQ0Njg1NmE5Yzc2Mzc3ODQxYjI3MWE5MzcxMzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2MTdhOTBkNjRiYWFkNmI1MjI3MGEzMGVlM2M3YjIwZjJkOGM3YTc5MGE5ODFhMTZhMDhhNGU0OWU4YzI2YjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1ZjFkNjNhMDdkMGZjMDVkZGZmMTIwMTljZDk5ODBhNjVlYjQwNjA0MzEwNjc2ODc5OWU1Nzg1ZDc3MzM2MDQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L112-L118",
+          "version": "repo-lines-v1:sha256:6ca6951abe4b3170432ac81d888af522651c04858631428979986033c776cc89:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWQwNjE2NjE4NDM1YTIwOGJhOTE5MDY0Y2VhMzc3NzU1MTk5YTIwN2QxMjQyNzI2NDA0ZDBmNzY2ZjVlNzBjOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmM4MjY0Yzc3ZDRhNjc2OGUxYjNlZDA2NmUzMWZlMjMxZDhmYTIyMTgyNjMyOTFlNThlMmYxMjg4MjBmNzM3YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjM5NGRkNTE4YmU4NGZjZDI0Mzg2ZWZiNTg1NDA0ZTgzZjkzMTU1ZGRhZmIyY2FkOWI2YjlkMTE5YTI2ODdjMSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L130-L186",
+          "version": "repo-lines-v1:sha256:72d55f368f72d67894da5ed29f5e8f90aa2ad509ec38affeb70f9f65cd3021a0:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2YTExOWNiYzQ0ZTk3OGM4N2I2MzBlNTc3ZmZkYWJhMGZkYzMxNjRjNzFlYjdlYjg4ZDQzZTBkODgwYjAwZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzNmQzMjMwYTZjZmFlOGJhNDdiMTgyMDA4N2EyNWZmNTA5Njk5MDQ4MzdiZGViMWExZWU1ZTdhZmM4YzA1NGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9641302ecddb4c409edaf5cd47d5e35e",
+      "statement": "The detour draft is cleared only by a successful save (`clearDraft: true` after `close()` so the persistence effect cannot rewrite it), while Cancel, Esc and switching away from the Add tool preserve it for the next restore offer; Discard clears the key and dismisses the offer, and Restore hydrates the store and clears the key.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L125-L133",
+          "version": "repo-lines-v1:sha256:f9361c60fb9834f41b1ac6cfa0ef38694ff7663166fc3f8a8a7488987a5d29e6:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjk5YjMyNjk0Nzk5MWU5NGJkOWYzYTBkNDVlNDY4OTQzYWNhN2Y1Y2QzODI2Mjk4OGJhMjI4ZjJjYTI3YjYyZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGEwZWVhMDQzNDUzNTZjMDdjOTZjYTE4MWNhZDRiYWI0MzQwODc0ZjUzOGRhOTQ1ODc5NThiZDJhZTk5ZmQyZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTA0NzgzYmQ1ZjkyMTg2YTdjNzY4ZDRlZWM3MDI2Y2JhM2M1YTdkZTc4ZmI2YTJmMDQzZTVhNTU1ODNhMzNhMCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L332-L365",
+          "version": "repo-lines-v1:sha256:315c44d42a570fb7353d4f0959809b810c571d1db8419507e53f25df75746113:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4ZTczNWExMGFiNTM0NWZiMmRmM2Y2ODlmNWY3OWY0ZjFmZjMxM2JkOTgyY2E5NWQ0NWRkYjkwYWViZGEzMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxMzAwNDg0N2UwNGQ4ODQxMmY5NGVhYjZiMDU2NDlkNjJiMDQyM2QwNDliYjRiMzI3YTgxNjMxNmQ2NDQzY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1YmI0NzIxMzcxNzExNjM1YzM3YzA0ZmVmYWUzMThjZWNkMDZhZjI2M2JjY2M0N2IxNmY5NzM3MDM2Yjk3MzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJhNjU2YzU0ZGVhY2NhNzA5NzFhMDQ0YjJmNzQ2NzY2NDI3Zjk0OWE5OTY0MTBlNzk3OWMxNDdjZWJiMjA5ZTMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L615-L638",
+          "version": "repo-lines-v1:sha256:4641f5147d2775ec0aeb37327bfa07b7d69bd4da70cc0dbb1fdf00ba06c38111:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVhM2M2NGRlYzk4MzMyMDkzNDBmYjFhNDlmZDg5MWNlZjRhYWViNDY5MzdiMDg1NGRkMDdkMjMwYzc4Y2RjNTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzNGE5MWY2NDEwOTZiNWVhNGQxZTY3ZmRmOGY2YmY2YmI3NGJkYWI2MjhmOTZkMmFkOTIzN2JlNmQyMjYxM2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhMmFkYTc0MWIyYjEzMWU1ZDdjY2VjMDRiYjQ0ZWM1ZWE3Y2M4ZTBiZmQwZTM2NjI0NDMxOWM0Yjk5YzQyN2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjM2YwYjIwMzU3ZTc5ZWM2MjU5ZWE2YmQ1MDQxNDM3NTVlNDYwZGQzYmFjNDdiM2Q0YTdjMmE2MmEyYjkzMmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4644d13f372d42769197d5a3b8ae72e8",
+      "statement": "Keyboard and pointer ownership while the detour editor is open: `mod+s` for the base-route save is disabled and its Save button hidden, `mod+z` / `mod+shift+z` dispatch to the detour store when it is open and to the plotting store otherwise, `Esc` leaves the detour editor first (draft preserved) after the child-dialog and focused-field checks, and every map tap goes to the detour store while the Add tool is active — with any other tool the tap closes the editor — so base stop placement is unreachable until the detour editor closes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L90-L123",
+          "version": "repo-lines-v1:sha256:4f0dbf5a373e8d86ba2e544ff1c6697bb17d46505070e5dbd6536bc56fa5e165:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlNmQxMjE5ZDM5OTNiN2ViNTNmYzM0YWU5NzhlZWM0ODcyODM0NDhkZmYwOGRiNjUxMjc5MzBlOGNiMTE5NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3ZDQ0MjcyODg3YjZjZTg2Njk0NGU3NTdlNjNjYTc4MzU4YzMwMzQwMjk1YzEzOGU1ZGIxYjc3MDQyYjQ0MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5NjQ2MzQ0NWQ4OTU4YTUxZDQ2NzdiZmJmNzhmMGZjZmIzZjRlZDE2YzdmZjE2ZWFkZTA4ZTUyYWZjZmM5MTQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L203-L217",
+          "version": "repo-lines-v1:sha256:77b7d796129bfc61ffa050f8d7fef312a116b9527a03047257edc660922e353a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzYTM4NTBmYWI4MTIxZTM5YWQ1ZWY3Njg5NTRhMzY2YjY3ZGE0NDJmOTRkNTI3MjEwMjJkMjFmMmY1MzY2N2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjMGE3OTAyZTRhZGU5ZDk3NDNjZTk5NTQ4YWU3Nzg0YWQ0MDBlOTU2MmU2MzU3ZDA4OThmZGM4MzAyNzNjZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2ZmI2MmEwMWZhZGIyMGVlOTJjMjI5NjlmNWY2NzBiMjFmY2YyYjk3YjRiMDJkNjMxOTIzMmZmM2NjNjFjOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU3NjU0MzgyYzc2NGUxZjMyOGVmNzY4MjYwYzFhYzdhM2MxZDE0MTYxZDg1NTI5NzcwNjU1N2IzMmFhOGYyNzUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L78-L137",
+          "version": "repo-lines-v1:sha256:bffc1d39b13825b33534bba32acb5b234ae29ff3dbe348a9b2a82f1aa9c8310b:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4Y2QwZTJiM2I2ZmUzNjE0NTI0M2Y2NmNlMzY1NGZmZGIzZGQzNzdlNGFjOGFkZTUzMmY2ZGNmMGFiODUyMDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhmYmQ0MmYxMDA4OTMyZjEyNTMxOTUzOGI4MjAzYzBmMmVlMzdjMWVhNTYwZTM5NTViOWY1ODRmYzYyYjViZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyOWIzMmExZTQ3NWM0MjBkYzAzN2UyMDYzN2I5ZGMzY2IzYTRmZDYzMjdjZjExOGFjYzYzMDNmMTgyZDBjZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9f80a3a52dd4425eb57548e82b4f7736",
+      "statement": "While the editor is open its detour stops are first-class map markers: draggable, rendered hollow/dashed in the base stop-type shape vocabulary, click-selectable, keyboard-editable through `DetourStopGroup` (name, type, guaranteed service, landmark hint, notes — location by dragging only, plus Remove), and the placement of a new stop clears the selection.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourStopGroup.tsx#L17-L163",
+          "version": "repo-lines-v1:sha256:3b9401843b9cea955ad67a532ca94d3221a38db0657dd639b2276f33d9cd8459:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1M2M3NTA1ZjliM2VkMGNhOGJlZjYyOGY5NzcwOTY0MGE5YmI4NTg5YWViZGRkOWNlNTQ2YTI5ZGI3MmQ1OGZmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI5NWVmMDFiYzA4ZGJjM2I2M2U0ZTc1ZWEzZDI2YTViOTQxODkxODc3ZTI3YWQ4OTEzMjljODQxMWQ3ZDhkYzRkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJjZjQwOTZkZWQzMmRkZDJkYjU3NzEyZjA2MGMyYzJhZWQ2MjhhMjU0YjU4M2U2NTI0NjU3ZjE5NTY2ZjM4ZWRmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/PropertiesPanel.tsx#L40-L50",
+          "version": "repo-lines-v1:sha256:3a1993bec6b9419dbf4eee201c2a1b2fb7d955f62c279290866e86ba5bec3079:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiYzUzNWI4NTliOTgyOTg3ODBlNmI0YzlkMzY4NTAxYWE3NDdhOTc5OTE1YjAxMmU5OTI4Y2QyMDVmODI5OWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0NDRhMzFkOGVjN2U4OGY4NTU3MTUyNmJmMjdjOTU4ODIwZGZmZDI5ZjY4NTIxZDBjMDViNzcwNWExZjE4YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkZGYyMDMxMWU4NTQwMDM5ZjU3M2JhOGY0NTA0ZjUxNTVkODZjMmQ0OTJmMWU1NTY5ODMxYjM5MGZjYTQwNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3ZTYzZGYyMGRmYzQ1Njg2NWFmZDFmZjg2YTEwNzFkZGY3MTJkYmFmMDAzNWJkMTQ2YjMxMmJlZGE4NTAwMTYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L352-L411",
+          "version": "repo-lines-v1:sha256:86a854c72dd70de47a9bf819953d67ed86df070a759f03927c82312b18937468:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3YzY4NDE1NmVmYThmYjY5YTNlNmU5Mjg3ZTc2MTA2NTFiMTVmYTMzMGYzZDlhMjQ2MDAwNzRjMjlmM2ZiMTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM3OTdkYTM3MTI3OGI4NTE2ZjRhYWU3YmRmOTE2YzIxYWIxZWRiYWIwMzlmYzk3NmU0YzliMWM1M2I3NzdhNDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4Yzg5NmRjMWI5MTJjYjNjZGMxMmQ0ZTczYzU5YTAzYjViYTgxM2NlNDllNzVhMmFiYTc2ZmE5ZjYyODlmZDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5MDdjY2Y4NWEzMzA5Mjg1NWM0MTgwNGQ0Nzc5NmZlZWRjODk5ZDFhZjAyODBiNmYzYzcyNTU4ZmIzZmEyM2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_680b8b5d9c9f4701a4ee39134e4914fd",
+      "statement": "`DetourLayer` renders the open direction's saved detours as dashed lines in a stable per-detour colour (inactive detours at reduced opacity) whenever a direction is open — independent of the editor being open — gated by the detour layer toggle and the sidebar's per-detour eye toggle, and draws the live composition as a separate amber dashed loop.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourLayer.tsx#L112-L147",
+          "version": "repo-lines-v1:sha256:3d4e7172c1296cf2d8aeefab3d2d5403023238ffd5a81c8109605fb049d391e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmZWU4YTQ0MmExZGUzNDc3YzI5NzJhYTdlNWVjOWQxYjJjODk2YmY0NTRiMzhjZjc1MTViNDJiOTdhOGMyZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxZjdlN2EzMzg4YzRhZjZmZmExYmRmZTM3YTNjNDYyNGJkNjQ4MThlYTNhMDU5ZDc4YzY0MTViMDUzMDFmY2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ0YTA0YmEwNmY5ZDdhY2VhYWIxNGMyYzM1MzQxNjU1NWIyMGQwN2Q3OWZjZjQ5OTE5NWU1ZTcwNDhjNTlkMmEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourLayer.tsx#L54-L103",
+          "version": "repo-lines-v1:sha256:73d83551b19edbc726261eee6d7df8165b3bbbec9ae3e381fa21ba393ea1f04a:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlOGE4MDk5M2IwZWNhZWI1YWQ3M2NkZWM1NjkzMWMxYTJjNjA5YzMxMmM5YzlhNDU2YmViOTIyN2UzNDE4ZWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkODYyZmYzNGIwZjlhZDA4NjBiY2Y1NDkxMjdkZDhlYmNkMGMzMTllZDgxZjgwZjVjMDZiMDM4MDNlYmIyNDQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdiMWJmYTNkYmI0MGI1MGY0ZDUxOWE0YjUyYzA2NjQ1YmY3MGVmOWM5NTJhZGQ5MGY4OTRkNGQ0MjdjYTU4YTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3N2U3OWJhMzcyZjQzYTc3ZmIwMDBmOGFlOTM1ZmU5MjAwNDI4NjM5MWJjZWQ3ZTA2ZTRhNWM0N2IyY2Q2MzcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourList.tsx#L42-L75",
+          "version": "repo-lines-v1:sha256:8c44e94d1402652716e15e94d30f21ecf13b9f50ead3847213fb823200efd971:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAwNTUwNTVhNWViNGQzZGNiOTY0ODZiZGMwZDEwOTBmYTAxYjA2ZWI4ZjlmYjBlMmZjYmRhOGIwOGQ4YWJiYzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjNWJmNDc1ZjUzOTkzNTdhZTBhYWZlNjBmOWI4Y2EzMjcwMjRmYmRmMzExOTMzYTc5M2FiOTY5MDY0NTUwNjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJiODc1NWFmNjNiNGNlZDcwNmI5NDhmYWMwMDBlYmEyZWM0MWUzMTcyYjQ4ODhmOWFlNTMyMWU5OTQ1NGE4NWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_13b190e3ecca43c987758d4143443e20",
+      "statement": "The flanking helper `inferDetourFlanks` — the original one-click detour inference — is no longer used by detour authoring (nodes are explicit) but is reused by the base plotting store as its mid-route insertion rule; the store tests still cover its loop-wrapping behaviour.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L430-L478",
+          "version": "repo-lines-v1:sha256:6b61ea9b3e30af09b7ffa873110cc6cca2dc67bfd9b6b5a66a9b10df5a3345f9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzYzdjNTBlMTIzNjcyMzUwYmFlYjRlZjM1M2NiOGQ5ODhlMzVhMGJkNTY1MWMzMWI3YWVkNDc2MjkzZWYwZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiYzVlMTg0NzE1YTljZDM4MTViNzY4ZGViNWViYWNkY2FjODNlNTc1YzU2MmMxZmRjZjI0ZGMyYTJjOWJkMzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmMDBhMjRmZWFmNWJhMGM5MzU4YmNjM2Y1MGQ4Zjg2YjRkZGFiNTJlZjRkOGQzZjYxOWQwNjU4OGY0MmU0ZTYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L775-L801",
+          "version": "repo-lines-v1:sha256:48bbf3ff21ede5e1a52286c1df2cd0ccf7d97b7f96fdea2229b3a21ec0b9348b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZDIwY2U5ZjVmYmYzNGFmZWNjZTA0ZTUxN2YyOWYzZjNiNjg3OTkyNDMwZDY2OTk3ZTc2Y2YwNTQxYTBkNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmZWQ3MzIyNzAzMDBhYjBjZDFhNzk3ZTgwMWU2YjI4YzczZmI3Zjc5NzIyYmU4MmRlMDAwYTllZmY4NTFjNTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhMTJlM2QwZDAwN2JmZGRlZWMyODA3Y2Q4MjYzNzNlNTE4MjViNjUxNjU1MDUxZDYwZDY3NzBiYjNhMmFkNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmNTAyOTJiOGNlMzcyMGI0NTJkMzlkNmFlNWNmMDJlZGE3NmUwMTg0ZjY4NTZkYTY0NTZkY2ZiZjNhODBhN2MifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/coords.test.ts#L549-L615",
+          "version": "repo-lines-v1:sha256:ef9f4d6196dfb0709ec2069d7bcded4ed546723b5b1ae5bfd1dec4ae76e56309:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4OTFjN2JhNGJlOTVjYzQzNmNkMGVhMDkyNWE4OTcwNGQ2ZDhjYWQ3YzkzNDY5MmUyNmQ2MTY5YTFjZWI1YzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkOGQ4ZGY1YTI5ZjRjNWFjMGM1YmQyM2M1ZDQ0YzA2YWM5MDkwYzkxYmEyOTUyMDhlMjBhNWE4MTNhNGIyMDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlODkzYjI3ZGIyODk1YTcxZjlkYTBjMDQxZDdlZTA5MDQ5MmQ5YWQ4MWNjYTkwNzlhZTE4NWVkOTVlZWM4OGUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

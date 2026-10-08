@@ -11,3 +11,9 @@ supabase/.temp
 /SUMMARY.md
 /BACKEND.md
 /SCAFFOLD.md
+
+# OpenWiki output is generated (Markdown plus .claims/*.json sidecars) and the
+# hand-authored openwiki/INSTRUCTIONS.md sits beside it. format:check globs
+# **/*.md, and lint-staged runs prettier --check over staged .md/.json with no
+# auto-fix — so the whole directory is excluded or every wiki commit fails both.
+/openwiki
