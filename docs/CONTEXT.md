@@ -8,9 +8,25 @@ A public transit navigation system for Iloilo City PUJ jeepneys: multi-criteria 
 A person who uses the mobile app to plan or execute a journey.
 _Avoid_: Passenger, rider, user
 
+**Account**:
+An authenticated identity permitted to sign in to the desktop admin dashboard. Every Account holds exactly one Role, and Accounts are created by invitation only — there is no self-signup.
+_Avoid_: User, login, credential, member
+
+**Role**:
+A named, ordered set of Permissions, created and assigned by the Super Admin. It bounds what the Accounts holding it may do.
+_Avoid_: Group, level, tier
+
+**Permission**:
+A single capability a Role grants — for example deleting a Route, or managing Accounts. Permission, not Role, is what an authorization decision is made on.
+_Avoid_: Privilege, scope, capability flag
+
+**Super Admin**:
+The single, permanent owner Account. It cannot be demoted, deactivated or deleted by anyone, including itself, and it is the only Account permitted to create, change or remove Roles.
+_Avoid_: Owner account, root, master admin, system account
+
 **Administrator**:
-The sole human actor who manages the transit dataset — routes, directions, stops, detours, restrictions, and fare configuration — through the desktop admin dashboard. Authenticated via Supabase Auth.
-_Avoid_: Admin, user, operator
+The name of one seeded Role — the one holding every Permission. It is not a term for a person: a person is an Account. The other seeded Roles are Plotter, which may edit transit data, and Viewer, which is read-only. Seeded Roles are defaults rather than fixed vocabulary, since the Super Admin composes Roles freely.
+_Avoid_: Admin, user, operator (as terms for a person)
 
 **Route**:
 A single PUJ franchise: the full bidirectional entity comprising two directions, terminal stops, base polyline, detours, and fare configuration.
@@ -45,8 +61,12 @@ A directed service of a route — the "To City Proper" or "To Calaparan" journey
 _Avoid_: Forward, reverse, inbound, outbound (as model entities)
 
 **Draft**:
-The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage with a 24-hour time-to-live, never sent to the server, and offered for restore when the Administrator returns.
+The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage with a 24-hour time-to-live, never sent to the server, and offered for restore when the Account returns.
 _Avoid_: Working copy, pending route
+
+**Save Conflict**:
+The state in which a plotter's Draft is based on a version of a Direction that the server has since replaced, so the save is refused rather than applied. It is resolved over the stop list and the descriptive fields; the polyline is never merged — one side is chosen, and the workspace re-snaps on request.
+_Avoid_: Merge conflict, stale write, overwrite
 
 **Virtual Node**:
 A temporary graph node inserted per navigation request for a non-stop boarding or alighting position on a direction's polyline. Connected to the two nearest stops via board edges. Never persisted.
@@ -65,7 +85,7 @@ A route reliability metric derived from comparing traces against the route's pol
 _Avoid_: Trust, reliability score
 
 **Sign-in Attempt**:
-One `POST /api/auth/login` request from an admin identity (email + password), independent of outcome. Failures are counted per account and per source IP for throttling; a successful attempt clears both counters.
+One `POST /api/auth/login` request from an Account (email + password), independent of outcome. Failures are counted per account and per source IP for throttling; a successful attempt clears both counters.
 _Avoid_: Login, login attempt, sign-in (when meaning the flow rather than one request)
 
 **Security Event**:
