@@ -4,7 +4,7 @@
 
 **Input**: Feature specification from `/specs/008-admin-route-workspace-refactor/spec.md`
 
-**Note**: This plan consolidates the design previously recorded in `REFACTOR.md` (repo root) — that working document is superseded by this file. Design decisions are recorded in [ADR-0014](../../docs/adr/0014-admin-workspace-layers.md) (already written, ACCEPTED) and complemented by [research.md](./research.md), [data-model.md](./data-model.md), [contracts/](./contracts/), and [quickstart.md](./quickstart.md).
+**Note**: This plan consolidates the design previously recorded in the former root `REFACTOR.md`, which is now removed — this file is the surviving copy. Design decisions are recorded in [ADR-0014](../../docs/adr/0014-admin-workspace-layers.md) (already written, ACCEPTED) and complemented by [research.md](./research.md), [data-model.md](./data-model.md), [contracts/](./contracts/), and [quickstart.md](./quickstart.md).
 
 ## Summary
 
@@ -12,10 +12,32 @@ The Route Workspace (`apps/admin/src/pages/RouteWorkspace.tsx`) — the map-firs
 
 Verified against code:
 
-1. **ADR-0014 is already written and ACCEPTED** — the desktop-only constraint and the three-layer/three-column/four-state architecture are recorded; `REFACTOR.md`'s "follow-up: write the ADR" line is stale and resolved. The only remaining follow-up is `tasks.md` (`/speckit.tasks`).
+1. **ADR-0014 is already written and ACCEPTED** — the desktop-only constraint and the three-layer/three-column/four-state architecture are recorded; the former root `REFACTOR.md`'s "follow-up: write the ADR" line is stale and resolved. The only remaining follow-up is `tasks.md` (`/speckit.tasks`).
 2. **All dependencies are already installed** in `apps/admin/package.json` — `maplibre-gl@^5.24`, `react-map-gl@^8.1.2` (maplibre entry), `zustand@^5`, `react-hotkeys-hook@^4`, `sonner@^2`, `lucide-react@^1.28`, `@tanstack/react-query@^5`, `@base-ui/react@^1.6` (shadcn-style `components/ui`), Tailwind CSS 4 via `@tailwindcss/vite@^4.3.3` (not the postcss plugin), `vitest@^2.1.9`. **Zero new dependencies.**
 3. **The map stack from spec 007 exists** (the "no map stack" finding of 007's plan is now obsolete): the workspace already has a MapLibre instance; this plan preserves it, never re-initializes it.
 4. **Admin pure-helper tests exist** at `apps/admin/src/tests/` (17 files incl. `plotting-store.test.ts`, `plottingHistory.test.ts`, `routeColors.test.ts`, `sections.test.ts`, `overlap.test.ts`) — new pure tests (state machine, geometry tokens, gate) join the same directory, node env, no WebGL mocking.
+
+### Goals and non-goals
+
+Consolidated from the former root `REFACTOR.md`, which has been removed: these two
+lists existed only there, while the "why now" rationale is already carried by the
+Summary above.
+
+**Goals**
+
+- Map-first identity preserved and strengthened: the map is a single constant layer; chrome mounts around it, never over it.
+- Four explicit states with a complete, guarded transition table.
+- Fixed geometry tokens that make collision impossible at the 1024 px floor.
+- The critique's P1/P2 layout findings resolved by structure (columns), not patches.
+- Zero regression of the draft/undo/save safety net (a critique strength).
+
+**Non-goals (explicit anti-goals)**
+
+- **No mobile/tablet support, no breakpoints.** Below 1024 px the page shows a single "wider window" gate plate; there is no responsive system.
+- **No new map library, no second GL instance, no DOM-drawn polylines.** One MapLibre instance, forever.
+- **No backend/shared changes.** Purely `apps/admin`.
+- **No behavior changes to** snapping, draft persistence (24 h TTL), undo/redo, atomic save, validation. These are preserved as-is and only _re-homed_ in the new structure.
+- **No visual-world change.** The Route Sign grammar (white plates, signboard green-blue, signal amber, ≤ 4 px corners, no shadows, reduced-motion default) is the incumbent world and remains binding.
 
 ## Technical Context
 

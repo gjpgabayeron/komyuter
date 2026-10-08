@@ -6,7 +6,7 @@
 
 - `docs/ADMIN.md` — this file.
 - `docs/adr/*` — design decisions (see Appendix F).
-- `specs/008-admin-route-workspace-refactor/` — the active spec (plan, tasks, contracts) behind the current workspace. The root `REFACTOR.md` is superseded by this spec's plan.
+- `specs/008-admin-route-workspace-refactor/` — the active spec (plan, tasks, contracts) behind the current workspace.
 
 ## 1. TL;DR
 

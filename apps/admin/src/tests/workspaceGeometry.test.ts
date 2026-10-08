@@ -5,7 +5,7 @@ import {
   isMapGateActive,
 } from "@/features/routes/workspace/geometry";
 
-/** The fixed tokens (plan.md Geometry table / REFACTOR.md). */
+/** The fixed tokens (specs/008 plan.md Geometry table). */
 describe("WORKSPACE_GEOMETRY", () => {
   it("fixes the tokens that make collisions impossible at the floor", () => {
     expect(WORKSPACE_GEOMETRY.leftCol).toBe(256);

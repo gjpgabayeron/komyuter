@@ -31,6 +31,6 @@
 
 ## Notes
 
-- All items pass on the first validation pass (2026-08-10). The feature's input (`REFACTOR.md`) is an implementation plan; the spec deliberately re-states it in user-value terms (WHAT/WHY), so concrete tool/library references (e.g., MapLibre, zustand) were intentionally excluded from the spec and belong to the plan instead.
+- All items pass on the first validation pass (2026-08-10). The feature's input (the former root `REFACTOR.md`) is an implementation plan; the spec deliberately re-states it in user-value terms (WHAT/WHY), so concrete tool/library references (e.g., MapLibre, zustand) were intentionally excluded from the spec and belong to the plan instead.
 - Scope guard: the refactor is presentation-only; FR-010 and FR-012 pin the behavior freeze so planning cannot accidentally re-design plotting, draft, undo/redo, or save logic.
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`.
