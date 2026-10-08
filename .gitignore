@@ -22,3 +22,7 @@ navbench/go/bin/
 navbench/go/*.exe
 navbench/node/dist/
 navbench/*.log
+
+# OpenWiki transient run checkpoint. Left behind by an interrupted run; deleted
+# on successful finalization. The wiki itself is committed.
+openwiki/.run.json

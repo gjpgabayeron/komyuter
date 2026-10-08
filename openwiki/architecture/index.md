@@ -1,0 +1,5 @@
+# Files
+
+- [Persistent data model and migrations](data-model.md) - The Postgres/PostGIS tables the Fastify server writes through — enums, geometry columns, cascade and soft-delete rules, string-mode numerics — and how Drizzle and Supabase migrations reach a running database.
+- [System overview: runtime topology and component ownership](system-overview.md) - One-page map of what actually runs in this repository — the React admin SPA calling a Fastify v5 admin API over the { success, data | error } envelope, backed by a local Supabase Postgres+PostGIS+Auth stack — plus the shared packages, the standalone navbench harness, and the explicit list of systems the repo does not contain yet.
+- [Workspace, build pipeline, lint and CI wiring](workspace-build-and-ci.md) - How the pnpm 8 workspace, Turborepo tasks, root scripts, the single root ESLint flat config, the husky hooks and the GitHub Actions job fit together — and what each quality gate actually covers, including the coverage it does not have.

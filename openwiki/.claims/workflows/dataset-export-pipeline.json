@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:a425a837a725eabadb03514d794bc6dbe7aa99235689e14894cc6154c236d625",
+  "claims": [
+    {
+      "id": "claim_c8446c4c2f9246ccaab90d6a8134b193",
+      "statement": "`GET /api/admin/export/dataset` is the only export entrypoint: `registerExport` registers `GET /export/dataset` inside the `/api/admin` plugin scope, so the admin auth guard runs as a `preHandler` hook, and the handler always answers with the assembled dataset as a raw JSON attachment (`Content-Disposition: attachment; filename=\"komyuter-dataset.json\"`, `Content-Type: application/json`) rather than the `{ success, data | error }` envelope.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/export.ts#L10-L19",
+          "version": "repo-lines-v1:sha256:658179ae9d78c0088c1a08a165bf41004eb07fff944db7cb124b20906095693d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwNDEwMTk2M2Q3Y2M1ZjExZWEwNDVmMzBmZGYwNjM2MGVkNjBmNzY4OGFiNTViNmMyZWQ0OGE4Njg3YTM0MTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L23-L35",
+          "version": "repo-lines-v1:sha256:9b7d01e337fc98b80011e29b2458d1746c23ac73dd319070efa93e8213693a29:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4NGYwYjRhNjExZGIwOWY5NjI0MzU1NDJmYWE1OTY4MzBhZTVhY2Q2M2Q5MzBmZTJkMGE5NGVjOWI4NTQ2MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0NWIyM2E3YjMyNGNlZDM5OTIxODRkODY0N2U2MWIwM2M2NzVkN2JiNzU2ZWMyYjIzNjcxMDM0YTAyZTVmMGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzNDgzNDJlOGQ1ZmE2Zjc0ZWM3N2FmZWM4MmE4MmMzMDY2MGUwYmI4MzlkMzRhYWNiYzIwN2VjZTQ5MmEwOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiOGI2MDBhNWI0NDhiMWU0ZDAyZGYwOTc0NmVkM2NhMzE3MmY3NWM0YWFiYjAxZGRlMDgwZTM2Y2FiMDc0YjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3dde58ad467740549665e22340dca524",
+      "statement": "`readExportRows` gathers the whole dataset with seven independent `SELECT`s — routes, fare_configs, directions, stops, detours, detour_stops, restrictions — executed in one `Promise.all`, with no `ORDER BY` at any level and no `is_active` filter, projecting every geometry column through `asGeoJSON` (`ST_AsGeoJSON(col)::jsonb`) so rows already hold GeoJSON objects.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/queries.ts#L4-L6",
+          "version": "repo-lines-v1:sha256:4f62479f0eb0303e003aa3939b63ebf8d316e43a646b2c16cb0c722655e5f601:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmU1MTczMmExNWU4MWZmM2E4OWViNTIwZjhkODg4ZDc1OTFiOWRmOTExM2U5ZDQzYTgyYTE5ZDgzZmNlMGIzOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGI5MjEwY2UyZDY0MjQxNGJkODcxNGMwNTE3ODYzYWI2OTU3ZWZlN2ZjNDAyOTZlYmJiYmYyMzE1MDAwNjYyMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDYwNGU0OTE2ZWRlMjdiYmUwZmIzZjdmOTdmMDkxYmIwYzFlYjY5MDEwZWZmNDFjMjJmZDBlYmNlNzg2NWUzZiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L236-L339",
+          "version": "repo-lines-v1:sha256:0850ed4a90907146e4072ad483265a9b0b9c52151f7e330c76d41af834ae0967:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmOTBjNjhhMWIxZjliODZkYjFjNDU0ODcyMjQ4NDViNzA2NjI4MWMzZWRiZmU4NGVlNzZhNjYwZWNlYWE2ZmYwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxODdmZGMyZDQ5OTBkMjk1NmVmMTlmODI1MjI2NjRmZTliZTU0ZGYyZWZhNjY3YzE5MDllY2YxMWI4ZTRiMzZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlMWRmOTgxOWY0YjQzNDZlYjNmYjBhZThjYjEyZTJmYzUxNjYwOGIwNDM3ZTM2M2MzNzc0MGI3NmZhNTQ2MGMwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_b84d4a51b5904267bcd853062bfcce53",
+      "statement": "The seven reads run as separate statements outside a transaction, so assembling the export is not a single atomic snapshot of the tables and a concurrent write is not reflected consistently across parents and children.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L231-L339",
+          "version": "repo-lines-v1:sha256:305f3b410d5dd70d04a0aa3566bae0e9689683ed2171b087d5ff93c8933b05a0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5OTQ5NTc0YTY2MDE2YThjNWMzNGM0ODgxYzc4Zjg2M2NjN2YzY2Q0NjFhYjM4ZmZkZDc2ZGY3ZDc0NmJlZjMzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5MjA0MGUwOTVhOTRlMmFkYTc0ZTQyMWYzNzE4NzUxYTkxYTgxMGJmZDY2ZjQ4ZjRlOTM5YzdiNzQ4MGViNjcwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlMWRmOTgxOWY0YjQzNDZlYjNmYjBhZThjYjEyZTJmYzUxNjYwOGIwNDM3ZTM2M2MzNzc0MGI3NmZhNTQ2MGMwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e288e8da53034e0d97d72b2e930fd173",
+      "statement": "`buildExportDataset(rows, exportedAt)` is a pure builder that groups children by foreign key into maps (`stopsByDirection`, `detourStopsByDetour`, `detoursByDirection`, `restrictionsByDirection`, `directionsByRoute`) and nests them under their parent, so child `direction_id`/`route_id` columns never appear in the document and a parent without children gets an empty array.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L102-L229",
+          "version": "repo-lines-v1:sha256:8e59e4b4c4fcc2a110846a85d7c429cc2d4fe1dfd3edec2c28fbbcf1abad96e9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1ZTU2YjMxMDYwMDQ1YWVkZDFmZTU0YTZkZmMxMDg0ZjIyMTFmMWYzNTE0MzZiMmQ2Y2RjYzQ0YzE4ZGU0ZmQzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5NjYyZTc0NTZkNTliNmEwNjU2MDhhZjY3ZGYxMjU4OThhMGEwZmRkNmQ3MTE4NzljOTE2Y2I5MTEzYzMxOTczIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJiYWQ5ZWVjZDRmZDJkZjA5NWVlYzllZjNlZWQ2NWYwZTAyZTYyN2Q5MDVhMGFjYjUzYWU4OTlhZmRlZjk0NzA1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_3fb5c95e6d634550bd397bb0ca2a3b9a",
+      "statement": "Within a direction the base `stops` array is explicitly sorted ascending by `stop_order`, while routes, directions, detours, detour stops, restrictions and fare configs keep the unordered order Postgres returned — the export integration test works around that by locating a base direction through its `terminals.origin` rather than by array index.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L141-L143",
+          "version": "repo-lines-v1:sha256:251fd6ce26bc405bbc1eafcc9035eab3c97c147e238d62deff779ff2f995b798:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmQ5NWZlOWEwZDZlMDZhYmY2M2FlZTIzMmU2NzdjNWQxMmRkYzg5ZjkxMWMxZTg3NWE5ODg2ZjkzNjQwZGMxYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODBhMDllMzg0NWNkNzc0YjA0NzRhMzU4NzE2MTNjMmRhYTVmZWQ3ZWVmYzhlMzg2ODQwNjk0MDIyYmFmZjc2YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGVjZjc2NDllYTcxMTNmODIyYTcyZTUyOTk0MTg3ZmJhOTFmZWEwMjJhZjI5NjU5OGE0YzA1YzBlMGU4ZjQ0NSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L161-L190",
+          "version": "repo-lines-v1:sha256:fbab30e3bed7e92334cd709f7c442d7c8352f89609df6e7a26eaa2b073bdce8b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZmOTZiY2JmN2M3NWUzNGQwNmYyNGRlMmI1MDA3NzY1MTBkZWNmYjcxZTM3MmZhZWRhMjcwODNiOTVhMDUxM2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0YzI4ZTI2YmQ1OWMyNDgwYTU2NGU1Zjk1MjQ4MWEyNWU5MTExOTc5YTk0MjVkNTRiNjhlYjczM2ZiMWI5MTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiNmQ4ODJkZDhlYWQ4ZjE4NmYzODIyN2M4OTYxMGU5MGY2YTc2MjI0OWJjYWY4MWQxZmE3YzI2MzBlMGRhZGYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/export.test.ts#L101-L112",
+          "version": "repo-lines-v1:sha256:99baf27a590dfa52b81d5ec7f1f794487fca2b44b80eeec1c2616aa31fca0a29:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NDZjMTE1YTU1NDdjYWNiZDcyZTRhNGJjYWYzZGU5ZGI2MWY3YWY1YTUxZGU0YjcyYWUxOGVkZTljNWU3NDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMTc5NDkwODIyZGE2MDJiZmJhOWQ1NDQ3NzExMDJkMmE3Nzk3NGMwZDE1MmUwODFmYmE2OGQ5YzIxZDY2MGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyMmQ4ZmVhMzRmYmY4MmMwZmU2YzIxNjcyN2Q3MjVhZGEzNjBjNmEyZTlhOTkzNjE5M2RhM2ZiMmNlY2U2NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjNjI2MThhNDc1MjVlMTZjYWFkMDdjMDI0NmQyODNmNjUwZWNlYTkxNDdlZGExMTMyYTk3NjRmNzNmMDg3Y2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c3994c3206374f6199c4947bab93b921",
+      "statement": "Detour stops are a separate collection with their own `detour_stop_id` namespace: the document emits them only inside `detour.detour_stops`, never in the direction's base `stops` chain, and the assembler does not sort them by `stop_order` (unlike the entity loader, which orders detour stops by `stop_order`), so the consumer must order them itself.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L196-L196",
+          "version": "repo-lines-v1:sha256:750bce9b4b73de5d4c6ddcc19a34d2fe5426632911d48f55a3fdcce654a4aed7:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUwYmNlOWI0YjczZGU1ZDRjNmRkY2MxOWEzNGQyZmU1NDI2NjMyOTExZDQ4ZjU1YTNmZGNjZTY1NGE0YWVkNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUwYmNlOWI0YjczZGU1ZDRjNmRkY2MxOWEzNGQyZmU1NDI2NjMyOTExZDQ4ZjU1YTNmZGNjZTY1NGE0YWVkNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWVhNzI2ZjQxZTk4MmZlOTQ3YmU4Y2FlODAxZGNiYjc5NzE4NmI4ZGVmMjljNDIzY2VhNDI1NTFjN2U1OWVmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDY1ODAzZGU5YzQ0NjU2NzBiZTRjMTdkOWZlYjFkODNkZGY3OWU3MzY1NTQ2ZjczNjIzYzU5MjY5NjI5MDQwMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L145-L176",
+          "version": "repo-lines-v1:sha256:897ad569b349dd897c175d42157b8c5df9b6fe84d3601876dce40287b4a15ab7:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyNzg0NmQwNGJmMzY3Y2Q1YWEwMTU3MjEzYThjNzczNTI2YjNmNTY2M2JkZGExYzU1YTc1OWU5ZTQ1YmZkNGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjliYmJjMjljZDE0N2ViYzBkN2RhNDg2NzU4NWE2NzllZjEyZWJmN2NjZmVjNjJjNWZlOWIxNDViZDBlMTU3YzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2MjBjMzEwOTVjMTljMzg0MGNkYTdjZGJjM2ZlNjhjMWMwZWUxNTRiN2MyOTc4MzU2MTVjOTk4N2Y1ZGU5ZTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L49-L59",
+          "version": "repo-lines-v1:sha256:cbde01c7cb91027434e093f4cdf6ebb0a9ea80aa00da924f8fccaca92ac281ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc5NDk1MTZkMTMxMmM5OTYxMWFlYjNjYTA0M2YzMWJkYmIwMjYwYjA1ZTkwMTRmZWYwNTVhNjVlMDIwNGI1NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxZGM1OWNkYTZjY2Y3YmIyMGI0ODFhNjgwMGYwNmFhMDRlMzcwNTRjODVlNzk4NTNkNzE3ZGI0NDQxMTAzM2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA3ODY0MWE2OWY2YmY4MDk1ZmYxODg2ZmE3NGQzYjczZjkyZDQ5NjFjM2MzMmI5NjliOGVlZDk0MDdjN2Q3MTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_26c9d281cd43457eb419b9477b704c9f",
+      "statement": "Every document opens with `schema_version` (`EXPORT_SCHEMA_VERSION`, currently \"1.1\"), `coordinate_order` (`EXPORT_COORDINATE_ORDER`, \"lng_lat\") and an `exported_at` produced by `assembleExportDataset` via `new Date().toISOString()`; both constants are shared `typeof` literal types, and the zod mirror pins them with `z.literal(...)`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L222-L234",
+          "version": "repo-lines-v1:sha256:31463e4ef67d56fac0ade0ad9ca7c24104ef4f8af6da195e206098fe53e0b3a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5NWZhMGYxMTE3YjVlYTQwNDM0MTQwZGRlMWEzNDBjNzIwZGRiZjMyNjIxMmUxOTE4MzhkNGIxNTZkMzE2YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4ZmRkNjk3YWVmNTdiOWZmMjcyOWM1NjE0YWFiMGFmMDc4OTI0ZWQyMGUwYTEwZWQwZTVlYTM0M2FlNjBjNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxMTM0NGViMDVhMDg5MjU2MDkwN2YxMjA1OWQ5YzFkY2Y4ZjAyY2JlNDQxY2ZjMDNmZTBlNzFmYTA2MjkwMDMifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/export-dataset.ts#L90-L96",
+          "version": "repo-lines-v1:sha256:d91deeb1dd22435c0164a0a7b136c0645734f38ee163cae6fe653996f798c722:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdkZWY0N2E0ZjVmNGU2NjcxYjI5NGFkMWU3ODI3NGRiYTY4ZGZhMmQyMjA4NTZjMzgzZjJjNTE4MGJhMTcxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDZmYWFlM2IwOGM3NTk0ODBlODdlMGUxZWI3ZmIwNDY4YmE3ZDMyZTNhMzIwNzlhYmIwMjAzMDNhNjk0NDk5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L4-L5",
+          "version": "repo-lines-v1:sha256:4673d4e5116a494faf80f24725d6ceaacbc6476e65fd102bd2a633ff8659102f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTcyZWEwM2U0ZjRhOTQyNzk5N2U2YzEwYWM3OWUxNTgzNzU2MzkyMTI3NzgzYzBlOWFhNjkwOTVhNThlM2QyZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzZhZjk4ZjAxODQ0NmRmZmI5Zjk2Y2MxM2U5ZDk5YTNhZTRlMDA2MDYzMGYyYTJjNjQ4Mzc4MDg3NzkyNzI0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjAxMTk5YzQ5ZWMzYjM3ZTE1YzRmODNmMWMzNWFhNmVmNTJmZDQ3ZWJlMDQ4MmU4ZTlkN2QzOWE4NWQ1ZjQ4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmZhOTNhNmEzYjlmOTQyNzg2MTJkNWNkNjc1ZGNhMTFiNjMwMDFkNmNmN2E1MTFiMDA1M2VhMjU1NTEzNDUwYiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L82-L88",
+          "version": "repo-lines-v1:sha256:c39daf2ea2d6b82d273b720435ba37de3f7ecc6cac6ea9804dd6e3b858861570:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWEyODdiMDU1NDRmNWM0NWU0YzVlMzllZTA0NDEyODkwOTU4ZTBlOTAzNmI1Yjc5ZGE3MTc1YmYzNzA1NjhmZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTgxMzhlN2NkMDcxNzAxODc4ZTY2MzMyZDRjMDFjMGRmODc4ZWVlN2E0YmU5N2Y4ZTEwZDg1OTQ3MDExOTU0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b05e7358d3984a7da0405a31b297493f",
+      "statement": "`coordinate_order: \"lng_lat\"` is a self-describing contract for the external consumer rather than a configuration knob: every embedded GeoJSON pair is `[longitude, latitude]` per ADR-0013, and the JSON Schema the integration test enforces hardcodes the value with `const`, so a document whose marker disagrees with the constant fails validation.",
+      "evidence": [
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L4-L5",
+          "version": "repo-lines-v1:sha256:4673d4e5116a494faf80f24725d6ceaacbc6476e65fd102bd2a633ff8659102f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTcyZWEwM2U0ZjRhOTQyNzk5N2U2YzEwYWM3OWUxNTgzNzU2MzkyMTI3NzgzYzBlOWFhNjkwOTVhNThlM2QyZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzZhZjk4ZjAxODQ0NmRmZmI5Zjk2Y2MxM2U5ZDk5YTNhZTRlMDA2MDYzMGYyYTJjNjQ4Mzc4MDg3NzkyNzI0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjAxMTk5YzQ5ZWMzYjM3ZTE1YzRmODNmMWMzNWFhNmVmNTJmZDQ3ZWJlMDQ4MmU4ZTlkN2QzOWE4NWQ1ZjQ4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmZhOTNhNmEzYjlmOTQyNzg2MTJkNWNkNjc1ZGNhMTFiNjMwMDFkNmNmN2E1MTFiMDA1M2VhMjU1NTEzNDUwYiJ9"
+        },
+        {
+          "resource": "repo://specs/001-local-supabase-backend/contracts/export-dataset.schema.json#L19-L21",
+          "version": "repo-lines-v1:sha256:b52d4a885d16a233d6297ae9764e38a84c7e4bf1be9a191835854cde0271058c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTQyYzg0MmI0MmIzNTkzNTI0MmM5YTJmMjM1OGQ1ZGM0ZGY4MmI3YTczOGE2YjBjMGZkMzJmOGFkMWI1OTE5YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWYwY2RiOTcyYTdiZmI3ZWQyNDZmOWZmNjcyMzg1ZTU1ZjQ5NjhmYzExMDQzZGM1YjY4NGQ1MWRmYTMxZGJjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTNkNzgwNGMyOGJiZWM5NmVkM2RiYzFhYmEwMDk4Mjk5Y2VmZjJiZGJhYjIxYjJmNmQwNjg3MWYwMDhkM2YwNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWExYzI5ZjQwMjA4ZDY1OTFmOTdkYTYzMzAyNjAzMjcxYThhNjY4ZTk1MTY3ZWY2ZWU3MTRkM2MxZjQ3NDA4MyJ9"
+        },
+        {
+          "resource": "repo://specs/001-local-supabase-backend/contracts/export-dataset.schema.json#L5-L5",
+          "version": "repo-lines-v1:sha256:5f152885e91f80d6282a9adf6aac28f64874846e13d94d0824098f5e7d08e2b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWYxNTI4ODVlOTFmODBkNjI4MmE5YWRmNmFhYzI4ZjY0ODc0ODQ2ZTEzZDk0ZDA4MjQwOThmNWU3ZDA4ZTJiNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWYxNTI4ODVlOTFmODBkNjI4MmE5YWRmNmFhYzI4ZjY0ODc0ODQ2ZTEzZDk0ZDA4MjQwOThmNWU3ZDA4ZTJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTBjZjhkZTY0N2RjMjdjOWNmNGJkMjgxNjM1OThlNjE3NTE5MzRlYmQ3OTI2NmI3MDVkYjYzZmY1NzViNmZhMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjE2MTI3YjFjNTZmYjA4NTUyMjQ3YzE4OWFkYjg2ZGIwMjBlODMzZjUyZjQxNTI3M2Q4MjU3MzYxNWE0OGEzZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_23a50a4d1c3043ba9f3fc6cade4491c8",
+      "statement": "`fare_configs` is the only place the document converts types: those five numerics are drizzle `numeric(...)` columns with no number mode, so `readExportRows` types them `unknown` and `buildExportDataset` maps each through `num()` (`Number(value)`), which is why a stored `\"13.00\"` / `\"1.80\"` pair serializes as the JSON numbers `13` and `1.8`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L64-L98",
+          "version": "repo-lines-v1:sha256:ba35b8ce666f03acff87e5babcd3d5652f7e7044e898f3a3c127ac246e14b7d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkMjEwZmMwZTE2ZmNmN2RkMWE4Y2UwY2JkZmUxOGQxMzdjNWM5N2FmZWVhMWU0NTQ1MWIzYzYyZGM3YjIyM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRjOGI4NTBjYzkwZjlmYThkMGRmYzFiNjhkZTE5Y2MxZmJmYTAyNmM1NTkzNzYzMDk4MmY3OTc4ZDRiMTYzMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkNGNmMTk1ZWRkNTJmMzJkOGE4NDlkODc3M2I4ZmUxNWJmNWY3N2QzM2RlNDI2ZWFkYjUyN2FlNTVlOWJiMDQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L116-L125",
+          "version": "repo-lines-v1:sha256:0aa5f21cae11040cd973162588474212e7903ae4c6112a623a36dd3d0de690d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzMThkZDcwNDhiODAyODYxYzRmMDIyOTg4MGJkZjEyOWFlOWM1MzhkOTY4YzNmOTZiZmVkYTk5MTg5OGU0MTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkOTgzNTQ5OWU1YmE5MWY4NzI2N2M5NTJiNzhlYWVkZDZjNDY2Zjk1YjY4ODFiMDdiNDZjY2FlYzBjZGYxNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxMmZkMzAyY2JlY2JiZmRlZWQ2MjA5OTZmMDc2YTQzMTg2ZTA3YjNkZWEzNzIwMDFhM2IzNWIwMTA4YjYxYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNhNjNiMjE0NzM5OGFkMmZlZjRiYjQxYzJkY2MzMjJiMjBkZWZmM2Q0NGM0OGE4OTYwMjVkNGFmY2YwMmNjZjgifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L27-L29",
+          "version": "repo-lines-v1:sha256:245037ddcd23429832e9f43e6e6035e537bf774438fbde051eae682da5cf6b99:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjgyNzhhMDkxMDcyNDQzYjZhZTFmMzI1YWEzMmVmYTRlMGQwMDE2MWVlM2NkMDFlMDkwMWEyYTA4MDNhN2IwMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzUwZTZlYTNhMjAxNmZiNDZhYjhmMTQyOGVhMmU1Y2Q3MTQ4ZDgzNDA4YmNmOTI4NTYyOTQ4Y2M1MmQ0YTUxYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDg2M2NjN2YxZjU2YThlY2M5YjE1N2U5ZGI4ZmJkNGY1NDFiZmI1MzJmNmQ2YzQxMjg5YmQ5Nzg0ZmYxMDViZiJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/export.test.ts#L94-L96",
+          "version": "repo-lines-v1:sha256:d853fba26a8adc8a5746011cd2e44babc19d4f1506f1739116dd4a61ba275bb4:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTYyZTg2MDA2YTNlNjgxZjMxYzZlODQwNjU5NjU0ODc3NzYwOTRhYTViNjQ4MjZiOTJiODY4NmU3OGY2OTYxMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTg5NmRhNTdmZWQwMWE5YTFhOWI0NTMyMWIxYWUzNjlmOTljZWNlNmIyZGQ4MmY1ZjM2NjM1Mjc3NGU2YzA0MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTNhYjJiOTJiODMwOTM4YmI2Zjc4NjI2YzRiZmZiZmVlNTkyNTU2NDJkMGMxYTk0MmIxMmUzMmQ0ZjI1YTQ1MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzQzNWU3NWNmNGM5Yzk3MmQ5NWRmN2IwNDNhYTc5YWQxMjNkNDUzMjM2NDhmMjM5ZDBhMWYwOThiZTg4ZTBhNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_07394257a36e4a649805f3799356fc76",
+      "statement": "`referenceCheck(dataset)` returns human-readable problem strings and covers exactly three referential faults: a direction origin or destination terminal that names no stop in the document (null terminals are skipped), a `detour_id` equal to some direction id, and a `stop_id` equal to some direction id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L341-L386",
+          "version": "repo-lines-v1:sha256:ef0d1a4e86755a8ef097008f6fedaa1d7bd6b14c91ce33a35fd462be50ecee0a:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MjcyOTk1ZGY1ZmY2Njc1NDcwY2JhMGI5ODRjYTZkN2EwMDk1ZGRhM2UwNzRhNzMwY2VkNjBmYjUyNDM1ZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYjZiMWQ3NDRhZjg0MmY4NmY5MmJhNzM5NjVjZmE3YTEzYjNlMjMxNjlmZTJjOWUwZWRlYzlhODU0NGM4NmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_71f3b0a3dd15402ab5b082a2a240db5c",
+      "statement": "The id sets `referenceCheck` compares against are dataset-wide unions rather than per-direction lists, so a terminal pointing at another direction's stop is not reported, and stop-versus-detour id collisions, `detour_stop_id` collisions, `fare_config_id` existence and restriction index bounds inside the polyline are not checked at all.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L343-L385",
+          "version": "repo-lines-v1:sha256:251f759d14b9250ee736a1a7cd9d709a748e8521a6066d90c41668d2e18d48aa:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyNzM3MGM1MjZkNmJkYThhZWE2OWNkNGFiNzM5ODExM2U2YjYyMjEwMWMxYmQ3OTRiY2MyM2I2NTk4MGU4ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxZGY5ODE5ZjRiNDM0NmViM2ZiMGFlOGNiMTJlMmZjNTE2NjA4YjA0MzdlMzYzYzM3NzQwYjc2ZmE1NDYwYzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU2NTYwNTJkN2Q5MjRlOGNkMzY4MDk0NDE2NzhhYTI4OTk2MWRjMTNkYzhhYzNhYjk3MTY5M2Y1NGM4YjhmYzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_888e9e72d65445c0ac08bf6b0539547e",
+      "statement": "The invariant that each direction's terminals resolve inside its own stop list is created by the write path, not by the check's scope: the pair save sets each member's `origin_stop_id`/`destination_stop_id` to the first and last stop rows it just inserted for that direction (with a comment naming the export reference check as the reason), and the export integration test asserts it for both the base and the derived return.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L120-L130",
+          "version": "repo-lines-v1:sha256:bd21f33635c9ec9aa057350c9a1292b256b0b57d948b100f0a4fe280a975a5eb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlY2E1ZDJmODc4MzQ3MzIxOTdkYWYyMzVkOWMzZmViYjhmZjQ4YmJlMjA3NmRhMmUxY2MxNTQ1NzhhZmQxMDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Y2Q3OThlZDI2MjNmNTIyOTYzMDA1M2NjYzZjMzVmMmRmYTBiYWUwMmVjZjE0NjZjODUyNTgxM2MxZmFkMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3NDA2YTYwOTAwZDBmM2NhNDRhZGYxY2Q3NDFiMmE4Njk3NzgyZmI4MjUxYTBiZjA4NDMzZjIzNmJlNmJmYTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiN2QxZjIxZWZlN2Q3ODcxMzQxNDZiMGNmZTkyYTgxMTU4MDc3Yjg4MDIzZmRmMWRhMzBiYjFhYTM4NDZjY2QifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L172-L198",
+          "version": "repo-lines-v1:sha256:ca737bb58e031fcda658ad60242a4eb5a0f765ca471dca48368c8bfef91602f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlYjZiNDMwZmIxZWUzMzNjYzM3MzY2NTI3ZDY1ZTM3NzAzOTBiNjFjOTFkMzk5OTRmNmMzOWRiNWQzODdkYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlMmIyMDllNDFjMzBiNzUxODE2YjVmY2MxNzk4MjU2MmQ4MjMyZjRiYmUyZTI3YWMyNmQxNWI3MjdhZDY1ZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzNGY3ZGZkMTc2N2Y4MWI5MTAyNzgxODlhOTBlNGMwNDU1MTAwYWUxNjU1ZmFlZTk4OTFiM2U3ZmM5ZjEyZTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1Y2RjOTk4MTRiZDZhNGIyOTBiYmMwMTNiNGJjYzkwYjBmMjBjZWUxNDA1NGQ3YzI5YmUxY2RkYzMyNGY5NWUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/export.test.ts#L101-L136",
+          "version": "repo-lines-v1:sha256:136620759e0058c6ec3d00afbf6ad7cbd021f64a8a44b4c342a713d5a3a2f8d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NDZjMTE1YTU1NDdjYWNiZDcyZTRhNGJjYWYzZGU5ZGI2MWY3YWY1YTUxZGU0YjcyYWUxOGVkZTljNWU3NDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViZDAwN2VmYzIyNjBlNDlmNTAzN2M0OTk1ZDRhNWY4NWM0MTk3YWFjY2E2OWRlYzhjZTAxN2ZlMDY2ZTFjODgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyMmQ4ZmVhMzRmYmY4MmMwZmU2YzIxNjcyN2Q3MjVhZGEzNjBjNmEyZTlhOTkzNjE5M2RhM2ZiMmNlY2U2NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmYmU3OTFjYzY4NzMxMmVhNDdmZDRkYmVjNTg5MzFjNzAyMjhiODBlNWEzMGE1ODFjMjQ1ZjA1OTgyNWE1ZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_bb2b642e92184efa85ae37fee4180235",
+      "statement": "`referenceCheck` has no production caller — only the unit test imports it — and the route calls `assembleExportDataset` alone, so a document with a dangling terminal or a colliding id is served as a 200 download instead of being rejected.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/export.ts#L1-L19",
+          "version": "repo-lines-v1:sha256:924452945a1bba7305b3e69098cc8492196202881a43f0e63e377e362b740b9e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhZThkYTExNDY4ODljNmRkYjE4YTMwNzRjOTFkNDg2OWQ5MTc0NzJhODUxOWQxNDNjYmFjMzRkNmJmMmIxZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L231-L234",
+          "version": "repo-lines-v1:sha256:52b53d9f7c3ea942be95d6847d0498f1e198df44f8d83f27a39642dd32e17c40:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTk0OTU3NGE2NjAxNmE4YzVjMzRjNDg4MWM3OGY4NjNjYzdmM2NkNDYxYWIzOGZmZGQ3NmRmN2Q3NDZiZWYzMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTIwNDBlMDk1YTk0ZTJhZGE3NGU0MjFmMzcxODc1MWE5MWE4MTBiZmQ2NmY0OGY0ZTkzOWM3Yjc0ODBlYjY3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzExMzQ0ZWIwNWEwODkyNTYwOTA3ZjEyMDU5ZDljMWRjZjhmMDJjYmU0NDFjZmMwM2ZlMGU3MWZhMDYyOTAwMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/export.test.ts#L3-L6",
+          "version": "repo-lines-v1:sha256:8accbccdd4c2e1cf50df8d896e3a8d96a442c1d0bb76df2c429c536a7fc9382f:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjU5OTI3MzZiZTAyYjhjMTYxMjhhMWE1YzU4NjM3Y2MwNzJjMmI3MjljNDE3N2FmNmRiN2E2ODIyMmM5ZDFlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWNlNzEyZDRkMjA3NDY4NzFkM2E5YjJjYjI5MjU1MzhmZDUyYmQyNzVjYjg2ODk0OTI4NjYzNzdkOGMzMjQzNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjdkYjIzZTMyYzZiNjQ0MDM2MzA3ZTEzMzEyNmQ5OWJhYzM5N2E5NGQ3N2I0NDYyMzNmYWUwYjNmOGNkYWQ0MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGUwOTZiNDNiZGZlZmM1ZWQ4OTNlNTliMDM5ODBiOTdhZmJkOWY0MzE2OTAyNTU0Nzg3Yzg1MDExMDc0NDIyOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3a101f490c7a42a1989e9179edad95a1",
+      "statement": "A null `routes.color` is normalized to the empty string by the assembler because the enforced JSON Schema requires `color` to be a required string while the shared TypeScript type and its zod mirror both allow `null`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L212-L220",
+          "version": "repo-lines-v1:sha256:4ba24ec65e67da548b0d7f50cd2df8e00b276a990568d8de39b9fcb4156c64c4:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2QxMWNlM2YxYzhiYjc2ODk5M2YyNjdhODE2MTI5ZmJlNGNkYTAxMjg3NTg3OGZlMGUzZjkyNDM3ZjdlYjM1ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQ5ODM1NDk5ZTViYTkxZjg3MjY3Yzk1MmI3OGVhZWRkNmM0NjZmOTViNjg4MWIwN2I0NmNjYWVjMGNkZjE0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjlmYmEwZmZmMzQyZDUyNDNlNzQ3ZDM1YjY2N2E4M2E3ZDdmNDQxNTI2ODQzYTkwOTczNDhiYzllYjlmYTVmNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWVjYmJkZWFkZGM4OGQzZDIyNWNmMDk2OTM1M2ExNGU4ZmE1M2QzODQ5MzE4N2M3MzhjNmY1NTY2NzliNGIwNSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L72-L80",
+          "version": "repo-lines-v1:sha256:084cbc3d3507dcbd0a709ebc3bbd7dea902a99864d9a96abedf781ae8e2a0ce3:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGE1NTcxNDA4MDViMzVjNTI2ZDc0NDcwZWVhN2U5M2Q2YTQzZWE2ODAyZDMwNGY1YzdlOTQ1YTg2MTQ2ZjdhMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjQ2MTIxNWI2OGVkMDllOWNjM2FiZjFkYzIyNDJkNGNkNDA1ZTNiMGY3MDY2YTBiNTVmODc4ZDNhNjQ3OTEwNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmI5ODEwYjEyOTJhNjA1NzMwNjNjMjE4Y2QyM2FlZWEzYmI1NDk5MTM4NjljNzkzNzJhZTlkN2EyNzk2MzExZSJ9"
+        },
+        {
+          "resource": "repo://specs/001-local-supabase-backend/contracts/export-dataset.schema.json#L120-L143",
+          "version": "repo-lines-v1:sha256:a2aee5f48a0f8ee58ffebbd56b227323f2c0611fdd75be681f306e5e45091f71:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwY2M1MDgyNmExNjUwMzgwMDBmNDk5NWMwNzcyZGQ2NzExYzc5ZjNhMTc2YWYzMWU4MDIwM2VhNTAzMTMxNTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNjczYWJkNDU3YTk3ZWVhMTdhNjAwNjJlYjBmYWVhNmJkZjA5NDg2OGNjNmI4ZjhjMGViZGEyZjYxZWQ0MmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhYWZiNjJjMDk0MTBiY2UxNjY2OTdhODliODIzODFjMzRkODQzZmU3NjY1ODk4OTVlNDQ3M2QyYmFiYWZmNTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2YzA0ODNmOTgxMGE3NzdiZDE2MTNmMWE3ZjU1OTVkYmZlYjllNjkxMTM2OWQwYjgyMzk2YTMwZWMzOTZjOGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_324a8638c5b84eed96efd710fa30eddd",
+      "statement": "The document carries a curated subset of columns: `is_active` appears only on routes and directions, and `direction_kind`, `ar_marker_enabled`, stop `notes` and all timestamps are dropped, so a consumer cannot tell from the document which member of a pair is the server-derived return.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L212-L220",
+          "version": "repo-lines-v1:sha256:4ba24ec65e67da548b0d7f50cd2df8e00b276a990568d8de39b9fcb4156c64c4:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2QxMWNlM2YxYzhiYjc2ODk5M2YyNjdhODE2MTI5ZmJlNGNkYTAxMjg3NTg3OGZlMGUzZjkyNDM3ZjdlYjM1ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQ5ODM1NDk5ZTViYTkxZjg3MjY3Yzk1MmI3OGVhZWRkNmM0NjZmOTViNjg4MWIwN2I0NmNjYWVjMGNkZjE0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjlmYmEwZmZmMzQyZDUyNDNlNzQ3ZDM1YjY2N2E4M2E3ZDdmNDQxNTI2ODQzYTkwOTczNDhiYzllYjlmYTVmNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWVjYmJkZWFkZGM4OGQzZDIyNWNmMDk2OTM1M2ExNGU4ZmE1M2QzODQ5MzE4N2M3MzhjNmY1NTY2NzliNGIwNSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L7-L80",
+          "version": "repo-lines-v1:sha256:d23b161ad8425f3e4a6a57d16040f57d69f56167ec0594829cf750d2047c074d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2YjgxZmIxNWIzYjViM2JkMjIyZjljN2I3ZWUzZWYwNzMwMGUyY2E5NGNhNzVkZjBiYWJiMjJjMjYyYTMwN2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMxNmU4MWI1YjJiODk3MWMzMDEyZWRlYmY0NWFlM2UyM2U2YmRiMzg1MGE0YzdjYTE5YTMzOWRlOTYyNmMxYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiOTgxMGIxMjkyYTYwNTczMDYzYzIxOGNkMjNhZWVhM2JiNTQ5OTEzODY5Yzc5MzcyYWU5ZDdhMjc5NjMxMWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c33245a736f8489f902316deb9055bdc",
+      "statement": "Because `DELETE /api/admin/stops/:stopId` and `DELETE /api/admin/restrictions/:restrictionId` are soft (`is_active = false`) and the export neither filters on nor emits that flag for those entities, a deactivated stop or restriction is still exported and is indistinguishable from a live one in the document.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/restrictions.ts#L150-L175",
+          "version": "repo-lines-v1:sha256:9e11c05f4675313904351543e03b8df648a2dad84ff31d914f912204ad3df4b6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5OGFmZDI1NjA0MTBkODliNTYxYjA1ODYxNWZhZjY2YWJmM2NkMzI5ZWIwNGIyZDU4ZWIwY2NlNGEwZDdlMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/stops.ts#L163-L187",
+          "version": "repo-lines-v1:sha256:127938f6ecb1340bb08f0af01d585d701274ac6e86935ff1f5d995ff16cde7ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMmRmZDcwZWY3OGE0N2E5MjljNDI3ZmZjMjJkNWE1ZTZjMGQ2MGU0YWM3MTI4MDFjYTFjODYzZGJiYTUyNzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L236-L339",
+          "version": "repo-lines-v1:sha256:0850ed4a90907146e4072ad483265a9b0b9c52151f7e330c76d41af834ae0967:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJmOTBjNjhhMWIxZjliODZkYjFjNDU0ODcyMjQ4NDViNzA2NjI4MWMzZWRiZmU4NGVlNzZhNjYwZWNlYWE2ZmYwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxODdmZGMyZDQ5OTBkMjk1NmVmMTlmODI1MjI2NjRmZTliZTU0ZGYyZWZhNjY3YzE5MDllY2YxMWI4ZTRiMzZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlMWRmOTgxOWY0YjQzNDZlYjNmYjBhZThjYjEyZTJmYzUxNjYwOGIwNDM3ZTM2M2MzNzc0MGI3NmZhNTQ2MGMwIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_e60794a76123490087d96e05cb34df1c",
+      "statement": "An empty database is not an error: the endpoint still returns 200 with a schema-valid document holding `routes: []` and `fare_configs: []`, and the latency suite additionally requires 19 of 20 export reads under one second.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L126-L139",
+          "version": "repo-lines-v1:sha256:7bc91077e4979c69ff7a17a44de2b5d52adc8a22b6e19f07756d759dc835e834:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFjYThmNWU4ZjgyZjc2YjRjMGE1OTExYjIwYTIzNjY3MDI3NzE4YWQ3MmE0ODE1Y2IxYjExZDUyZDZhMThmZTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhYzA0MTkzMTdlOTQ1Mzc3YTgyMTg3NjUzNjkyOTg5MDZhZjAxYzNjMTZiMDJjMjJjOWQzN2E0NGQwNzc1MzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1NjY5NDJlYTA0OTBmY2QwZWVhMTU4YWM4NTZlYTdiYjk0NGEwNjU5NGY5NDE5OWU2ZjQ1MzljNjM5ZmY2YWYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/export.test.ts#L152-L161",
+          "version": "repo-lines-v1:sha256:419f06967e12df7ed2b5895d19795c1fbbd5082f363fd3bcac867b91e8012f1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmMGJmMjBmZWE5ZjA3NTczMzg3NGFjMjU2Mzc2MGExMjM5ZGIxMDliYWI0NTgzNTI5YmJmYzhjYmQxMmExMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcwY2E4NTVjN2QxNzEyOTM3MjBkOWVlMGYwMTEwMDU5MTFjZTk5OGFjNjJhYWIyMTAzYzJhNmNiNDQ5OWM5ZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUwMjI5ZTIzMDlhZTQ1NTQ4YzQwZmFmM2M4ZGY1ZWY4YjQxY2MwZjJlYmNmZmVhZGU3NDViMDdiYmRiOTdlNDIifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/latency.test.ts#L33-L47",
+          "version": "repo-lines-v1:sha256:1ef309fd35280dd3253f34e9a24e951cab9fae06951a69a494c6f9cda0112e72:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyMWY1MjIwYzgxZDJjNjE0MWRkZWU0ZjhjNDNjNTk0NjE5ZWEzODNmZTNjZGNlYzFmMTRhYjIxMDAxMWZkMzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyNDM2Mzg2NzkwMjU3NTcxNTU5MjkwN2RjNjRjMWQwZTJkMjVhZWJjNDcyNTBiNzMwOTk5M2RhNjA1YjhjZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4bd3d56f457e4d248e5e51007dbbd988",
+      "statement": "No arrival-time data can reach the document: the export types carry no ETA/arrival/departure field, and both the unit and integration tests assert the serialized dataset contains none of those keys (ADR-0009).",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/export.test.ts#L139-L150",
+          "version": "repo-lines-v1:sha256:f216544ada97996b5dce6e85ffbdaee77f788a0e2d9e79a4c4012519f4111da0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjZjE2ZWFiMmIyNmZmYzU2NDJiZTRhMTdhNDE3YWYzZTVjNmE5NWJmZDEyZjk4ZjAzNjc5MTUyZjU5MmEwODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiNmIxZGUwYTBjNTk4YmVmZjdhNWFjYWRlNDhiNTBlY2YyYzU4ZjQwYzhkNzM2NDhmMTEyZjdkYzQxNDcwYTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhM2Q3NDhhYzYyOTU0OWU2MDM0NzA0YzdiZTBhNTQ2MjcxZjc5Nzc1NjM1NzBiYTMxN2Y5ZDNjZGViNDc1NzUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/export.test.ts#L141-L150",
+          "version": "repo-lines-v1:sha256:7230f93c4987a3192bf5984bab8ea3cb039939a712a87f27852724da649b419d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExNTJiODA0OTZlMjUzMWYwZTU3YmUxZjI2ZTkxZGY1MzQ3ODg5YWY0MzJjNTRlZDZkZDk5ZmNiNGFjMDY3ZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljZDUxNDY1MTYxYTY5NzE4YTRjOTg3ZmRhNWQzZDYyZWI2N2JiNTczMmViYzFmMTNiOTdhZWJmMDliOWRmYTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkNGY5NjBlMGM3ZTlmNDZjNjFjYTNkOTNmYTRhYmY3MGE1Njg2NmFlY2M4ZTE5YThiOWY3YmM0NGZjNDcwOGIifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L82-L88",
+          "version": "repo-lines-v1:sha256:c39daf2ea2d6b82d273b720435ba37de3f7ecc6cac6ea9804dd6e3b858861570:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWEyODdiMDU1NDRmNWM0NWU0YzVlMzllZTA0NDEyODkwOTU4ZTBlOTAzNmI1Yjc5ZGE3MTc1YmYzNzA1NjhmZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTgxMzhlN2NkMDcxNzAxODc4ZTY2MzMyZDRjMDFjMGRmODc4ZWVlN2E0YmU5N2Y4ZTEwZDg1OTQ3MDExOTU0NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ee6e4c9a2a8d471ab366b6a0776437a1",
+      "statement": "The admin Export page is still a placeholder while the server endpoint is live: `pages/Export.tsx` renders a \"Nothing to export yet\" empty state even though `/export` is wired in the router and the nav sections, and nothing under `apps/admin` calls `GET /api/admin/export/dataset`; `docs/ADMIN.md` tracks wiring it as roadmap item R7.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/router.tsx#L21-L21",
+          "version": "repo-lines-v1:sha256:766ceeaafb83a35ce0eb43f3bff4f6d80c11bcf0cc1cd7296c21246fefda1410:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzY2Y2VlYWFmYjgzYTM1Y2UwZWI0M2YzYmZmNGY2ZDgwYzExYmNmMGNjMWNkNzI5NmMyMTI0NmZlZmRhMTQxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzY2Y2VlYWFmYjgzYTM1Y2UwZWI0M2YzYmZmNGY2ZDgwYzExYmNmMGNjMWNkNzI5NmMyMTI0NmZlZmRhMTQxMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmE2MzJiNDZkZTM3YTA2YjQ3NGZkNDliZTg0NzQzYjRiMDQ4YjkyNDY0MDE3NzAxZWNmZjA0NDNmMWZlYmUxZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWUyNjRmZWFjMzc0NmViODRmN2ExOGU4YjEwZmYxYzA1OGFiZGQ2NDgzY2E2MDM4NTc1NjYxOWRlOTU5OTFhMCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/sections.ts#L22-L22",
+          "version": "repo-lines-v1:sha256:6a88164712078bd925b46b36344af3586b2d4ddb703f89db4825480da1a9af70:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmE4ODE2NDcxMjA3OGJkOTI1YjQ2YjM2MzQ0YWYzNTg2YjJkNGRkYjcwM2Y4OWRiNDgyNTQ4MGRhMWE5YWY3MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmE4ODE2NDcxMjA3OGJkOTI1YjQ2YjM2MzQ0YWYzNTg2YjJkNGRkYjcwM2Y4OWRiNDgyNTQ4MGRhMWE5YWY3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTVjNjExNjk1ODAwYjMzMWMyYmVjNjEyZTU2MzdiNDc1Zjg3MzFlYjEyZTQyYmI0YTU2YTJjYTU1Y2Y1NjM5YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGZiZTM3Yzk5OTk5NTM0ODM1ZmI0MGFmY2E2MDMxMjEzN2QxYWVkYjRjYzAxZTczZjFhMGI4ZTU1MTBjYTNhZiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Export.tsx#L1-L30",
+          "version": "repo-lines-v1:sha256:ee3f1296bbcf54087d4f4b1e658e66fc7883ec08a7078f70388250c3df4ff5c2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlZjJiM2MwYzhhNDdmOTQ4ZDVjNDhhNDM3MmI0Mjc3MzExMTI0OWMxZjM5MGZiYjY5YTMyNDliMDNkNmYzZmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L186-L189",
+          "version": "repo-lines-v1:sha256:2aa10f1b98f1ceb22c0c430ef923e4e5612ff53bf4df648b3e2f0d98ea125ed6:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTMyNWUyNmJmN2MwYjRlNTQzYmNlNThkNmUyNmUxZGJkZDMwN2MyZTMwOTVhNGI1Y2VjMmQ5ZGExNGNhYmIxNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDJiYTQ0Y2ZlZTIyZDlmMjc4MzhhMzRkMzlhNmE4ODFjNTA4OGZmNjMzNWY1NmY5ZTYyNzBmYmE2MGEzMDI5MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTU0MmMzMmU1Njg3ZGFmYWI3Y2U4OTllYmIzY2Y1ODliMDcwN2JjYzc5MjY4ZjFiM2UzNjA4NDk5ZmI3NTNjYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmRmMThjNDVkOTVmYjU2MjY0NDJiODNlMjI5ODkxYzViODdkZWNhMWMwMWRkNDVlNThiZmViMjI2ZjkzNzUzNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_32452802de65477f86d456ca30e35080",
+      "statement": "Changing the document surface is a coordinated change: the spec JSON Schema at `specs/001-local-supabase-backend/contracts/export-dataset.schema.json` sets `additionalProperties: false` at every level and is what the Ajv helper in the test suite validates against, so a field added to the assembler without a matching schema entry fails the suite, and bumping `EXPORT_SCHEMA_VERSION` also requires editing the hardcoded `const` there; the shared zod `exportDatasetSchema` is not referenced by any module.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/helpers/dataset-schema.ts#L7-L26",
+          "version": "repo-lines-v1:sha256:8695f829b5f89cb7f3fe300e813b5752515a0092e6c6d51c69d792073cb8c7bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYzZDNkYTlkOWIzYTJkM2I3ZGU1YTQ1MDgxN2Q4NDNlNjExN2MwNzc1NzZlOGE2NzJjYzBlMmM5NDJiZDY3ZmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJhOGRlZDYxMDA3NmNlYzY1ZmU4NThlYjRlYWJiMGQ5Y2RjYTFiYjNiMmEyYjJkOGMwZGJiNDYyYzdkZGM4ZjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY5YTg3ZDBkNWRkNWVkYTE4NDBhMGFjZDgxMzI3OGU3YWE0MDFiMDc4ZWJjZDY2Njc1NDhiZDYzZWY1MjY3ZmIifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/export-dataset.ts#L90-L96",
+          "version": "repo-lines-v1:sha256:d91deeb1dd22435c0164a0a7b136c0645734f38ee163cae6fe653996f798c722:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdkZWY0N2E0ZjVmNGU2NjcxYjI5NGFkMWU3ODI3NGRiYTY4ZGZhMmQyMjA4NTZjMzgzZjJjNTE4MGJhMTcxMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDZmYWFlM2IwOGM3NTk0ODBlODdlMGUxZWI3ZmIwNDY4YmE3ZDMyZTNhMzIwNzlhYmIwMjAzMDNhNjk0NDk5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://specs/001-local-supabase-backend/contracts/export-dataset.schema.json#L14-L38",
+          "version": "repo-lines-v1:sha256:0c6f55186d02dadb9cb893b472fdbc2d449ffdfc2eb23ce7186610c64a8d786d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2MDUyNmUwOTc3OWI2YzQ4OTE1OTdjMTYyZTY4NWE0MzNjMTM1MDRmYWJlNzdlODNiNDFkMjA5MDMwMWNmNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1NWIxYmU4Yzc5MTVjNWE5YTQxOGU3N2VhMDgyY2RmY2E4MTIyZWUxYzVhN2ZjNmRkYjAyNGFjOTA4ZmNlNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMyOTlmMGZhOTI1ZDEyNWU0M2M5ZjBiMTMzZTcxM2IyMGMyMzViN2UzNmZmNWYwMjQxZmZhMGE5MWY4YTYzM2UifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

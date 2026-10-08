@@ -1,6 +1,6 @@
 /**
  * Fixed desktop geometry tokens for the route workspace
- * (plan.md Geometry table; REFACTOR.md "no outer margins, gutters only
+ * (specs/008 plan.md Geometry table; "no outer margins, gutters only
  * between plates"). Under the ADR-0015 layering the plates FLOAT over a
  * full-bleed map; these tokens fix their widths, so they still describe the
  * free map region that stays visible between them. There is NO gutter track

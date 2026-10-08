@@ -68,7 +68,7 @@ Fixed, declarative, no responsive system (spec FR-001; ADR-0014):
 **Map-width arithmetic (rail collapsed, no gutter track — the 12 px `p-3` column inset is the spacing)** — these are **workspace-width** figures (the strip right of the 48 px shell rail):
 
 - `overview`: region = viewport − 256 → at 1024 px: **768 px**
-- `focus`: region = viewport − 256 − 336 → at 1024 px: **432 px**, at 1440 px: **848 px**, at 1920 px: **1328 px** (REFACTOR.md reference figures)
+- `focus`: region = viewport − 256 − 336 → at 1024 px: **432 px**, at 1440 px: **848 px**, at 1920 px: **1328 px** (plan.md reference figures)
 
 The gate triggers on `free region < 400 px` regardless of rail state. At a literal 1024 px window the collapsed rail leaves 976 px of workspace, so the focus region is 976 − 592 = **384 < 400 and the gate fires** — the effective floor is ~1024 px of workspace (collapsed rail) / ~1072 px of window. That is correct — the **free map region, not the viewport, is the invariant** (SC-001, FR-004).
 

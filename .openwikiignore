@@ -1,0 +1,32 @@
+# OpenWiki read boundary.
+#
+# OpenWiki discovers files from the FILESYSTEM, not from Git, so it does not
+# respect .gitignore. Anything named here is never read, scanned, or reproduced
+# in the generated docs. The .env files below are gitignored but present on
+# disk — without these rules their contents would become model input.
+
+node_modules/
+.turbo/
+dist/
+supabase/.temp/
+.expo/
+
+# Secrets — gitignored but present on disk (root, apps/admin, apps/server).
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# navbench — benchmark harness outputs (timings/artifacts, not source)
+navbench/results/
+navbench/rust/target/
+navbench/poc/target/
+navbench/go/bin/
+navbench/node/dist/
+navbench/*.exe
+*.log
+
+# Local AI-agent config, not repository source
+.opencode/
+.reasonix/

@@ -1,0 +1,414 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:4d5b28cec43200256babdd0069e709abd0985558a253a0eff320fe4064a1aeb2",
+  "claims": [
+    {
+      "id": "claim_c4695d9198ef485b943dd66f9d0b3f1e",
+      "statement": "apps/server has a single test entrypoint, `pnpm --filter server test` (a bare `vitest run`), governed by one config that includes `tests/**/*.test.ts` in the node environment with 30 s test and hook timeouts, `fileParallelism: false`, and `globalSetup: [\"./tests/integration/global-setup.ts\"]`; the tree splits into a database-free unit half (8 files / 75 cases) and a database-backed integration half (7 files / 63 cases).",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/package.json#L6-L11",
+          "version": "repo-lines-v1:sha256:4f7eaa21549c81878e3ade310a2c856e5a6c1e8747a5b16d2f8994b86bc5763e:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc4Njg4ODc1OWM1YzdkOWQ1ZDZiMGE4ODY2YmQ5ZmJhNzMzZDY3NTdhMjY5MThhZWYxZWJhNDRkMzFjZjlkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGY0NjU1NTBhNDRiYTU0MzU1NTA4ZWM1MWU4Yjk5YWUwMDBmN2QxODg0ZWNhZDU0ZDg4NmUwOTA2MjFkNTcwOSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L18-L32",
+          "version": "repo-lines-v1:sha256:84ff8eca8783509a4ec1706b4d9cd9ba99e7c1361a6c70a3040363683bc45696:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjOWUyMTY1OWQzMjBiZDQ0N2M2NTcwNTkyY2FiY2ExZmY5MWY5ZTg4NzdhMmYzOTMxMjRjZDczNTA5ZjgzMjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmYWQxMzMxNmQyNTU3ODk4MmQ1MWZkOWE4M2UyNjM4YTQ0Y2U1MDk5NjMyZDQxZWE5MzMyMDVhMWE0Y2VjNDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUwMGI0ZmNiMWVhYzM0ZTM1NDg2ZDZkNTBhZThiNDcwNmY1OTYwYmEyNmM0NGY1YTRkZjM3YzhjMjhlZWZkNjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZkZjI4ZTEzMWQ1MTMzOTg4OTdhODhhMjhjYmE2MzIwMGMyMGU4MDE5NDVhZDQ5NmY3NzYwYzg0MTM0NjliYTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/env.test.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:4e4c0f9d142f82d226eb5a6b57d01887244a7193780081bfc506ac95c1d05b91:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOTUwNmIyMWY0ODNkYzk1ZGYyZjJiMzVmNzBjMGE0NDNiMDUzYTdiOTY0OWY3NzQ2N2U2ODhhMzMyMDA0MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0ZGU1ZDczMWQ1NGQ5YjdhOGY0ZGRlNjdkYTc1NDY1MzEzNzBhODhlNDVmY2FmZTEwZDlkZGJjZDE4YTljNGUifQ"
+        },
+        {
+          "resource": "repo://apps/server/vitest.config.ts#L1-L16",
+          "version": "repo-lines-v1:sha256:9c9dd1bfee5135c80d88a0a491a6bcb695703c587210ac9a6125e067a7e6fe34:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNzRlOWU5MDAzOGViM2EwZGQzNGQzMTMzZjg4OGZhMmVlNTEzZDIyN2NmOTkzZTM2ZTNjNTc1ZDVlOThkYzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_73b77d27b07a4b018a1c4473cc4f2436",
+      "statement": "File-level parallelism is disabled because the integration files share one real Postgres database; the config comment states that concurrent files would corrupt each other's counts and assertions, so files run strictly one at a time.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/vitest.config.ts#L9-L11",
+          "version": "repo-lines-v1:sha256:4ee48e0eacbc76a8f15991c123ecf4270c91c60d69500467f520695e50be4311:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmRiOTI0M2ZjMWRmMDNjZWY3NTk2YTkwNDQzZDJiMWFmMzI3MDAwNTc2MDQ1MjZlOGJjMzQyYjM3YmZiMzliNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDAwMDVhOTk0YzlhZTczOTcxNTg1Zjg1ODdlNjgyNjlmMWNkMTc1YmU0ZDM0YjFmZmZiZmYwMGIzYjZhZTJiYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTdhODM5ZjYyN2EzNDM3NzNiMGIwYzFjY2RiNTFjNTk0OGE5ZjkxZGU2ZWZmMmM5MTgyMmMxNTE2NzljZWM0MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmOGQ4MGQ0YzM5NDk5N2IyNDI0MmFlN2E1NTI5M2YxNWU2Nzk1ZWY0NmFjYzEzMDRlZGRiZWQ3ODY3MmFkZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_76c0a638adbd47c1ba32c6844e3b5ade",
+      "statement": "Global setup sequences three operations before any test file runs — recreateTestDatabase(), sweepMainDatabaseStrays(), captureBaselineState() — and returns Vitest's teardown function, which restores the captured baseline and then destroys the test database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/global-setup.ts#L17-L25",
+          "version": "repo-lines-v1:sha256:60876f88854824048e8a4c0dd462101148744ba03582d831b16053f48a95f052:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWNhOTkxYzgyZmYwODA0ZGIwZmZjZTg3ZjQwMzdjOThmM2M3ZTdmMjFmN2M3ODkyOTUzMDU3YTY5YmMwZDg2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjdmNmIxM2VjMzFkMDRmODA0MGIwMjJhNzBiZmMyYjAwYzU3YTFhMmU5NjJkM2I4MTA2OGJjZDYzODc1MjRlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1efbcf1fa5f54324a36613c5657d9720",
+      "statement": "recreateTestDatabase() issues `drop database if exists komyuter_test with (force)` and `create database komyuter_test` over the dev connection (a maintenance connection, because DROP DATABASE can neither run inside a transaction nor target the connection's own database), then on the fresh test database creates the `auth` schema and a stub `auth.users (id uuid primary key, email text)` table before replaying migrations — required because Supabase Auth owns the real `auth.users` in the main database while migration 0002 adds the `admin_users.user_id → auth.users(id) on delete cascade` foreign key.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L27-L54",
+          "version": "repo-lines-v1:sha256:d19b62732042d1406276659b824f4e531d03aaeeecd5749a5ba37ad558cbd6c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyODA2NWIwYmNiMzVhNWIwNTAyMWIwOTAxMTBjNmJkMzM3NTNmYWI5YmM2NDQ1MjcwNmE2OWM0MDk4MTA0N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2YzI3MjA1ZGJkNzcyOWVmYmJlNjk3NTQyY2YwNmIyMTU0MmY4Y2JjMDJhODdiZGMwMTc3MDJmZDdiZTQ5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMDYzNmRlYmQ2ZmFmMTY4Y2I0NjRjMWVjMTdjMDY0MmIwYWUwNmE0Yzg3Zjc2ZGM4Zjk5MTQyMzBhYjM0NmYifQ"
+        },
+        {
+          "resource": "repo://supabase/migrations/0002_admin_users_auth_fk.sql#L1-L2",
+          "version": "repo-lines-v1:sha256:446bf698d7565fd8b3f4e927f61832bbbac351c796ea04d92ac5215961a0dfeb:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQxZmYzMmMwZDEwYjRiMGJlYjE2MTcwMjAxNWU0MDQxNzhkMjI2ZWQ3NjViMzcwN2E0OGI1YjJiN2JkNGM4OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdlNGFjOGUyNmU0OGQ2ZWM2NmI4ZjA0OGI0OTQ2YzBlN2I3MmRiYjY4OTk1MGNjYjMyODkzMzljZTZmMGVhMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjI3YzVmMTA5OTc1MTI4MzgwN2JiNWYyMDkxNjFjMmM5NzJhMTg4ZTRmYzI1MjBlZjE1YmRiYTg0NWJlN2Y3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_bd8bb05b55fc4c48b084dad441be6c2f",
+      "statement": "The test database's schema is exactly the migration history: `supabase/migrations` is read, `*.sql` files are kept and sorted by filename, and each file's text is executed in order on the clean database (starting with the PostGIS extension migration). `drizzle.config.ts` generates migrations into that same directory, so drift between `src/db/schema.ts` and the migrations surfaces as an integration failure; `supabase/seed.sql`, which is a `supabase db reset` concern, is not applied, so the test database has no seeded default fare configuration.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/drizzle.config.ts#L1-L9",
+          "version": "repo-lines-v1:sha256:33511cee0bc644d1f8b7982b6c826c6d2d25a48b0f5eab2c014065f49b0a8fce:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDU0NmYwNjkzZDgyOTBlNzUxOTk0NTBhMTA1NWNiOTk3YzY4ZDg5NTY3Mzk3MDZkMzZhODllZmY3ODkxNWJiMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L46-L54",
+          "version": "repo-lines-v1:sha256:479bb4bf53621d63514ee89e0feeedd4880d29b7e72223c59c7732fabc1b4a41:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTFmMWQwNGE1MGU5ZDhlYTk3YTc3ZDVlNjU5NDQ5NjM5MTNjZTA3YzhkYjk5OWYwMTVkOGI5YmE2NmFiNTk1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTcwOTViYzQ1YjJhZjZiMDMwMjk5ZmI4MGNhODI2OWZkYzkxNjJlOWQzMGYzNTk4YTRlZWJjMmU4N2RhYzQ5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWEwNjM2ZGViZDZmYWYxNjhjYjQ2NGMxZWMxN2MwNjQyYjBhZTA2YTRjODdmNzZkYzhmOTkxNDIzMGFiMzQ2ZiJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L1-L6",
+          "version": "repo-lines-v1:sha256:25207b99d1b6f4fec141d278ed84e374a1a250bce6193b0b3b1efcea9e1ffb61:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFiZDdhODNiYmRkYjAzZmEwNzE3ODkyZmM4NGE2ZTVlOTQ1MzlmNWM0MDUyYjU4NDAwNTZhZGE5N2U1OGNiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Y3M2IxMzNhYjcxMGE2ZTNmYWViZmZiZGNkZjFmZmM0NDYzZDRjYzBlYjc3NDEwOTIyMDNmMTEyYWFjNDhjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDI4ODdmNDc3OTk3YTNhZDA0NTlhMDViYWEyODQzZmE0ODRjZjFhOWYyOWY5ZjQ5ZjJlOGU5OWY3MmI5NmUzNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6f1019c194994cd38e313d15ad38fd98",
+      "statement": "After replaying migrations the test database is seeded with an admin reference: the id of the main database's `auth.users` row matching `ADMIN_EMAIL` is inserted into the test database as a stub auth user plus an `admin_users` row, so the `/api/admin` guard resolves as in dev. If no main-database user matches `ADMIN_EMAIL` the whole insert block is skipped silently, and admin-gated cases then fail with the guard's 401/403 responses instead of a setup error.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L26-L54",
+          "version": "repo-lines-v1:sha256:55f2f623d58a57b3573404ba7f74942645bdca7f85a1f9ce53e980eaf20c8a8b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiMTljOTAzMzBmODZkZTJhZjUwZjNhZDcyZTAxMDg0YTBkNGE2NzNhYTljNzMyOGIxNDg2OTQ0NDNjNTg4ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L56-L79",
+          "version": "repo-lines-v1:sha256:dcc261ce325d133a81a226c6285b533ad2b52c9fa5ae3643f0849b99a46135ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlMDUzYzNhZDA2M2ZiOGE3NzAwYWE1M2NlMmVhOGYzYWZmM2RkZmIyMTQ1YzdjNGNhNDZmNTRjOGY0NWZmNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5MTFkZTg4YjA2ZWU1ZmNiMTJhNjlhN2EzMmZkM2VjNTc1YWZjYjllYTIzOGJlMTBhM2ExMDk0ZWY4ZjM2ODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5MzA5ZDg0ZDUxNDA0NmM2Yzk3YTZiNWQ1MGRlYWQ2M2ExOTIyYzA1YzcyOGZiYzMyMTk5YTA0Yzk4ZGJkY2YifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_50110f8648de456b9c7424ca8ff8e11b",
+      "statement": "sweepMainDatabaseStrays() deletes main-database auth users whose email matches `%@komyuter.test` before the baseline is captured, as the remedy for users left behind by previously interrupted runs; the same `@komyuter.test` suffix is the creation convention for every identity the suite makes (createTestAdmin's `admin-<uuid>@komyuter.test`, createNonAdminToken's `nonadmin-<uuid>@komyuter.test`), it leaves the `@komyuter.ph` seeded admin untouched, and the corresponding `admin_users` rows cascade off through migration 0002's foreign key.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L116-L139",
+          "version": "repo-lines-v1:sha256:621bffe1bd5ecea685a03ec3f76dfc3d77652c25196fa7490d7fb20c7bcf366c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlMTAzNDNjODNiY2EwNzcyNzdiY2FlMTI2MGMzZjlmYjZlMGU1YjUzNTgxMGU4NDg3MjUwODhjY2I5ZDFkY2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxM2YwMGUyMmZjMWQ4ZjE2NmE4YTJjYzU2Yjc4YTE0MGEwZGRhMTFhZWI0ZGE3NjNhZDk3ZDVlOTFmNWU1ZmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMTI2NDEzMThiNDM3YTdmZTQyNDkxY2QzZjRhNjdkYjNjY2VmYjI5MGU2MzZmOGY5MTk3NTgyMDgyYjEyMWIifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L69-L99",
+          "version": "repo-lines-v1:sha256:8fc0566b954061b3f69bd3eeafc992595368004225508f8ce1546b0f3079cc9d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmODcyOWU4ZjU5Mjg4NTYyNGNkZmNiZTAzZmRjYTgzODkyOGUyNzM2OTM5OTEyYmRhMDUxNGY5OGMzNjQ4NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhMmVkNWE5MDFkMzc0YjA4MWZmNzQ0NTM3MTZjYjY2NTUyMDM1ZjU1ODVhMDBlYTc5YTU4YmEzMzAxNjRjY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5Mzg5M2IzNDdlNWYzNDU1MWE3Zjc0NThkNWQ4MjgwNmRiMTBiZTA2MTYyMDI4ODk2OWU1YTY4OGQ0Y2YxYjAifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L95-L110",
+          "version": "repo-lines-v1:sha256:4bc2894a39ebe1c85a045f3e52a42fbae1f656de5842fed462f5a01556034148:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0NWNmY2UxYTFjMGI1NmRjNzNjY2E2YjBmOWY2ZTRiNTRmMGQ1YjAxNDkxYmJlNjYwODZlMzhkOWZmNzMxNGEifQ"
+        },
+        {
+          "resource": "repo://supabase/migrations/0002_admin_users_auth_fk.sql#L1-L2",
+          "version": "repo-lines-v1:sha256:446bf698d7565fd8b3f4e927f61832bbbac351c796ea04d92ac5215961a0dfeb:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQxZmYzMmMwZDEwYjRiMGJlYjE2MTcwMjAxNWU0MDQxNzhkMjI2ZWQ3NjViMzcwN2E0OGI1YjJiN2JkNGM4OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdlNGFjOGUyNmU0OGQ2ZWM2NmI4ZjA0OGI0OTQ2YzBlN2I3MmRiYjY4OTk1MGNjYjMyODkzMzljZTZmMGVhMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjI3YzVmMTA5OTc1MTI4MzgwN2JiNWYyMDkxNjFjMmM5NzJhMTg4ZTRmYzI1MjBlZjE1YmRiYTg0NWJlN2Y3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_68d0c3a3a08844498f31a472b01210cf",
+      "statement": "The baseline/restore contract snapshots ids the suite can write: `routes` and `fare_configs` ids from the test database and `%@komyuter.test` auth user ids from the main database; restore deletes test-database routes and fare configs whose ids are not in the baseline (or every row when a baseline list is empty), relying on route cascades to directions → stops → detours → restrictions, and deletes `%@komyuter.test` auth users from the main database, where the auth service created them outside the app's transaction. Because the test database is created within the same run, its route and fare-config baselines are normally empty.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L145-L239",
+          "version": "repo-lines-v1:sha256:b59ecc2d14f17fb617c901f88a4248c3efaf8008abb14b1d12c03b3a4c736369:eyJzZWxlY3RlZExpbmVDb3VudCI6OTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwMTJhNWIzMWU5NWI1MDI4NmU5YWNiMDBkZDRlNjgwMDI0OWM3OWJkZTU3NGE1ZGVkNzgzMzZlMDkxMjJjZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5YzNiY2I0YzMzMDk2ZDYwMjIxYWE0ZmM0MTI2ZjM4ZTgwZTQ5ZmZjMGIyMTlhNTc2OTZhZWMzNTQ1YjE1ZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_57b06e91cf444ab8854153e3996cb4ea",
+      "statement": "destroyTestDatabase() drops `komyuter_test` with force as the final teardown step, so no test data survives a run; an interrupted run therefore leaves an orphan test database and stray main-database auth users, both repaired by the next run's recreation and sweep — the lifecycle's entry point cleans up whatever its exit point missed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/global-setup.ts#L8-L16",
+          "version": "repo-lines-v1:sha256:1c68fbd1fd5908489b68e4e1ac46be104b6f508be83060a2323330a7f7d91f8a:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDk0MDI5NDZhZGE1NTVlNDZlNGQ5YmM5NTgzZWU0NTZlNDJmZmY5YjNkOTYzMDkwZWMzMTgyZDY1MGIyNzM2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTUzNzMyNTViMzNjNDQ0Y2QxMGQ3ZTM5Y2MyOGYxMTcyZmM3ODM1NzNhMmQyZmYwNGNiMmE2NzU2NjYzOWJiMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L85-L93",
+          "version": "repo-lines-v1:sha256:0ee36b322e48df382fd037d0b153adf5580d9d4823b4f0d0b2d7a4f7e17dcb50:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGExNjQ3NjNjZGIxYTU3OTdiOWM0Y2VlOTE5YmZhNzA3ZjY0ZjFiNTZlNTI3OWEwZDkxZTZmMDk5YmMwNDdjYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmI1ODBlOTY0ZjgzYTQ3M2Y0M2Q0NDM4NDYyOTQ5ZDY4YjU2MDBmZGE3ODdmMTYzNzQ1ZDAwZGU4OWNiZjM2YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzA4MDk5NGY2Y2MzNDQyYjllY2I5NWEzYjEyNjM0YzZhMTc1NjlmMDhjYmUwZGM2NmRlMmMwYWJkNzRlZDgzZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_209f8844d2e64154b4705a4e11938c43",
+      "statement": "testDatabaseUrl() clones `DATABASE_URL` and rewrites only the pathname to `/komyuter_test`, making the test database a sibling of the dev database in the same local Postgres instance and keeping credentials, host and port; `createTestDb()` wraps that URL in drizzle, while `createTestPool()`/`createDevPool()` are standalone `pg` pools for the setup and teardown SQL the app never issues.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L21-L46",
+          "version": "repo-lines-v1:sha256:2072e9eb8c0c1dc0c214dbbc295d27c37358dc7f20ed4bd932334582d17a6927:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2NDdmNWZhMWJiZWJjMDYzNDJjNDM0ZDQzYzYwMTIwMDg2Mjk1ZWU0YWVhODYwYTlkZTM4YjJmNjU5YWIxZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEyYzllMWZhNDQ2NzM0ZDM3MzRiZjQ2ZGRlZTM2YWQ2NzAwMzRjMWY3YWQ3NGI0YTA4YjA2ODcwYjFkMWVmOTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a42ae878f18c44518f5098b932e74e8a",
+      "statement": "The test seam is the injectable `buildApp(deps: AppDeps)` taking `{ db, supabase, env }`, the same function production wires with `createDb(env.DATABASE_URL)`, `createSupabaseAdmin(...)` and `loadEnv()`. `buildTestApp(envOverride?)` supplies `createTestDb()` plus a service-role Supabase client, `envWith(overrides)` re-runs `loadEnv` merged over `process.env`, and every integration request goes through `app.inject` so no port is ever bound.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L21-L36",
+          "version": "repo-lines-v1:sha256:6c0627fc7955f7185aa8834e10edd1092e65c79004ce6dac1921862e6d2e626c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3YWM4NTM2YzM2OWM2N2M2YjE2NjNmNzE0YzY0Mjc0YmEzNDA3ZDNiNmUwMDllYTYzMTY5OWVkZDdlNjZmODQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjMGYyZjZhYjExMmNmNjBjZjI5NWZkNWFhYTBjN2Y4MTUxZmI5ZjBmZDQ4Zjg4MjE3Mzk5MGY3MDQ2NjJkMjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4YzIxNGFiOWIzYWI1Y2VlM2Y2ZDJmZGU1MTk2NjkyMDliNmVhNDZiMjAxZTFhNDI4ZGVjNWJkOTQzZTk2YjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzMWE0YjVhNWNkMWYxYjBhZjAyOTg0MGFiOTQ4YWZiNzllZDI3MzA3ZDlkYTRiZTFhMjJkNGVlODQxNzkwYmUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/index.ts#L8-L18",
+          "version": "repo-lines-v1:sha256:11d4f87344db23e16bc75b1f407faf2570f1c07c9204d60abdbc7b49ffb96bde:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxODQ0NjU1OThkZTI4ZTU3ZTVmMmFhNjNhYTg2YzYwZDVlMWZmZTFjZDAzMDY3ZDlhMTE5YzYzZTBiYmIwOWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU4NDdlNjhlNDkzMjI2OTM2NDA2OWNmNDljMTA0NjY2Njc2ZTY1MTQ1MmJjMzQxNDhkMjA0NjlhZmJkNThlMzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBhZGE0N2I2MDU2YzI4MzM0ZTlmODJjYTAyZThhYzdiMWQ4NDMzZWZiOGIwOTRjMDE1ODFlNDUyZjAwYzFhMjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZmZTM2ZDY2ZGRhNmE3ZDI5MzUxNGYyZDlhYmQ4MTkwNDVlYjk0ZTM4NTk5MTYyZGE2MzZmMGEzNWM1YzAxZjYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L52-L63",
+          "version": "repo-lines-v1:sha256:607a12785c60e4f52a4eaa7d8166535ba38ea2583bd0b72aaf570bff0f236822:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2OGIwNzI1MDJlYWI0ZDNiNDg0MzgwMGNmZjNiYzU2NGEwNjM0MDcxOWY4NDIzOTg2YTg1NmU0NWQ0YThiZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE2ZmUwZThhZDMzOGYzZTNhMGY4MjU2YWI5YTE0YmY2YWQ5YTNlNTNkMDYzYjQ2NTc2YTY0NTlmZjIzYjg4NGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhZThiMjc3NDI0MWVjOTY0MmNmM2Q1M2VjOTU2MDE5MWFkMWJjY2I3M2ViNzJmNGViZmNlNGFmMzY0YWJiNGMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7858bdf2221144eebcecd9384fef95a4",
+      "statement": "tests/integration/helpers.ts loads `.env` via `process.loadEnvFile` when present and calls `loadEnv()` at module scope, so a missing or invalid `apps/server/.env` fails during file collection with `Invalid environment: …` rather than inside an individual case; the integration half therefore requires the local Supabase stack running plus that `.env` file.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/README.md#L84-L86",
+          "version": "repo-lines-v1:sha256:d4a565fccc1e8a21f102969dc11b6fa2bd2ca3fac57a25be579f423b1edea87f:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWVlNzRiOTNjM2I5MWZmMjBiNTJiNTkxOWE4NzQyMGY0OTQyYzdlY2RkOTg3NjM5YTZjOWQ0ZWUyMzliMWYxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzFkMTg0NjEyNDUwMjAyZjdjYjdlZGNmNzNhODg5Y2UzODVhNTIyMzg3NmU0NTgxMzk4NTdhMTRkZDQyNTc5MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTg5MjBiM2E5ZmI0ZmIyNzc3ZmEyZTdlNDZhZTdlOWI5OTBiODg2MDA5OWZjZjk0MDM0ZTcyNmUwZmIzMjUwZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGUyNDYzMzAwYTdmNmZlZjQ4MGNiMTNjNWIyZGJlZTE5NDVkNmYzNDQ4YjdmMTcxNDhlNGU0NmFkYjdjYzU5NSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L11-L19",
+          "version": "repo-lines-v1:sha256:552b210ef8adb7f2b78d826bb99ceeec052ec133027bc79eb15f92d9259878fd:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI4YzQzMWNmNDIyNmNkYzdmMjhmMTI4ZjVmYzM2MTE4MTlmOTNkYWNkNWE0MGY4OTUzNjNiYjUzZDA2NzBkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGI5YTJlYWI4ZjNmZjA5OTg1NDI3OTJhMGRlOGQyYzI2NTYzMWQzMTM5MzY1YjU5ZTgwMWIxNzgwZDQ4YjBlMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTgzMDY5MWIzYTc5OTcyZDFiNmZmZjJhN2MxMTMzZWZlNWE0NmVkYjlhMWRhMGJkMzk3M2Y0NTFhNjUxYzY0YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1bc53c982a824af2ba500cda3c5cc13b",
+      "statement": "Integration auth is real while integration data is isolated: `signInAdmin()` signs the seeded admin in through `supabase.auth.signInWithPassword` using `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `createTestAdmin()`/`createNonAdminToken()` create confirmed users through the service-role admin API and add the test database's stub `auth.users` + `admin_users` rows, and the route guard calls `supabase.auth.getUser(token)` before checking `admin_users` in the app's `db` — which is the test database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L40-L54",
+          "version": "repo-lines-v1:sha256:1ac7b2a7d09be523c329dbb1f23951073967bbd9af719787da1655fa3a8ebbad:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ZmE4OTI0YzM3NTY4MjY5YWYyMWI4ODFhZDI1Y2ZjZjI5ODAyMmM2MWYzODE2MzZhODk4NGJiNDBlZGY3MjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiODFjZDQ4YzUwMDY4ZjViZmYzY2FmM2NhMWVlNTU5OTY3NDZlMDA5YzM2OThhMzM2MTBmNDA2NjdjMmUyMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/config/supabase.ts#L3-L13",
+          "version": "repo-lines-v1:sha256:d6532ba114dfd46305dbf05ae23532226cb2a4eb9c602f8a4addc3fe3d453913:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZDIyZTQ5YmZiYjljNzQyNWRiMzBmZjRlYmJhODA3YTUwYWRkMDA0ZDgzY2MwYTQwZmZjMTZjMGJlY2I4ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmZWFhOGY4ZTNlNWNiNTI5NWVmOTI3NzIwYzNiOWYxOGI2MmQzMTY3ZjBlMTY2MzUyZjM3NDU0N2YzODg1NTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L69-L139",
+          "version": "repo-lines-v1:sha256:9e1c167c0ccac537e94dade6aaca3e336e85a99407bb2f6ba5b83271c84e4423:eyJzZWxlY3RlZExpbmVDb3VudCI6NzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmODcyOWU4ZjU5Mjg4NTYyNGNkZmNiZTAzZmRjYTgzODkyOGUyNzM2OTM5OTEyYmRhMDUxNGY5OGMzNjQ4NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhMmVkNWE5MDFkMzc0YjA4MWZmNzQ0NTM3MTZjYjY2NTUyMDM1ZjU1ODVhMDBlYTc5YTU4YmEzMzAxNjRjY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMTI2NDEzMThiNDM3YTdmZTQyNDkxY2QzZjRhNjdkYjNjY2VmYjI5MGU2MzZmOGY5MTk3NTgyMDgyYjEyMWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d6950e5d5567409098a879c47967a145",
+      "statement": "Build-level configuration is exercised per case by rebuilding the app overrides: `ALLOW_DEV_CREDENTIAL=false` refuses the documented dev credential with the unified denial while `true` accepts it, and the origin guard rejects a foreign `Origin` with the 403 envelope while an allowed Origin, a missing Origin and an `OPTIONS` preflight all pass.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L244-L342",
+          "version": "repo-lines-v1:sha256:4672f538b088abc3735bf1bc57fbe54a5bb9d98c8a98ce836179e15b8c91a360:eyJzZWxlY3RlZExpbmVDb3VudCI6OTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwZTBkMDQ3NWY5NmRhNTMwNzg0ODY4YTVhZGUzODBmMzQxMWE5ZjA5ODdlMzAwN2QzMTJiYWIyZDRhY2JhODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhkOWVlMzdkYzMwYTE4ZTBjZmM3MzhmMTJkNWFkNzgxOGJmMTI4Y2Q1ZmU4ZTgzNDVhZjk4NTk1ZTI5YThmNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiNjRmNDMzNjI1YTZkODc0YzQ3ZjMwOWJhMzhmOTQxY2ExNmQ4ZDUyMTFkODdjZTAyY2Y1ZjkwZjc5ZThjYWYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L60-L63",
+          "version": "repo-lines-v1:sha256:9720dc59a68df3cf96df4c2d592367a49b080a7fca008cd8c1b520b94b35ec19:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWE2ODljYTY2OTk1NWUxY2U2MzBmYjk0OTI4MWZjZGUxOWUwZGI4NzBkMTU4NWE2MTdkMzAzYjMwNTkyMTk4NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmQwZjJkM2EzYWFkYTI3NTg2NDU3OGQwYTQzOTE1NjM4ZDU0M2ZlY2EyYzk0ODU4ZGI5NDEyMTFlODZjZWYyYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmFlOGIyNzc0MjQxZWM5NjQyY2YzZDUzZWM5NTYwMTkxYWQxYmNjYjczZWI3MmY0ZWJmY2U0YWYzNjRhYmI0YyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d5bf171913bd4a52bc1e47b63135113b",
+      "statement": "The CRUD integration file pins write/read reflection and refusal semantics end to end: a created route is listed, defaults to inactive and has a zero direction count, an update is visible without a restart, and a delete really removes the row (404 on re-read); directions-with-stops creation, `409` when deleting a stop referenced as a direction terminal, `422` for empty stop lists and invalid LineStrings, detour loop/off-path/degenerate/negative-distance/duplicate-label refusals, atomic detour-stop persistence with cascade on detour delete, and restriction-index range errors.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L190-L236",
+          "version": "repo-lines-v1:sha256:7dac6cb1139f3989242fd1468ebdff3dd7c7f75d1e1c0b876f622bb84a3db8da:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYWUzYjU3MzYyOTg3YjQwMGNjMzIxNGI3ODMxODFhYjMxNmUzMDY1YTlhZGI2NjVhNzc5OWQ5NDg1YzY3YjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiZDRlNjg5YTA5NDMyYjc2Mjg0ZGE0ZjNjNjBkZWYxNjVjMTQ5Yzg1NjEzYWZhYjgzNTk0YTU2NGQxNDI2YTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhMTU3OGYxNTBiOTE0NWFiNDE4NmI2MDZmZTRkYmI3MGU0NmE0NzFjYTYxNjMxNjllNDBjNTU2OWU4ZTY4ODUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L285-L602",
+          "version": "repo-lines-v1:sha256:6b711be7f4ff3b81d8ed3301bd5483572a63c7e2f91ece1f611c62a7cd3c036d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzE4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIyMjYzOWIxNDg1MWNhNTY2N2YxZjRmODMzOTI5YzRjNjNhNjg0MjU5Y2YzZTBiYWZhZWJjYmQwYzMxZjYxZmRkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIwMWJhNDcxOWM4MGI2ZmU5MTFiMDkxYTdjMDUxMjRiNjRlZWVjZTk2NGUwOWMwNThlZjhmOTgwNWRhY2E1NDZiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkYmM4MTI1YTAyY2NhMGYyN2JiM2E5MmM5ZTY5YTk4MzYxYmY4ZjVmMTU1YTlhZWY4NTUzZDI4MWVlNWZkZDJjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhNDI4YzIwOTc3NTQzZGQ3MDYyZDFjNjZhODUxNTUxMzdkNTRjZGNjNGFiMWIwMWEzNjIyYmYzOWU0NmEwMWIwIn0"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L34-L116",
+          "version": "repo-lines-v1:sha256:5f6c92f9032bb497b924983d9f6b7862be0b0921a453817deab4673519861b56:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlYjQzYjRiNjIwZmI0ZTFlMjM4YzFkMWUzY2UxYTRhOTVkZDE3MTgxZmIwZDIwNTYxYTAwZTI5MzNmYTU5ZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4OTJiNmI1NDJhYWFmNzJkYTJiNWQ3MDBmOWQyZjk5NDQzNzNlM2E1MTVlYmNiZGUzYWMyMTgzZDMzMTNlNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmZTUwMTFiMDcyMzkyZDYyNTc4YjgzZDA0NjE3OGJkZGMyNThhNDBmZGZkNDY0ZmZmZTM2NjdkNzRjODU1NTgifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L678-L790",
+          "version": "repo-lines-v1:sha256:818688581657c11b9d4f5415f98b577b01e3cc9a48c247e35fd464da345b97da:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2NDUxZWM1MTUyZTZmM2NiNDdkZjc4YzQ2MjkxOTZlMzBjZTI3OTQ4MjU2MjExMGQxYmNiMzMzMjc2OGQwYzJlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJjMjc3OTc1MDkwMWZmN2ZhOTczODVhYjE1NGI2MDVmNzhmZDJmMTU1YjM1MjkyOWE4OWUyNDg3ZjBlNTlmMmY0IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI1NzFiZWM4MDgxZWViODg3MWEyZWIwNjExMzQ3YzM1MWQ5MDcyMjBmNTczNjJiNzNlMzRlYWE1YzVhYmRkZTc3IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2ZjM5NjZjMGY4MTkyNjE3NmMzMjU2NGZkZDRmZjQ4NGU4YzA0MmFhMjA4MzBkYjMwYTk3ZjU4MTI0YzEyOWU5In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_141e6b014a3c44709a8aa72f46c5dba6",
+      "statement": "Fare-configuration lifecycle guards are integration-tested with configs the suite creates itself: deactivating a config referenced by an active route or the sole default is refused with `409`, deactivating one referenced only by an inactive route is allowed, updates that would leave the default config inactive or the system with zero defaults are refused, a deleted (inactive) config cannot be made default, and the list reports `active_route_count` counting only active routes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L825-L1070",
+          "version": "repo-lines-v1:sha256:0191057ee130452ebff42a7519e0ccdcaac82a88ed29d1d5169975a71f8b3bfb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQ2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2NDYwYjU3MTFhZDU1OWYzYWJjY2QzZWE2ODQwNjY3YjA4MzFmYTgxMDAwMDc4OWRkMGQwNDY4NWY5ZjEzMjhjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNzc5ZDExOGQ2ZTNjYmY0NTA1Mzk3NDhkZWU3YTQzMDdhY2JlNjQ0NmNiYTI5N2YyNzYwZmE1ZDBiYmExYmMyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a6c4f4e313ea4303a0f6e728b3181c21",
+      "statement": "The plotting-save integration file pins the two-direction model: `POST` saves the base direction and derives the return in one atomic operation (reversed polyline, reversed stop order renumbered from 1, terminals resolving inside the return's own stop list), a single-stop save or a path whose start does not match the first stop is refused with `422` and persists nothing, a third active direction is refused with `409`, `PUT` with stops and polyline replaces the base and re-derives, route detail returns the base direction before the derived return, and the overview endpoint returns every route's base/return polylines and stops in one request.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L112-L251",
+          "version": "repo-lines-v1:sha256:983342da53e33e6c0d33d9d5cfed6198cca9880738ebfa63d631f2a0de99b63a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQwLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxOWU2Zjc1NzBjMzM1NjQyOTlkNzRjODQ3Mjk4ZDlkOGNlN2VhYWNmYTg5OGVhYTEyYjE1MzU2ZDk4MDZmMzAxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhMDgzMjE4NjNlNGU2M2M2MTNkMzE2YmI2MGI2NDBkMmE2MTU2YzFmNGI2YjcyNjJlM2ZiODcxOGY4ZmI0YjExIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlZTNmNzM1ZDQwZWE1NDJjMjUxNjRhMGNmODE2ZTkxMDNhYzNhOTdlNzc3ZGEzMmEzZWFkZDBjN2UzNGI0Y2E3In0"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L253-L446",
+          "version": "repo-lines-v1:sha256:0a66f5b085ee039f633d63ae7553cdaf17cf225f0cd2c8c75cf2943be2dee6da:eyJzZWxlY3RlZExpbmVDb3VudCI6MTk0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIzOTI0YmIzYzk3ZDU0OTc1ZDEwMzM4YjlkZmVkM2IxMWRlYzE1MTk0MGRmNmJmNmM5Mzk5ODVhYzEwNzcxYzE1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5ZDQxODcwMWYwZWVlMDkzYmUzMjBiYmY1NWJiMDg5MGQwMGNiMjBiODIyNTg2MzUyYmY1NDI1YTk0NGU5MGY5IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L57-L110",
+          "version": "repo-lines-v1:sha256:64e226959c375a4a9b16b7ff53144e01598fe5230fa7587c6abe67758251a201:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzOTkzYzJkZjNhZDY2OGY1NWNkMGRiMTkzMjMxZmVjMDgzMDkyOTM2OGEyMzc3ZDA2NWY1YjliNjFkYWFiYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ4MTE0ZjEyYWJiMjhkODVkMjRhOTg5N2EzZDEwM2JkMmE2OTkwNjAzNWY5ZTI5MDE4ZWRjMGVkZDk1MmVlMTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b856765f8c9e45b5aca6d4132e2fff49",
+      "statement": "Status and persistence are asserted against a real database: `/api/status` reports `ok` with numeric route/stop/direction counts that do not decrease after a create, and a route written through one app instance is readable from a freshly built instance — restart equivalence that makes the database, not process state, the source of truth.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/status.test.ts#L21-L68",
+          "version": "repo-lines-v1:sha256:491b1daa210c766bcbd23cd3f55134010130767258c8f73dd58cf3b017f09ae9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI1NjBjYzM3OGNiZDFlOTdkZjNiMGNjY2M0MThkOTA2NDI1MDY5ZDFmNDA0NzRkMjg2NTJhN2ZlNzJjNzEwMzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4OTJiNmI1NDJhYWFmNzJkYTJiNWQ3MDBmOWQyZjk5NDQzNzNlM2E1MTVlYmNiZGUzYWMyMTgzZDMzMTNlNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3f09f3a160eb49e79ee978801c2c413f",
+      "statement": "The export integration cases validate the emitted dataset against an Ajv-compiled JSON Schema read from the spec tree (`specs/001-local-supabase-backend/contracts/export-dataset.schema.json`, compiled once and cached; `ajv` and `ajv-formats` are apps/server devDependencies) in addition to asserting the download headers, `schema_version` 1.1, `coordinate_order` `lng_lat`, base and derived-return directions with their own stops, no dangling terminal references, no `eta`/`arrival`/`departure` key anywhere in the body, and a schema-valid dataset that parses standalone even on a fresh database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/package.json#L22-L32",
+          "version": "repo-lines-v1:sha256:10f18cdbeb45127eab8d42ac32d2cc48f56c71b56ec4386f5a5de02ed3613fde:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkYzRkZTdlZDM1YTIzMzY0NTM5ODY0ZGFkYjkzOGI4NzIzMzM3OTE3OWQ2MjkyYjlmZjVmNjE5YTZjMTMxNjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5ODY0NTFhOGFmMTRhMGNjZjYxYmM1YTAzYzI0ZTQ2YTNhZWIwY2MzNzQ5YjMxNTkwMmMwMmUxOGRmNzcyMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/helpers/dataset-schema.ts#L1-L34",
+          "version": "repo-lines-v1:sha256:34b8c940992710ae25c2598d172a6f6d64f75555df5ee15a4b9eb9914e7b1eb0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwYzRkNjY0MmYzZGU1ODY2MDdhZTgyYWFkMjYzYTFhNjE2ZDk0N2ExOGRhNjE1NzQxYjI0ZjA4NTQ3NWZmOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/export.test.ts#L37-L173",
+          "version": "repo-lines-v1:sha256:911117674d8040647eab6f5ed9ca5b96e2dc6e3d15e2f7abcf1fd27061ad9578:eyJzZWxlY3RlZExpbmVDb3VudCI6MTM3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMDc3MDFkNDc0MjVjYjliYWMxYTg4YjI4MjJjMzE2Y2Y1NmQ1NjcyMmYxM2E2ZjYwMDQ3YzMxZTQ0NGRlMWE3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJmODkyYjZiNTQyYWFhZjcyZGEyYjVkNzAwZjlkMmY5OTQ0MzczZTNhNTE1ZWJjYmRlM2FjMjE4M2QzMzEzZTcxIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_33aaa5d0a7a1420486fca37e51d14aaa",
+      "statement": "The integration half contains a local performance gate: two cases issue twenty `/api/status` reads and twenty export reads and require at least 19 of 20 to complete under one second each, so a loaded machine can fail the suite.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/latency.test.ts#L21-L47",
+          "version": "repo-lines-v1:sha256:3eb22601d3c82cda1fb4b9dcfd69fa4d44ae060b74a703cab882f1c5609caef1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhYTg5OTZlODE1NTdmNDcxODAwZjg3OGNlMDZiZTZiNGE5MTlmYjczMWViOWU5ODI3NDU3MTc5MDA3ZWRlNzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4OTJiNmI1NDJhYWFmNzJkYTJiNWQ3MDBmOWQyZjk5NDQzNzNlM2E1MTVlYmNiZGUzYWMyMTgzZDMzMTNlNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0afd49e6574d4c618ef0d0c69a19dc0e",
+      "statement": "The unit half is database-free and socket-free: its files import only `src/domain/*`, `src/api/throttle`, `src/api/errors`, `src/config/env`, `src/api/mapbox` and the `@komyuter/shared` schemas, substitute ambient dependencies explicitly (an injected `now` for the throttler, an explicit source object for `loadEnv`, `vi.stubGlobal(\"fetch\", …)` for the Mapbox route), and register routes on a bare `Fastify()` instance.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/unit/env.test.ts#L4-L47",
+          "version": "repo-lines-v1:sha256:83a13208c022b84ad73251690c48f44b52046c16398fb65a5ce018042b30e14e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIzNjBlNTI3ZDQzOGFlYmQ3MzVmOTFjNTliYjRmY2NmZDIxYzZmOWQyZTg5NGE4YjA4MTI0MjdjZGFhYzJhMDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmMjIxNjNkOTNhNzlkNDlhZWFlZDJmNjM4OTk2OTMxOWJhNzViMmJiMjQxZjhhZjdhODkzNDBkOTZlODc1OTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L13-L18",
+          "version": "repo-lines-v1:sha256:36d25df2bd18ea66336980ef00d883dfe5fb4f4e1e8daa871efb6fb63ce564e3:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTFlZGVkNWVhZWUwNjExOWMyZDU1MTFmY2E4ZGRmY2E3NjJlNjFhYzE1OTk2N2MzYWM3NjE3NDkwN2U3YmI0ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVkOGRlYjllOTYyMWQ4MTVlYzY5ZjI5OWQ2MTZjZmU1NTg0ZDJiOTEwNzcxMGZhYWZlYjM1MDMzMDIzMTExNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmFlZTQyYTNiMWU1MWQ1ZmIxMTBhNTRkNTY5ZjA5YWQ1MzlkY2QzOWIxM2IyMDFjMDkxNTEyNTFjYTllZTAxNSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/schemas.test.ts#L1-L25",
+          "version": "repo-lines-v1:sha256:db6d888b4ec3367c6f4629618973db7dab78f3e00ecee44606edd4c14bd92c6b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiOTUwNmIyMWY0ODNkYzk1ZGYyZjJiMzVmNzBjMGE0NDNiMDUzYTdiOTY0OWY3NzQ2N2U2ODhhMzMyMDA0MDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NGI1OGE2ZTRhODI3MWFlYjI3NjRkZGU1MDIwN2I3ODM4N2MyZGQ1ZDdiNTJkZTQ5ZmQ4YjMzZTY2ZjgzZjgifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/throttle.test.ts#L9-L41",
+          "version": "repo-lines-v1:sha256:b491fa2145bfc556fcf4b811b0ef90c2a3086c58cbf65ffbe93714ac7a3ddcd6:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5YTIyZTlmM2M3NmFmYTEwYWU5YThmM2QzZDdhN2VmYjFiNzY5OGJiMTBjOWUwOGUwNWRlY2E4NDQ4NDU3MzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxODg1OWU3M2Y2N2FiMTJjYjljM2ExNjQ3NTY5YWJlY2NkNzM1ZGVkOGRjMTJhY2M0OGRkZTRkNGQ0MjliNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgzZTFiYjZiMjFkZjllNzU4YzI4NzZjZTVkOTQyNjU4ZGVlZDdiNDU2MTExMTM5MmM3Zjc5MDljMjI5NDdjMDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a9c0679e3e894c5ab98bf368b14c77cb",
+      "statement": "The unit half is where the derivation and coordinate invariants are enforced: `derive.test.ts` pins reversing coordinates without mutating the input, never reusing the base stop or location objects, renumbering `stop_order` from 1, keeping the first stop leading on a closed loop, the `To {first stop name}` label, distance math and `pathEndpointsOnStops` accept/reject cases; `geometry.test.ts` pins `[lng, lat]` bounds with per-coordinate issue paths, rejection of non-finite or non-geometry payloads, and the two-point minimum for LineStrings.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/unit/derive.test.ts#L30-L178",
+          "version": "repo-lines-v1:sha256:fcb53c3c2bc1e11041e4b4a885c2e06eca81799f833dc2360f7793ea20490d42:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQ5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxMmNhYTU5YTIzYWIyZjM2NmU2YThmYWE2N2U1ZTI3Njc4ZjYzYmYzNzQ0MTExMDdkZTI2NzgxZjdkOTYzNzZjIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI5MjA0MGUwOTVhOTRlMmFkYTc0ZTQyMWYzNzE4NzUxYTkxYTgxMGJmZDY2ZjQ4ZjRlOTM5YzdiNzQ4MGViNjcwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/geometry.test.ts#L7-L115",
+          "version": "repo-lines-v1:sha256:8bbc174bb244ece78a0e752174f03d65b537fe19a4603bcafaca747f1db284c6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI2Mzg3M2FhODFjMzA3ZWZlN2ZhMjg5ODRiMzhkYmI1OGVkNjhlY2M4ZWI0ODI4ZGY0OGUyNTRiM2U1ZGUwMjUxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJjMDUxY2I5YmEzMjNmOWFiNmU5MzdhOTg2M2NkYjZjMzZlYmQyY2NmOTc5Y2M2NTg4N2NjMGMzZDFlZTA2OGFjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_f956808c512c4fe283d87d9337fd9748",
+      "statement": "Three more unit files pin domain contracts without a database: `export.test.ts` fixes the dataset shape (`schema_version`, `coordinate_order: \"lng_lat\"`, conversion of string-mode numeric columns, stop sorting by `stop_order`, empty-database arrays, `referenceCheck` dangling terminal ids, absence of ETA/arrival/departure keys), `validation.test.ts` exercises the detour on-line tolerance including the boundary and the `Detour loop start` / `Detour loop end` / `degenerate` refusal messages, and `schemas.test.ts` pins the `@komyuter/shared` slug and create-schema rules the API validates with.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/unit/export.test.ts#L83-L171",
+          "version": "repo-lines-v1:sha256:49a9bea5d5b085084cb3666e253ef27de4930b6d3d3fcef54ce1e3ab89ea9d07:eyJzZWxlY3RlZExpbmVDb3VudCI6ODksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNkNzM2NTJiODJhYzE2ZGQwNmRkOGJlODhkYWQxMmQ3NjhkOGVmNTMwNzY1OTg3MjU4NDM5ODkzYTkwNTcxNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/schemas.test.ts#L11-L35",
+          "version": "repo-lines-v1:sha256:d68ae2cb4b022fdf12235413f6c4537aa07cbf6eea86f9ad6db568119fca32a8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMGQwNDhmMGFlMjMxZmY5YzNkNDMwNjIyODM1MWNhYTUzODkxOGUzNDZlZDhjNDRlNjZmN2FkOWUwNWUyOGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkMmNkNmQzMDhiYzRmOTYyMDQwNGFmNGExMDkyOWMxNzFiNzMxMGFhMTYzZDNmOGYyYTYzZjQ3MjVjMjkwNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5YTQzZmRmZTAzZjkzNTE2MWE4ODQ3ODQ5ZjJhYWExNTZhNjdhYWExOGY1NDQ2NjM3Nzk3ZWJkOTlhYzg3NWMifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/validation.test.ts#L35-L80",
+          "version": "repo-lines-v1:sha256:aa7affaa5131952ad5db10b10e2778b45479f8a0bbc188edcd227d3cfe606e50:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ODUzNGM5MjlhNDlkMWM2ZmQ5OTViZjRiYmM1MmM4MDQ1ZWQ3NjU0YzMyYjJlZmYwZDllNTM0OTZjZmYyMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9f6a9bdfd54c45679dee075f4ab55e8b",
+      "statement": "Because the single config declares `globalSetup` unconditionally and there is no second config or script, any invocation of the suite — including a unit-only path filter — first recreates and migrates `komyuter_test` and afterwards restores the baseline and drops the database; there is no database-free way to run the suite.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/package.json#L9-L9",
+          "version": "repo-lines-v1:sha256:241fc249efa71b0e7a97f7f4eb8b89494a59cb3f87d71be6aad63aa3ba5e3d3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQxZmMyNDllZmE3MWIwZTdhOTdmN2Y0ZWI4Yjg5NDk0YTU5Y2IzZjg3ZDcxYmU2YWFkNjNhYTNiYTVlM2QzYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQxZmMyNDllZmE3MWIwZTdhOTdmN2Y0ZWI4Yjg5NDk0YTU5Y2IzZjg3ZDcxYmU2YWFkNjNhYTNiYTVlM2QzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDE4Yjc4OTBmMzMxMzkyNWFiYmI4YjYxYmUwNTYwZTcwMzllNmQ5MzUyOGQxZWZkMjlkMmZiNDQ0OTYwOWZmNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDUwM2I1MTcwZWM5MjBiYjlkODUzNjlhMGVlNGY2M2RjNTEyOTY2ZGJiZTU5NmRjOGJmODE3YTgzMTYzNGEwMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/vitest.config.ts#L5-L16",
+          "version": "repo-lines-v1:sha256:0a6ec4eecb45d44f9e684c3b39fb976a1397f433903182375a70d128192eff8d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMTlmZmE4MzBjOGMwN2M1ZGY3NGUwYWE1NmRmMTM0MmU4Mzk3YWUwZmNlYTEzYjZlMzk5N2I2MjYzOTIzMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1ZmVjNmY2Mzk3YmY3ZTA4MDc4ZGZlODE4OGQ3ZWEyNjgzMTE2M2M2MTZmZjAzNjBhZWI5YmY5M2YyYTQ3ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7665dc5384c64ecf8773f0a6561b2b36",
+      "statement": "The Mapbox proxy is covered only by unit cases that call `registerMapbox` on a bare `Fastify()` instance with no central error handler (the 422 assertion reads `body.error?.code ?? body.code`), resolve `loadEnv(process.env)` per request for `MAPBOX_SECRET_TOKEN`, and stub global `fetch`: they pin the straight-line fallback with `warning: \"no_token\"`, the snapped-geometry success path, and the `upstream_error` fallback, while no integration case exercises `/api/admin/mapbox/directions`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L85-L122",
+          "version": "repo-lines-v1:sha256:7f884fe5c8ff5d231fdecd21888be7c9f38af1549fb27added4c78b1149148ad:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MWU0ZDc0YmNkYmMzOTE5YmIyYjBlZWZhODgyY2Y4ZTUzNWRlNzRmMGFhMzE1MjIwZjNkYjBhYWQ5MjM4MTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwNmFmM2E0YWZiMmQzNDZlNjNjN2FhNzQ5NWE4YmJkYjg3NGQwZWZjZmE3ODI3ZWY3Zjc3MTZhMjM4MmU0NGIifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/mapbox-proxy.test.ts#L111-L200",
+          "version": "repo-lines-v1:sha256:d2ecf94a82e761c577e8f6298dbff3e9fbf76cae2657fbf1d44d87a53026d06c:eyJzZWxlY3RlZExpbmVDb3VudCI6OTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllODQxYzQ1YjQ2OGNhYTI2M2NlYmUzMTAyYTY1MWM4NmQ5ODQ1NDU4ZGIwM2I4NTYyMWIzNGUzZTJhNTkyMWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a53e03d85f78424cb6c6837f7088af01",
+      "statement": "The server suite is deliberately outside CI: the workflow runs format:check, lint, typecheck, the admin suite and build, and its comment states that apps/server's integration half needs a live Supabase stack so it stays a local pre-merge obligation; AGENTS.md records `pnpm --filter server typecheck` and `pnpm --filter server test` as mandatory before commit, with tests written first per the repository's spec workflow, and root `pnpm test` (`turbo run test`) still executes the server suite.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L20-L39",
+          "version": "repo-lines-v1:sha256:9c1e4cc13fd0900482a8df66f71335db677d7a605c5f95b32b9e0010385223ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBkMGMzNDQ2ZTRjOGEwNzNhNDFjZmRjODMzMTFhOGQwNWRmYThjNzgzYTU4ZDU4YzQ3MWYyN2E5YTEzNDc0ODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMmQ0NDlhNDJkNDY2NWQ4NWIzZTMzZjBiZmRkN2FmMjBkNmJkMDIxMzE3MzA0MWUxMGE4ZmJlZjIzMTJkNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzMDJlZjFjOGJjMjAwZjkzNTQ1NTA3MTNlMmE4MTIxOWRiYTBmYmZhOWJmNzEwNDU4MWIwMjVhZDkzMmNjOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://AGENTS.md#L23-L26",
+          "version": "repo-lines-v1:sha256:14893f1c394c3ec49a454c1c697cd23251fc0e89c703eee122cdd42c7db92d22:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTdlMTQ2Mjg0NWY5NzBmMmQyMjE5NDExMzk5ZDBjNGQ5NDFlODIwZTg4NzY5ZDNkY2NmYWViOTJkMDVjYzQ5MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzY1OTdmMjYxZTcyYTU4MTdlZGU1ZmExNTc0MzZlNzU4M2I2NmQ1NWUyYjZhYWM5M2QyOThjY2QzM2U0NDkwNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQ0YTVlYzVjOTQ3OTg5NWRjMjQxMzg0ODA3ZjZjYzVmNjUwNTk3YmZmMmQ3ZWIwYTRmMzM3NWUzYWNjNDdmMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODQ2M2YzY2JmNjNjNjI0OTAzNWUwNmNjODg1NzliZjRkMWFkYTU4MjZhYmQ2NDc4YzZjOTc2MDZjZjM5ZTk3NyJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L45-L45",
+          "version": "repo-lines-v1:sha256:dfe408c92741fcd7f7563dcb618c56a9125bf318b512f020dcd4385a9c29d202:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGZlNDA4YzkyNzQxZmNkN2Y3NTYzZGNiNjE4YzU2YTkxMjViZjMxOGI1MTJmMDIwZGNkNDM4NWE5YzI5ZDIwMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGZlNDA4YzkyNzQxZmNkN2Y3NTYzZGNiNjE4YzU2YTkxMjViZjMxOGI1MTJmMDIwZGNkNDM4NWE5YzI5ZDIwMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjE5OTkzZDA4NjUwMjY2YTYwNzcyYmFmN2MzNTJjOWIyZTYwNWZlM2RiN2Y5YWFkODdkNTQ1YzUzNmE4ZWJlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTgwYzBlYzU2NjA1OTE1NDUyMDhiNjk0NmU5YTU1NWIwZjU1NjFiNDEzNjJiMTZmNjAyOWU1ZDZmMjdiMWMyZCJ9"
+        },
+        {
+          "resource": "repo://package.json#L8-L8",
+          "version": "repo-lines-v1:sha256:da82be2716f3d3ffc868068ab0e0f0fe6f73475da25e7da3fec43e8e605e849b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGE4MmJlMjcxNmYzZDNmZmM4NjgwNjhhYjBlMGYwZmU2ZjczNDc1ZGEyNWU3ZGEzZmVjNDNlOGU2MDVlODQ5YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGE4MmJlMjcxNmYzZDNmZmM4NjgwNjhhYjBlMGYwZmU2ZjczNDc1ZGEyNWU3ZGEzZmVjNDNlOGU2MDVlODQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGZhMjBlNzg2MWVkMDI1NDYxZTlkYjdjOTYxMDUzNTk1MGVkMmQ5NDFlZmE2ZGU5NGJhZmM1MmIyYjhlOWU3YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGI0MjlhZGRlOGQ4NTc4YzFlZjMyY2Y3ZjA0ODhkMWY5MzU3YjAyOWEyYjFiMzZiOWM5NTM0M2VmNzE2ZGMyMSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L10-L12",
+          "version": "repo-lines-v1:sha256:5dc1cfaf92d2643813220776e6debdf141de2f6bc4b93aaf3cd8ecfc2061c538:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzgxZGJiZTM5NDc2MjY2M2VjYWZhNmIwMDc3OTI2MDc0MDU2ZmIxZTgzNDdhMDA4MmNkOTFiMTI1NDEzMWVkOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWYwY2RiOTcyYTdiZmI3ZWQyNDZmOWZmNjcyMzg1ZTU1ZjQ5NjhmYzExMDQzZGM1YjY4NGQ1MWRmYTMxZGJjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjQ3OWViYjY0MzMxMWUxMjYxZDEwMDg2ZmIyODNhN2NiYTNkMDlmMzRjYTVhMDNlZTkxMTYxMmQ0YTczNzM3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWY0ODRjODE3MTIwOGMxMTNmZDY2MTNlOGRkMmQxMzU1MzAxMThiMGFmOWM4Yjk0MzhmMjg2Njk2YzJkZTk0YSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

@@ -1,0 +1,472 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:fa4cd58b314456e6f25f2fdd29def2e0a177ec0ece4447fdcfbe35c29dacaf93",
+  "claims": [
+    {
+      "id": "claim_8b43e3a238a245f0a464bd94edb4dea6",
+      "statement": "The admin route-plotting save is orchestrated by RouteWorkspaceProvider: a single consolidated `saveAll` action sets the `saving` lock (which disables the tool toggle, undo/redo, the Save button and the mod+s hotkey), runs the plotting leg `savePlot` first and the route-metadata leg second, and releases the lock in a `finally` block.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/PlotActionBar.tsx#L322-L347",
+          "version": "repo-lines-v1:sha256:9d83aac9f35929725506a59471993fa3b7da5848abb35e363093a756465d4cde:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM4OGY3MmE1Mjg3MmU1YzQ2OTQyYzI0OTUyY2ZlMTk1ZTkzMzgzMTY4Yzg1YWExNTBiNGRiMzAyMGI0NTY2YWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwZGE0NDRlZmQ3ZTQxZmMzZGI2N2YzNTdlMmI1ZDQzZDBkNDdjMzlkNjQxMjcwYWYxYTZlYjhhNDEzNWQ5MGYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4ZTVmZjk3MDc1NjY0N2IyZTU1MjE0ODhhOTUxMmZjOTA4MzE5OWNlNTJhOTI5MzEwNGFhY2NlMzI5Yjg4ODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiOGI2MDBhNWI0NDhiMWU0ZDAyZGYwOTc0NmVkM2NhMzE3MmY3NWM0YWFiYjAxZGRlMDgwZTM2Y2FiMDc0YjQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L263-L387",
+          "version": "repo-lines-v1:sha256:077a2530066bb5ccdc8045f57e1729533fb24516260f0ac0b28d35cf967960b1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxNDcxYmI1MjdlODU4ZDQzMzlkMmU0NzMyOWNmMmQ3YjY5YzBjMjdjYjY2OWFlZDc1ZDkyNmZmOGQ0MWJmOWFmIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MmEyY2IyNWExMjJiNDQyMjFhNjIzNGVjNjYwYTdiNWZiN2Y5YmRlN2IzYjllMmIzYzU1OWEwZDk2ZmFjNzM5IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI2YmJiNWE5OTEwZTFmZmZhMzQ2ZGQ1NzNjODMyY2RmYmYxODQwOGE3OWQ5YjYxZGM0OTZhNjVmYjM5YjMyYTFkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIxYjUwMTczNWVjNGFlZGMwNTRkYWVjNTVmYWQzN2M0ZWJiOWZiMGEzMjI1OWRkM2Y1N2U0ZTAwOTcxZTMyMTRlIn0"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L524-L568",
+          "version": "repo-lines-v1:sha256:e1e435b1c417f8c9f1c9b7d9597fcfb696717496351d751d1806b0f4baf20cf9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjEzYjUxZTQ0ZWNlMThjZTVkNmZmODg3ZGU1NzAyMmVmZmU1MDE0NzdiMDhmNmQ3ZWEwMmM1ODc1MzRlNDM0YzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YzFjNjc3MmRiNWY0ODViNDVmYzVjYTE1ZTkyOTk4N2E4MDFmZTJjOTNiNzExNmNkODRhZTI5MWJhMjZmNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRiMjFiMzI1NWVmOGQxOWI0ZThkNGM1MDQxMjJjMzU1N2UzZThmMDFjM2E3MWI2YWZiN2VmZWMwNDMzMjVhMGUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L78-L84",
+          "version": "repo-lines-v1:sha256:77d9f624d029294f9160c33b3698b653a8b3bdc6c0c465d58376175eb85f0818:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODhjZDBlMmIzYjZmZTM2MTQ1MjQzZjY2Y2UzNjU0ZmZkYjNkZDM3N2U0YWM4YWRlNTMyZjZkY2YwYWI4NTIwNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGZiZDQyZjEwMDg5MzJmMTI1MzE5NTM4YjgyMDNjMGYyZWUzN2MxZWE1NjBlMzk1NWI5ZjU4NGZjNjJiNWJlMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWQ4M2FkYzUwYzAzMmVjYTI0MDljOWEyYWI1ZTdlMTJiNzI0MGI2YWY4OTdiZmVlNGJlNTQ4ZjUxM2NlODZhNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8ff86557420e45fbafc1528c51a4f9fd",
+      "statement": "`openRoute` is a hard reset of the plotting slate rather than a merge — it cancels any pending snap, bumps the snap generation so an in-flight response cannot land on the new route, clears the snap-owning history pointer, blanks the draft/selection/history/baseline fields, and sets `directionId` to null, which makes the next save a create rather than a replace. The URL `routeId` parameter only seeds the store through an effect; the store is the source of truth afterwards.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L142-L145",
+          "version": "repo-lines-v1:sha256:1f353a23469cb0eabd3d4f25e6221b9120bd2b21989d673113b2be8fd54e35f5:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTBlMTAyNDU2MTA3ODQ4YWE0Y2UwOWM4NmZhOTJlMDhmNWRjMmY5MDY5NjBhOGE0MjY3NmRiZGM0ZTJkYTc3NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTljMWE3ZmNmZGYzOTczYzExNTc3NGI5MTFjMDg2MmZjODEzNmIzMmMxNjg1NzJmNWU4ZjBhYjdjNDMyYzk0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmM1MzVkZWQzNDlkOWMzYzEwMDg4YWVhNGYyOGZkZTdiNjk0YTBlNTU4MjJmNzVlNzA0NzZkYzlkODQyZDU5OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmUwNTI5ZWI1ZGM5YTZlYTA4OTI0NDdiOGZlZGQwZGE0MzQ4OGVkODQ3Njk2ZWI1ZmNkYjgxMDJkZTY3MjZlYyJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L603-L635",
+          "version": "repo-lines-v1:sha256:59954cef1096e3c43a3db19e6c3f363049583619700dc8acf348cc07c2311fe0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4Mjk4MGM2YTYzMjhhZTliZTU0YzQzZjQ3NjJkODg4Nzc4YjVhYjIyMjYyYmNmOTNkM2Y4ZjM4NjM5NjE1YzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkMmYwODdkOTg5Mjk5M2ZjOWQ1YzQ4Njg3MDU3Y2FhYTc2MTgxYmYwYzA0MWY3MDZiMGRkMzNkMGNmZDdkZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNzkzZDU3M2JkMjY0OTE2M2NkODIxMjZkN2JmMDFjZTk4NmFlZjc1OTg2MTI2N2U4MjM2MzdkMDM1YTVmZTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7cb68c96eb894b199444ab1c52e0c277",
+      "statement": "Edit state loads in two stages: an instant seed from the cached overview payload via `seedFromOverview`, which populates stops, polyline, the consecutive chain and `pathStopIds`, captures a baseline and marks `seedSource: \"cache\"` while leaving `directionId` null; then an authoritative detail upgrade that sets `directionId`, the full stop fields and the baseline, but only when the draft is empty or is a pristine cache seed (cache-seeded, not dirty, and matching the server stop ids index-for-index). A dirty draft is never clobbered.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteList.tsx#L115-L169",
+          "version": "repo-lines-v1:sha256:0ac209e43ccae2a250bceaef3b7ee0fbe056d7fb9fa74fc0bb29ffb246606e1b:eyJzZWxlY3RlZExpbmVDb3VudCI6NTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5NjZmYmZhODg5OThkYTc0NjU2YzUwMTk0OTU2YzI1ZjA4NDk0NTc2NjBjMDA5ZmU2M2QxZTlmYTlkYzkzMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5NmI3MDE2NWY1MTc2ODUzYWU1NTc3N2Y1NDdlMDlhY2RiMThhZjA3NzMzNWVlNjQ2OGQ1MTE2OTcwM2UxZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzYTc1YzI2NGYzZjhlZDgwZTA3Zjc4MDA5YWZiM2YyZjA1MWZhNTljMWIwYzFlMDY2YWZmY2ZjNmU1ZTNiOTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1Y2I5ZmM3OTczOGMyNWFhNWM4Y2Y0ZjZhYzJkYmUxZjFkYmJhNGE1MzQ3ZmVlODMxMDU2YjRiMjZjMzBlMGUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1200-L1210",
+          "version": "repo-lines-v1:sha256:9342b579e8fd41194a29bf6ef40004c0882f7eb862b17411fb1efddc93c66280:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlOWIxZWQzMGU1YjFiMDJlODE1YjkwODJjZDAxMDAzZTZkNjhjYjMwNzEyN2Y5NWRmMzVmMTRiOGQ0YmEyZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiYTg3MGFjODQzNzgyMTA5NjdlZjdkM2RmZDkzNGNjMDE0MTk4MmIxNTNjYTkyYjg5M2JiMGRlOWNjYWYwNTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmZTcwYjUxNGI1NjgyZjYwYWMxMmJlMDU3N2FhOGI2NzFiNzRlOWY1ZTg4NDk2YmYxYzk4ZmFmYWE2NzRiNjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4256e6daacb44431bff1981c64f05236",
+      "statement": "Because the create-versus-replace verb depends only on `directionId`, and the cache seed leaves it null until the route detail resolves, editing and saving a route before the detail response lands issues a create POST; on a route that already has its direction pair the server refuses it with 409 CONFLICT.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L337-L340",
+          "version": "repo-lines-v1:sha256:a5c2e0352438e7f61513333327a521e4c71980a1454372bb6521ecc4835acb59:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTFkZjg3YTQ3MzE2YzcwOGM1NTAyMDk4ZTlhZjZjNDQ1MzRlYjgwYmVhZGNmNjA2MzAyOGVmY2E4NTkzN2FiZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzEwY2Y4MzhiMGY4NzRhMDFjZDYxZjRlNmJmYzA1YzA5YWU5OGQ5MmEyMTU1NDQyNGI0ZDY2M2IyMTA2NGE5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjk5M2E4YWY1MDE0NWMxM2YxNjRlNTQ3ODc1YTU2ZTMwZTY4NWUyZjY4OGY0ZDE4NzIwYjVjODZjMzU4ZTVmZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTM5NjQxNzZkMTYyMGQ0Mzg3YjdmZjE1YTkzYjQwZGQzMzVkOWE0OGU4OWIzYmMzOTRkNjNkMzQ0ODQ1YWQ1NiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1200-L1210",
+          "version": "repo-lines-v1:sha256:9342b579e8fd41194a29bf6ef40004c0882f7eb862b17411fb1efddc93c66280:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlOWIxZWQzMGU1YjFiMDJlODE1YjkwODJjZDAxMDAzZTZkNjhjYjMwNzEyN2Y5NWRmMzVmMTRiOGQ0YmEyZWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiYTg3MGFjODQzNzgyMTA5NjdlZjdkM2RmZDkzNGNjMDE0MTk4MmIxNTNjYTkyYjg5M2JiMGRlOWNjYWYwNTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdmZTcwYjUxNGI1NjgyZjYwYWMxMmJlMDU3N2FhOGI2NzFiNzRlOWY1ZTg4NDk2YmYxYzk4ZmFmYWE2NzRiNjYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L58-L74",
+          "version": "repo-lines-v1:sha256:119f59dbc950b5214e4d2c4851db12fe86d02fe5d05e9d4e6b7e1ce3528411fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1MzQ3ZWVhMTFjNWExMjIxNjAwODVhNTkzNTJkZTM3MDc5OTI2OTU1MDI0MWRmZjQxYTdjZTlkZWI1NmQxMGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwOTJmMDA3N2JmMWQxZTVhNDNjNzAxYjdhMjIwNWJjNTM2MzhhZTEzZDkzNDMwYWUyNWRhNzE3MGUzMjUyMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmOTU4YTVmYmNjMGU4NTk4ZDU0NTYzOGFjZGFhZjNlNDY1NDMwZmFlZDVkODVlZDBmZWNmN2IwZWFhYTZiYzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_59b96293c89849ebae37771129aec4af",
+      "statement": "The stop chain (`connections`) rather than the `stops` array defines route order: `pathFromConnections` returns the longest connected component with its closure flag, and `savePlot` builds the payload's stop list from `chain.stopIds` whenever the chain yields at least two stops — which is how stops disconnected through the connected-from/to dropdowns are excluded from the save.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L275-L281",
+          "version": "repo-lines-v1:sha256:83862b8fdc3bd77b367104b21d13f7f908d611d3f10f509492632678fac37c72:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJkMDk5NjM5MDc0NGY1Njk3YzY2Yjc3OWNiNzg0MjAyZTdlYzhlYjcxNjUxMzAyZDQ1OWJhMzAxODUwYTliMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWM0YzFiYzlmZDBmMjIzZjczZTQwYTkzZGIzNmFiNWZlZDc2MDI1NDEzZTAwNzc5OGYxMzc2YjBkZGNhNzJiNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjc4YjU2NWRhZTQzZGFlODI4YWZhNWMyNzMwZGU4MjUzZjZiMDE1NDdmMjY0MTgwYjI3MDU4YzU0ZjczZjU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmM1MDMxNjRkOGM2NjEzYWU5OGFiZmE3NzA4NmY2ODMwYjc4MDFjZTU2ZTNhYTVlNTIwZDNiZTg3YTRjOTBiYSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/connections.ts#L302-L325",
+          "version": "repo-lines-v1:sha256:35ef37edcebc2c70329787c5a034450050569eeb66bfec8f8acf5b5de00cd5c9:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk1YzJmZjAxZmMxMzk2MTA5YTdjMmY0Njg1ZDMxZGY5ZTVjYmE0ODM1YzVlNTBlZmJmMjU3NjFjMzI2MTE4NTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5e18e51ff2e54640a7f7ca169572a31d",
+      "statement": "`addStop` inserts a placement mid-route between the two stops flanking the click (via `inferDetourFlanks`) unless the point lies beyond the route's ends or is within the 150 m loop-close tolerance of the chain's first stop, in which case it appends; the append path links the chain's last stop to the new stop and re-closes the loop edge, and `removeStop` re-links predecessor to successor, both specifically so a custom connected-from/to chain is not silently rebuilt into consecutive pairs.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L64-L83",
+          "version": "repo-lines-v1:sha256:a7867adbb6ba236f05d06cfcee1ca5af2ad0307ea9150c078d1ee0f6c6d2b31e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmM2ZiZDU4MmIzMWZkOTE2YzYzOWQ4ZDQ0Yjk0YmQ2YjVjNWI2N2U2MzFhZWQ1YjAzNTBhNmJmZmE2ZWMwZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwNTk5MjFiMDFjOTYxNmExOTEyNTdjYzE3ODM4YTFjMjk5YzE2YjgxOTVhMzRkOGM1MTE0ZTJiYTYxMDRkZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0NzQ5NzVlYzcyMzI5OTVkM2E5NGVhM2RiNGFmZGM0NTQ0ZDJiNjk5ZDNhZDQ4YWUwZTVjNTI4OGY4YjkyMjYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L763-L880",
+          "version": "repo-lines-v1:sha256:1534a93951f1cf0e5dce1133d49c0558c38c586f3ec9ff8bafb2bef514371fb9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE4LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJjMWM4MDYyNjE5ODViNGU1ZjU0Y2IwOWQ3Y2Y0NjMyZDdiNTk2NzIyOGE2MmVhNDNkMjEwNjIxZjhmNDc1MThlIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIxZjBjZGI5NzJhN2JmYjdlZDI0NmY5ZmY2NzIzODVlNTVmNDk2OGZjMTEwNDNkYzViNjg0ZDUxZGZhMzFkYmNiIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxOTMwMjJkNDU5MDVjYzdjNjdmN2I1MzRmZGI4ZDVlYzQ5NGY0NWZiZjI5Y2VhOGY1NGE5ZjdkNzNjYTc0NDY0IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI2YjFjZmQ2ZWRjM2ZiNDg0M2FlZDQ2ODI4ZjUzMjZmNjliYjFiNDVjNWU2YzljYTI5YTBkZWEwN2IyMjdkMDE1In0"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L881-L953",
+          "version": "repo-lines-v1:sha256:5480955fd39f59aa03157a2a7e7788a9a7bb4498e8c88c3aba4b7a30c6520b3d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4MzQ0ZWZmY2YxZTYwNDk5MDQ1MTY0Zjk3OTJmNjc2ZTRiNjliNzBiZjgwNTY5Yjc5OTI2NGI4ODFiMTA0OGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyNTUzODUwYmQzNzFjZjEwOTUxOTg2ZWVkZTA0ZjhiMGI0NjY2ZjNhMjI5YjlmYmYxYjg0NzRjM2I2NGVjZGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1MzYwZDc4NGZkMDE4ODE4NjBjZjhhZGM3ZTU0ODY3YTZlYmJmMzJiOTBlYzNiYTRhZjFmZGYzNTMzNGNjNDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_23b80ac0256f46b8999f19c3dce0ebea",
+      "statement": "`setStopLinks` (the property dropdowns) replaces the edge on the requested side rather than toggling it, treats `null` as clearing only that side, nulls `pathStopIds` and requests a re-snap — so a rewire never leaves the previous road geometry in place as if it still matched the new chain.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/connections.ts#L176-L233",
+          "version": "repo-lines-v1:sha256:fbc0b55ad76524e93dbf7da260761f25b54488f56edb17a987f881fa4d0c175d:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlNzFlNmU1ZGEzY2IzNmNiMTRkMDgxZTA4MzVmZDVjMTVlYzQ1OTYyOGFlZDZmN2UzODYyN2RmMmM1NTVjZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY0ZWQ3YjJmMGJjYmZlODU5YjM0OWU3YmI4NTg3ZmUxYzIxZGQ4YzI2OGY0MmM0YzM4NzM0YjY5NjQwODI3NzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI0M2MwMTFlODIxYzllMGU3ZmQ5NzgzOWI5YzUzZTg5YTQ3MDQwMzIxZGIxOGI2NTUxOTljYWFmZTVmODhjYzYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L640-L715",
+          "version": "repo-lines-v1:sha256:d5f98ce6aec21e4012178c1dca490de8c75e4d51c5f51253ac708660cd2f74f5:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjNGY5ZmYzOGU4YjY1MjNmNmNjODNjY2Q0OGNiMGEzYmVjODBiYzQ2ODYyMDVhMGQ1MDRhMjliZjAwMWFmNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmYjJlN2FjYWYwMmJhZjlmYmNmZDExZTNhZjYwMjhiN2FjYzBjNjQxYjJkMTU0NDVhZGZhMjRlYjQ0NzJiOGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxY2Q5YTljZGE3Y2QyZjUxNjhiMTY0ZTRmOGQyNzlmOTZjZjdkNjMyMGFlM2JhNzhmYjQ5YWY4MTQwODJlMGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ae2d2ebe6473435b8033594023511818",
+      "statement": "`reorderStop` rebuilds the chain from the new placement order and re-snaps but pushes no history entry, so a list reorder cannot be undone; undoing the `snap_applied` entry it produces restores the previous path but not the stop order, and the draft stays dirty because the stop order still differs from the saved baseline.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L14-L30",
+          "version": "repo-lines-v1:sha256:6aa73969b162a602d42e808f82df4bceedfd02cbe311de384b94aa5224ad6a22:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4MWNmNWIxMjhkYWY5M2IwODcwZDRhMWMxZGNmOGM0YjAxZDlhYjliZGYyOWVhZmVmOWY5MWJiNmE5YjA0ZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI2NTYxZjk2NWU1OTgxYzllNGEyZWNlNjFmODYwMmQ3NDgyMmZmOTJhMzcwNjU2YjA1NjYyZTk5ODI3MzQ0YTQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L155-L214",
+          "version": "repo-lines-v1:sha256:4c06f3b254c839189b805bd2052c0ce7d4e9feadb57fed57fc93efd5063e3727:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMxNmU5ZjA2N2NhNDk1YjMxY2MzZWVkZThkNDU3MDJmNWRiMmE0NjdmZTkwODY0MGMyNmQ2NGFkMjJiYjNjNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRlMDQxZWIyODQ3ZjhlOTMxZjJlZjNkMDRkZjQ5YmRiMTMxZWU0MmIyYmM0YTUwOTRjMDE2Yzk5ZDE2NmQ4ZmIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1010-L1023",
+          "version": "repo-lines-v1:sha256:6984b53b1fa6dbeb52407b815e6129aecf37678d1b26c68eb05a93eeacd7d66d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyMmVlZDFlOGEwNzlmNGE0YTlmYjc4ZmYyYmM3NGQ0NDQ5ZWU0OWQ5NjU5NDlkNGE2YWE4YmFjOTVjODE4NTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExN2ZlOTg3MzNlZjhkZDcxYzU3YzZhZjVlMzI0ZTI3MzBkNjE0M2YzZTY5ODk4OTdkM2U0ODk5Y2Q4NDhlNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNmZmQ0NjAwMmQ3YmI5Yzk5ZDViODE4NWJmYWM3M2IxY2M0NjJhZGU5Njk4ZjdkNWFmNjBhMWRmZGE1NDgxNzQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_54b74db38574437ebb8f22f7616e835d",
+      "statement": "Snap orchestration is deliberately kept in module scope — the bound fetcher, the debounce timer, the generation counter and the pointer to the history entry that owns the next snap result — rather than in store state, and `requestSnapPreview` bumps the generation before its early returns, so an edit that cannot produce a request still invalidates an in-flight fetch and a slow response can never overwrite a newer composition.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1045-L1061",
+          "version": "repo-lines-v1:sha256:90cf10204c5d0163a26272a6be26262f3748ef2be1f95c895b2e61cc6bcc6fe8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczNjhiZmZlZDMwN2MzMzUzYmE0MDc2MzA4NDdiMzgxMjJhOWI1NjM5N2RkOTIzMDkzOTQ3ZGM4YTYzYTNmMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFhMDA3ZWI5NzEwNmYzYjI1NzY0OTQ3Yzc2YTY2YjY0NTQ0NmVmYmIwMDVkNWFjYWFiZDQyZDM1NDEwMTM2ODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkOTFlM2EzYTk0NjU1NDVhZmFiNTA0ODgzN2JjOTg0NjAzOWYzNTYwNzk1ZWZjNzA0MGY0NjhmMTM5OWM4ZDQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L229-L258",
+          "version": "repo-lines-v1:sha256:d20e238f3cf1bdd3937270c1b5b3d47d2e8f4848deeff2cf8d4f9e1ed9e1f1ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZWNhZTIxYjMxYjRkNWM5ZWZiYmQ1MDllNmM2YjlhYWM1NjJmYjQwYzAzZjgzYWY4ZDA5MDhmNmRlNTlkOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMDYyOTk0NjQ2ZTZjMmE2NjYzZjMzZmJjMzA5M2MyZDY0ZjUyMzQ5NzBmZGNjMzgwMGMzMTg4NjY5MDIzODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBkMjc1ZmUyZTc3MTUxMDdjNGM3ODVmZWRlYTkzMWQ3ZDM3NjcxNzM1OGM0NmM4ZjQzZTJjYWI4MTM3NTY1MDgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4b0729e79a024a1e9cc1537da3fafdc7",
+      "statement": "Snap requests are debounced by `SNAP_DEBOUNCE_MS` (300 ms) and their waypoints follow the chain order with ids missing from `stops` dropped and a placement-order fallback below two waypoints; with at least three waypoints the first coordinate is re-appended for loop closure when the chain is closed, when the committed path still closes on the first stop and is trusted via a non-null `pathStopIds`, or when the last edit was a placement within the 150 m close tolerance of the first stop.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L229-L230",
+          "version": "repo-lines-v1:sha256:4ea3c53e75642d5a42331f25a5ce943c5b24dfd294c34024d8e72fca5a15d609:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmVlY2FlMjFiMzFiNGQ1YzllZmJiZDUwOWU2YzZiOWFhYzU2MmZiNDBjMDNmODNhZjhkMDkwOGY2ZGU1OWQ5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjgzN2ZmMDc1MjAyYjkwZDE4NjU4NDA0N2JlZjZmOTMyYzU1ZGNiMzI2ZGMyOTg4Zjc2Y2I3N2EzM2E3MTM1NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2QwNjI5OTQ2NDZlNmMyYTY2NjNmMzNmYmMzMDkzYzJkNjRmNTIzNDk3MGZkY2MzODAwYzMxODg2NjkwMjM4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjgzMmM5ZTAxOGMzNjg0MWUwNzRmYjljZDBjNDY2YTM4YWZjM2YxMTUyMzFiYTc3MmFkMzkxMGZhY2M4MWUzNCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L388-L446",
+          "version": "repo-lines-v1:sha256:3f9caec6290ffcd777d9a1c2e8f328b3e6fb6c5d2bc708b2e68329ae234af2d8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdhMDlhZGJkZWY0NTI1NjI0NmMyY2FmYjRjNDliYWYyMTc4YjkwZGY2ZjhmNjI1YzBiMjUxNTQyYTgwNjQ3YTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4OWIxMzlhMWU4ZDU2ZjQxZThlNTM2ODRhMDQ3MWUwMjZmZmFiNzBlODRkMmRiNGVkZDA4MjdjMmZhYTk3YzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMTc1ZTFiYTUyNWYxOGYyNTRlNzI0MzFkNmRiZDUwN2M4OTBhNDQwNjU3YTIzZjliMjJhMWY1ZTNjNzBkOTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eabc80a5375445248299534773be5dd6",
+      "statement": "Only a road-snapped response (`snapped: true`) is auto-committed as the draft `polyline` together with `pathStopIds`; the `snapped: false` straight-line fallback is recorded as a snap warning and never becomes route data, and a thrown error resets the snap state to idle with `warning: \"upstream_error\"`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L447-L548",
+          "version": "repo-lines-v1:sha256:d90e99f6f990e916db8735360084d74eae1293dd28c73b2b604ead63d262e8bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlNzAyNWJmZjVmMTE1OWNhMGEyY2FmODU2YmJlNzM3MTk3ZmYxNGNmNDc0YjdmMTdjMWIzMTE2ZTcwZDQ2YTU2IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI3MTdhZjExMDFjOTdiN2MyZjUyNTQwNzgyZTYzNGNjNDQ0MGYwZTk3MDM0MWU1MmY5NzUyMzExZDc4YjdkN2QwIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhNGJlYTBmYzQwNDFlNjg4YzJhZmIxOWVhMzIwNWJmOWYzY2QyYmI3OWZmODIzMTMwMTE2ZTk2ZmNkN2VlYTVkIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzZDVlYzgyOTU0YmNlOTA1YmYyNTc5Y2NmNTA2OWUxYWE5MzBmZDhhMWNiMzczODY1Mjk5ZjNhZTc3ODQyM2JmIn0"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L452-L473",
+          "version": "repo-lines-v1:sha256:168bdc46f47050e4e4a0a6e9f307e4d0f600e7afdf1e191b00ae3bf3a994b625:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhODhmMDFhN2ZlNTYxOWY1OWY3Njk5ZjgwNDlmMGQ0ZmVkNDA0MWYwZGUzYzBmODAwZmNiM2U0ZWQ2ODliMzUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiZGJmMmE1NDcxNDIzNWI1N2ViNjg2YjI4NDhjYTk0MjU0YjhmZmE1ZjhkZDIzMjUwZTcyYzIxOTc0ZjE3ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkwZDhlOWM3Y2FkNjRmNzY2ODAxYjM2ZjhhYTJmYTg2YjRjYzkyMTc5Yzk1NmUwZjkzMzE0NWQ1NmFlZjU5ZDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_426a9cf63d9a4122b613dcc317698c05",
+      "statement": "An auto-committed snap merges into the history entry of the edit that requested it when that entry is the newest and has no merged path yet, so a single undo reverts the stop edit and the path together; a commit whose path and association already equal the current state is a no-op, and other commits push a separate `snap_applied` entry.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L207-L262",
+          "version": "repo-lines-v1:sha256:934612e2d8fbbe68ea151e78a274667663532c414c21589e5da2278fa0b066f2:eyJzZWxlY3RlZExpbmVDb3VudCI6NTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1OTUzMmYwYzc2ZjFlNGVmMDM0NDM4NmJmNzcwOThkZDRkZTZkODA3MjgxZGM4YTA1ZTE2YTU3OGMwN2VkZDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM0NDYxMjdlMWJjYzM0MjFlZjNkM2I5MGZlYWFjNGI2MWM4ZmMyOGE3NjM3MTZmMmM4NTZmMjQ1MGM4ZGFiMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwOTQzNTQ5YzcwN2IzNGE5NDNlYTk0ODg2NDBiNTc3MDQ4Zjg0OTQ2ODYzM2Q1NjhkM2Y2MDk5YTc1ZmZhNDQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingHistory.ts#L89-L100",
+          "version": "repo-lines-v1:sha256:63be8d57b538f1d2dd4e162663fb906afffe523abd26b2903887b6caad70c855:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZjA3ZjQ4OTI5NDMxMjkwNWM5Y2MxOTI0Y2RiNmJkZDE3NWNjMTIwMDM2MjhlZGRiYTk5YzNkZWIxYjY4OTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiMjQ2YTFkOTE1YzA1ODQyZDgzNDRiZTU3ZDY5ZWJjMzkxYWJlZjNlMWZhNGMzY2YzYTkwMzFhZWY0MDZiZjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYzZWRlYTg5MzFmYmYxOWZiOGJhMmExMGZiODJhOWRiZTczNDU4NWU1MWMwYzUwNGM0NWVkNjdhYTU2YWQ5OWIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L456-L523",
+          "version": "repo-lines-v1:sha256:f0bdb36b9eced209280b8eace1e1fe590339b9203a3bbd28398054a7f6c671d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhkNmRkMjVkYTA1N2YxZGEyNmExYzBmMmRhYjdlNzI0MzRiODk5MzMyMTRmYmQ3NGFkMGY0M2NjYzkxZWY2YWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiN2QwMGNkODQ2ZGIyMWY2MmE0ZGU2OTlkNjBjZDliN2M3OWI4MTg0MTIwMTE0OTU2YTdlOTE2NmVjZTAxMjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjOGQ1NWZjNWI3MzE5ODdmOGQ4ZTAxMGNlNDI1YTI0ODNiODlmMmEyNDYwYzA4ODlhMjc5YjBlMDQ1YzE5ZjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlZTY1MWIwNzNiNThmMjYxZmFjYTMzN2FjMzhkMWE1OGZiY2MzZDE1MTdlNzE3ZjljNWE5MmQ3YmU1MGQ3ZjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9d75801dcc9498db6a87f24bfc9e3f6",
+      "statement": "`resolvePendingSnap` is the save's synchronization point: it fires a pending debounced request immediately with the current generation and awaits it, or otherwise awaits the in-flight promise, so a save pressed right after a rewire or drag settles the auto-commit and sees the road path and stop association that edit produced.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L263-L267",
+          "version": "repo-lines-v1:sha256:d755d9ea14197d1e49995c878d38cd0d9405421a45a4a15011f7247d42b2ab51:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTQ3MWJiNTI3ZTg1OGQ0MzM5ZDJlNDczMjljZjJkN2I2OWMwYzI3Y2I2NjlhZWQ3NWQ5MjZmZjhkNDFiZjlhZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTBjNWY5MTcwZTJlZTY0NTAzMWU3MjE4YzY5MDYzN2VmNDVjZWFhMDI0MGY2ZDg5ZTc2Y2JmZTlkMWQxYjZiZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNmJiYjVhOTkxMGUxZmZmYTM0NmRkNTczYzgzMmNkZmJmMTg0MDhhNzlkOWI2MWRjNDk2YTY1ZmIzOWIzMmExZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmFjMDY3OWNiOWE2NmRlYTgzZmZjZDE3ZmQ5NjhlYjY1NGYyMWNhNzg2OWFhYzE3MTlmNjM0MDc5NWMyMjVlZCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1063-L1077",
+          "version": "repo-lines-v1:sha256:458d7edc68404fd7e84c10b1f12cc042f9d641f6198c45c4b50675f37b2c2adc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ1MmM0MTE2ZDZhZTJmMWNkMmFjN2ExYTM5NWU5MDJjNjNjNzFlNmY2MGQyNzJjZjg0OWI0NjM4MmZiNTc2YWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzYWI5ODcwYjcwNjMxYjAwZGU2MzZhYjM3MDdkNjdiYmExZWE3ZjkwYTQyNTFmOTViN2FjYWVmNTk2ZjlhOTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhZTE0YzU1ZDIxMzk0MGI0ZDcxMjU4NzFjMmI5MjVlOGE4Y2NhZmRjNzAxNDUxOGVmODFmZTdkODhjODdjOWIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L475-L493",
+          "version": "repo-lines-v1:sha256:d20eb9c180e392da09101b3eb0c6e2e7cc881a5d4e1ed8c138ceaf99e3beb8be:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFiMGJiZDVhOTM1ZTVkMjgwMjkwMzAxYzZlYzM5ZjEyZTdjZDZmNmJjMDM0ODgwOGNiNTY5OTAxYzQ2YzRhMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYzYjAwNmI1NjhhOTljZTg4M2JkYjhkMTA5NjczNGNmYWQ5MjAwNjA0MWFmNmMxNWY0YmZjYzliODc3NmI4MGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIwNzI1ZjEyNzQ1NDZmOWU0YTQyMGI3YjRlMWQ0Y2FlMTQ3MmFiZTA4YTY3ZTBlNDc2ODA2Zjc4MWE4MzA1ZjIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4416baf3c9154cc08266d1943c8c5d5a",
+      "statement": "`savePlot` applies five client guards before issuing any request, in order: at least two chain-ordered stops; a non-null committed polyline; `pathEndsOnStops` within 100 m of the first and last stop with the loop-return exception; `pathCoversStops` requiring a path vertex within 150 m of every stop; and `pathStopIds` non-null, the same length as the saved stop list, and equal to its ids index-for-index. Each failure toasts a specific message and returns false.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L283-L324",
+          "version": "repo-lines-v1:sha256:3ecd51b70a6e1de94f8f2d19ddafc2f1a61ac0e91f536e00233f79e16f01eea1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlNzJkNzYyZjczMDNlNmVlMjQ5NGJhY2Y3ZDEwMzM5ZmQ0NzZlMjMxNzUyMDllODg2Mzk2YjcxNjVjYTZlOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhODI1ZmYxMDE3MGRhZDlhZTc4NjUzYjQzNmZiZjVmNTA0NDA5OTQxYzBmZTZkMzY5ZjM0Mzg3MGY1MzI5ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NDFlN2E5MjQ0MzEzMzQ0NGFiZGU0ZjgyYTk4MjMwZDc4ODg1ZGM5OTY4MmQ5NDhhODUxODMwNTFkNmVjYWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L124-L153",
+          "version": "repo-lines-v1:sha256:a52d5a72935296bbc0343476c68ba5357402c6ed5facee68fe36357e986c756b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5MDI1ZTQ1MDQxNmVkNDYyMmQ3ZGI4OTYzY2JjNDAyYTIwNzMwMzM4ZDA3N2QxNmIwYWMzM2I3NTFkMTlkN2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQxMDRjY2QwOTJkMGZmOTUxODcxZTE4YTFhYzQ1NmU3ZTk1MTMzODE5N2Q5MzkyNWNhMGQ0ZTEwMzBhZjdhMGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRhZGZhNzc3ZGVkOGFmMTU5ZjkxMmNjMGUzMGFjZTEyYzU4YWYwNWMzYzRhNzI0YTU2Y2UwMjk4ZjZiZDFmNzQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L243-L256",
+          "version": "repo-lines-v1:sha256:a1adec4b6c78bf00efaa677ceec9eb4889cd21a750463a6b399b16df77d02ba4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyMzYwMGIxOTI5YmE4ODViZWNhMWQ3NTYwMjc1ODA2NjE4OGZkMmIwMjg2OThkYTAwMmNkY2FhYjU0MjUzZWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmMThjNDM5OGU0NjkxMWY1ODQyZmJmNWYxNGZiM2EzOTg3YWFmNjE4NjVmZWIxYjczYzZmNDM0NTE3ZGEyODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjMzAyNDU4MzI4OGZiN2UxNjYyYjBkOGVlNWUyOWYwMjA4ZDBlNTE2ZTc3NmI1ZTg4MmIzNjM4MWMzZmZhZjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3629ed1b559a4608a8e98c7a09cce9bb",
+      "statement": "The fifth client guard exists because coverage alone cannot detect a stale path: `pathCoversStops` would still accept a polyline that passes through the surviving stops after a partial undo or a removed stop, so the save additionally requires the path-to-stop association to match the current chain order.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L303-L324",
+          "version": "repo-lines-v1:sha256:f2bd881e5528c7306f9c8d50dc831e14ac8c1f9fc5d5eec1a6d33e4f0010c19b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNjMGVmYmI5YzY3OWZhYWVhZDkzYTE0ZTZiYTBhOTg3NGJlN2I0NzNkNzQ1NDQ2NDQzODBlM2Q0NjY1NzU3MWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyZWJkMTgyZWVkMDI1ZjQwM2NiNDliMDhmZDk0YmRkNWM5MWViNDZiZTNjZjQzMGRiMTg0NTc2NDRhOTVlMDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NDFlN2E5MjQ0MzEzMzQ0NGFiZGU0ZjgyYTk4MjMwZDc4ODg1ZGM5OTY4MmQ5NDhhODUxODMwNTFkNmVjYWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L294-L299",
+          "version": "repo-lines-v1:sha256:178c2f0bec0eac702d82fa08db864706a929d9915f2284327c25cde6902abd67:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTFiZGNjMjEzMDI5ZDMwZGMzNTI1OTdhYjYwNzNiNTY1MDQ4ZTdiNzNjOGE2M2E4NjNiMDFjODIzMGIxNGFhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzk2MDBmNGVhYzUwM2ViMDdjZDc5YjI3NWI0MzRmNzg4YjNlMTYwMDJiMjI1N2VjOTEzNmRjNmEwYWYxZDZhMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTEzYTNjNzNmMDhjYTZmMWIxYjllNDU5OGFhZTkxNTY1MzBjYTEzZDBmMmZhZmMzMDkxYThiZWFmYjhhZDI2MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWI1YzI3NTA2ZWMwMDhjMzhkODliMmE1MjYyZTI0MDRmMGRiOTc4NzZlY2Y0ZDc3MjA0NGYzYThlYjVlYzU5ZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_93c294f3644f43968881809d754b81b8",
+      "statement": "The plotting save sends only the base direction's data — `label` as `To {last stop name}`, `base_polyline`, and the ordered stops with GeoJSON points — to `POST /api/admin/routes/:routeId/directions` when `directionId` is null and to `PUT /api/admin/directions/:directionId` otherwise; the return direction is never sent by the client.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L177-L199",
+          "version": "repo-lines-v1:sha256:1f315bcd0dcb5048e981db8a51214f40b60d439fd5a018e4f4917b69c420e886:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNmJlODRlN2ZiNzIyMmU4N2UxZjk1YTZmZTYyNjA2ODg5YmNmNWVjYTU0YjQzZjY5NjE1YTY0YmRkZTNlYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1NDU4ZjMwNjQ4MzRmOGYzNjhmZWU4YjdhOGEzYzBjMmZjNTI2ZDZhNWZjZmM5NDIwYzBkMWIwOGUyMTY1MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0ZWRlYzkwOGZlMjM5NzgzZTM4OTAwNmRjNDExZDc4NGFlODJkZmRlMjllYWE2ZDZkYWUxMDFhNTc2OTM5ZWMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L326-L340",
+          "version": "repo-lines-v1:sha256:0e7f0067adbabfabcd3b662ad8fd0b95d1fde556c6758a4d137d8a8099da072e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMjBkMzdjMWNjZDQ2NDE3YWUxYzgzM2QxYjg5NTBjZDRkMjZmMWNjMzA1MzNlNDU4ZTU0N2M3ZWQzODFiNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxMGNmODM4YjBmODc0YTAxY2Q2MWY0ZTZiZmMwNWMwOWFlOThkOTJhMjE1NTQ0MjRiNGQ2NjNiMjEwNjRhOTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1MWQ0Mzk5YjYyMjU3YzkyYWFhOTRhYmQwOGZlZTQ1NTI3MWE3ODliNDhhYjE3MjJhMTE4ZTE3OTA4YmE1ODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzOTY0MTc2ZDE2MjBkNDM4N2I3ZmYxNWE5M2I0MGRkMzM1ZDlhNDhlODliM2JjMzk0ZDYzZDM0NDg0NWFkNTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9e1e17c5dad24c73a36227746c064949",
+      "statement": "The server's plotted-save path enforces its own gates independent of the client: route or direction existence (404), a present non-empty `stops` array and the two-stop minimum (422), the 100 m endpoint rule with the loop exception (422), and, in replace mode, that `stops` is accompanied by `base_polyline` (422); the endpoint tolerance is deliberately the same 100 m value the client checks.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L204-L220",
+          "version": "repo-lines-v1:sha256:3305784c9613f579a1d6373dc5e6c2d9a740ef69093ad8b82934a4e526641266:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyNTEyMzk2NGQ1MjczMTVhMDUyZTNmYjhkMjUwZTU3Y2IwZTZmOWNlZGZiMzI0ZWQ0MzljNjQ2MjkwZTljYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllOWJjMTgxZTQwNGI4N2E5NGZjM2YwZDAzMzU3NGY2MjE2M2RiNTNhYTlhN2Y3OWY3Y2I3YzA5N2E2NzM4YTAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L252-L295",
+          "version": "repo-lines-v1:sha256:87421692ca7a01426c0e522487bba84b6e1bba1119f9560a6a8cfe927444a601:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZjFjYjNlMDc1OTFiY2Y4ZWJiN2RjOTUzM2QwMTUxMjk3OGE5YjBmYTAyZWUyODE1OWJhYjI5ZjBlYjI3OWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmZWNiZjMzNDE2OGIxOTgwZWEwODlhYjQ3YjM4YjVkZTdjMzQ3MjdkODkxYmMxMjJhMTA5NTBkY2RjNzE1NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY1MjI1NjcwM2I5YTQ0NGM5OTA4NGRiMjUxZDkyMGZkY2FlNzI0OGM3MWRlY2VlM2NlNTUzOTY5NjZhMTUxZTgifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L340-L392",
+          "version": "repo-lines-v1:sha256:3077865affa83e2b9fcb7c2375ab0a71ff9b391a1ca7117d321fa14f31afc2a2:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMDVlOTFkZGRlYjcyZTNjODllZGRiNjQyYjM4YzNlZmYzZmJiOGZjZWNiYmNkYzk3Njc3Njg2YmRlMzQ2N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExMjg4MDQzZGFmZmYzMWMzNDliZDU1ZTc4M2M5MDcyNDkwNDM5MmVlMjI0M2NkZjViZjQwODc4NDBlMTJjNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU4MmVjOTgxNmYxZDYzNjc5YzBkOGRhMGJjM2U1YjM1MGQ2ZjRlMDM3ZjFkNDIxMmQ5NTA0Y2YyYjdkMGYxOTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L8-L9",
+          "version": "repo-lines-v1:sha256:0c76aef82d3fefea51e9de14341006f60b21b05b8205cc45da0dc35df0902a5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGRkMzNlYWQ3YWVhMTg5NmEwMGUwNDEwZTJjOWI0NDljZTY2NzBmZjBiYjM5YTMzMDYwNmRjY2NkYzVkMWU1MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjJmMzYxODM4YzdiYjFhY2NmYWM1M2VkNzlhNWQ5YmUxOWY5ZDc5MWY2ZTAxNjgyZGQ0NGUwNmFlYTQxNGM2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGE2NmE0NmU5ZjUyMTYzYjA4NzI0Nzk5MmExOGZmNzU4NjAyNjkzMDZmOWMwYTk0MGU1OTkxMjQ5ODRhMjMzZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTk1YmY1YmVkODA0Yjk2MzhiMDY0OWY4NDE4ZmY3MWMxMWUwNmEzZmJlYWFkMjdhNmVhZmU4ZjIzYTQ5NDVmNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_451e8beeb5314898ac8a27cfcceed85c",
+      "statement": "A plotted save persists the whole pair inside one `db.transaction`: the base row, its stop rows, its terminal pointers, the derived sibling row, the sibling's stops and the sibling's terminals commit together or not at all.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L43-L58",
+          "version": "repo-lines-v1:sha256:039b482ca7bcc71fef74e39e639b3bce4e331abed1d9bbc5a6a72260d2a79820:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1MzQ3ZWVhMTFjNWExMjIxNjAwODVhNTkzNTJkZTM3MDc5OTI2OTU1MDI0MWRmZjQxYTdjZTlkZWI1NmQxMGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OGY2NGUxNzBjYjVmNzBkZDVlMTgxNzAzYTdmNzY3MDM0YTYzY2FmNTNiODQ3OTI1ODA1OWI5ZDU2YTg1NTQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L76-L202",
+          "version": "repo-lines-v1:sha256:356ba6a252be0e32ae3d1446b5135bf77bd9f4af2e2a831beec2beefc132ad98:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI3LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI1Y2NlMWQ1OTk4MjIwYmMyYjU5YzZkNDc0MmU5MDNjNzI2YzEwMWFjYWI2MTY5ODRmZDYyY2FjNTE1MGJmNjhkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwNGI5YTBiMTZiOTkxMGJhYTVkMGE0ZGNhZmY4YTYwYzQyOTYzM2JmMmFlM2NiYWNjODIwMjkwNzU4MGQxMGNhIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzMDdkODRkZjcxYjc1OTEyNGYwMDliY2U0YWRiN2QyNzU2OGZjOWMzNDJjOTkzYzIzODZlNmFmZGZhMmY3MDc2In0"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L57-L110",
+          "version": "repo-lines-v1:sha256:64e226959c375a4a9b16b7ff53144e01598fe5230fa7587c6abe67758251a201:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzOTkzYzJkZjNhZDY2OGY1NWNkMGRiMTkzMjMxZmVjMDgzMDkyOTM2OGEyMzc3ZDA2NWY1YjliNjFkYWFiYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ4MTE0ZjEyYWJiMjhkODVkMjRhOTg5N2EzZDEwM2JkMmE2OTkwNjAzNWY5ZTI5MDE4ZWRjMGVkZDk1MmVlMTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_83251dabbebf49a7bc90f7f89c24e767",
+      "statement": "After a successful save the mutation patches react-query caches from the response instead of invalidating: `patchRouteFromSave` replaces the cached route detail's `directions` with `[base, return_direction]` and rewrites the route's overview entry (both polylines and the lean stop list), leaving an absent cache entry absent.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/routeCache.ts#L49-L82",
+          "version": "repo-lines-v1:sha256:cf8de1d9b7f2eaff0c9be9edfb234813cd046d8bf9aa16eda19a36d5a834bb5e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyNzRkNTlhOTAxZWZkMjQyMmU5YTQ3NmM4Njc1NmJiMGI1N2FlNzBmZGFjY2E4ZTkzNTg5ODhhOWIzNWQyOTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3OTg1OWM1ZWE2M2Q5ODZlNmEwMGJiZWZhZGI1ZDI1MjQ1Y2VhZjg4ZDBjNmEyOTdlNTExYWUzYWQzNjdkOTMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/useRouteQueries.ts#L160-L193",
+          "version": "repo-lines-v1:sha256:6956e5d6853265cdcd625c93f38f67e5c3e7732365dd04c2363dbf748ad6247f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4M2U1NTc0YTQ0NDYxMWUxN2U4NjhmYzUzMDdlYzJhYTQzNTZlZTNiOTYyMjgzNGE4NTZkNjdhNTVjMGIxYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNmZmU0ZDE2NTgyNjc4NmI3MDQ4ZGQyZTcwZjRjN2M2ZWMzNWFkMWVlNDNlY2ZhNjZjMDBhOWUxOTY5ZWMwYjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_97a931aa7fc143c599a5991ca7943be8",
+      "statement": "Post-save reconciliation in the store adopts the server's returned stop ids and `base_polyline` through `setStops` (which re-derives `pathStopIds` from those ids, so later name or type edits cannot false-block the association guard), captures the persisted state as the new baseline, resets snap state and selection, clears history, clears the stored draft and cancels the draft writer.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L341-L375",
+          "version": "repo-lines-v1:sha256:74d6f7d941cb6d996976dce47323a6b71838e4317c56d2489656244ab384b2ef:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0ZWRjYzY3NTc5Y2RiMmQ2MjZjZGQ1OGFjYzhjN2U5MzZmZGIwNzhmMWEzYWNjMDEwZmZjYTMxMTIxM2NjMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1NmE3NmZkZjI3ZGUxOGU3OWRjNWU2MDYwOWIxOTg2MTg4ZDc5N2VmZWQ0MGJjMDUxMTlkMDM3MTlkNWZhM2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhM2Y5YzhkODc3ZGRjNGNkMWYzNGFhZjc0MGFiZDQ0OWU5OGQwZTEwYzk5NDFhMGEyNGY5M2ViODFiZmQwNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNhYzc0MDQ2MTVmYmUzZGNjZDBiZTZmNDVjOWJmYjI2ZmFjOTg4NDZkY2VhMTI4MThlZjk1YzMxYzRlY2NjNjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1024-L1039",
+          "version": "repo-lines-v1:sha256:e957a8c890cd938c8b00945c3d23e4481abb44f6b2f68d328e57899a1df27219:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZjY5ZDgxMzdiMmFiYjU3ODhiZGFmNzYwOGQwZGE5ZDM2NDc0OTdjNWMwNzRkOTQ4OTZhMzAxZGM3OWYyYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NGU0MTdmZjBiZmZjZmYxOTFhZjQ5MjE4YjYwNTMyYjIzNDhiMWMzNDNjZDRmYzBhYTg2MjBiZWJiZDExOTYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0YzUwZmM2MDM0ZmNhZThlZWNlMDYyY2Y4ZWYyZTg4NGE5ZmIyNTE3ODk5NmRhZWI2MDg3ODNjOTkxYjg0YzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQyYzlkOTRkNjgyZDg3YzE3OGYzNzdkYjZlMzYzZTU3NTU0NzE1Y2Q5MDNkMzU0YTU5YjcxOTkxYTQxOTIwYWUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3228d2d78124a5db527d7f12030b15a",
+      "statement": "Save visibility is `showSave = routeId !== null && (draftDirty || metaDirty)`, and every undo or redo recomputes `draftDirty` by value comparison of stops and polyline against the saved baseline, so walking back to the saved state hides the Save button while a restored draft — which has no baseline — can never be confirmed clean.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L433-L433",
+          "version": "repo-lines-v1:sha256:6d3e6de413381c20c3eadb7cfcb45f871e1ea6ab461747ba7cf9af0dd33c6b59:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQzZTZkZTQxMzM4MWMyMGMzZWFkYjdjZmNiNDVmODcxZTFlYTZhYjQ2MTc0N2JhN2NmOWFmMGRkMzNjNmI1OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQzZTZkZTQxMzM4MWMyMGMzZWFkYjdjZmNiNDVmODcxZTFlYTZhYjQ2MTc0N2JhN2NmOWFmMGRkMzNjNmI1OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTc0YmFiNmY3ODNkNTMyOTQ0MjkyYTFmMGU5YzQ1Y2ZkMTc5NzkxNWJjMWFmZmIyNmRlZDNiNjgyZmIxMmM1OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODUxNWFmY2ZjZDdiYTRhN2I3NGIzMDgwM2IzYTQ1Nzc0YTUzYTRlOWYyODRiOTNlMzdjMjUwNTA4NGYxODE4YSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1096-L1104",
+          "version": "repo-lines-v1:sha256:b14554c263a8d1c2f797ad4bb7b62bb828541d055fcff9d93e48d14f0dccaa34:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDgxZTBjNzRkY2MwNGViYTZkNGNiMzNjZWFjMDliYWExNGQ3NThhZGM0MjNlYTI3YWRmMTQ3M2FkNjViNTgyYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTQzM2QwZWE5ZWNmMmYzOWM5YTUwNDA3Mzk1ZWU0MTE3MmZlNjgyYzljODg1YTM1MDhmNzViZGVlMTUxZWZmZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWQ3MmM3MjhiMDIxNmQ0ZjZmOWQxZTA2MTc1OTg4Mzc5ZTgxNzg5YTkyOTk3NDNmYWU1NDFlMDJmOTUxM2ZlOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDUzNGE1YjI5NjE0MjEzNDU5ZDhkZWQ0NjhlNzAwZDkxMzg4ZWRhYzBmNzhlMWNkZWJlN2Y5MWM1YmYzZjdkYiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L1178-L1198",
+          "version": "repo-lines-v1:sha256:59ad8d16fae069341aab49e980b81b28d83197b2cc5deafcbfc10bd1a490a193:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1ZDg5NTI1YzQwZTliNjRhZTczZGExZTBlMjE1NmIyMjk1Y2U3YWU2OTgyYTVjNjNlODI2Nzk5MjIxNzFjZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUwNWUwYzgwYzY4ZTQ0NTUyYWJlZGU2Y2YzZmU5NTMyZDEzNzVkNjQzYmFiZGYxNDI3NWNhMGUzZmIyY2Q5OWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkMWUwMDVkMWEyNWUxNmE2N2E1ZWM5ZjY3ZDExNThjMzJlMjc1YjJjYWNmNjAzYjllZmU0YzM4YWI1NTI0YTcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L172-L215",
+          "version": "repo-lines-v1:sha256:663766e1f9090a606944bfcede24284db06ec65f2a8ee15aa3c5578c0451a9d1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0MjQ0NTg0MDEzY2E4ZmZjMjBiZWZhYWJjMzNmZTgyZDkxOTVkZDQyMjIxMjNiZTA0MDk2Mjk2YjVkZjY4ZDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImExZDYwNGZiNzk0MzhjNTgwMzgwMTcyYmFlNmRhNTdlYjZhMzVjMDdiMGI0ZGM4ZmM1MjE4OTc5MDE4NjI3MjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0e6c5345c31f4459a11f0ac308c8b3ba",
+      "statement": "Unsaved plotting work is mirrored to localStorage as client-only recovery state under `komyuter.draft.{routeId}.{directionId}`, debounced at ~500 ms, flushed on `beforeunload` and unmount, and deleted when it is older than its 24 h TTL or corrupt; it is never sent to the server, and the direction save/replace request is the only path for plot data to reach the backend.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L177-L216",
+          "version": "repo-lines-v1:sha256:09fd26e021acede6036cb238f2929e5c69311ba5c8ab4cd777a75d7cc414a59e:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5OTk5NGJjMmQyMTI3MDE5ODJlNmYxZTUzZGFhOGQ1NzU3YzMwY2EzZmYyZWNmMGYzZDY3OWVlNTllODAwNDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YzFjNjc3MmRiNWY0ODViNDVmYzVjYTE1ZTkyOTk4N2E4MDFmZTJjOTNiNzExNmNkODRhZTI5MWJhMjZmNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkOWRiMDU0Y2Y3OTcyOTUwNTU4NmM0ZDdiZmNmNTk2NThiZjNhMDY1OTJmMTVkN2ViY2Y4NWI2M2M0ZDhlZDUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L188-L229",
+          "version": "repo-lines-v1:sha256:3653c71bd4b07ec2af61375fbd0f09d34a37ccdc4d81203e0d7481812ced3112:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1NzgzMjA2YTc4NzM0ZjU5ZjJkODc4OGM1ZTk0NzE4ZTZhNmFlNTI5ODE0NTBiYjEyNjJmMTZlNDY3ODNmNmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L55-L120",
+          "version": "repo-lines-v1:sha256:9f4e9279dd4e8a3fd29f601c1cc61abd666ea46f9688af85a93636962568f4b5:eyJzZWxlY3RlZExpbmVDb3VudCI6NjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYzODJlMGM2Yzk1NjU2NzJkMjFlOGU1NmM0MDM2MDc0MmZhMDVmMWVkYjlmY2E5MWNjOGE3NGNiZTM1OTQ2ZWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiOTk4ZmVkYjc2N2I5MDdiOTE4Yjk0YzRiZmFlYjcwZWVmZDM2N2NhNDIyOWMxYzUwNjYyOTAxYWY1ODAzMzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhOGIwY2VkZTQ2M2MyZGI5YzU4YjMxNzA1NjMzOGY2YzAwZTVjNjUyM2VhNjlkMTcwMjliNzQ3NTVhYTExZjYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/draft.ts#L6-L34",
+          "version": "repo-lines-v1:sha256:ab82f0616f8494802b10b493a36291d493e40431903e0b457cfd3ce1c9fa74b3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyMDBlNzM3ODk3NDZlNzYxMTg5MjVjM2VmYmRiN2FlN2JjNjU5YWY2MzExMGI3ZmNjMTM3Mjg1MTQ1NThlMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxZjFiNzk3NzkwZTcyMDhhY2Q3MmVmNmI3ZjlhZDcwOTUzNGI0ZjFiODc2YWY5OWI3Yjk4ODc2MGY1ODg2MjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7b85d4f15d354a909e0f8e9279aefdbf",
+      "statement": "The provider's store subscription clears the stored draft and cancels the pending write the moment the draft becomes clean — an undo all the way back to the baseline, or a completed save — so the localStorage mirror only ever holds unsaved work.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L180-L205",
+          "version": "repo-lines-v1:sha256:5d824df2644d066cacf087477039baa7e5ce564a1f5b523c437b89e533d5ca2c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiYWViMTgzM2ZlZDdkNTcxODJmYWNlMjk5Mjc4ZTUxZjA3Y2MyMTI5ZTk4YTAxY2M0YzY5YzY5NWEzMWY2OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmMjFlNzI0NDlhOTBkZDQ5NDI4ZTVhNzY4NDJiMGVlY2UwMmE4M2VlYjVjYzI0OTc4YTY2MWMzODcxZjNlYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2MTgyNzAxY2ZlOGM4NzQ3NzQxYTEyZTk0NzQyNmUyNDJmYmRjZDk0YjcwZjA5YWEzNDY1NGViMDI4MTJlZDYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L370-L372",
+          "version": "repo-lines-v1:sha256:6134344bc3df86ca9501031d5a68b3cc9e1a29c55b7717a4de08a4dd2ecfa947:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODE0YTE0ZGYxOWFmZjVjOTEyMjZmYjc1NWQ1MTU4NGViNjFhNjNjN2FmZTlkMmI5NTA1ZTJkNjhjODhkZDc2OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTVhNTE1ZWY5NzQ2ZTdhMGFlYjZiNWY4YjExZTRjMDhiZjhmYzUwMDVmNjMwYzFjMjA2ZGE4Y2EzMTQwMDgzYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjVjOTRiZWEwNmVlNGU5OWZhNmM2ZTZjNWFmNzlkNGQwMWNhN2Q5NTkyNWUwZWY4ZWMxMTU1MjZkZDVjOWVmYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWM5MThlZjg1MDdmZDQ4MzBkZWU5YjhhNGFiNzc1YjAxODM4ZTJlZGFhZThhNzhiNjFkNDI2YTE1NjAwYTBjNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d2967216a5974cd68c1cbe72009a196e",
+      "statement": "A 409 CONFLICT on a plotted save means the route already has two active directions — the create-mode count inside the transaction — not a version check on the row the client was holding. The direction mutations suppress their own toast for it, and the workspace raises a persistent inline banner in the status slot offering Load latest and a dismiss action, with precedence over the draft-restore offer and the restored confirmation.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/StatusBar.tsx#L39-L122",
+          "version": "repo-lines-v1:sha256:251966367b9a126dd7b8f627eb73a55e152f65cd08af851b871662c8afd08999:eyJzZWxlY3RlZExpbmVDb3VudCI6ODQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiOGNhMTFhZjJiYmM1MTQxZDNiOGFlMjMyMTFkODg4NWMzMGY1OGFlZDhlZjlhMjYzYzY5ODM5OGIxNzljNjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmODY3ODE0MjU3ZmRjYWRjYmFlYTg0YTMxNDFkMjZmNjAyZjI0YzAyYWQ5NmQ4NDRkOGRmODliZTU3MWNjZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyOWZhMWE5ZmRkNTYyMzEzMzAyOGMyMTEzM2ZkMjVlNzYzMzdlYTdlNzEyOTM2YTM1YzhhZjNjMjY1ZmZkZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1NmZkNjRiYzQyMjlkYzBjYWJiOWJlMjQ1NTg2YWE2NmM4MmNlNmQwMjliN2ZjMzA2NDJlY2JjZDljOWRiNDgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/useRouteQueries.ts#L160-L193",
+          "version": "repo-lines-v1:sha256:6956e5d6853265cdcd625c93f38f67e5c3e7732365dd04c2363dbf748ad6247f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4M2U1NTc0YTQ0NDYxMWUxN2U4NjhmYzUzMDdlYzJhYTQzNTZlZTNiOTYyMjgzNGE4NTZkNjdhNTVjMGIxYmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNmZmU0ZDE2NTgyNjc4NmI3MDQ4ZGQyZTcwZjRjN2M2ZWMzNWFkMWVlNDNlY2ZhNjZjMDBhOWUxOTY5ZWMwYjMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L376-L386",
+          "version": "repo-lines-v1:sha256:c42af6ff109555a7a198ab82d0461f869daab9c1eeacecf380a5ef20f09cfbe5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4ZGI3NDYwODE4MmNiN2NhNGQ5ZmJhNDlhMzk0OTlhN2YzOTA3YjRlYTAzM2IxNDkyYWQ1Y2YwYmVlZWVjZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjOTE4ZWY4NTA3ZmQ0ODMwZGVlOWI4YTRhYjc3NWIwMTgzOGUyZWRhYWU4YTc4YjYxZDQyNmExNTYwMGEwYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1NjE2ZGJkNzAzNjJmOTVjMDk5OWJlZjJiYTYzMzM5ZDNlYzVlOTk4NWU1NzBkZGE4ZGIwN2FkMmVjYTlkZTcifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L58-L74",
+          "version": "repo-lines-v1:sha256:119f59dbc950b5214e4d2c4851db12fe86d02fe5d05e9d4e6b7e1ce3528411fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1MzQ3ZWVhMTFjNWExMjIxNjAwODVhNTkzNTJkZTM3MDc5OTI2OTU1MDI0MWRmZjQxYTdjZTlkZWI1NmQxMGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwOTJmMDA3N2JmMWQxZTVhNDNjNzAxYjdhMjIwNWJjNTM2MzhhZTEzZDkzNDMwYWUyNWRhNzE3MGUzMjUyMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmOTU4YTVmYmNjMGU4NTk4ZDU0NTYzOGFjZGFhZjNlNDY1NDMwZmFlZDVkODVlZDBmZWNmN2IwZWFhYTZiYzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3768461dd2a94aad859ada5fe36de76a",
+      "statement": "Load latest forces a refetch of the route detail and rebuilds the local draft from the server (directionId, full stop rows, base polyline, baseline, cleared history, refreshed metadata); because `captureSavedBaseline` marks the draft clean, the dirty-to-clean transition cancels the pending write and clears the stored draft for the current key, so the confirmation dialog's promise that the work is kept as a draft on the device does not hold in general.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/dialogs/LoadLatestDialog.tsx#L29-L44",
+          "version": "repo-lines-v1:sha256:afba1b708838aafad8fbfc503d56dfb2883ab890a3ad8345a627de3de5c66843:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZjNiODg1ZThjYmE3OTdmNmM2Y2MzN2JiMTcyZmRjMDJmOWUwYTZkY2Q5MDhjZGM1YTE3NjI3NWYwMWJjN2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0ZTFmMTM2MDU0Yzk2M2YwNmNiYTM1ZjM2NTk0ZGRlZGQ2MGU3MTYyYzVlNjBiMzE2ODVhNzJjNmY0MzhkMGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjNzY3ZDJmOWFmMTVmMDZlZjdiNjJjYWM5ZDBkZjgyOGUxNjlmZGZiMTFhMmI5ZThhZWM1MmExYzUyNmZjMmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU0OGI0NTQ4YTlhOTA2Y2U5NDczNjg0OTA5NTQ4M2I0MDQ1NTYzNjRjMDY3OTJjYmNhZjljZDYwYzdiMTUyZjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L180-L205",
+          "version": "repo-lines-v1:sha256:5d824df2644d066cacf087477039baa7e5ce564a1f5b523c437b89e533d5ca2c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiYWViMTgzM2ZlZDdkNTcxODJmYWNlMjk5Mjc4ZTUxZjA3Y2MyMTI5ZTk4YTAxY2M0YzY5YzY5NWEzMWY2OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmMjFlNzI0NDlhOTBkZDQ5NDI4ZTVhNzY4NDJiMGVlY2UwMmE4M2VlYjVjYzI0OTc4YTY2MWMzODcxZjNlYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg2MTgyNzAxY2ZlOGM4NzQ3NzQxYTEyZTk0NzQyNmUyNDJmYmRjZDk0YjcwZjA5YWEzNDY1NGViMDI4MTJlZDYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L394-L431",
+          "version": "repo-lines-v1:sha256:ea1c1468b15fa442bafc4ee309ae0efd4ea8998e2028db417ca9d8762bb80df5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwZWMzYmZmZDM5NDJlZGEzYmYyMThkYWMxODQ4NThkZWMzMDZkZDE0MDUxMjEyNWMwN2IwMmQwNjMwNjU1YzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkNDdjYjkyY2Y0ZGI5OWE0ZWVjMWMzOGQ5YzJmMjliYmVjMjMyMDg3ZDM2MWIzOGRkZDVmNTk1MTQxYTZjNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0NmIzYzI3MDE5YjI3MGQ5NTJiYjlhNWFlNTRkMDE4NmVjYzMyNGY5ZWNmOWExYTIxZWM3MjUyMjhkYjVjYTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8304aa10773e40a7888dc19ed9b94805",
+      "statement": "The five client guards and the save sequence are pinned only indirectly — `coords.test.ts` covers `pathEndsOnStops` and `pathCoversStops`, and `plotting-store.test.ts` covers snap settling, commit semantics and the `pathStopIds` association — because the admin vitest suite runs in a Node environment with no jsdom and no test drives `saveAll`/`savePlot` end to end.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/coords.test.ts#L272-L303",
+          "version": "repo-lines-v1:sha256:0f99a31032f709460d8accf6ce6b4808873de78c0786de51a958f0e2e49b224e:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxNzZkNzMwZDVkNmE2Y2I2NDA5Yjc0OTBmYjczNDgyZTlhMTNmMDEzMWMyNWUxMzJjNWM5YWE1ZDdhZDMyMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMDdjMDE0NTZmMWIzYTU1ODRiYWUwYzE5NmVkYWM3YzZiYWY3YjRjZTMzZjY3ZWNiOWYzMzUzZmUxMDdjN2IifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/coords.test.ts#L84-L153",
+          "version": "repo-lines-v1:sha256:aa18e540454376f2c410294e0b2f380b3dda9b7a5967609515f94d3975861b6d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBhOWQ0OWM4ZTdiNTNjMjY2NDlkNmMwYTY5YWQzNzY1NjFjNjliYzI2YmYyODljYWIwYzlmYjYzNWMzMTIxMmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIxNzJiMTYzZWZjYzc5N2I1YWQ5ODIxODIxMjY1ZGUxMDIzODhlZjE4ZDcwYmE4NmFmMjJiYTkzZGQ5ODFmMjMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/plotting-store.test.ts#L353-L557",
+          "version": "repo-lines-v1:sha256:bca86b834a5dc8f2e8266629d95e20a91cd4fe1b45d40e7e3587017e6279ecf8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjA1LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxOTk5MDY3MDZmN2UwZGZiMDhmN2E3ZmI0NzRjNTZiNmJhNWE5ZGY4Mzg5YTBkODBiZGNhOTZjYjM1YWIwNjc5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNzc5ZDExOGQ2ZTNjYmY0NTA1Mzk3NDhkZWU3YTQzMDdhY2JlNjQ0NmNiYTI5N2YyNzYwZmE1ZDBiYmExYmMyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI3OWRiNWY2ZjBjYWE4NGZkNGI5NDU4MDQ4YzhiOWMxNzExN2U5OTRkODIzNDBjYzcwMzU4NWE0NmE3OTBmMjZiIn0"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:95145163067b26972444b6f90ed1af156699cc5c8e3be096e5ea50d1a808580c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkzNmRmN2E1YTNhYWYxODBjZmZkMWQ2NWM2NDZlZjZhZWEzNTJjYzI3Nzc0Njg2MTk5Y2Q4ZmIzZTg5OWM3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGU5NzViZTczN2YxN2Y2NzJmNDM2NDQ0YTE1MjJiNzFjMDNhOGY5ZDhhM2U4ODQ4YTY1NDIxZGJjZGNhMWViYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9611e442fb804fd6b16110d5ceacfe12",
+      "statement": "The server integration suite pins the save contract end to end: a successful POST saves the base and derives the return atomically, a single-stop save and a start-mismatched path both return 422 and persist nothing, a loop ending on the starting stop is accepted, and a second create on a route that already has its pair returns 409 CONFLICT.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L112-L197",
+          "version": "repo-lines-v1:sha256:13536719dd35d898acd91ae31225d936ffe1bc0f1c0766ccf1007bdaecdf5716:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5ZTZmNzU3MGMzMzU2NDI5OWQ3NGM4NDcyOThkOWQ4Y2U3ZWFhY2ZhODk4ZWFhMTJiMTUzNTZkOTgwNmYzMDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwODMyMTg2M2U0ZTYzYzYxM2QzMTZiYjYwYjY0MGQyYTYxNTZjMWY0YjZiNzI2MmUzZmI4NzE4ZjhmYjRiMTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzN2U1MTZkMzQxYTBlZmNiY2RmMmU2MDYxN2RhMjY2ZDRjZWM4MWQ3ZmU0ODhmNmMwMzk0ZjdjOTQyY2NjNDMifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L199-L251",
+          "version": "repo-lines-v1:sha256:e6cf6f624cf850d5470b7cfa3e7709918110264cea09f5515a6bf0fd6750e661:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjOTkxOWQ2MmE4Y2ViZTJhNWQzMjlmZDgzMTBlYjIzOGQ5NGQxYzllYjUxN2NkYzZkMDMxN2YwNDM0OTM2NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3MDMwYTk5MzlhN2E4YTNhYTNiNzNkNjczNjg0NjlkNGMxYjIwZmQ1MjJkMGQwNjJjZmNmYWEzZGU1NTcwNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlM2Y3MzVkNDBlYTU0MmMyNTE2NGEwY2Y4MTZlOTEwM2FjM2E5N2U3NzdkYTMyYTNlYWRkMGM3ZTM0YjRjYTcifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L57-L110",
+          "version": "repo-lines-v1:sha256:64e226959c375a4a9b16b7ff53144e01598fe5230fa7587c6abe67758251a201:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzOTkzYzJkZjNhZDY2OGY1NWNkMGRiMTkzMjMxZmVjMDgzMDkyOTM2OGEyMzc3ZDA2NWY1YjliNjFkYWFiYzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMTJiNjExODk0M2UzMGMwMDY4MzNlNzgxNjMwYTUzYjMyZjQxN2VmNWY5Nzk1YzNmMTJmMzMwODAyNGM1ZDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ4MTE0ZjEyYWJiMjhkODVkMjRhOTg5N2EzZDEwM2JkMmE2OTkwNjAzNWY5ZTI5MDE4ZWRjMGVkZDk1MmVlMTYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

@@ -1,0 +1,482 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:f813b33f427eebb06234b9762c4e0adf563536c925d8cef8c71ce7ec393074b5",
+  "claims": [
+    {
+      "id": "claim_01f2387769a54544b7c8ff8595565fc4",
+      "statement": "navbench/ is standalone tooling outside the pnpm workspace: pnpm-workspace.yaml declares only apps/* and packages/*, the root ESLint flat config ignores navbench/**, and no CI job or Turbo task invokes the harness.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L7-L39",
+          "version": "repo-lines-v1:sha256:b4dca91db0e04e8bbcf81c72e6088173e25ec055985f98b371890d2cb7670a1d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5ZDgwMTU0ZWQ0MmZjNWM3NzliMTMzMTU3OGI1OGI4OWM4MDFlYWNlNzRmMjRjZDQ4ZWI0YTIzNTc5NDBhOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMmQ0NDlhNDJkNDY2NWQ4NWIzZTMzZjBiZmRkN2FmMjBkNmJkMDIxMzE3MzA0MWUxMGE4ZmJlZjIzMTJkNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY2N2FjMTE2NjQ3MzFmMjdkYjkxZjMwNzg4MDFlNjk3YTVmMzUwNTEzYjZkNzZmYmM3ZjBiNzUwZTRmNmFmNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L36-L46",
+          "version": "repo-lines-v1:sha256:bcbf3adc14e3d647a37a2cd03b3b906799a4a7f99ad6429c0e52ca25454373ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIxMTFmMjM5YWM2NWM5ZmVjZDRmNzk3NWQ0ZWUwYzY3N2I1OGE4ZWE2Nzg1MmVhMjVkMjc5MjM5MjUxOGQyZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiN2Y4ZmIzOTA0Y2EyY2ZmYjhkMGEwMTcxYTVjYzU1ZjU3ODM3ZmZmYTBjZjllNjBjMDRjM2U4MTUwNTE2MTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiNGUwMzc0ZmNiMmQwMmQ1ZjhjZDg2Mjk1YzUxOTM5ZGJiYWZiZjkzMGQ4YmJmYzY0NTM1ZTg0MjI2OTFjM2MifQ"
+        },
+        {
+          "resource": "repo://navbench/README.md#L16-L18",
+          "version": "repo-lines-v1:sha256:0e1336fab9771b9730793c68ab5fcc3f2a037e27474be46558ca4dc38f4d8364:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjliNTNkYmRlM2Y5MGVjNjE4NWEyNzM4NTVkMTA2OTIzNDUwYjg0Y2E3YWM5NDJjMDBmMTExM2FlN2Q1YjZmOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzliZDY2MGZkYzhjMmNmYWQ5ZjU4NTM3ZTU3NTViMWJlNWNjMDkxMWJmNzg1NTU5NmQyOTQxNmIzNjAzZTE2OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTRmYTI2ZjQxNWNjNzA1YmEwZjAwZDlhMTViMWE2YWE2NDljZjkyZWVmOTIxOGMzMGE3NWUyZjhkZDEzMmE2NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGVjOTA2ODU2ODFiNDFjMjZmNDdjODUzZGZjOWMzYTMyMWEwYjQ0ODYxZGY1MTdmNmQzNDA0N2RmNzI2NWU1NCJ9"
+        },
+        {
+          "resource": "repo://pnpm-workspace.yaml#L1-L3",
+          "version": "repo-lines-v1:sha256:08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWRiMDc2ZWI4MGFkZTE5ZmVhM2UwYTQzMTk4NmI2NTVmNWZhNTllZDYyNjdlMTA3ZDY4OGI2MWMzZjQyMTc5NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODlkNjdjMzRmZGJlMGVkMzRlN2Y5ODcxYjA4OTU5ZjgzZTJmMmYwOTM3ZDAxZWU5Mzg0YWU4YWRlYjFkMjU2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_89ccb39b6f6546658ec33931011363f5",
+      "statement": "Benchmark output is unversioned: navbench/results/ is listed in both .gitignore and .openwikiignore, so the timings, the comparison matrix and environment notes are non-repository artifacts even though ADR-0017 cites navbench/results/comparison-matrix.json and navbench/results/env-notes.md as its sources.",
+      "evidence": [
+        {
+          "resource": "repo://.gitignore#L17-L24",
+          "version": "repo-lines-v1:sha256:fb53334deb592bb636d17d478213af831c73d3adc4e80bf5c7414f84887f9676:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDAyODE0MGZmNWZiMzZkNGViOTEwZTFiZmVmNWNmNWU2MGE1ZmU2ZjE0YjkyMjEzNjhhNzBhY2ZkNzcyYzM3MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2MzMWYyN2FiMjRmYWU1ZWQ3ODllYTVhNzllYTg0NzIyNTI2MWJjMDUyODY5MTlmYmM2NzQ3ZDg4NWUzM2I1NCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTJhZWFjYTZhMTc2MTM4YzA0ZDYxNmQ3MzI4OGRkMzU4ZWJmZGUwYzQyNzA1MThlYzYyZGMzN2I5ODA3MTdhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTkxNjJhYTk2OGUxMTk5ZGI4NWJhOTFiN2FmYjkwNzAxYmExYzM4OTE5NDA5NDA4MGJjYTg5ODAzZWUzMGI4NyJ9"
+        },
+        {
+          "resource": "repo://.openwikiignore#L21-L28",
+          "version": "repo-lines-v1:sha256:dd8841e56bc00a9f245af95b6054d04f1549d3b511fe2ff4ee33a7780e41e20b:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDAyODE0MGZmNWZiMzZkNGViOTEwZTFiZmVmNWNmNWU2MGE1ZmU2ZjE0YjkyMjEzNjhhNzBhY2ZkNzcyYzM3MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzE4ZDlhMTY1MzM3MzJhNjljZGE3YmI3YjE3NGVlMzkyZmRkMTViZTNkNzJhMTE0Y2Q4ZjJkNTFmM2VhYjUxMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTVmYmYyMWEzNjc2MzU0NGJmOTg2MmM3YWI3ZDk3M2NhMjE1MjgyNjU0M2JhNThiMjQ1Yzc5ZDU1ZjBmMjg4ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjNmYjY5MTlhMzZlNjg0YmQ0ZDRiMTU0ODNlZTlmZGMwNDg1MTdhYjQyMjAzNzE1ODIyMzEwNzE2NTQ0ZjJlYSJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0017-runtime-for-backend-navigation.md#L11-L22",
+          "version": "repo-lines-v1:sha256:edee6bd9885db0efd30ffb74aaf702c3ef664b5afbbe4e0e4413d1740989a4e0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3N2M2NWZiYzg4YWI4YjE2M2ZmYTk4ODE2ZDhkMGY3ZTY5ZTJiZDAzMWQ2YzIxNzNlNzMzYTMwMmI5NWNhNGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyMzczNDMyZGEyN2E3ZjJlMDFmODIwNzliZmE3YjdmZTY2MmYzMGRhYmYxNDRmYmE4NzUwZmY3MDBjNGE1ZDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIwMGM1MjM5NDkxMGVhOTE0ODJjZjQxYzBkMzAyZmZhOTIwNzhlZmUzMjYyMzg0YWU5OTg4MmRhZjg1NzcxYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmMDBjY2NiMDhmMGY4YWM1ZWNlN2RmMGQ4MWE1YTljYTUzYzU5ODYzMzIzZjkyMzkxMTRlNWUwMjc3MWRjZjEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_42e38aa534d24e88966802470983a031",
+      "statement": "navbench/shared/model.js is the authoritative semantics for the three workloads: Rust and Go must reproduce its outputs exactly, and any divergence is treated as a port bug rather than a reason to change the model.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/README.md#L12-L14",
+          "version": "repo-lines-v1:sha256:42ae22c150f4446cde24241ce7c9646b57cfb3e2da2e60e8a04b41ce63e9769e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGFiNTNjNWIwYzk4YWVmNjgwYTM1ZTY5OTg2Mjk5OGQ5NDZlOGRkZjUyY2Y1NWU5MTIxZWZhNzY0OWYwMGY0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjhiNjk2NDQ0ZDk0NjE2ZjY0NTQ4Y2FlY2E3MTc1Nzk5NGRkMmM5NjIxZmQzZTMyNGMyNjJlNzA1MTM1MDM0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmNkNjU4MjMwYWUyOWY3Yjg1ODIyNjMxY2JhZmVjMWVkMGZmMTYwY2M5NGZlOGYzMmUwMDQ2MDVmOTFlMTZmYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWRlMTMyNDRjNTE5NTljZjczN2I3M2IxNGM3M2U4MmZjM2IxZWI2MWQ3YWEwMThkNzc3MjYzN2M5NWE2NzBhYSJ9"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L1-L15",
+          "version": "repo-lines-v1:sha256:34ea9f988e6f415f8edd21a90944839ce1489103494f615f08c76577af7bce80:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3ZjVlZWMzOGM1ZWYwNzVlMTE4OTIyNDRjY2Y5ZTI0OWQ4MjkzN2UwNzQwMTM5OGRmOTgzMTk1Njg3NzVhMTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhNjE4NTY3NWIzZmEzYjIzYWUwMjc1ODQ1YTgzZjg0MTYwZTk2OTY2MTAyNjc0NTVkYjczN2Q0OGNjYTk0NzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dc5ba117cf754f74bb1c8b0d3ee86daf",
+      "statement": "The canonical graph is route-expanded and direction-aware: stops are shared and carry (routeId, dirId) memberships, ride edges join consecutive stops on a direction polyline, and transfer edges join different-route memberships of the same stop; ride cost is 13 + 1.8 per km and a transfer costs a flat 2.0 with zero distance.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/shared/model.js#L36-L84",
+          "version": "repo-lines-v1:sha256:3c92aadd927d92e9ca6ac9c6682dae72089114df75a454f645ba373d40cf9f0d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkzNGE2NjNhMmQ0MmExMWYxZGQzZmI3N2JmNGU2NjIzNzQ1Mzg1MTE1ZWJhNjE3MWViYTJjOTI0Nzk1MGQwMTIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIyZWIyYTI1NzAyYmU1MDMxMDVlYzQxNjAyNTFlNDY5OGJhYjFkMjQ3OGI5YWUzNTlkZDk3YWYyMDA4OWI2ZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmN2I3YjMwYTNmYjc3YWFkMzhlNjMyMzNkNjE5NGFmYjZiODkzMWE0M2VkNWMzOWU5ZDIzMDFhZTlmMzlmNDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_55a0584e41f741d5b1954b94cf294a4d",
+      "statement": "computeRoute snaps origin and destination to the nearest stop within a 50 m tolerance (returning found:false when outside it), runs Dijkstra per via-chain segment, merges adjacent legs that share a route and direction, recomputes transfers as route changes after the merge, and returns distance_km rounded to 3 decimals plus a per-leg LTFRB fare rounded to cents.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/shared/model.js#L96-L201",
+          "version": "repo-lines-v1:sha256:0179f5d3901541cca806cbbd77271414503d58481ded7a540d21d709c26e88b4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA2LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwNjlmN2NlOWJlMDllZDJlYTE3MmNjNWU1YTZhZTI0YzUyZGY2NWMyZmVkOWVlMjU3MGFjMTIxNjM5NzdmNWI1IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJkZmMxMDQ5YjI1NDU0Y2VjMjYwMzFjYzMxNjI3NTdiNzg2ZmE4MWU3ODU3NGM5ZjlkMDkyZTAzYjEwZjY0MTFjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJhZjhkNTFiNzBhMDhiMmM2Mjc4YjBkNzlmNDIyMTMzN2FmZmZlNzIxNGE0ZGVmZWNlYTY5YTAyMDdhMTI0NzBkIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_311bea866cb348df85e653e9fd60bd40",
+      "statement": "walk_m is hard-coded to 0 in every route result because origin and destination are snapped to stops and hail-ride walking is not modelled, so that parity field currently carries no information about walking.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/shared/model.js#L184-L184",
+          "version": "repo-lines-v1:sha256:245631c8b4b164fb4395c12f1c89fc708104ae32251ed4f101bddcd339c4a9bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQ1NjMxYzhiNGIxNjRmYjQzOTVjMTJmMWM4OWZjNzA4MTA0YWUzMjI1MWVkNGYxMDFiZGRjZDMzOWM0YTliZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQ1NjMxYzhiNGIxNjRmYjQzOTVjMTJmMWM4OWZjNzA4MTA0YWUzMjI1MWVkNGYxMDFiZGRjZDMzOWM0YTliZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDYwNjcxOGY4MTFmMzMzMWZiZDFiYzlkZjQwZDViMTc5NTdlN2JiMTJiNWYwMGU0Y2M0NWI4ODFjM2U2MDg2ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGE5ZDQyZTRkNzFlOGY2YzBlNzcwZDNjZGJiMjAyN2RkZWM0YjAxMjljNWRmYjhkMDUzODE2MGVjZDA2ZWJkMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6389e676e03a4b0a86d4075ca5ca2efa",
+      "statement": "The profile option is destructured by the canonical model and never read, and every generated request uses \"balanced\"; the four profile names and the multi-criteria label are declarative only, with one cost function and no weighting implemented.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/fixtures/generate.js#L120-L137",
+          "version": "repo-lines-v1:sha256:17ad2f5c28ba8af1ca3bbfdad384074df680f7ad86286421d74caf957988c2c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4N2QxMmY3ZTg3ODE5NzdjN2I4MGNhMmE0NmJmMjhjNDQxMGZiMWVhNGY0NDNjMTM1OGY4MTkzY2RmNWE4NTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYxYjU4MDM3MWMxNWI4ZjEzMDIyZGM3MWFiNjY5MjZlMjQ2NzA5OTVhMmE3ODgzNmExNjJlZWFlZDM5ODQ4MDQifQ"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L96-L107",
+          "version": "repo-lines-v1:sha256:b2e22357dba347ccbb1adc1b99c4506a8ce3ccaded8e37d11ca48daabba7a260:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2OWY3Y2U5YmUwOWVkMmVhMTcyY2M1ZTVhNmFlMjRjNTJkZjY1YzJmZWQ5ZWUyNTcwYWMxMjE2Mzk3N2Y1YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkYjczNzRjY2FmYjM5N2EwZGQ0MGY2M2VkMjk1ZWY0ODNmNjUzMzg5YzY2NjE1ZjkxNDM5NWZmYTJiYjUyNTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmYzEwNDliMjU0NTRjZWMyNjAzMWNjMzE2Mjc1N2I3ODZmYTgxZTc4NTc0YzlmOWQwOTJlMDNiMTBmNjQxMWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNlYzM3OWU0MmU4MTRiNjhlZDIyZmFlNmUwNTRlNTQwODBmZTFhZjA5YmZmMmMzYjUwMDA2NjE2MjM0MmY1Y2MifQ"
+        },
+        {
+          "resource": "repo://navbench/shared/workloads.js#L16-L16",
+          "version": "repo-lines-v1:sha256:82811cae90395cebc7c488b562390e8da499d065976e801582a99f5d48010f09:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODI4MTFjYWU5MDM5NWNlYmM3YzQ4OGI1NjIzOTBlOGRhNDk5ZDA2NTk3NmU4MDE1ODJhOTlmNWQ0ODAxMGYwOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODI4MTFjYWU5MDM5NWNlYmM3YzQ4OGI1NjIzOTBlOGRhNDk5ZDA2NTk3NmU4MDE1ODJhOTlmNWQ0ODAxMGYwOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODkzZWY0NWJkMTg3NjAwMGZiYjAyY2E1OGJlNmQ2MzA2ZGYwZTU5YTI4YWI1MzRmN2UzMDFmZDU5YjBmNGZiNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmE0MTA2YTJhOTdjNTVjYTMyNDYwYmVmOTJiNzY5YWYzMzJkODQ4MzExODE0ODZmZWI5YTE0OTQ1MjI5OWQxMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d4abc05698214611a532aee4c3f71823",
+      "statement": "All three runtimes cap the Dijkstra search at 2,000,000 processed nodes and turn exhaustion into a not-found result, so a cap bailout is indistinguishable in the oracle and in benchmark output from a genuinely disconnected origin/destination pair.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/model.go#L320-L331",
+          "version": "repo-lines-v1:sha256:494c7b6d26b43eb2664da299362f5ac4940a6dd682a3bd6c9aee0bbfca070080:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI5MWFmYmY0OTgwOTFjODcxNmRlNjRmNzBhOGFjZmQ1NTkzMTM2YmIyMDdlYmIwNmIzNzRiYmY5YWY1YjkwNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5MWZmYTE4NWE2N2YwYmU0OGY1NDg0ODMzOTVkOTM2MmZjYTNiYmVkOTZhMDU4NjRkMGVjOGRjZmU2ZjAwZWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4Njg0YzkxYzM5ZmE1NTAzNTVmZmFlY2JkNmViZTJiY2IxZjcxZmNmMTdhYzQ3OTJkNDRjOWEyODZhMjcyOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3MDE2ZTg5NDc3N2U4NmNjODhiYzEyYmViNjU3MjU5OGFmZDcyM2JmYTA4ZDNlMTY3NzE1YjA5MWIzODkxMGIifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/src/model.rs#L289-L297",
+          "version": "repo-lines-v1:sha256:1f2cb95fca6e09017f9d7a7b06de42c07b15ec455ba85462354c0a6b8b3dc032:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODFlMTc2Mzc1OTJjYjliYmMwY2VlMTBjZjkyZDY4OTMxZjljZGZlZTIwOTA4YjA5NzUxY2E4YjNmZTNhZmFlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWRmM2E3NzRmNzcxOWVjNTliMzU2NzNjZTYzNzFmZDMwN2VhYTIxMjM5NjdlYWZiYTlmMzllZGQxYjI2NjAwZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTk5YmRlZmVlYWNhNjM0MGUwMjkwZGM4NmU4ODljODlkNWUxODlhYTViYTQ0YjU4NWIzYjcwNzM0ZjRhNjJkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDFmODU5MjdjYTk1N2FlOGE0NmQxYzk0NWU2YmRiOGQ4ZDhjNjZhMWYwNDY2Nzc0YzgzODFlNjY1MDJjOWE0YyJ9"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L283-L290",
+          "version": "repo-lines-v1:sha256:ef27cd7aa0ed7803d961bf9606d005d3c173f134e1321906372b65a758016e3d:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzgyODY3NDczYzE5YTg3NTZjNGY2NDQ0YjI5ZjdkZTE4NGM5MGQzYThiYjI0ZmM4YjI5NDQxZjk0Zjg4MTFkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2FjYTQ0MmU1NmFiMTEzZjAzY2RjNDNiYmY3ZWYwOGQ3N2VmNmZiNWIxNWE0MTY1NDU5NzNkNjAyMGU3ZTEyYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTdkODYzMmU1NGU5Mjk4YWJiOTU4NzI3ZTJkNTE0MDhhYmFmMTM2NjAzNTM3OTEwMTQwYWJmNjViMzBhYjYxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzU1OWI0MzhhMmU4NDA4ZWFjOGIyOTk2OWIyZWUzZWZmYjIwZGJkYTAwMGQ3MmYzMWQ5ZjE4YzIzN2M3OTM4YSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_28f95e3e9b4c4c8a9060d598965cd5bf",
+      "statement": "Cost-tie breaking is implemented differently per runtime — Node by min-heap insertion sequence, Rust and Go by an FNV-1a hash of the \"stop|route|dir\" key — while the Node model's header comment claims a lexicographic (routeId, stopId) tie-break that no implementation performs.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/model.go#L160-L181",
+          "version": "repo-lines-v1:sha256:d23c428b103935e60b71ceba672c34fbcc7dadc68047f683b7472d76a1946dec:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwZmYwMGE3ZTg3ZDk2YTYwNzU2MWM0Y2VlZjMyNTEyM2FhYTJkNzZiMDlmMzhhZTBhZGM3MDM5ZmRkNjBkZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRkMTZkODIyOTM4ZDQzNWRhMWQxODQ5ZTA3MjI4YTFhZDE0NDg3MGUyNTU2N2Q0MjY3ZWIzNDE2NmVlNTJhY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUyOWE0Mzg5YWViZTIwZGI0NzM5MWZjOWFmYWE0YTVkODIzNTlmZGM2ZjQzZDljMjhkYzQ2NDlkMjUwMzlmYjcifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/src/model.rs#L177-L186",
+          "version": "repo-lines-v1:sha256:39351dae8d9a606eae19a82da88c231536183358488c4d44440323fe2330a515:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2NzNmNDJmMGJlMDM5MzljNDE3YTA2Yjk4OTMwM2FkNWZjMGI1MzE0YWI5ZDgzMWQ4Yjc5NzM0OWM3OTA0YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyZDdiYmQ1M2Q5YTA4ZDJjNWY5MjgzMDdmZmFmZjg2NDVmNWVjYmM2MWEzNGQ0MzRiOWRiMDNlMWE1YTIxNTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3MWY0MWQ4MzA2MzYzNjFmMmY1NDc0NTg1N2ViOGZmNjY5ZTljYWY5ZGJkMjQwZmJiZTI2YmQ5YWQ0ZTdjMGQifQ"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L11-L14",
+          "version": "repo-lines-v1:sha256:2675a536cbb13b41c82e2286986d76c12169efa0074575e645c080edcde05035:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWFiOGZlODcxYTIzMGQ5MDA3OWI4YTZmMWRkMGEzZjc1YmM1YmFlMWE3ZWI0OTBkYjNkMjc5MjZjYjM0NTM0NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmRiOTJhNTYwNTZmMzY1ODlmZTViMmQzYWQ5YzBiZjU3YzI4OGM4MGUxNzAzNjdiNGIyYzE2MzEyNWU0NDNiMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGQyMjFkYmI0NGMyMTBjNTQxMTc1MWJlYzFiMGIwZTcxNTc3ZGM4NWZlYWExMDI5Mjc2NTczZjMxNjAwODU3NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2M4YzJkMjQzOTAwZDJjMWNhMmE2OGFiM2MxNDBhODI5NDdjYTk4NDQyNDdiNmQwYjU5M2VlMDU0NWZlMGYwYSJ9"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L203-L254",
+          "version": "repo-lines-v1:sha256:691b32959cd015ce5b90a5166263ba53009116edaf6d0761a58939c40da355de:eyJzZWxlY3RlZExpbmVDb3VudCI6NTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFhMjA4NmE5YmY0MzcxOGZjY2VlMzM2MDJjOTcxNmIzZDVjYWM2ZjE5NTI0YjFmNzE4MTBlMjI2NjBlYjIwZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkMmQ0N2JiYjg5OWZhMjM0YzcyMjM3YzBjMGExZGMwNWVkMWY4YmNlMjE4NGUwM2ViMDQ5Zjg4OTA5NTU0MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhYTkyNGNhNjk1OThhNTkwYmUzMTA1NTNlOTU5ZTI0OGY2OTY0YmE1NTAxNjljYTY2OWRkNDYzYzdkNTc5OTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b5b339110cd848f0839286f69db1f722",
+      "statement": "The Node reference rebuilds the adjacency inside every route query — computeRoute calls buildGraph and discards the result, then each dijkstraSegment builds it again — whereas the Rust compute_route and the Go ComputeRoute build the adjacency once per call.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/model.go#L229-L242",
+          "version": "repo-lines-v1:sha256:7a7e5768cedd47a021471875caae40e7eca1dbcb6edc8c1c513e1be8857bf291:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjODdmOTMyMjg4MGQzNjYwNGUyMzI0ZGRhNzRlZGExZDJkOTJjNTk0MWYzNjlmNGEwYzVlMWQ2MWZlMzZmZTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0NmRmZGRmOTljODNiYjU3Yjk0MzM4YTY4NTc3YjFhYTFhYmE4YmE0MGJiNThlZDY5ZDJmYjIwNTgwZDgxNzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNzRkODBmMjE2NmE5MGIzZDgxZWJhYWY5YmIwYzU1YjA1MmJiM2I3ZDA5NThkZDZmNDE2NjU4N2U0YWVhYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRmOTVhYWZhMjkyMTY1ZmM1YjFkYmQ5NmE5MTYxZTRjMjViYmUyZWM3OWIzMzcxNzA2ODI2OTJlMTMyMjBkMmIifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/src/model.rs#L397-L413",
+          "version": "repo-lines-v1:sha256:a09ce7dd554b89c3f4798effe35a5ae6b4b804e0fabdf633223a6606e6d8f371:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjZTgxN2E3NDc0MWQyZTVlZjlhOTRlMGVjMGRlNDYwODcxNzU5OTE0MmRhZDQ3MjM4NmYzOGViNDQwOTI2YzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZjZWVjMWEwYzEwNThiNzgzOWY1MzMwNWQxMTZlYTMyYWFlZjdmNzVkZTNmZDI1MTY2YTQ5MzU3N2MxZDczMjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwOTc0MWNhNzJmOTY2N2JkMzQ0MTEyZDY3YTYwYzUyNDk1ZmUxNzBhOGM2YzRjZTc5ZDZhMGRkMjA1OTMxYTQifQ"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L96-L135",
+          "version": "repo-lines-v1:sha256:652261743d0230b9dd00e0d4dfe5ca2aa1d6db380749d5c4300311fb021e5a6d:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2OWY3Y2U5YmUwOWVkMmVhMTcyY2M1ZTVhNmFlMjRjNTJkZjY1YzJmZWQ5ZWUyNTcwYWMxMjE2Mzk3N2Y1YjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmYzEwNDliMjU0NTRjZWMyNjAzMWNjMzE2Mjc1N2I3ODZmYTgxZTc4NTc0YzlmOWQwOTJlMDNiMTBmNjQxMWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUxNDMyNTc0NTU4OWY0Y2YwOTU2YjU4NGZiZTFkMjMyYzVmNjI4M2RlODEzOGUwNGY1YjdiYzFlMWQxMDMwYzcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_990abacb031544b0a0a903350ce1510f",
+      "statement": "The three timed workloads are route_optimization (one computeRoute per request), polyline_snapping (one scan of all direction polylines at 50 m tolerance, keeping the closest result and breaking distance ties by direction_id), and detour_pathfinding (compute the base route, ban a segment, recompute).",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/main.go#L74-L137",
+          "version": "repo-lines-v1:sha256:12bab8a00c3159dd1590e4b35c94a2216f36ccc0e64a1f491c4a4ae5794cb3ed:eyJzZWxlY3RlZExpbmVDb3VudCI6NjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZmMTUyYzZlYWJhYzUwNTg2YzA1ZDQ4ZDMxYTAyMDgzMzU2MmUyNzkyYTc5YjkxMmE1YWZiYTNjMDM3OThlNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIzNjk2OGQwYWMyOTBiOTMwZDAzMGE3Y2E4NDkzYzdiZjE4NDdiMDA4NTVkNDJiMTFkYzcwYjNjOGRlZDIzNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxMjhjNDBiOGVhOWQwODY0NDE5OWVlZTg3YTBlZTAxM2M1ZDBhNTExMGQ1NGNjZDcwOTIwYjVhZjE2ZjdmOGUifQ"
+        },
+        {
+          "resource": "repo://navbench/node/src/workloads.js#L9-L120",
+          "version": "repo-lines-v1:sha256:1a74478827670abcbb97170f17c2c0226ceec2b82f77045441e0ab482e3c66fd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIxMzVlN2UzNmE2MDcxM2M1NjI2YjAyMDQ0MmRmOTkwMDE2NGYzMDZmMTFjMGE1NjA1ZDNkODlkM2VjMTFiMWI0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiI1YzFlMmFhODk0MWExYTIwOWMzYmRhOWRiNDUxMWI3MjAwZTllMmY1ZGE2YjNmYjg5ZTlhNWJiZmUzOGU2YmFmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MiwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5MjMxNWVmOTdkNWFjMzdkYTkxYTA5YzAzZmViN2NjNTdhZjFhZWM4ZTUwMTJmZGNmNGFmYTI4MzE4MzQ1OTQ0In0"
+        },
+        {
+          "resource": "repo://navbench/rust/src/main.rs#L140-L168",
+          "version": "repo-lines-v1:sha256:51247d1fd1d0ee1bbbedce1647a5a3b3e2657538335ab90269e1ecd37357a194:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyYTQyZGYxMWUxNTZhZDA1NjBjODgxNWVlODVkOTdiNGI0NzExZGU4MGUwODNjYTg0NmI0ZmViYTIwNDUwODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRmMWJhMzZiZGVhODk3ZGQ2NTUwM2YzNDBhMmFhZWEzNDY5ZGJkYzI3ZTE1ZWQ5ODdlYmQwNDRmNzg4MDg3MTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiNzE0MzZlNWYyZWJkZDRlYzE2Y2FjZWMyNjU2NGMyNzM0YzQ3ZWFlMzlhNGY0NmMwNDM2MTE5ZDU0Y2M3NzYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_12fed3bb28494a2fb37f945d4954b737",
+      "statement": "detour_pathfinding is implemented as segment banning in every runtime: the base route is computed, the first ride edge of its first leg is banned under the canonical \"a|b\" key, and Dijkstra re-runs; the model's detourWaypoints via-chain is always passed empty by fixtures, oracle and runners, and nothing in the harness creates request-time virtual nodes or board edges.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/main.go#L100-L111",
+          "version": "repo-lines-v1:sha256:cf18c22439dcd515f511378b25bdc2884cd0170a45c0ec95fad9d723cf813b21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiOTg3YmEzYWViMDM0Y2I2ZDlmOTg2OTViMDExZTkwNmY1OGM0MDAyMGEwYzQxNTZhZTkyNDljNzhlNjMwYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4MjE4Y2JkOTVhM2RlOGM0Nzk0NTk0MmRhNjVlMGFiMWQ2ZjYyY2QyZTMyYTlhM2RkYWUzYTc5Mjk4ZTIxZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJmMTNjYzAxZWNkNzhjNjhkYjIzZTVjZjIwOTc2ZjZkYmNkMDdmYWQyNmVkYWZlNWJkZWZjMWY0MWM1MGI4NDYifQ"
+        },
+        {
+          "resource": "repo://navbench/node/src/run.js#L44-L59",
+          "version": "repo-lines-v1:sha256:e0697bcfa4990333a67644bba4c8cdf4aee8b36d61182adfddea4b4b8c264c14:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1ZDY2MjM2ODJhNzQ4YTYxMDQxNGIwZWYyNThiMWYwMTI3ZmRjNjE5NmY2ZGE3MjRkMDdlNWJmZWZlYTY0YjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmNmNhY2U3MzFhOWJjOTI3MDk2ZTVjMmE3ZWZjM2RkMWEzZjE2Mjk4ODVkNjdiMTdlYWY1MGJlNGVlMDUwMGIifQ"
+        },
+        {
+          "resource": "repo://navbench/oracle/generate-oracle.js#L56-L84",
+          "version": "repo-lines-v1:sha256:5bcdae3edc12a77fe8d25a14a215ad31b0520180bc1ffc35abe6c0444351fd2c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzN2U3MzU0YTVlMjg3ODY4Yjc2ZGI3MWU2NTZmZTYwZmJlNDdiZmNiY2VmYzhkMzY2MTY5YjdiMzZmZGU0NTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI5OWY2N2Y3YWYzYmNhMmQ3ZGUzYzE2OTcyNDNkZmUxOWRmZWY3MTQ0NjE1ODFjYjZmYWJmNThlODNlMTk3M2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMxNDMxZTkxZWRjNmQwOTJkZDVlZDdkN2NlZWY3MTc2ZDU1OTVkNjkzM2E5ODRhZTlkODAyZjkzZGU0MGRiOTUifQ"
+        },
+        {
+          "resource": "repo://navbench/shared/model.js#L115-L145",
+          "version": "repo-lines-v1:sha256:63a374a621fdd823eaecc22f2cd8e1cf36913d6dce2a512ba96441957104a79c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2NGFlYjE5YjVjMTlhMDc1ZWUyYWFmNzNkZTBhMjg4MjNkMmM5MDMzZDU0OWFhNDI3ZDQ5ZWI0MTFkNDVlM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlNjU3YzlkYzRmNjgyNmRlMDZmZDY4MWM5ZjIwY2ZjYTlmZWZiNTI0NTFjMDI1NjZlMGFjM2JjMGE4NzE4N2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhMTJmNjY5NTUyMTkyNmYyMjk4YmQyZDBlOWI3YWIxZTUzMmM2NzFmNmM2MDVmMTVkNDBhMDRjN2Y2NmRlMjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3387d13ec8ee4a12888653d8ad2f3a67",
+      "statement": "Fixtures are deterministic seeded synthetic graphs around Iloilo City: 8/30/90/120 routes with 6-12, 10-20, 12-30 and 12-30 stops per route, seeds 1337/2337/3337/4337, crosspoint reuse probabilities 0.15-0.35, and request sets of 80/150/200/200, with graph.scale recorded as \"baseline\" or \"stretch\" rather than the file name.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/fixtures/generate.js#L111-L117",
+          "version": "repo-lines-v1:sha256:045f028d33df36850877a0807e05b089b703043ca6450f759e8fdcff740bde8c:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDk1ZmEwZjExMTdiNWVhNDA0MzQxNDBkZGUxYTM0MGM3MjBkZGJmMzI2MjEyZTE5MTgzOGQ0YjE1NmQzMTZiYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmVlZWZkZDUxMTNkOTkwNTZmMWUxOWRlMWI3ZDViZWRlNmUwYTMwMWY5ZThmN2JlNGVhZDNmOGY4ZGE4NjZjOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjAxZjQ3YjFiNjY3MTRmMGMyZjY0YWRiYmZiYmZlYzVlMzg2NDdhYTdjNDZkMDRiNmY3YjliNmQ3MWUwOWM4NCJ9"
+        },
+        {
+          "resource": "repo://navbench/fixtures/generate.js#L139-L163",
+          "version": "repo-lines-v1:sha256:3d7d3250281deb22f401745c839e2b9348db3aab00d5055265afe670567a4e57:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjZGE0MzIzZDljZmI1MmI1MjAyYmVlMjkyMTlmYjk1ZDdjNWM5YjBjYWZlNzJhZjA1ZmNkZDRhZDEzYWRhNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlYjk5NjAzNDU4NTUxNjQ5Zjg0ZDY0YTJjMjhmMTYxM2JmMjgxNmQyNzA2MWRmYWE0NDRlMWU5NzcxMGE0NDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNzliNjgwNTIwZWQ1MjZkY2M0YzhhYTM3MzUyNzU5MGUyODE5NWU0MGZiZTYxMDdlMWU1YjQ5NWE0NTc3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxODg5MTMzOGU2NjBkOTAxYjIwYmVjY2M4ODg4NjBkZDU2M2Q3NDQ0ZDUwNGFiNmNhYWUzNTcyMzhlNjk0ZmUifQ"
+        },
+        {
+          "resource": "repo://navbench/fixtures/generate.js#L31-L38",
+          "version": "repo-lines-v1:sha256:64f0301ea22a12c86345fc07150691699325d3a33e340f19da5ceea9e4cb7384:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmI4ZGNiNWJmMGEwM2M0MDZjYmE0NDE5YzkwMDcxZGZiMGI2YWNhNGMyYWM3OGJiMzdjMWU1Y2JmY2VmMGI0NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDg1MTE3ZDQ2ZGU0NTE5ZGVmMTFhZjFjNWZhMTU0NThkMmE1MWE5OTEwZjYzY2E0MWIxYWM0NGE3YWE0MTdiNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTIwNDBlMDk1YTk0ZTJhZGE3NGU0MjFmMzcxODc1MWE5MWE4MTBiZmQ2NmY0OGY0ZTkzOWM3Yjc0ODBlYjY3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2M2Nzk5ZGI5MDlmZTgxOWFlY2ZjZWMwNzdkYzNlYThlYjQxYjQ5MGU1YzU4N2IwNDU2NDdmMDA2YzFiN2ZlMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b64909ff26114aeb9cda6d1ecc5694c4",
+      "statement": "The fixture generator's return direction is the reversed stop list and polyline of direction 1 even though its own comment cites ADR-0008 and claims a distinct order, so the harness never exercises the direction-integrity case ADR-0008 exists for.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/fixtures/generate.js#L87-L99",
+          "version": "repo-lines-v1:sha256:cee15afcfaef788144c4db1769e70d35fdf684388beda92f0fed3dff6a518f50:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVlNTRkMGViYTY5NmIwNGM5NmVlZWY4OTBkMTUxYTU0MzkwZTJlYTYwYTE3ZjE4MWQwYTg3ZWUzZGZiNjdkODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0ODk3OGY4YTFlMWI3M2NkYTg5ZWI1ODJkN2MwYzNiOGEwMjQ3ZjBiMjQ4OWNiMThhYTdiNDUzZjY2NTM5NjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyOWNlMzNjMzIzZTIzYTYzYzJlMzgxZTI0ZTc0ZWQ0MGE1MDQ5ZmYyZjE1YmYzYzU2ZmEwNjZkZjMzMWI2NjUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e6f05993032446dd956d1bdc5ef3c486",
+      "statement": "The parity oracle is produced by running navbench/shared/model.js, not the shipped @komyuter/shared package, which exports only types and Zod schemas and contains no fare or routing logic; passing parity therefore proves agreement with the harness model, not with anything the application ships.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/oracle/generate-oracle.js#L10-L15",
+          "version": "repo-lines-v1:sha256:90fec38c7298fa543049feac896a570cb58a25be58876500ebf749d4983ab3a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2UzODIyODQ5MTg4YTY3ZjQ4ODMwNWRiNWVkOGIyOGIxNDJlNjIzZjgwNzE1MTFmOTkyOWU4NjM2M2MzYWQwZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODdhNjFiZjNhOGJhYTcyMTQ1NDQ3OTBkNThjMWExMTRiYjlkZTllNjFjNzdhYzc1ZjcxYzc3YmU2OTIxMDcyOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjZhNmQzZDg4MDkyZmI3MzVmZjQ2OTllZjNjNmZjNTZmNTE3Y2E3NWY4YTFjNDE4NDc5ZmYwZDhkYjAzZjE0YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGU3ZjY4OTU1MDM1MjFiNDdlNDQ1YTZiZGNhMWIwNGFkM2VkNzZkN2JiNmZmOGExYzM5NmFiMGM4M2QwOTA5NCJ9"
+        },
+        {
+          "resource": "repo://navbench/oracle/generate-oracle.js#L187-L206",
+          "version": "repo-lines-v1:sha256:b72254db10ebcc532a450789dd4f5718a30f9f947dcf2bc25c940f246e975d54:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjZGE0MzIzZDljZmI1MmI1MjAyYmVlMjkyMTlmYjk1ZDdjNWM5YjBjYWZlNzJhZjA1ZmNkZDRhZDEzYWRhNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNkMzA1ZTg5YzBkYmM5ZmYwMzBiY2YwOTNmZmJiYTlkMjQxNzAxMTI5Y2U1OGU2ZjczMDIyYjY4MDZmMmY3ZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmMTAwZGYyNzZmYjMxYjE1YmY4YTJlZDNlZmU3NmI4ZjI3M2E5NDZjNTZiZmEzZGY5NGFhMWNhNjA2MWJkYTQifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://specs/011-backend-language-migration/contracts/workloads.md#L53-L58",
+          "version": "repo-lines-v1:sha256:d735187bf991e3f799383cebeaf012ceea86facd920bf4d4cd768bc6727b5eff:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjM3MDEwMTZiMTBmMGIxZmY4ZWQ4ZWU1NzI3YWY2NzMyMThmZWJkMWQ1ZDg4MDQ0NGNiYjA4ZTQxMzRkMzc2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTQ1NTdmMzg4NmRiMTEyOWIzMTJkN2ZmNTI4YTc2ODM1NDMyNGNjOTAxZGUyMDgxODFhOWU5YjhlN2VmYmMwOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjVhN2JiZTk4NmJiZDFhYTFiOGE5NzI1YzQzOGZiNWZmYTBkOTc0YjVkNmIwYmM1YjczOGQ2ZjU4YjE3YzBkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_322869e000004e5fb6c4d072f2249dfe",
+      "statement": "The parity contract compares found, distance_km, transfers, walk_m and fare.total for routes, and direction_id, position_on_polyline, distance_m or null for snaps, while the leg-by-leg decomposition of equal-cost alternative paths is deliberately excluded.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/README.md#L73-L79",
+          "version": "repo-lines-v1:sha256:b806fbd0845bb390b294afeefcaad0a41078cf72c03149f15c7e4fa6c5d60c82:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjJkMGFmZGVjMTNlNzg1YTJjNTUwZmVmYzUxN2NjZTU1MTMyNTdjZmYwOWYzYTBlMzZhY2ExMTk3Y2ZkOTAwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjNjNDNiNGYxODM1YTM5MTc3Y2E2MGJmNjRlZjk2MmJmZTBiYWYwNGQ0ODdjOTQ2YmNlNTkxYmUzNmI0YjIyYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWY5ZGNjOTZiNjgyODNmYzM2NjE0NTBlNjNmNzA2YjAzMTY5YTYxNjEzYWU2MmQyN2VlYWMzMjBlMzJlNTU4YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://navbench/go/model_test.go#L59-L86",
+          "version": "repo-lines-v1:sha256:7ded421acc47d98731b43c345d425e984293fc9fb12ccf857518849dfff97562:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImViZTI2OGQ4MmM2NjQ5NTRiOGI4ZGE4ZjI3YjA1NzJlMzhhMjlhYjRhNjNlNGNiNzIzMzVlMTJlNTMyMjA4YjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MDliNTAwNjI5NzA5NTQwMjRjMDg1OWI4YTk1OGZmMWYzMzg3NjA3YjE3NWRkNDcwZmM1MjFmZWEyYjFlZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5NzBkMzZlYWE5M2Q2YzYxYWMzZGE2NzU3NzQyYWFmMTYwODYyZTVjYzk0MWVjYmJhNjgzYjZhZWRhYTIxN2QifQ"
+        },
+        {
+          "resource": "repo://navbench/node/tests/parity.test.js#L26-L74",
+          "version": "repo-lines-v1:sha256:f1899d47b2d72f794fba5ae35d1d15505c0880a5d1506a4ee031cbeede138eb9:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMWM0NjQ0OWRjNmFiMTAxMWNhZGRkODU4NzA4OTI3YWYzZTBlOTg5ZTVmY2FlODUzNDE2NmY1OGRhZDBlNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyNzliNjgwNTIwZWQ1MjZkY2M0YzhhYTM3MzUyNzU5MGUyODE5NWU0MGZiZTYxMDdlMWU1YjQ5NWE0NTc3MzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQwZGQ0OTY3MDlhNjA2OWE3OTVlNTk2NzUyNmQ0NjJjZGU1NGJhYWJlMmZjYjQwZTZmOTgyOWU0NzczNTYyMmEifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/tests/parity.rs#L61-L92",
+          "version": "repo-lines-v1:sha256:cbb279fb9f2bb7836fca450f771be3a6e5304199d15fe42720fc7e1c2cbbb23f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhYjlkYjdiNjgxNzY3NTJhZDJmNWRkYjYzZjJjYzhlMDE2Mjg2ZWExNDFhMTIzZmJmNDhlZTNiYjZjZDFiMjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlYzdjNDNmZjU3MzJlM2JjZGFiYzMyMTI1NTg2ZTdmMGZjZmMzN2E1ZTVhYTgwMDgzNmNlODUxODliY2RkZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJjYjZlOWNkNTYzMmJmNmRkNDgwMmE2MjA5ZWY3MDBmYzRhYzQ1YTUwNTBhMDc2YzJjZmY5YzU4ZWE4NjIyODgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2e3aea9e445145969a2b6319d62c8e58",
+      "statement": "Oracle snap cases are single-direction at a 30 m tolerance while the timed snapping workload scans every direction at 50 m and picks a winner, so each runtime's parity test mirrors the single-direction snap and the cross-candidate selection is not oracle-covered.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/model_test.go#L102-L109",
+          "version": "repo-lines-v1:sha256:8ef093e241b2a672099fb414e6b067236bd688138361556a5937b0bc0ef9fc78:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDU1ZGNlYjQxNDkxMTkwOGQ2ZGZkZGNiYTIyMTBkZGUzYTE3M2Q4YTlmNWQ0YTY1YTRhN2UyMjYwMzk2YmYxOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGRjNzYwMjBiYWU3MDU3N2U2NGIzMzBkY2E4M2ZkZjI0ZjNkNzU5M2EwMTU0ZDhhYmVjNmRjNjNmNTg5N2ZkOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWEyZDRiZWVmMmQyMDVlYjM1MjJmOTI0YWViYjg2MTcyMWU4ZWM5NTVmMGQ5NGUwYjllZTg3ZDFhZmEzZmNhYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDEyYWY4ZTRkOGNlMTVmNjUxYjRjNjcyZjI3OTc1ZDkzMWNkMDVhYzdlYTZkZTU2MTgxNDg3YTU4N2ZkNWQ0NiJ9"
+        },
+        {
+          "resource": "repo://navbench/node/src/workloads.js#L52-L76",
+          "version": "repo-lines-v1:sha256:05b1ac8284cc1c40c53e32f5d73474e23a2aa30092ea568d1b89ba17db15e222:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI3MTcxNzM1MjM5YWM2NGNjMDgzY2ZlODQ5NWMwMDZkODE0MTcwODNmNjEwMWExYjJkMDRhOTAwMmM5N2U0ZWUifQ"
+        },
+        {
+          "resource": "repo://navbench/node/tests/parity.test.js#L93-L107",
+          "version": "repo-lines-v1:sha256:cd8ac2c38ce6524eb57c664fd1d3c340d501dc335f0ea0a606844f8a642071e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4ZmU0MmJmMzMyZDA2NDIxOWEzYTFjY2I2NDE2ZDYwZWNlYzBiMjY1OGQwMDZkYmMzZTlmNWE4MzRlZTk1ZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkOWZlYmRkNDY2OGFjNDVmNDg3NWE4MWQ0ZmQ4YmEzZmEwY2JlM2Q5ZDQxMWQyNjM5NWZlYjU1OTRiOWQ1ZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlODkxMGNmNmZkNjUxYTE5NDQxNzFlNzFjZTM0ZDFjODUxZWM4ZjRjMWZlMjJjZDU0MDIwNTNlOTFmZGIwZDAifQ"
+        },
+        {
+          "resource": "repo://navbench/oracle/generate-oracle.js#L108-L127",
+          "version": "repo-lines-v1:sha256:305e38a8e7c0bc95cdb93f223ee204dee961d2950956f8edb44cdc9a0d77767d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljNDdiNzE1YTgzYjI2OGViNDE4YWNkYjZiMjc1YWZkNGNkYTMzZDUxYzBhN2QxZGEwYTQxNmQzOWFiNmQ2YzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5YzEzNTkwNjY1NjMyM2QxYzVlYTQxNjU0ZWU2NmFmYjU4NWFjZGNmYWVhY2ExMjFkNWUzMGJmMTkzZWVkZDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjY2JmMzNjYWYyOGNkZTY2NTVhZWRlMzIzOThhNjE2MGQzYjY1YjUwMTEzMzI3NjA4NmE0OTVmMjhjMzg2YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjMDhjYjdiODU0OTI2NGYxNWIyNGMyM2EzOTJiOTQ2YjM0ODM1ZTMyMDg1NGUwYWM1YTA1MzNjNTZjOWMzNmQifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/tests/parity.rs#L144-L161",
+          "version": "repo-lines-v1:sha256:8d2cfd3e3c309fc69e7a3ef0b07d7b529b72f2fb2ccee2dce169d0906c59dd67:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiYTY0ZTgxODhjOWZiZjY5NzQyODJiNDQzZTk1YmYxOTBiNjk5YjMxNzMxNjgyNzljMjE3MTc0OWFhMDUwYTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MDcxYjdjMGQwMmY5NjU5MTIyZjJmYzE4MTI4ZWVhMzJjZjI0MDc1M2YyMTgxN2E0YTk0YzVkMTQyMDJiZWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjNWMxODE0NDMzYzYyNjZlODdjODU1NDIwNTgyMmUwNzZlZmVkZWYzMzlhNmJlZWJmNzliN2NkZjQ2NThmM2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgzYmU2ODc1OWMyNzBlMmRiMjQxZDM3M2QyODY0NGY0OGRlYmNlYWViYzUzNGY0MmZmZWE4MDBmYWFhNTEzZDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4cba8372b5446119ee249a0e963d4fb",
+      "statement": "The pass rule is p90 latency ≤ 500 ms and success_rate ≥ 0.95 on every scale, where success_rate is deliberately redefined as completion within the runner's 5,000 ms per-query budget and counts a valid not-found answer as a success.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/README.md#L66-L71",
+          "version": "repo-lines-v1:sha256:964fb455572da993f3e1e731c31b62d3db3d9892ac9823ca52476b942b38ca04:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RiMDhjZjU1ZTY3YTA0NmNhYzI5YzUzZjM2MzY4OGQxM2Q5NzI5OGRlNGVjZTAxYTkxZmI1MmNiN2UxYjU1MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTA5NmQ0YWYwMDZlZDljNjAwNGQxMTE1NjY4ZGU5YjkzN2JiYmViOGQyYjA0ODIyMjZmMmZmZjMxMDA4MzY1OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmRhMzk0ZDVkZjVmZjY0NTc4MjQzMDc2MTJlNDExOWU5ZDg1ZTJlNzMwYjZjNjVlNjBlNzZlOTY2ZjRhODEzNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjQyNzA1OWUwYjgxOGIyM2E5NmM5YzExOTlmOWUzNGJiYTc0NDU4MzE2ODcxOTIwYzVjZTdjMzkwZDllZTNhYSJ9"
+        },
+        {
+          "resource": "repo://navbench/go/main.go#L16-L20",
+          "version": "repo-lines-v1:sha256:42c882ab7768dbbfb0423d7403bc372afe9d93bedcfdc982a40f0442d381ce65:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDBkOTg2YjBkZjdlOWM0N2FhNzgyYjA2NjA5NDY5YmM4ZWVjYTQ3NjEyYjgzOGNmODI5ZGRhNGJjZGRkMzMyOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmFmYmEwNTI3YzM5NTNjNGI2ZTBlNWI1NzM5YmE4MzYxMmY4MDUzYmNkYzk0NjY3MzAxOTNjZDFkNTkwYjQwOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzllZGQ3MmJhNmI0MDA4M2NlOTUyNjlmYTU2ZmNmM2FjMWJkOTgyMjFhYTY2MjFhNjgzZjdkNTYzMmJiMjFkNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjZiZDM5YjRlZjEwZTY1ZTViNzU4NGMxMTY0ZmZmN2IzZWQyM2QxZWRjMzlmN2I2NDFhMjJlN2ExYWFjZTJlNSJ9"
+        },
+        {
+          "resource": "repo://navbench/node/src/run.js#L24-L24",
+          "version": "repo-lines-v1:sha256:8c2222aa5ba41b93a8f1da11c318748f69db30d7b23f01ddb6390d99f57d9fea:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGMyMjIyYWE1YmE0MWI5M2E4ZjFkYTExYzMxODc0OGY2OWRiMzBkN2IyM2YwMWRkYjYzOTBkOTlmNTdkOWZlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGMyMjIyYWE1YmE0MWI5M2E4ZjFkYTExYzMxODc0OGY2OWRiMzBkN2IyM2YwMWRkYjYzOTBkOTlmNTdkOWZlYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDNhYzc4MmI2ZWFkN2U3MWMxYzhjYjdiNGJhN2E1YzcyM2VlNWFkNzQwZWNiNjBkNTg5YjgyN2Y1NmYzOTEwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWU2NmRiZWI5MDFmYzA5YjIxOGU5YjdiOGRkYTU5ZjI1ZGEzYjg4MWYzNTRmMDYyMjZmNjhkOGMxYTZmZTEwYiJ9"
+        },
+        {
+          "resource": "repo://navbench/rust/src/main.rs#L10-L12",
+          "version": "repo-lines-v1:sha256:593931af1de9b3dad63f376706091bde35103bb7b12c9ef9765104381dc4e30c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFkOGNjZjFmMGZlMjY3MmJiMTIzYWM4NzYzMzQ1Y2UyZDc5OTUwYTYyZjEzYWZiOTkxNGI4MWEyOTFmN2UyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODRkMzMwMDA3YTlkZDJhODU0MDczYWJmODkxNWYwN2U3MzVlNTBkNTk2Yzg4ZGZiYzY3NTM1YmUyYzE1MjhjNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzc3MjQwYzNmMjU1OTE1YmFkOWY1NGZhMDAxMjlkNTcwMjkwMmM4YjY1MTY3ODYxYmVhZGQ4ZTZjNzg1ZGRjOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzBhOTY4MGZlYjYxNWE4ZDk4NTk1YzdlY2I3NjI1YmY4NTFlOTVmN2ZkZTFiOWFmZmExMzk5NGQzMzdjYWFhNyJ9"
+        },
+        {
+          "resource": "repo://navbench/shared/workloads.js#L68-L79",
+          "version": "repo-lines-v1:sha256:d64bcd6a096035df1ca4eac2732925f456aa454f5001cae716bf58cbabea0584:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3YmNjZjEyNGNiYWU3MzYxNDE5YzMwNTE1MmY1ZjRjZWVhMDcwZjQyOWJjNGMyZDQxMmMzZmNhOTk4Y2QzNGIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFjNzYxZmMzMjRhYzM3MDQ3Y2I2MjE0NzY4NzE4NjFjZjAxZWMzYzgyZTZmYjFjZDlhZmUwY2RhNWI0ZmMxNDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4d30d4c2837f4782b2dfdc1d4c54c5d2",
+      "statement": "The aggregator evaluates only the latency half of the rule: it emits a pass_latency boolean per workload, carries success_rate as unreduced data, marks runtime/scale pairs with no result file as not_measured, and writes no overall pass/fail verdict for any runtime.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/aggregate/aggregate.js#L15-L45",
+          "version": "repo-lines-v1:sha256:c14ab917216a9a390760ec3ac0798206516114f43c556db1984919bbb46e4d66:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4NTA3NjM1NmU5NDA0MDM5NjY3ZTM3MDRkMzc4MmRhYTIzMjM5ZGRmMDM0MTk0ZjhkODI5MTY2YjljZWY4MmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVmMjA3ZTUzN2NiMWQxMmJiMDExZGZiN2M4OGNhYmQyOTAwYjU0MGZiOWM5ZGFhNTBlYjM4MGE4NGE1MGRlY2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2N2I3NDljZDU2YWY0ZDcwNTc4NzIzYTA1ZmFlZGY5ZTM3YmZlZDkyZTA0MTg3ZDliOTU4MGJiMmM4ZDlkMzEifQ"
+        },
+        {
+          "resource": "repo://navbench/aggregate/aggregate.js#L47-L108",
+          "version": "repo-lines-v1:sha256:27777f5aeda8e6aa7f76e76c806eb7dd0cfa9f6a3fcb0afbffaace9e69eacda2:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjZGE0MzIzZDljZmI1MmI1MjAyYmVlMjkyMTlmYjk1ZDdjNWM5YjBjYWZlNzJhZjA1ZmNkZDRhZDEzYWRhNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5NmYzODQ0N2JhNDQyNjE1ZmY3ZjdjYzUxMWVlMjZjNDc5OTMxZWI1NTJlOTYwZjA5YjgwN2NjMGVmMWI0YjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0N2M4MGYwOTc5MDdjM2QzM2ZlN2IzY2RlMDBhNWNlYTgyY2U1YzZhNWQyYTc1YmZiYWE4OWExZGExZjg0ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZkMzliMzBlNzIzM2MzZDc4NGU2ZTI4Y2YzMDY2YjhlYjVmZjExOGM5ZGQ3MWM3NzBlYjdlNDViN2I2ZDFlYTIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dcb8f15988eb480ebfb67248857e1f97",
+      "statement": "The shared measurement protocol uses 60 sampled requests per workload (120 snap points for snapping), iterations of 100/40/20/20 by scale, warmup queries excluded from the statistics, per-query wall-clock timing, and p50/p90/p99 percentiles taken from the sorted sample.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/main.go#L16-L31",
+          "version": "repo-lines-v1:sha256:eff67f66041ce46f9fd067316d817fbcba67628897c834f48bf496d4bd078187:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwZDk4NmIwZGY3ZTljNDdhYTc4MmIwNjYwOTQ2OWJjOGVlY2E0NzYxMmI4MzhjZjgyOWRkYTRiY2RkZDMzMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5ZWRkNzJiYTZiNDAwODNjZTk1MjY5ZmE1NmZjZjNhYzFiZDk4MjIxYWE2NjIxYTY4M2Y3ZDU2MzJiYjIxZDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc5YTU3ZmJmN2NkOGZhNzQyNzk0MTU5OGE1YzQwZTY0MzZmOTc3NDU3YmI1ZWY5OWU2ODM5NDc2ODMwZDcwZGIifQ"
+        },
+        {
+          "resource": "repo://navbench/node/src/run.js#L19-L24",
+          "version": "repo-lines-v1:sha256:cb0e79ef7859b2a8c9ed3116ab5939eacc7e7eac9ab302da2400fac2bd60fe98:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmNkMWY0ODExMWE4OTg2ODlhY2VkMjliZWFhNGU4NDAyYzc2ODI5MTllODQwM2M1MjgxZGQ4ZDkzNWVhYTM1NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGMyMjIyYWE1YmE0MWI5M2E4ZjFkYTExYzMxODc0OGY2OWRiMzBkN2IyM2YwMWRkYjYzOTBkOTlmNTdkOWZlYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjgyMGY4MDU2OGM3Nzg5ZDlmNWFiY2QxMTk3OTA5Y2FhNTJmMWVhY2UzNTBjYTg2ODYxYjI2MGQzMWY5NWViMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWU2NmRiZWI5MDFmYzA5YjIxOGU5YjdiOGRkYTU5ZjI1ZGEzYjg4MWYzNTRmMDYyMjZmNjhkOGMxYTZmZTEwYiJ9"
+        },
+        {
+          "resource": "repo://navbench/node/src/run.js#L44-L59",
+          "version": "repo-lines-v1:sha256:e0697bcfa4990333a67644bba4c8cdf4aee8b36d61182adfddea4b4b8c264c14:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI1ZDY2MjM2ODJhNzQ4YTYxMDQxNGIwZWYyNThiMWYwMTI3ZmRjNjE5NmY2ZGE3MjRkMDdlNWJmZWZlYTY0YjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmNmNhY2U3MzFhOWJjOTI3MDk2ZTVjMmE3ZWZjM2RkMWEzZjE2Mjk4ODVkNjdiMTdlYWY1MGJlNGVlMDUwMGIifQ"
+        },
+        {
+          "resource": "repo://navbench/node/src/run.js#L78-L113",
+          "version": "repo-lines-v1:sha256:94814db0785832eb29e79dfe2c8460d7c4800bc9d946b3217cc04df067338ea5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwNzZiMjAzNGE3ZWJhZjllMDgyMGM3YjM2NDk3ZTlmNGE3MDNmZDBiMDk2MjMyNmE4MmE3ZDg0NzE0MGU4MDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzY2FkM2YwYTgxYzFkY2M3YTM3OGU3MDFhNTI2ZmU4ZDM5M2U2YTM4ODBjMzQyNjJjMGU4NzI3MTAyODVkMGQifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/src/main.rs#L10-L20",
+          "version": "repo-lines-v1:sha256:c6176eee78c145030b40e80228ed5660235843b21ff9fee32abad3e0cab599ab:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxZDhjY2YxZjBmZTI2NzJiYjEyM2FjODc2MzM0NWNlMmQ3OTk1MGE2MmYxM2FmYjk5MTRiODFhMjkxZjdlMmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM3NzI0MGMzZjI1NTkxNWJhZDlmNTRmYTAwMTI5ZDU3MDI5MDJjOGI2NTE2Nzg2MWJlYWRkOGU2Yzc4NWRkYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiMGY1NjViZGFhNmYxMTdhNDVkNjBlNDUzMGJhNDU3OTEzYTA2ODQ2OWFjZjk0MThhMmJjNWU2OTE3MGI1YWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6fcaa5387fe9437884cad6612a818b63",
+      "statement": "The Go runner deviates from the shared protocol: it reports warmup_queries 20 without performing any warmup loop, and it computes throughput_qps from the success counter rather than from all executed queries.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/main.go#L139-L150",
+          "version": "repo-lines-v1:sha256:8f5e6455cc01a892056a04cc8680fcbd37106f40294f0bf1255eaced47df10cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2NmM3OTU3NjI3MThiN2FiMjA5M2IxYTkwNDUxYTllNjk2YjNiZGY5ZmI4ZDAwNGJhZWU3OGVjYWQxZWRmYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4MjE4Y2JkOTVhM2RlOGM0Nzk0NTk0MmRhNjVlMGFiMWQ2ZjYyY2QyZTMyYTlhM2RkYWUzYTc5Mjk4ZTIxZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3OTBkYjdjNTkxMmQ1MGQzZjI3MTBkNjBlMDNjYmI4MDlkNzIxNjM3ZTFjYjdhMGMzODMwNGZkZmUyNDc1YTEifQ"
+        },
+        {
+          "resource": "repo://navbench/go/main.go#L160-L185",
+          "version": "repo-lines-v1:sha256:924f748e020cf8acc59839f0184664e8dd7a4bd864ccdc35a8973f939523f150:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxNWQ2NGY5NzFiMjRmNzAxZDM0Yzc3ZjEyNWFkOTNkNzBiN2I0MGEwMmMwMjM2YjA0NTM5M2UyNGJmNmI1ZmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyMzU2ZGZiNDcwYjliM2RjN2E4MWMwNWNkYTU2OGIyODNhOWRmYmRkNDVhMDk1YmJmMjAzNWUwMzIzZTlkMzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQyYWU4NjA0MWEwZWRlZTJmNDZjNGQzNGYwMzk1MDVjYzI5ZWViODEwNDcyNTY5MTllMjE3ZGE1NzI4NmY1YzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcxODkxZjY1Y2NiNGNkZTFmMjY5NGY5OGE3NzM0ZGQ4YzU4ZTY5MGU2YTEwYTg2OGFjYmNjOWU0ZTM1MTZmOTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_601e30439efc43728cf51098168bd35c",
+      "statement": "Result payloads cannot be compared at face value: peak_rss_mb is a hard-coded 0.0 in Rust and Go, environment.cpu is the literal \"<from env>\" outside Node with mem_gb 16, the Rust runtime.version is the crate version 0.1.0 rather than the toolchain, and graph.hash is an SHA-1 prefix in Node, an FNV-1a digest in Rust and the literal \"GOHARNESS\" in Go instead of the contract's sha256.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/go/main.go#L139-L150",
+          "version": "repo-lines-v1:sha256:8f5e6455cc01a892056a04cc8680fcbd37106f40294f0bf1255eaced47df10cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2NmM3OTU3NjI3MThiN2FiMjA5M2IxYTkwNDUxYTllNjk2YjNiZGY5ZmI4ZDAwNGJhZWU3OGVjYWQxZWRmYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4MjE4Y2JkOTVhM2RlOGM0Nzk0NTk0MmRhNjVlMGFiMWQ2ZjYyY2QyZTMyYTlhM2RkYWUzYTc5Mjk4ZTIxZGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3OTBkYjdjNTkxMmQ1MGQzZjI3MTBkNjBlMDNjYmI4MDlkNzIxNjM3ZTFjYjdhMGMzODMwNGZkZmUyNDc1YTEifQ"
+        },
+        {
+          "resource": "repo://navbench/go/main.go#L172-L185",
+          "version": "repo-lines-v1:sha256:2f3af820b8ff198652d0c1e6c12610cc9560f773519510dc95b15ec9dcbd06c7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjMjVlN2IxNDIwMDkzMzQ2MTc1OGM5YWI0NzM3ZGE1M2E0ZWFmYWEwMGVhN2Q4NWQ0NTNmMjVhOWNhYzY5NWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyMzU2ZGZiNDcwYjliM2RjN2E4MWMwNWNkYTU2OGIyODNhOWRmYmRkNDVhMDk1YmJmMjAzNWUwMzIzZTlkMzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxOGM3MmQ3M2I1YmI2YTNiZTVlNjJlNmE2NDExYmQyZWJmYjIxOTBhOTRmNWY1ZjAzMjE2MDJkYjg3YTliMTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcxODkxZjY1Y2NiNGNkZTFmMjY5NGY5OGE3NzM0ZGQ4YzU4ZTY5MGU2YTEwYTg2OGFjYmNjOWU0ZTM1MTZmOTcifQ"
+        },
+        {
+          "resource": "repo://navbench/node/src/run.js#L124-L135",
+          "version": "repo-lines-v1:sha256:0c65d24c13cfc415d942d98410583f8a0b85e2965eb36ddd9431524ccadd1e46:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0YzM4YmFiMjliYzdiNTc2MmZjYWZlYmI4YzgxZGYxYmNjMWUwNzY2ZGRkYWI1OGQ0YjgxZjA3OTQ0N2U0OTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJkNWFhYjc2ZjJkMGViNGFiYzE3YTcwZmY4OTA2ZDEzYzhmMzM0OTcxZDRkZmZhZmRmZjE5OTc2YzExZDlkMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM2NTU0ZDVlMTVmZDA1ZmQxODhhNDdhYzhjZTFhMjFiOTAzMDAzMzI0ZDg4MWNiZTY2MzdmZmZmMTc0MjkyYTcifQ"
+        },
+        {
+          "resource": "repo://navbench/rust/src/main.rs#L170-L205",
+          "version": "repo-lines-v1:sha256:6fecf3ec5a2d4a6c8fe14bcd14bfd6548437748a3ff475d7857641395c56fcae:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ZWVhOTBmNTIwMWRiMDNhNjFlZGExOWRjNmIxZjk2NGFjNmNiYjA1MDJiMDQwNjEyNTRkMThhYzJlZjlmOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyOTg2ZDU2YmQwOWRjZDA0MjMzNWIwOWY4ZWQ2MTdjOTU4MDQ2ZmI3YTY1NTlmNzJhN2I2ZGY2NTYxZGIxOTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMzY2Y2OGNmODk0MWUxZjc4NmY0YzgzM2YxNzNjMGYwYWZlMTQ4MzQ0YTgyN2ZhYTg3Y2E0ZjY3ZmFlNmM1ZjMifQ"
+        },
+        {
+          "resource": "repo://specs/011-backend-language-migration/contracts/benchmark-format.md#L20-L20",
+          "version": "repo-lines-v1:sha256:ca3fbad3f7d5cf551f4008c5f93469aec01f749d00eedd46b573d6dd8cff60d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2EzZmJhZDNmN2Q1Y2Y1NTFmNDAwOGM1ZjkzNDY5YWVjMDFmNzQ5ZDAwZWVkZDQ2YjU3M2Q2ZGQ4Y2ZmNjBkNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2EzZmJhZDNmN2Q1Y2Y1NTFmNDAwOGM1ZjkzNDY5YWVjMDFmNzQ5ZDAwZWVkZDQ2YjU3M2Q2ZGQ4Y2ZmNjBkNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGU5Y2YyZDQ4YWM2ODJjNWRmY2E1Y2E1YzMxNTAxMTk1OTk2YTE3M2I0Y2FkZTkyYjVjMWZhZjM4ZGJiZGJhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTM3ZDUwYjIwNzU5YjliODNmY2ZjMGI5MzE0MGZmZmUzYjVlODY3YTllNmYzMWViMDQ2MjhiNGY2ODA1NDQ4OCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d7e15448a5e84d84b4326a6d46fbd4d0",
+      "statement": "navbench/poc is a single-threaded Rust HTTP service on 127.0.0.1:8095 exposing GET /health, POST /route, POST /detour and POST /snap, using the {success, data} / {success, error{code}} envelope and depending on the navbench_rust crate by path so the PoC shares the parity-verified model instead of a drifting copy.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/poc/Cargo.toml#L6-L12",
+          "version": "repo-lines-v1:sha256:c37b677fd081105220516950f21287ffdbd68786f51163098e933bcc03ee08ac:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmY3NTg3ZTVmNmQ0MDJiMTg0ZjIzNjdhM2Q1MWVmNmI0YjQyZDZlODNiMDdmNDk0NzhhOWNlNDc4ZWM2Mzg5MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmZmY2U4YzY2NzNkYzg0YTA0ZWNhODkyNzBjMjZkODJiZjRkOTFmZWRhMTlhYjQ4MmNiNGZmNmU1Zjg2NTExMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2MwNWM0ZDY4MDk1ZjA3ZjM2YTMyMjQxOTk2ZjBkNmY2Y2EyODg5YTRjMGQ1MWIyZTAyYWFjMzU3ZWYxNDlkNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://navbench/poc/src/main.rs#L1-L16",
+          "version": "repo-lines-v1:sha256:068997a35769cb246935dc34791a693d6d8e1028943fdc2e1e92def701c0338e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0YWY4NmQ4MDcwZWI3MjIzYmZkZjZlMTU5Y2Q3ZmY2N2IyZTIyZjI4MzczYzIyNDU0ZWUwMDU2MjhlMTI4YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjEzNzA0MjllYjE5N2JiZjFjNzI0MjQwMjk1M2Q4MDQzNjRkZDM1MTlmNzBmY2U0ZGEyZTdhYjMxNTQ4ODZkYzMifQ"
+        },
+        {
+          "resource": "repo://navbench/poc/src/main.rs#L112-L117",
+          "version": "repo-lines-v1:sha256:bf8abef75f32ec7099739cc4241944efcbc3f42ca1e1a8ae00005a9d7e0a9bdb:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg0MmQyY2M0YzNhMWE3ZThkNmE0YWQ4OGFkMTY5N2I0NzlkMjc1MTllZmMyMWYyNTE0YjdlMjdlZjM0YzdjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTllNzYzNTVjZjExOTk0ODBjM2Y5OTgzNmIxNDg2Yzg0MWQ4OTFmYWFkOTA0YzYwOGUwOTMwMjJkMzc1N2FlZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmQ3MWNmMzBkMmUzYTRhYjkxNGE1MjFlNjY0NDBiY2Q4MjRiNzEwM2I5NDUwNmRmMDExYTQzOTI0NmRhZmY0MyJ9"
+        },
+        {
+          "resource": "repo://navbench/poc/src/main.rs#L119-L167",
+          "version": "repo-lines-v1:sha256:c2856a269f11cd5de3a15505fda0a7d6dd09913acb4e1ccdc59f626a0281e6c6:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliM2FjOGZjNDIyODBmNjA5OWI2ZmRlMWEyOTY3MDhkZWI2NzUwMzE5MDIxYzI0NWZmZmQxNzIzYzE1ODQ1OWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3ZWNiNmU2YzExNjU3MzczNDMyNmJkMDlhNjhhNjU0MjFhZWVkNjU1OWYyM2UwZWQyMjM2NzAzODM3MDQ3MWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d8d713ad5a3b471eb8c7b4c64c974949",
+      "statement": "The PoC implements only a subset of the navigation-api contract: its request bodies carry origin, destination, an optional restricted list, a point and a tolerance, with no version, request_id, profile or detour_scope_id, and it is connected to nothing — no auth, no database, one fixture file loaded at startup.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/poc/src/main.rs#L23-L53",
+          "version": "repo-lines-v1:sha256:7b4e796ceb5b98a1c11b964ba9c398580c0c49623d5c327d8b8cdb5f0a156a67:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NjAyMWJjNDgwOTk3YjUxZmViODlkYjA4YThiMzc2YWE4NjBlMWU2OWFjNGM5Y2Q1OTZkMDc3Yjg5MzM0ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc3NjNkNWUyODU2OGQ0ZmMxZGRlZWJhNDIwM2ExNWEzODgyMGM5MzhkOWZjNjg3NWM0ZTE3YmVhNGM1MjBiOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmOTlkNGNlMTBhNTNmZDgxZjMyOGM3MzhkNGM1ZTQ1ZmU0MjA3NWJiMTEzOWNjYjFiZjVhMWQzZTNhY2I2MzYifQ"
+        },
+        {
+          "resource": "repo://specs/011-backend-language-migration/contracts/navigation-api.md#L9-L20",
+          "version": "repo-lines-v1:sha256:730682e58a9a1fa41989d97f991c313a25925ade17936e95dfc6628cdc3c10c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3YjUwNmI3NjI4NTI4YmJlN2FjODkwMTJlMWRhZTgwODA2NThlOThjODYwMjZkMDEzZTk0YjdlNmY5MzkyNTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE3MTYyNWRhNWM2YTQyYzY2YWEwZmRiMDU4MmIzMDc1ZDllYjE2YzA2YjYzMmQ0OTM3MGU1MTJmZDIzMGUzNzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlNWQwYjg0N2ZlMzYxNWY2YzBhYWY5ODhkM2YwNmU2NzIzNDcwNjM1MTVhNzdiMTAyYjA1ZDA1ODlmZjFhOGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1b286a2be23b447d9611351969671599",
+      "statement": "The shipping server exposes CRUD, auth, export and the Mapbox proxy only; there is no navigation or pathfinding endpoint, so navbench is offline evidence plus an unimplemented seam rather than a running service.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L14-L37",
+          "version": "repo-lines-v1:sha256:a8d5fac833d4d8ccf8b1da07b3973e6d932f1fab33b4c0dd20055f5b41c99286:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Y2IwZWJmY2U3N2UxYWQ0NjA5ZDI5OGI0ZjRjYzcwOGYxYTI0MGFjMGRjYWUyOGEwNjNmMjcwZWJmNjE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTZhNWZjM2Q4NWU5MjIwYzI2YmZiMWVkOGIwZTkyNDE3ZTMxYTgxZDYzNzE1NTc5ZTUxYTAzNmY1ODBlNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://docs/adr/0017-runtime-for-backend-navigation.md#L55-L60",
+          "version": "repo-lines-v1:sha256:7e21f5726f1ad49d9ae258fd2256eb71edff8308da8b2e8e3fb4b360dd0bbccd:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzdiNjc2ZGM1NjM1MTczMTAxMGIzM2IzMTNiOTAyNzk1MTcyZDBkZGM0YWE0ZmIwYTY5YmM2YmJiZGZlZTkyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDUxZDVmYmU0NmU3OTllMGZiMTc2MzM0Y2I2NjkyM2IzOGEzOWMxZWEwZWMwOWNhNzc0NjBhMWJhNmFjMDI5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzYwYTcyODMxMDJjYWYzNzAzNjUzODU1ODEzNWViYjFjYzgwYjMwYjY3ZjRmYzNiNGE5YTZmZmY0MjBjZjQ4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb0e812a40654c979b5fe39a60ea2cde",
+      "statement": "Running the harness is manual per runtime: the Node package scripts wrap fixture generation, oracle generation, the baseline runner and the parity test, the README quickstart documents parity commands for Node and Rust, and the Go port's parity test runs separately with go test from navbench/go.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/README.md#L36-L64",
+          "version": "repo-lines-v1:sha256:c39283cbc9e81510b3cf1c184c170bbfbffba61a9caf87565778a9f81031829e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRmYjc0ZjEzODM3YmNmYTU1MTQwYWIzNTFkMzc5MTZiZmUwNzE3YjU0NWQ4MDdhZWUwZDZiOTVhNWI0MzZjMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNhZjdjZmEzYmY1ZDNjNDViN2U3NGJiMGQ4NGMyMzY5NDUyNDUwMmI3OGI4ZTE4ZTJkYWMzMGNjMzIxYzRjYjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkyYjA3MWFiM2YzNGFlMjcxNDhhOWI4ODY2YTdmMjcxYzFkNmNjNGExYWIxZjNkZDg1M2RiZmFmMmE4MjZjNjYifQ"
+        },
+        {
+          "resource": "repo://navbench/go/model_test.go#L1-L4",
+          "version": "repo-lines-v1:sha256:fa9500e224d5323f68a70301b06249b398526248c12d9f7073b53c372960a7a5:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFhNGMwMjE0NWVkOTYyNzY1ZWI1YzJmYzJlZDM1MDg4YTMyZDNkMTU1YzlmZWY5MDg0ZGZlYjY2ZGYyNTYxYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGYxZDAzNmNiYmYzZGY0NmUyMDQ1MDcxZTA4MjI0NWVjZTIwNGM3ZjUzZWNmMGE0ZTAyMmJmZjliYjIyOGY0NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODNmMDEyMzk1YmVmZTkwODU0MjMwZTFhN2FjODRmZWQ2MjY0YzMwNmYyOWE5Mzc3ZTE0OTA2YjkwOTJmNzJiZiJ9"
+        },
+        {
+          "resource": "repo://navbench/node/package.json#L7-L12",
+          "version": "repo-lines-v1:sha256:cffbb202c3f93f1b42f4967384531596c3cdd0e6faf11c9b03a4aafbd0dd3f7d:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzhmYjY5NzFmNDk4MGQzMWYyOTk0ZDdmZjVkMWQxYTg5MzljYTU2YTEwOGRjY2I0N2YzOWMxZGE5M2E3YzlmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

@@ -19,7 +19,7 @@ interface NarrowWindowGateProps {
 }
 
 /**
- * The wider-window gate (REFACTOR.md / plan.md, ADR-0015 layering): a
+ * The wider-window gate (specs/008 plan.md, ADR-0015 layering): a
  * full-window plate that covers the workspace whenever the free map region
  * between the floating plates would fall below 400 px — below the 1024 px
  * floor, or when the expanded shell rail steals the width. The workspace

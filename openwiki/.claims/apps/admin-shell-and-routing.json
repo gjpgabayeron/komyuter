@@ -1,0 +1,490 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:dbbb0ad7008b74441946d25056f49dafb20ae4acadc057737cf4d91810375c32",
+  "claims": [
+    {
+      "id": "claim_2f2d7bba60974cd88c19d139aad38d09",
+      "statement": "`App` composes the SPA's providers as AuthProvider -> QueryClientProvider -> BrowserRouter -> AppRoutes with `<Toaster />` as a sibling of the router inside the query provider and `StrictMode` applied in `main.tsx`; the single module-level `queryClient` (defaults `staleTime: 30_000`, `retry: 1`, `refetchOnWindowFocus: false`) therefore survives client-side navigation and auth state is available to every descendant including the router guard.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/App.tsx#L8-L18",
+          "version": "repo-lines-v1:sha256:e2d02186e4cc707378e9a2c8838701dd7a7617aea41ac0a7cd19a0379a4f6b16:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NTcxMjhiMjU2NzBhMDE1OTY1NDliYzRkNmM2YmI2Y2QyMmNhM2I4Mjk1NjZiMTRlZWJjZmUyMWQwNDY4ZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiYjM3ZmU0NDU2NWViN2JjYmRmZTQ1N2NhNDQwMzA5ZTdhMTQxODg0NmNhNmQ3MjY2MDA3NGU1YWI1MTg1OTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/queryClient.ts#L3-L10",
+          "version": "repo-lines-v1:sha256:1cb002fefffba01dfd8e8d226e37c13fd90e2973c89dba60158771d9c45edc81:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWY5ZWNhOThmNmIyZTE2YTUyYWQ4ODU3ZmQzYzhmZDdkNDM4MjZkOTI1MzJmYjNkN2NlMGY5YzVmNGM0ZThjYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTRiNTEwZmU0OWFiODZhNmI4OGQ2MDUxNWY3ZDRjMzE1M2RjZjcxYTJhNmMwODI1MjMzNTA1MDNlYmFlNzRiMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/main.tsx#L6-L10",
+          "version": "repo-lines-v1:sha256:c18ecdd3b3b23993b35ca4ddb9428de12a8e388c72495c112a0a16cb4e52f146:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGM1MGQwYTMxYjA0NzMyYWQ0MjUwYjM5NWUzNzY5Y2JhMmIxNzZlOTQ0NTIwNDkxMjcyMzliMWI1NDc5MWI0ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk5NjdlYzFlZDM4MzZmOGViMTdhZmYxNzJiNWJmZWY3ZGU2MDQ4NWE0MzljNmNhMTFjNTkxZTE3NTU3MzlhZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDhmNjBlYjZlODM0MzE2ZWM1MGE0YTY4ZDhkOTY4NTkyZjkzZTY3ZWFlYTk1MjBhODM2NWYxODgzZmNhNWY4NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_945bd0a522a7432bbf68376f300ca977",
+      "statement": "`AppRoutes` declares `/login` as the only route outside the auth guard; every other path (`index`, `/routes`, `/routes/:routeId`, `/fares`, `/export`, `*`) nests inside a pathless `RequireAuth` layout route containing a pathless `AppShell` layout route, so an unknown URL is redirected to login before `NotFound` can render, the login screen renders without shell chrome, and `/login` has no authenticated-to-home redirect of its own.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/router.tsx#L11-L26",
+          "version": "repo-lines-v1:sha256:3dbd82061f6d5ff3e8818e3b573aaa8859e8721272abb711af14c7a06198fdd2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4NThlMmU5ZjA4MjMwODI1MzcxNTBkY2JhYzk1YWFkYzVhODFjYmMxNjU3N2E2MGViOGRlNGM3MzUxMTIxZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNGQ3OTZlZjBkZjgwOWVmZGVlYmJmNDU2NWE2MmY1ZDJkYmEwZjM4OWM2MDBhMWFkZTYwZmI3Y2Q5MDc3OTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Login.tsx#L17-L34",
+          "version": "repo-lines-v1:sha256:2ea70c1fe17b4bdf031e4cb5b26b9ce82d5dd8f85ece59062f09fc5389f0900a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3YWNjZDdiMDExYWQyNTNmYWNiZTI4ZmZlYmZmNTY3NThhZDY1ZWMzMGIwNTc0ZTZjMDE5YWRmMTcwMjM2ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiZjIzNzYxYTY0ODUxODI0NjFlYTQwMGZhMWE5ZDgwYTVhMDdiODA5MGEyM2I5MmVmYjNjMjY0OTIyYjY2YzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZTE0MmI2ZDE5YjIwYzRlYTgxMjNlOTg0ODNlZmI0YmZiNzFmNjI3YzYwMzJjZTVlOGEwY2U0YThlY2E5NDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_53181e1ddba54cf087f0a85c22184499",
+      "statement": "`RequireAuth` is a four-branch gate over `useAuth()` status: `loading` renders a full-height spinner, `unreachable` renders `BackendUnreachable`, every other non-authenticated status renders `<Navigate to=\"/login\" replace>` with `{ returnTo, sessionExpired }` in location state, and `authenticated` renders the shell `Outlet` — so an unreachable backend is never presented as an expired session and the guarded tree is unmounted in the other three branches.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/RequireAuth.tsx#L6-L37",
+          "version": "repo-lines-v1:sha256:bb8895e773660984c2755d0964bfaabe73b7b8664a1a9f58ec1eaf2c822f400d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyM2YwOWFlMGEwOGUzZDVkN2I4ZjNhZmM3YmI5ODkxYTI4M2VjYjg1MTFhZWQ4YjFlYTU2NjJiY2U2YWMxNmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4NDgyZDlhYmViYjc4ZDY0YzM1NmIyODljYjFkMTZlNTIyMjA1NjYzY2Y4NjgwNjlhZTY3NmQwN2MxOTA3ZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5d78d4e6b62e460d9c349744f1744d52",
+      "statement": "Mid-use token expiry reaches the guard through a listener rather than a router event: the axios response interceptor saves the current path, clears the stored token and emits `sessionExpired`; `AuthProvider` then sets `status` to `unauthenticated` with that flag, and `RequireAuth` redirects to `/login` carrying both `returnTo` and the flag.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/RequireAuth.tsx#L23-L34",
+          "version": "repo-lines-v1:sha256:96b4cca22fe6d63c15ee29d28474f2450a831c8d7c35b5dd5be562dfc90e2a03:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExNDRmNGVhYTc2NmNiZjU4ZGY4NDI3ZDJjMzk3NGUxNTQ2YzM0MThiMmU3Y2QwMTQ2M2NmYjAzOGExZjg2N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk0Yjc1NWNkN2Q1NzgyOTM4OTFlNzcwNDUxY2I1MWFjMDVjZDEzYTY2YTI3YTdjNzgyOWNhODM0NmZlZTRlNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjNzgyMzU1ZWU2MGY2ODBhNmVhZGE2NGI0MGE3YzNhNWY3ZDFlYmQxNDRkMzM0Y2NiNTAxYTMzNGFjNzkwNTQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L79-L88",
+          "version": "repo-lines-v1:sha256:89f9396514895110f2016a261aec6e1346ea8c734b8a31ca7859613a72e9e709:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxYTZkNTdjNjNkYTM3ZTljN2ZlNDdhNDlhYTdlZWM4ZmYwNGUyNjM0ZDA2MzQzOGY3Yzc2YTZkY2ZmMGZlZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZTI3Y2JmYmI1NWFmYWFkMzY2MzFkYTdmZjcxMjk5MDc5NDI0NzNjYTg5YzBlYzQ5ZGUyNTA1ODhjYTlkMGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkMWI4YmNlY2NhN2JhZWJjYTE0OTA1NDZjOGVlNDU5NGIzZTU0ZDhlNTcyNjhhMGZhMzU2MGVmZjUxZjc1YTYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/api.ts#L63-L76",
+          "version": "repo-lines-v1:sha256:d2e73c2fe3635858f3ca9a8eeb6df68049c392427d6e37bed8988b68459f94a2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjODdiZGM5NDcwM2I0ZjYwODMyNDMyNjJmZDM4YTQxYzU1MmMwZTQyYTE0OGNjYWE4MGMwNDEzNmVkZGQ1ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjZjVlZTU4NTAxOGViYmY5MTUyODhkNzQxZDA2MTMyM2UzMmM5ZTVhMjY4ZDI3YWIxYmYzYjQyZjY3NWFlZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwOGMyNjEzYzU4ZjI1MzYwMTg1NWYyMDBjNzQ2MjI5MmMxZTBlNDdlYzY5NzM2YjJlZmE4OTdhNGEzYjhiNGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3d43ca90434e4d4c8589c78d38af66e3",
+      "statement": "`features/auth/redirect.ts` is the guard's redirect-state contract: `getReturnPath` accepts only strings starting with `/` and not `//` (rejecting external and protocol-relative targets) and `getSessionExpired` accepts only a literal `true`; a `sessionStorage` copy of the return path survives a full reload and takes precedence over `location.state` when `Login` navigates back after a successful sign-in.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/redirect.ts#L4-L44",
+          "version": "repo-lines-v1:sha256:0f1edd65062f4ac067fef8973bd68d43e1ba5877678f2b87fa89c858d6370f87:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZjYyZTkwZDA3ZDIyNjRkMTllZmIxMWI2OGZmMmUyYWYwOGIwMDExNzY0NzRhNDg1NmU1OWU1MTU0ZTBiYzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMmMzZjAzYjYyNzUxNDJiYWQ1MDUzMjdmMDgwYTJkYjRlOWQ5YTAwYmQ4YmQ4ZmZhMjU5MTdmY2U5NDVmOGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Login.tsx#L23-L34",
+          "version": "repo-lines-v1:sha256:29eebe67eb99e9c4ff4fea4ce348fc747c81d147ccce1a908049315027033e5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzNGIyYzQyMzE1MGJkMjYyMTk5Mjc2ODQ5ZjMzMWZmODljNzQ3YjliZjA0MjgxYTcyMzg1Mzk3NWY1MzU1OTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgyOTBmOTczYjYzMDAyNjU5ZTU3MjZkNzdhZmE5ZGRiNmM4ZDZhZmUwNWFkNGFjMzJmYTEzYmQ1YWYzMDgxY2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk4ZTE0MmI2ZDE5YjIwYzRlYTgxMjNlOTg0ODNlZmI0YmZiNzFmNjI3YzYwMzJjZTVlOGEwY2U0YThlY2E5NDkifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/require-auth.test.ts#L29-L96",
+          "version": "repo-lines-v1:sha256:b3292bbfd09e21582bcceb22c79060613a958acbfd1bb8fabc40f139834b0594:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwN2EwMGUyOTVlYjlmYzFhODVkM2JkZWViNzM2OGI0ZmM2MjQxZDcyNGQ2ZTliOWJjOWUzYTkyYTlmOGFjMmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NzYzYjYxZmI5YjVkODMxNzEyZTQxYmUwZTQxMjJjOGUzNDUzYzkxODY3NmViN2FmYjU0YjAxOGI0YjZlMWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ab18f4435dd2457fbdbd2c1100901a49",
+      "statement": "`BackendUnreachable` renders a branded plate whose single Retry button calls `AuthProvider.retry()`, re-running the session restore and disabling itself while `retrying`; the stored session is deliberately left intact so a retry or a later reload can resume without signing in again, because the token is only dropped for an actual UNAUTHORIZED response.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/BackendUnreachable.tsx#L13-L40",
+          "version": "repo-lines-v1:sha256:3111dab12f5c73283d0e3c140d770d0dd7d270c5a54de0db6e37272f3b4f7188:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1YTlkZGU5MzhiNTkxYWViMTc1MjYwYTljZTFlNWI2ZmUyMWJlNzM4NWYzNzc0ZTdjYjZjYzVjOTI5MTQ3NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhjZTY5N2IwM2YxNmU3MzdlMDkzODA0MDgxYzU5ZDFhZmFmMDE3ODE5NjUzNmEzNjc5NGMyOTFkMTQzNTJmYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L125-L133",
+          "version": "repo-lines-v1:sha256:25a9816f852d89a1b1229ca4e6ab47d7a93b3e5fb2cee72475a51d43460e5714:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTk2YWU2NzBiMTNkOWJiZjc5ZTFjM2Q4NGNlODM2MmExYjQ4YWU5MWY1N2VkZjk1NWU1OWEzMmQ2NmM4YzkyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGY4YmQyOTdmZDIzYWE0MjBlNGJmM2QyNDJhNjEyYTBjMWE3MjA2MmExODExZjVjOWQ1YjhjMTI0OTc1NWY2MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmZhMWNlMzdlZTUyOWE3MWQyNWI3ODlhZDEzNGFiMmQ0NjdjODdmZjc1YzlhYjdjMzJjNWQ4M2Q1YzhlNGRhZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2VhMGY2ZGQzOTQzNzFjMDY4ZWRhN2MxMzRkZTkyMDAxZjE1NDJjNDljOWVmMzY3MDgzNDYwZjNjNzZmYTk0NSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L37-L64",
+          "version": "repo-lines-v1:sha256:a05bde0c26c912326cf3b4714667fdde671d02f7e3b5e70ec042032ea5d6b4c1:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1ZTYzZWQ4OTBjYjk5NjBmZjE0NDc4NGYwMjA5ZWMwZWI1NmU4ZDU2NTA2MTczMDMyNjMwMWFjYzE3NjU3NTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQzNWJhZmFhMjY4NzkzNTA3MTY3ZTUzMzEyY2EzMDU5ZTk0MzM2MWVlZjA5YmM4MGNmMTcyNGViNWMxMWI3MTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88bd195eea4443c8a0f6286491aa43f6",
+      "statement": "`lib/sections.ts` is the single registry of the four top-level sections (`overview`, `routes`, `fares`, `export`) with label, path and icon in rail order, and `getSectionByPath` resolves a section by exact path or by prefix followed by `/` — so `/routes/:routeId` keeps the Routes section active while the `/` entry only ever matches the exact root path and unknown paths resolve to `undefined`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/sections.ts#L9-L30",
+          "version": "repo-lines-v1:sha256:5e8d61cb5d4b2f579cc4a9ac485ca3d43540767cbe04a5c512a8d0329fc56caf:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxNTJkMjdhM2VkNjI3M2U2MTcyMjE0MDFjYmU5NWJhYzE3ZTcxZWFlOWU1ZTA3MjQ0MDgxMWY3NjFhNjg3ZTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3ODc2MWMxN2Y2NTkzNjEzNjRlZTkxZjlkMDNiOTIyMTVkYWRiNTAzNzNjMmI0NTg2YmU0ZTNlZDdmMTZjOWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/sections.test.ts#L4-L33",
+          "version": "repo-lines-v1:sha256:2da727448b2c6fe7592820703568facfe8adea003f50bb37f068ef625d6d0a5a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMzkyOTVjMmRkZWUzNGYwMTZhNTYyMjJhYTkzM2JmNWI1YmQ4OGYyYTQ3ZTdmOWVlMTljN2JhYmJlODc0YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3MTE4NWQyYWFjZTQ0MjczNjA0N2VmMDdkZTBiYmQ0NjU1NDIyYzM3NzI0NDFlYWYwNWYzMzEzMzEyZjczNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c5cd5d611f5a4236ae1c04a85e0fe884",
+      "statement": "Extending navigation means touching two places: a new section is one `sections` entry plus one `<Route>` inside the `AppShell` layout route (the rail item, active state and header title follow from the registry), while a public route must instead be declared as a sibling of the `RequireAuth` layout route.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L97-L123",
+          "version": "repo-lines-v1:sha256:58e0ff50b8a3c2ba1a7a3ddd91ecde821d1e66191cb5767bd5fed2ebdeb42276:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxMDRhMmRjNWVkNTIzNmFjNDkwY2E4YTliMzk5NGE0MzA3YjIyZTJjOTliZDY3ZWNmMjNhNWFhZGU0OWJmZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjY2M0N2U0ZjkwMTVjNWJhN2U0N2RlMGY1ZTIwODFiNDQ5NzRmZWNjNDRhZmIwMDQzMzU4OWU1YTFjNTk1NWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ1YTM4NTYzZTA1NmQyOGVhNDZlM2Q2MjAxNTUxNWE0OWYwYjFhZTlkZGViY2ZhODhjNjU1OWEzZTI1ZGJhYzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiNTM2NDc1ZmQ4ZjE0ZDA5ZDc5N2IxMzAzYjQ4YjkwN2QzMjM3YjhlN2ZkZTUxYmJkOGQ4Y2Q2Y2M5OTNjODMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/router.tsx#L13-L24",
+          "version": "repo-lines-v1:sha256:a4bca2373cf0deb1348612030cc4e91aa8232acb72da55186b86d8f4f5b2ce00:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3YTUxMjhkNGJlMjM0Mzk0Y2UxMTU2YzljYTI1ZDdiNDIwYzI4ZTVlZmUyOTJlMWNiN2I0MTU3MDg4ODhhM2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhOTZmZmUwNzk3MTViNjJlOGU2Y2ZlNjY2NDU3OWE3NGE5MDEwYTg5NjQ4MmM4MDQyZWZjZTNlMDI0MzRhNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhODNmYmMxOWNlZThmNDMxZjYzNGY2MmVlOGZiYjNmNzc5ODE3MGM1YjJmNGEzZTI5NTNjZmYyYmVjOGJmODEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3YmQzMTg1ZjA1ZTA4NmJlOGZiNjI1OTVhNGZlMzdmZDhjZmU1YjMyYzIzMTM2MTBmMjI0YmQzMTRjODI0ZjAifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/sections.ts#L18-L23",
+          "version": "repo-lines-v1:sha256:67de1cc3d7beb00e99238d743cc2e75eafeb5ad2766855f166924cbee3a27605:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGJhMDYyNWZlNmY2Mzg1MjJlMzQ4NzhiOWVmOGFmOTliNGUxYmRlM2Q3OTU1YTVmODhjMjAzZmU5YjFiMmM1ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDE5MDlkN2QxOWZiN2M3MzgwODE5MWRmYjBkZTE0ZWI3ZTAxMzMwYzMwOTg0ZGQ2MTZhMDhkZDlhMGFkZTQwNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGFlMDhjOGRiM2NlMWY5MmE3ZjNlYTJhNjIyOWFmN2ZiOTRkMDNkYTdhZWQ5YzNkODFiODhhZDIwNjZiODFiMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_248727eaf0e2461fbbd0a733223150e5",
+      "statement": "`NavRail` does not render the `Sidebar` primitive (which emits an in-flow `sidebar-gap` plus a `fixed` container); it renders its own absolutely positioned, full-height rail root carrying `role=\"navigation\"`, `aria-label=\"Primary\"`, `data-slot=\"sidebar\"`/`data-state`/`data-collapsible`, `absolute inset-y-0 left-0 z-30` and `hidden md:flex`, composing only the primitive's sub-components and reading `state` from `useSidebar()`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L62-L93",
+          "version": "repo-lines-v1:sha256:5c451bac8967f1bc5fd4c8132630fe05cd61e3a7a9d30c5dca16688448bfd0bd:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA3ZGIxODA4ZjA1OGI5YTM4ZWY0MDQ5ZDgxNjBlNzQyMjI4MGQ1MWMwYmExZTY1YzA0YWMyZmVhNWYwNmFkMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3NzFkMjk2MDcwYmU5NjRmZDY3NDY1OWQyNjMzN2MxZmYyMWNlNjUzZGRkMjM1ZmViMTk5ZTY0MmEyOWQ3ODAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjdlZjIyZTE1NTQ3YjBkN2E2YWU5YWJiY2Q3MzY2NTA1NGNlZDUzNjJjMzFkM2FmZWY2MTJkMDlmNGE1MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ1YTM4NTYzZTA1NmQyOGVhNDZlM2Q2MjAxNTUxNWE0OWYwYjFhZTlkZGViY2ZhODhjNjU1OWEzZTI1ZGJhYzQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/ui/sidebar.tsx#L208-L252",
+          "version": "repo-lines-v1:sha256:c96dc62c75a543ef60d428fa032dbeab475ea2d5c4ead0282048211254376bb8:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MjE2ZThlOWMwYTFhNjhkMDZjMmZiYWE1ZmQyMTM5NDgyYjhlZmQwYTE5MzE1YjkxNWU2Y2NlODQ5ZDg5ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkYjNlN2NkMGMzYTYyMzA0NzY2ODE2MWQxMDRlOTlkODYyMDljYTNlNzc1NGEyNWIxMTlhNDkwNzg3ODA0MjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZhYTZhMTYwYTE1MmUwNGVjODZkODk3ZmRjOTIwOTVlMDM5ZWU1MjI3NGZlYmEyZjdjN2IwNjIxMmU0MTYyYzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0eb0083e83a54e9ca5ce32c76307d601",
+      "statement": "`AppShell` derives the rail's open state and the content padding from the mode: `expanded` forces `open` true and pads the content by the full rail width, `collapsed` forces `open` false and pads by icon width, and `hover` uses local hover state while the content keeps icon-width padding — so hover-expansion overlays the page at z-30 and never reflows or resizes the content, the 2026-08-16 reversal of ADR-0014's original always-push rail that the code marks as superseding D1 in ADR-0014.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L11-L50",
+          "version": "repo-lines-v1:sha256:b2727ef35f6aaeff668d0a97fe89e69222c2bac264ee608ed4a33a9197f9de9b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0ZGUwM2MwYWQ2M2Q5ZDg1ZWQxMzBjMDc2YjQxOTA2NmI1MTBiOTAzYWRhNjRkZWNjZWZhM2VhNWE2YmFjM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0NDRhMzFkOGVjN2U4OGY4NTU3MTUyNmJmMjdjOTU4ODIwZGZmZDI5ZjY4NTIxZDBjMDViNzcwNWExZjE4YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyYzkxNDliOTFkOWY5NWZmMTM4YTczZmIwOWM1NGY5ZDJlMjgyOTg1OTY1NjMxYzNiMDBjOTIyNzAwMjU0MzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjZWZiNzNmMjg1NWUwY2NhYTcyZThmZGZmYWE1OWZiYjYzNjQzMjg3NDk2NTZiOWM3MDAxODFiYmZiNWQyMmQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L82-L87",
+          "version": "repo-lines-v1:sha256:b5db563183081551dc318e353d31be55600850aba5ec09740a59129615f81951:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmU0YTliOTYyMzM1OTYzNDhkNGY0MjBjZTlmNDZlOTZmNjg5MWIyNmE2ZWRiOGRlYTU2ZGFjMDYyNmNmMjEyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTYxZjUzMGNkYTBkNWIyZGQyNGQ3MTZjODZkNDUxYWFlMTM2ZTgxMDk3ODNmZDlmMGU0Y2VjYzI2NGFhMjA4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTgwZWRkMjc2OWRiY2NjNjg0YzY0NTUzNGQ1YTRjN2VhOGYzZThjNTJlYjc4NThjZjlhODg3ZGRmMjE3ODMyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTRkNmQ4MDUyYTFlNzcxY2MzNTEzNTE2OThhOTU3N2E4MWRiN2Y5Y2M5ODExNWMxZGQ0ZGQzYzY2OGUwOWY2NCJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0014-admin-workspace-layers.md#L25-L33",
+          "version": "repo-lines-v1:sha256:439cb72fc3c92cd6bb758ced0c372a843acdd225378bcb2b1c2a70921123d297:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTc1NmZlYjQ0YmM2ZTQ5YjhmMjk2ZmEzZTA4M2JkNzJmYjE3ZDViYTc3M2M4NGVjOGU1ZDJlY2VkNDNlZmEwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjg5ZjU5NTA2NjM1OTYwODk2ZWVjNTkzY2NiMmZlY2I4ODJkODQxZWFjMDk4N2E4OGI2YjU1MGY5ZTdiYzJiYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTVhMzJmYjJjOTVkYTBmNjdiZjE3NjUyYzRiMGU4NmRhZTNlYzk3OTMwY2M3NDEyYzQxODZiODMxZjhmZmRhYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDAwYjMzNTRlNmJmMDQ4Y2E5MjQzMTI4MWRhOTBkMDQxNTc0ZWZkNzUyYTY0ODZhNzY5Y2JiMmU2NTk0YmJjNiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a07849483464a09935a5de86e7bc7ef",
+      "statement": "Because `AppShell` controls the provider (`onOpenChange` honours a value only in `hover` mode), the stock `SidebarProvider` affordances are inert here: the `sidebar_state` cookie it writes on every `setOpen` is never read by any code and never rehydrates `open`, and its Cmd/Ctrl+B toggle only has an effect in `hover` mode.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L23-L25",
+          "version": "repo-lines-v1:sha256:bce8559e18579c7d0951297a3a98e06749de71f3429774e09ccbf00c3ccd9e48:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTkyNzQ2Zjk2MmQzNzE4MTk1YjM2ZjZlMzY2NjZiODZiZmRkZjYzOTllM2NjNTA1M2Q1MzIzYTlmNzdlODVlMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTg2N2U5ZDQwYzhkNmFhMmQxOTJlMzk2NzRmYTA2YTUzMTliYTU4MTRhYTE2MDExYjk1N2YzYWFhZmExMWFmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDNkYmU4YjI0ZjU2OWFhM2FlMTllNTQ2YzZlZTFlZmEwNDhhOTQ3M2YwNmQ5YTU3ODljNzRlNWM0OTNiNjk5NSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L82-L87",
+          "version": "repo-lines-v1:sha256:b5db563183081551dc318e353d31be55600850aba5ec09740a59129615f81951:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmU0YTliOTYyMzM1OTYzNDhkNGY0MjBjZTlmNDZlOTZmNjg5MWIyNmE2ZWRiOGRlYTU2ZGFjMDYyNmNmMjEyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTYxZjUzMGNkYTBkNWIyZGQyNGQ3MTZjODZkNDUxYWFlMTM2ZTgxMDk3ODNmZDlmMGU0Y2VjYzI2NGFhMjA4OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTgwZWRkMjc2OWRiY2NjNjg0YzY0NTUzNGQ1YTRjN2VhOGYzZThjNTJlYjc4NThjZjlhODg3ZGRmMjE3ODMyOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTRkNmQ4MDUyYTFlNzcxY2MzNTEzNTE2OThhOTU3N2E4MWRiN2Y5Y2M5ODExNWMxZGQ0ZGQzYzY2OGUwOWY2NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/ui/sidebar.tsx#L76-L110",
+          "version": "repo-lines-v1:sha256:d2cacadabb45d017da85881d5f61d2c9f555590e50f7fe412036427b3dc34971:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExODU0ZDNhZDFkZTQyMTIyYjVhZjhjMGVmNGRiNDdiYzdjMDVhY2M5ZGVmYzhhMjY5YzFlMDNjODFmMDhhYjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwNTAyNGM2MWI2YmU2OTFjYjY4ODU1N2U0OTBlM2Q1OTVmZDFhMTVkMTNjMmViNDcxZmRkOTBjNTY1ZDczMjMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjczNzE2YTU4NjFjMGNiM2UxZjNmOTQ3MjdlYTIzNzIxN2U3YWQzZDkyYTg5YmU2ZmUxY2VmODc4NzhhY2JiZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2YzJiNTM0MGFmMmRjYmQxZTNlZjYwYzZjYzdlMjJmYmUzNTcxNTZmYzUxOWQxMjU4ZDdmMDI3Y2QwYmZmOTgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_365dfccf941a4192acff47e3b37a13be",
+      "statement": "The rail footer hosts the rail's mode control: a ghost icon button labelled \"Sidebar visibility options\" opens a radio-group dropdown titled \"Sidebar control\" with Expanded / Collapsed / Expand on hover, and each selection writes `setSidebarMode` then closes the menu explicitly because radio items do not auto-close.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L127-L172",
+          "version": "repo-lines-v1:sha256:9ad473e38aa9118ca462c4e4f2ae50cca552f6838a92d8d88037f18254c87ace:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzYWJjNTU2NTk5MGU0ODQxM2Y1NGM1NDRjMTU4Y2EwOGRhODAyYTZlZjUzOTlkZjE2MzFiMzVkYjc2MTk0ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1MzA4MWUxMjJjZGNjMjY5MmU1MmVhMWY5MDRiOWM2MmQxZGZkYWI5ZmE0NzE4ODAzZmUyMjUxOTFmMGY2YjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNiNTM2NDc1ZmQ4ZjE0ZDA5ZDc5N2IxMzAzYjQ4YjkwN2QzMjM3YjhlN2ZkZTUxYmJkOGQ4Y2Q2Y2M5OTNjODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYxOTJhNGQ1MWI0YWJkODllZGI3ZWRkNTY4YmI5NGQ2YmI1OThjZDc5OTU1MDMzYTc2ODE2NjRjMDZjNWU0ZjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L28-L44",
+          "version": "repo-lines-v1:sha256:a802b10b9d482f9f732ea1e98e4c0f1d3978428eff5fc09fee5d0c109874296a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkYjZlZjNmMzU1ZmQ1ZGUzYmQ4NmEwM2M1NmE0MDBiMDc4ZjIwNmU4NWFlMGM2YzY3NTM2Y2IxMjVkMTcyM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIwMmQyYzBkNmRjNWU3NGQ5MmZhMTRiOTFkYmVhMjY0MDkwYmViMzVmZGI5MTg4ZDliMzQxMTgxZGNlOWY0Y2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiNGNiMzUxZDIxYzUyYzM0ZDczMWZiZDc3ZTM1ODljYjI3NGI0ZjRiMzdkYzBhMWJkM2QzZTNkMmFhZTQ3NTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0NjU4YTBkYzcwYjc5Y2UxZTVhN2Y0YzRlZWM3NjNmMWVlYTY2MjhiODMwMzc5ZDBkZDc1YjMzODExMWUwYjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_49afb39fda144948be9e32cabc1bfa67",
+      "statement": "`uiStore` is a plain in-memory zustand store whose `sidebarMode` defaults to `expanded` and which has no `persist` middleware, so the chosen mode survives client-side navigation but resets on a full page reload; ADR-0014's \"persisted `sidebarMode`\" wording refers to the user's mode being read as-is and never forced per route rather than to browser persistence.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/uiStore.ts#L3-L13",
+          "version": "repo-lines-v1:sha256:3cf58a425df6710a5443374886e6aa219a5eb6fbcbbc5b36550d300087eb3a6a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4MjQ5Mjk1NDM1MDE2NmFmYzE0MDQ3NDE2YTA3NmFkZWVhMTEwOWU0MjY0Y2U5MTRkMmQyYTYxYmQ5Y2JiN2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNzQxZDJjMDhlNmY1MTBiN2U5YTI2NGYzNzhmOWNlMDA0OWE1MDRlMGU3ZWY1ZDY3Y2QzZWE4MTNmODU0NzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViZmE1OTE1MWRjYjFmYjI0OTI3ZjBmYWUwZWFkMDc2YmFhNDMzZThmMjYwYjAxMjExYzBhZWRhMGQ1YTViMzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://docs/adr/0014-admin-workspace-layers.md#L25-L29",
+          "version": "repo-lines-v1:sha256:e6b2a5646a7233a1c5369c37060c622ddeca19472be64981b0a5b287c5e3acfb:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTc1NmZlYjQ0YmM2ZTQ5YjhmMjk2ZmEzZTA4M2JkNzJmYjE3ZDViYTc3M2M4NGVjOGU1ZDJlY2VkNDNlZmEwYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDMxYzcwMzlhNjA1NjI2ZTlkMmQwNWM0ZmE0NjZhNTI2ODgwNTBlZmU5MTQ4ZDE2MTFiMGViN2U3M2YzOGYwNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTVhMzJmYjJjOTVkYTBmNjdiZjE3NjUyYzRiMGU4NmRhZTNlYzk3OTMwY2M3NDEyYzQxODZiODMxZjhmZmRhYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmRjYjg5Nzk2NDc0MThhOGI0MDQ3ZDk4NWFhNjhhOWY3MjRmYzY2MGFjOWI5NGZiMzVmYzVjNTQ5ZGNhMTJmZCJ9"
+        },
+        {
+          "resource": "repo://specs/005-admin-appshell/research.md#L52-L55",
+          "version": "repo-lines-v1:sha256:e158ec1d8c0f496858508b6d7ccd0596b14ded0067795d3f9afb561c98d19df8:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTY4ZTY0NmM3MDVlOWM4NzNkNDI4OGUyNzdlOTQ1MzdhODAxZmVlMWE5YmY3NTNhMjhhMTlhYWI0OTA4YzllOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzY1YzBhZWE1MjUwYmYwYThiZjAxNTYwMjUwOTFlYmI2ZDAwNGI2OTM4MmIyYjQ2MjQwMzZhOGIzZmJiOGUxOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzE2ZDUwYzk1ZGY0ZGRhODk3MzE0YzYwMWQ4MWNiZTMxYmI3NWFkODJkYmMyZmE3Njk5OGQ4NTk4ZDI0ZmNkNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGNjN2YyNmY3YWRmOGRiMDI5YWIxY2I2Y2M5MjdiMDYwMGMzZjkzMGZmMjY4YjM0MTBjNDM3ZmM2M2JiMTU1ZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_50c9d13345ee45b293b4ca4b25e0783f",
+      "statement": "The rail's width tokens come from `SidebarProvider`'s inline style — `--sidebar-width: 16rem` (256 px) and `--sidebar-width-icon: 3rem` (48 px) — not from application CSS, which is why the rail and the workspace geometry share those two figures.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L78-L81",
+          "version": "repo-lines-v1:sha256:12a3aed18eebeb05386ccb83f2a211ec34e2148428860aa4ee0ebd814a88cebc:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk0YzU2YzM3MmE3YjQzMmJhMTIyYzU2ZWUxNzZlYWQwZjE5NmJhMWYwY2MzMTM3ZDFmZDdjNjU3Y2QxMTBiNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzEzMDA0ODQ3ZTA0ZDg4NDEyZjk0ZWFiNmIwNTY0OWQ2MmIwNDIzZDA0OWJiNGIzMjdhODE2MzE2ZDY0NDNjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzc1NWRkYjA3YjkxMWYxNGE0YjExYjg4MDI0MDA4YTQwOTI2NjQyOWZlZWZkNmM3YjI1ZDQzNjJjOGI2M2M4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2E5MTY1YjMzMzg2Mjg2MzJmNmI1NjIxZjhkNzMxYTdhNWU1MmYyNjY0MDYwNzY5OTI1ODZlYjBmNjIwOGY0NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/ui/sidebar.tsx#L129-L149",
+          "version": "repo-lines-v1:sha256:374f17e035e5d647df228b1edb9e0a78df7886b14250e0c1b65077b95bc59e61:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MjE2ZThlOWMwYTFhNjhkMDZjMmZiYWE1ZmQyMTM5NDgyYjhlZmQwYTE5MzE1YjkxNWU2Y2NlODQ5ZDg5ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzY2RmZGIxOTVkYWMzMTU4OWJiYzk2ZjYwNmZkODMwZjk0NjBlN2FjNmQzOTU1YTBkMGQwY2JjNzZkNzUxODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEyYmM4NmE0YzExMzQ4ZWJlYTFhNDM2NWFmNDk4MTY5YTI0NjUyZDgwNTRmOWM1MzcyY2I4YjEzYzlmYWVjY2UifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/geometry.ts#L11-L25",
+          "version": "repo-lines-v1:sha256:366dd81d95cd58142c04459608c0ee560664b516d38ddc9b0b5da944261d0241:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljMjQxZjg3N2Y3OWM4MTE5OWU0MTY3NWNiYTYzYTAwMGNhZTFjZjNkNGNmNmYwMGE2YzM5NzEyN2FlYTViNDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3NGVlOGE4ZDFhYTg0NTM5MWJjNjc5ZWI3MGNlN2Y0NmEzY2Q2ZmIyZDE2ZmNjYTY3ZmExNzhmNGY4YzFlMGUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQwMzA3ZjQ5NmY3OWY3MjQ1NmNiMGU5OWMyZmRkMjI2YjE1OTRhNzlhNmRjZTA3MTgwYjg4MGY1ZjAzOWEwMzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjMTI0NzhhZGVlZmM5NTBmZTQxZWJhZThmMzc3OTQwZTA2ZjdiMjkyNWU5OTgyOTliMmU3OWYxMGE1YWU0YjcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f013eb2039f9412685f9819f42ad9d6a",
+      "statement": "The collapsed rail stays labelled: `BrandMark compact={collapsed}` fades the wordmark out and switches the image `alt` to \"Komyuter\", and every menu button passes a `tooltip` that the primitive reveals only while the rail is collapsed and not on mobile.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L89-L123",
+          "version": "repo-lines-v1:sha256:6b0385e7fc204921e0b5162486c788d28b5a5b13730164420fa5d3361b7be235:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmNDUyM2ZhY2UyODNlYWQwZTJhNDM3NDhiMzFmN2ZmN2ZjYmYzODEwYjgwOTAzYmJhMjAyMDY0NTVlOTMwMWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjY2M0N2U0ZjkwMTVjNWJhN2U0N2RlMGY1ZTIwODFiNDQ5NzRmZWNjNDRhZmIwMDQzMzU4OWU1YTFjNTk1NWMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA2ODIxZjJiN2JhZGFmYTc2YWVhZDllNDVkY2FkZGEzNzQ3YzZkMGQ3ZGU5Y2E1ZjQwNjM2MzAwMjIyNTc4OWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNiNTM2NDc1ZmQ4ZjE0ZDA5ZDc5N2IxMzAzYjQ4YjkwN2QzMjM3YjhlN2ZkZTUxYmJkOGQ4Y2Q2Y2M5OTNjODMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/shared/BrandMark.tsx#L4-L22",
+          "version": "repo-lines-v1:sha256:210ea64b026f9d97f0af71347389fe903f46ae9775d48178f0de08a5481fc520:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjNjgzNTEzNmM0OGVlNWFjMWQxN2U3YWQyMTkyM2Y5MjU0MmNkYTFkZDAwOWMwZWNiYTJmNjIwMzBjMDEyMmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5YmZhNzc5MTFjYzFlZmY4ZTE2YWIzMjI1NzlkMjU2Yzg0NTkyZWMwMTljYmE2ZTgxNmJhY2VmMGViYTU3MmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/ui/sidebar.tsx#L512-L550",
+          "version": "repo-lines-v1:sha256:8f465d0f48c1cc234672109715cad9b4fc6d0c15f7d203f948584b8e029ee8da:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2ZGQyNDE5NGYwNTVmNjgxZTZlMzk1MDBlMzQ0ZWM1YzE4NjM2MWIzY2RkMWZiNDExYjdhYmQ5MjJjZDRjYmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVlMzlhMzI5NDgyMTQ5ZDExMzdkYjhhNjllNjRkZGIzNDdiOGZlMTdkMTE5NjE4NjFlYzMxMGNiODNmMjg0Y2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1ZjI5NGQ2NWU3N2FlMGYwMjE1YmY5NjhjZTc4NzIyZWRmOWZkYzA1YmViZjE3NTZjMjI0ZGZjN2YzNzk4YjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_afef98c75d604046839531a061179a09",
+      "statement": "`Header` derives its title from `getSectionByPath(pathname)`, with a `routes` special case that reads the workspace's `routeId` from `usePlottingStore` and calls `useRouteQuery(routeId)` to render `Route › {name}` (showing `…` while the detail loads) or `Route` when nothing is open, falling back to `Komyuter` for unknown paths; the `<h1>` carries `aria-live=\"polite\"`.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/Header.tsx#L22-L51",
+          "version": "repo-lines-v1:sha256:6bfdfe295c9466bc2ba2b39648d4d03a8ad5e3e4509aae7a67781f4ebfd2a9d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3MjgwYTEzYmE3YzJkMTJkNTA5NDNlYTA1YTczY2NmZGRhZDA4NzFmNzk3Yjc4YzhhOWZjM2IzYTU1YWI4YjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4NWU1ZTQwMWRiNWJjYjIzNGZhZDgwYWQ0NzQzY2E3MTU5OWQ3OTc2NzY3NzgxNzcxMjU1ZGQzZGMyZDMyNjAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwNDlmZmMwZjJiNDkzNzQ1NmI1MWY0OGY2OWI5ZGZmMzcwNmY1MTUwNGM5YjljODkzMzE2YWZhMzU1NjVhMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkMzlmYjMwZDg2NzczN2VjMjc2OGMwYWZiYjM1NzQzNTA4ZWVkNDYwNGJjN2YwYjZkODEwMGFkZWZiN2MyMTYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/useRouteQueries.ts#L81-L92",
+          "version": "repo-lines-v1:sha256:e020708ca6357add3769268e667c3af317d625a5cdeedb6b90e96e17c7fca4ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdkNjNmNDg3NTBjNmE0Yzk3Y2U5MjMxYjM4YzFkNzUwNzVjZDk1NGMzMTliNzEwNDdjNjU4MjA0YmY2N2RkNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMyYjgxMTIxMmEzODgyOTU3MzM0ODc1NjQ4MzYxZGEzOGViMTg5MDBlYzE3OTc4OTEzMTBiZWIxN2NlNGM0OGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFhZWQ0MTFhZmE2NTI2MTlkMTNiNjA5Zjg2NjhiYzU0NmMyZTg2MDc0NjJmZmU5NTkyY2M0ZDg4ZGUwMjRiZDYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b5facb443204b67935ffbb05fa63359",
+      "statement": "The header's Sign Out runs `signOut()`, toasts \"Signed out\" and replaces navigation to `/login`; `signOut()` clears the stored token and auth state without any request, so the shell never calls the server's idempotent `POST /api/auth/logout` (which performs a global Supabase sign-out) even though `docs/ADMIN.md` describes admin sign-out as that call — revocation of an issued token therefore depends on its expiry.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/Header.tsx#L38-L42",
+          "version": "repo-lines-v1:sha256:e624732f3d97118ffb2eb7d9f09774b9f71505d843923918ae32a366f3e58ad2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2M4ZjhmZTMwYmE4MWVlMjFmM2E1YjBlNmViYjVlOGI0MThmZTNkZjdhYmU0ODA1MTQ5NDAyYjVhMzk5NTNlNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDljMDY1ODZmMGJkNGRjZmFiYTQ1MzkwYmZiZDViNGU1NWIxOGQ3Y2Q1YmY2ZjdhNDQ1ZTE4NzE5NzQ1MTE1MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDNmNTExNzA3ZTY1NjRkY2Q4NTRhZTdmZGM5MDYyODJjMzY0OGJhOTNjMzRjZjI0YTE4NjUzMzMwNTgwMWE0ZiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L118-L123",
+          "version": "repo-lines-v1:sha256:cf5028ac343a46430fd0fc9a2a67b2ef786e373c6246270a334ba318235aea65:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmZiOWRmNTU1ZmE5NzU5NjA3YThkNzkzODYxZWZiZDkzZTYxYzUzZDQ0NGVhNmI0MGUyZjAyNjljM2YwOWU0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRjNTJmMDhiMzliMDhiMDFjOGQzMDhiZjg4MGIwYmVmMDJmZDFkZmNjOWQ5YWE5M2E0ZDFiNWY0ZDU4YjZjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTY2MTdjNTk1ZDFjNzQ2MDYwOWYwYzJkYzEwNWU0ODUyZTQ5YjAxZjg5YjY1NDM0OGFhZTVhZWZiMTQ4NWZjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2M2MWFkNjY3MzM1ODdhNmJmOWJlZTg0MzlhNjQxZWVlZTZiY2EyYjA0Y2ViNmUwNzgwZGU4NjYwYzIwYTg4NiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L145-L162",
+          "version": "repo-lines-v1:sha256:2ed399dac398ffbf7a790a8021870d41aadc7e44482f6e1f626e9997c4ad7ca4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YTc5OTUzNjkzMGIzMTU2ZWIwYTM4OGU3NTA3ZGZjYzUwOTA4ZWYwMDQ0N2Y5YjVlYmFlYWFiYmVkNmQ0ZWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3M2Y3YWExNDAyYjk4NzU5MzA1MWQ3ODQ3ZDkyMzdiMzIxOGYyOGUwYTZlMzM2NmJlNjNlM2NkZmJiMzMxZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L124-L124",
+          "version": "repo-lines-v1:sha256:a134993aeac8ac8472897aefb3f951cf578d707f8121cdb9d267adb9a59f74ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTEzNDk5M2FlYWM4YWM4NDcyODk3YWVmYjNmOTUxY2Y1NzhkNzA3ZjgxMjFjZGI5ZDI2N2FkYjlhNTlmNzRjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTEzNDk5M2FlYWM4YWM4NDcyODk3YWVmYjNmOTUxY2Y1NzhkNzA3ZjgxMjFjZGI5ZDI2N2FkYjlhNTlmNzRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDQ5YWE2MGFlNGNlY2FiNzIzMjU2NTBiOGM3MTcxZjRiOWQ0MmUzN2U5YTA4MGI4MTFiMWRjNDJkZDZmODNhOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDA0YzZhN2IzZjYwODRmNWQ1MTNkOWZlYTFiZGM1N2I0ZjA3ZjkxYzE1MzNmMWJkZTViYjI3OGJmOGEwMTA1ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_843a8a01484d4794badc5b97b9eec97a",
+      "statement": "`AppShell` renders a `h-svh` flex column (skip link, ConnectionBanner, rail plus `SidebarInset`) in which the window never scrolls: `Header` is a fixed `h-14 shrink-0` strip outside the scroll container and `#main-content` (`min-h-0 flex-1 overflow-auto`, `tabIndex={-1}`) is the only scroll region hosting the route `Outlet`, so pages must be `h-full` to fill the viewport.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L27-L63",
+          "version": "repo-lines-v1:sha256:5e4772b3998a6e7a4f407ba77c7047e9317ce395f79abbfe26a94dffaa1c17ae:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MjE2ZThlOWMwYTFhNjhkMDZjMmZiYWE1ZmQyMTM5NDgyYjhlZmQwYTE5MzE1YjkxNWU2Y2NlODQ5ZDg5ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlMmYxMjE1OTc2Mzg0NDA1NDg4OGQyOWQ4YTc5YTI4MzE0YTcwNDI0NGY2MTFmYjYzMWFiNDlhMGVjMTIxM2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1YzU3OTYzYjZiYmQ3YzMzMTRhYWUzMzhmY2UyYmY4MzgzNmQyOTJkY2YwMWVhYmI2YzY3NmJlMzRiNWFjOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiOGI2MDBhNWI0NDhiMWU0ZDAyZGYwOTc0NmVkM2NhMzE3MmY3NWM0YWFiYjAxZGRlMDgwZTM2Y2FiMDc0YjQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Fares.tsx#L25-L26",
+          "version": "repo-lines-v1:sha256:53bf4e65f72b3df544113e7d20618b65ad3a020ac35a131d9822e57a47a0346c:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTcyMTZlOGU5YzBhMWE2OGQwNmMyZmJhYTVmZDIxMzk0ODJiOGVmZDBhMTkzMTViOTE1ZTZjY2U4NDlkODlkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzllNjkzOTg1Y2I2OTZlYjcwYzk4NjFkOTlkMTA4ZTYwNDJmMjZjNzY0OTBlY2JlMTkyNTg5NmY5MGI3YTQ4MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjg2MmU0YWRlOTgzZjIyMWUzNWYxZGI0YzQxZTNkMTE1YmI5NjY3ZjQ5MzRjMTgyN2I1YzI4ZWE2Nzk5NmRkOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTgxMzI2ZmYxZWNiZTNkM2I3MTU1ZDQ4ODVhMmRkOTI2OWQ4N2E3MzA3NzZkMjkyYzM3MjUyMTIwMDNjODE3ZSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L139-L146",
+          "version": "repo-lines-v1:sha256:6669fba8c25305951f26e852a706ea573eb721061a3040a4c3ef5b9feaf8ea8e:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTcyMTZlOGU5YzBhMWE2OGQwNmMyZmJhYTVmZDIxMzk0ODJiOGVmZDBhMTkzMTViOTE1ZTZjY2U4NDlkODlkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk5OTM0Y2VjYTNiYWRjOTc3YWUzZGUyMjY2MTJiYjIzNjk2OGM3M2JiODVjYWZkNzE3YjNlMGM5MWEyM2Y3MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTBkOWE4MzA2OThmODkwOTZlZWI5MTY1ZDJkMjE5YzQ5OTc2Y2QxZWRkOTNmZTE0Y2QzYTM3NzgyNmY5YTcyMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTg5MDZmMTlkMzQ0NWUzNWQ2Mjk3OGRlNmMyNzNjZTBmM2Y2MWEwOWVkYzk1OGU0NGNiODI1NGM5YTJkOTcwMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_7959fbd946554d269f5846dd673c1a7a",
+      "statement": "The accessibility scaffolding of the shell is a `sr-only`-until-focused \"Skip to content\" link targeting the programmatically focusable `#main-content` (`tabIndex={-1}`), the rail exposed as the `role=\"navigation\"` landmark `aria-label=\"Primary\"`, and `SidebarInset` as the `<main>` landmark.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L30-L36",
+          "version": "repo-lines-v1:sha256:43c2b97d7eb719d25138788daf253e33f9f047209aef108038cb9b62e9a7c8ea:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWIzYTljZGViNTBjODY0MWFlNmNlN2E1YmExYTY4NjM2YzczNTVkMTk3ZGEwMWYwYmMwNjg2ODg1Mjk5ZGZlMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmUxOTI1NjQ3MjAwY2IyNjgwNDA5NjZkZDdlZGEwNGQzNmI4Zjc1YWMwMDc1YWQxNzBjMjgxNjJlMTgwOGVkYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODkxZDliZWZkOTZkMmMyY2Q5NTZiZTJmOGM4YTY0YmExNjExM2RjYjk4YjZlYjQyMDAwODBjNTFjMjE0NTBlYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc3MmYwOWY0ZTM5MTdkZTU2YzQyNzE0Yjc0NmFhYzliMzdjODFmZGMwZGZlZWM0MTcyYTEzYTU1YzVkOGU5YiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L53-L59",
+          "version": "repo-lines-v1:sha256:ba2974550fe7d8de2474a743720cd25565fdcb4016887d8ebf5985527e765634:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGM0ZDY2MTljZDVkOGZlYTU1YTE5M2FlNTU5OTUwNzgwNDRkZGE5MDI1OWEwYjYyNzdlMjE0NDhmNmIyOTI2MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDk5MDA1OWY0OGNhNTZmNmI1MGZkYzY5YTE1YzdiN2U2MzNjYzFlMTM2MDhkYWE1MGVkOTIzYmViMGY2MzZmZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTIwODQzMGRlOGM4MzFkMDNjNDUwNjVjNjQ5MzNjOTE4YTU1YzgxNzI5ZTExNjM4MWUyNGM3ZTVjN2I4OWZjMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTVmNjBmOTFmNzkzYmU0YmJkYmQ3YmU2MmRiZmFlMWNiYmM4Njg0ZDkzNTg5ZWIyYTBkZmYwMWNhOWI5NDgyMCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/NavRail.tsx#L72-L78",
+          "version": "repo-lines-v1:sha256:bd54352b94445f1215b30da3e0b6f0d223dcacf648a0083669e22d677136f258:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2VjZDkzNzlhNWFjZGYwNzQxODY0MjhiNjUwNDY5YjEzYjk0MWU4YzMwMjI3NjZkNGZjM2M5Njg5ZGMyMzhhYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTk0YzU2YzM3MmE3YjQzMmJhMTIyYzU2ZWUxNzZlYWQwZjE5NmJhMWYwY2MzMTM3ZDFmZDdjNjU3Y2QxMTBiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg1MmIwOGZjY2ZhNWMwODNmZGQ2N2NiNTMyOGU4MWZhMTNhYjEzMWI1NDI3NGRiZGNjNjljYzdlZjlmN2E2MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTgwZWRkMjc2OWRiY2NjNjg0YzY0NTUzNGQ1YTRjN2VhOGYzZThjNTJlYjc4NThjZjlhODg3ZGRmMjE3ODMyOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d95d69c327864db78e31752a3c06508e",
+      "statement": "`useOnline` seeds from `navigator.onLine` and subscribes to the browser `online`/`offline` events; `ConnectionBanner` renders nothing while online and, while offline, a full-width `role=\"status\"` warning bar above the rail/content row that merely reports the state (no queueing or retry) and is shared by the shell and the login screen.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L36-L36",
+          "version": "repo-lines-v1:sha256:be1925647200cb268040966dd7eda04d36b8f75ac0075ad170c28162e1808edb:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmUxOTI1NjQ3MjAwY2IyNjgwNDA5NjZkZDdlZGEwNGQzNmI4Zjc1YWMwMDc1YWQxNzBjMjgxNjJlMTgwOGVkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYmUxOTI1NjQ3MjAwY2IyNjgwNDA5NjZkZDdlZGEwNGQzNmI4Zjc1YWMwMDc1YWQxNzBjMjgxNjJlMTgwOGVkYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYmM0MTNiYmZmNmEzNmE4OWJiZTE4MWU1ZjkzNTZlZjgzMDBkYjQxZTgzNThmM2Y1NTkwNzEzOGY5ODFiZWExYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc3MmYwOWY0ZTM5MTdkZTU2YzQyNzE0Yjc0NmFhYzliMzdjODFmZGMwZGZlZWM0MTcyYTEzYTU1YzVkOGU5YiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/components/shared/ConnectionBanner.tsx#L7-L22",
+          "version": "repo-lines-v1:sha256:eb5a0b337d9a4c417e9e9fc5517b68a4610d355663ba71130abfa8b0cab9994d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxNzhjY2NhZjcxODJjNTE1ZTY0Y2E4YzgxNTM1MGRhNTMzOTI5NGMxYjk3ZjM2NWNmYmQzNzdjNmFmNGJlMTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjljMjYyYWFlNTA1YzRiOTNiNzIzYWI0NTJhYmU3ODc3MWJkZWM3OWUyYjJlYjQzN2NiZjZlNjczNDkwMzAzNzgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/useOnline.ts#L3-L18",
+          "version": "repo-lines-v1:sha256:85de22d7b01acf6afe9ae0e7ba8272b34298ff5e7b659c4221297751eb6efd48:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1NTA1OGZhZTMyZGIxYjAxMzU3MmQ3ZGJlNDUyZTExOWE3Mzk3ZTA3NTQ0Y2M2ZTYyY2JkMWNmMzFlNmJiOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhYjc1YTMwODI4MjA4Mjk0ODJkNjg5MDdjZWEyMmVhYmE1NDFlZGU3MWEzODE4NmZhZjU3ZWY2M2Y0YTczNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Login.tsx#L38-L38",
+          "version": "repo-lines-v1:sha256:9839ff2f368d3f0ebd3eb0889b4bc5ae57a57b9291bb5f0bfafc4d1dd35722ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTgzOWZmMmYzNjhkM2YwZWJkM2ViMDg4OWI0YmM1YWU1N2E1N2I5MjkxYmI1ZjBiZmFmYzRkMWRkMzU3MjJmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTgzOWZmMmYzNjhkM2YwZWJkM2ViMDg4OWI0YmM1YWU1N2E1N2I5MjkxYmI1ZjBiZmFmYzRkMWRkMzU3MjJmZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOThlMTQyYjZkMTliMjBjNGVhODEyM2U5ODQ4M2VmYjRiZmI3MWY2MjdjNjAzMmNlNWU4YTBjZTRhOGVjYTk0OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmIyMzU1ODYwYzU4MTZlN2JhNGNlMGJiNjhiNjhjNzczNzE2OTBhYjllMzdkMmIyOGFjMWVmYWQ1NjkzYzQ0NCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_76f9d0565f09494a9b08cc53b87cd0af",
+      "statement": "`NarrowWindowGate` self-measures its wrapper with a `ResizeObserver` in a layout effect and tracks the viewport floor with a `matchMedia(\"(min-width: 1024px)\")` listener, then blocks when the window is below that floor or when `computeMapWidth(width, 0, mode)` falls under `minMapWidth` (400 px); while the measured width is still 0 it renders the children so the plate never flashes on first paint.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/NarrowWindowGate.tsx#L30-L63",
+          "version": "repo-lines-v1:sha256:48c2d581e5be56c681eb909a6bd93092563a75c47659d0cd592f4e60ddd9f847:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0Nzk3NTQwZjdlYjViOGNjMzc0NWJkOWU1NjY2YTc2NTU0MDBhZDhjNDU0MzkwZDViNjM5M2MxNDVmOWJmMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzNWM1NDM3NDEzODFkNWI1ZDI0NzhjNmY4YjZmMTdlMmJlNDZkYWNmYTVjOWQ5ZWQxNWYyYjVmMTcwZDg3ZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjViZTkxZmI3MGYzNWVlMzMxN2VjNGVhNjVjZDFlMjJjNGVlMGRjY2I5MGQ0NjI4YzQ1NTRhYTUzMDU5ZjllNGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZhNTg1NDhjMGJlMDg1YjI3NTAyM2JlOGE4NjY0YjQyYTIxNTJjNDBkOTgxZjUwZjIzNmFiMTY0MjU1NTEwMDcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/geometry.ts#L17-L52",
+          "version": "repo-lines-v1:sha256:6c00edc2fd2f6b5ded6e91a304c521f76ccae275af15f889594f06d61708ad18:eyJzZWxlY3RlZExpbmVDb3VudCI6MzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJhODRkMzlmMTFmNWFkN2VhZTgwN2I3Y2RmYWM4NzdlMmUxODA5ODIxM2MyNjkwZmZjMTZlODI5ZTAzZjZhMGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkZTM5ZDllMTNmMjJmNGJiNDU5ZjdkMTFhOWQxN2MyOTBjNjJhNjZiYjNhYTExZWE3NWY2Zjg0MTE1ZDE2MGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_3fbf8ef91fcd4d64b486fc958f242c0f",
+      "statement": "When blocked, the gate paints an opaque `absolute inset-0 z-50` plate carrying `role=\"status\" aria-live=\"polite\"` copy that asks for a wider window or a collapsed navigation rail, keeps the children (including the MapLibre canvas) mounted underneath, and sets `inert` on the covered chrome through the DOM property in a layout effect so the covered panels cannot be focused or clicked; it is mounted by `RouteWorkspace` inside `MapProvider` but outside `RouteMap`, so gating never touches the GL instance.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/NarrowWindowGate.tsx#L64-L101",
+          "version": "repo-lines-v1:sha256:cce97ab3220b87099cc23706a4580a00395778a8a7d4f327b9f496ef310af051:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxMzAwNDg0N2UwNGQ4ODQxMmY5NGVhYjZiMDU2NDlkNjJiMDQyM2QwNDliYjRiMzI3YTgxNjMxNmQ2NDQzY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0NjY3YzNiY2VhYjM1MDMzZmJjYjQyNjQ2NjJkNGVlOTM0NjA4Zjg5YWY4MzQ3MmE1Yjk2ODNiY2Y5MGEzMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwODY3YTYzODc0ZDM0YTJhMDAyNGMzYWRjYzdjNzExMmM2NjUyMzNiNzZhODQ1YTYxNmNmYjNmZmQzNDQ1OTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L139-L153",
+          "version": "repo-lines-v1:sha256:a9707857b53bab29a8fea1bc9fe74b5e7d5ce2f424ee24743f605f3c91781e5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MjE2ZThlOWMwYTFhNjhkMDZjMmZiYWE1ZmQyMTM5NDgyYjhlZmQwYTE5MzE1YjkxNWU2Y2NlODQ5ZDg5ZGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZGJmNTNjMmI1ZjQyZDk0YmMwNDYyMWQzMmRjMjI0YWNmYjgyMGQ5Mzc3OTlhYjIxY2RhYzkwMGIzY2Q0ZDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEwZDlhODMwNjk4Zjg5MDk2ZWViOTE2NWQyZDIxOWM0OTk3NmNkMWVkZDkzZmUxNGNkM2EzNzc4MjZmOWE3MjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgzM2ZhYTg0Mzg3ZDJjZjM2NGIxMWRjZTllMjYxYmVmNTEwYWFlNDgxODcxYjVlNjZiYTM5NGY1MGNmODEzMmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1dcce224143b4ded99e3c2a1708fbbbf",
+      "statement": "Because `AppShell` pads the content rather than inserting a spacer, the gate's measured wrapper already excludes the rail and the gate passes `railW = 0`; at a literal 1024 px window the 48 px collapsed rail leaves 976 px of workspace where `focus`/`edit` computes 384 px and the plate appears while `overview` computes 768 px and passes, so the effective floor is roughly 1024 px of workspace and an expanded 256 px rail (208 px wider) can trip the invariant in a window that passes while collapsed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L39-L50",
+          "version": "repo-lines-v1:sha256:2a544304e8204079ac7c12e8f510e28411682b368bd78d972a688a251b0e9d67:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZTMzMzhiZmY2NzlkYWNlMmMzMzYxZDMxNjY0YjBkOGU2ZGUwY2UwYTA4OTNiZWFkNDRiY2Q5ODYwYzE4ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0NDRhMzFkOGVjN2U4OGY4NTU3MTUyNmJmMjdjOTU4ODIwZGZmZDI5ZjY4NTIxZDBjMDViNzcwNWExZjE4YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUxNGY0ODkzYTMwZDE0YzkxZWQxNTU1OGMzMjhlNmZiNDc0Mzc5MWM0OTUyNDQzYTE5NWQ0ZmQwYmIzYzJlNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjZWZiNzNmMjg1NWUwY2NhYTcyZThmZGZmYWE1OWZiYjYzNjQzMjg3NDk2NTZiOWM3MDAxODFiYmZiNWQyMmQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/geometry.ts#L1-L16",
+          "version": "repo-lines-v1:sha256:45ca2e70756f29462d3eea12a80016217605c23ab386c642a5f7d1ced7a84573:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBlYzU3NDI2ODg2ZmUwZTgxNTZlMTU4YjA4M2NkNWRhYjhmYzFlNjFkOWE2YjNjMWQ4OTUwMWJhMGQyN2Q5ZGYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/workspaceGeometry.test.ts#L35-L48",
+          "version": "repo-lines-v1:sha256:eb9aca59ebef1c0ac08c8dfda454d3fe6946010b34ab573e27602aa5844a12d4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2MDM1OTBiMjI2YTUwYzUxNGQwYjYwZjk0Zjk4ZjQ2N2MwNDA2Nzk3NWQ4YzhkYzIxMTE2ZGZjMzQwNDViZjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiZWRiNTQ3MGQ3NGYxMjZlN2ExODJjMTY5OWE1ZDc3Y2ZlMjE4MDNkNDFjYWM2OGIwYWJkOGEyZjQ1OTRiMWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1YzNiYzAzMjRlMDEyYmIyMDNjYzUyNDM5NGUyMTE2YmVmNjcxMWQ1MmZkMGUyNjIyZmJkZDY4Y2Y3OTVlNWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_82e8f740a9a5495ba8c3cbae1910ccb8",
+      "statement": "The declared 1024 px viewport floor is a string literal inside `NarrowWindowGate`'s `matchMedia` query rather than a token in `WORKSPACE_GEOMETRY` (which holds only `leftCol`, `rightCol`, `gutter` and `minMapWidth`), so changing the desktop floor requires editing the gate.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/NarrowWindowGate.tsx#L51-L57",
+          "version": "repo-lines-v1:sha256:a627eda693c2cffa73371730cce8fe41c3ace1b38c7fd88ab0075b09b23412d9:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTk2NmZiZmE4ODk5OGRhNzQ2NTZjNTAxOTQ5NTZjMjVmMDg0OTQ1NzY2MGMwMDlmZTYzZDFlOWZhOWRjOTMxYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRjNTJmMDhiMzliMDhiMDFjOGQzMDhiZjg4MGIwYmVmMDJmZDFkZmNjOWQ5YWE5M2E0ZDFiNWY0ZDU4YjZjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWU5NTM4OGExMjQ1ZmJiYzgxNDczMTRiYjgyZWRlMjU1NDZmMjU4NzgzMTRiNmRjMzhkYmRjYzQwOWU5YmU3YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzVhY2JjOWU0Yzg4OGY0MDNhMGE4ODU4YTVhZjQxNjM5MmFhNzhlOTA1MWM4NjQ2NmI1ZTMxZThkNDhiODNiOCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/geometry.ts#L17-L25",
+          "version": "repo-lines-v1:sha256:1938269bcf19b27099258655b09d0db8d74fc682115e1d92da2b2ab69c014693:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmE4NGQzOWYxMWY1YWQ3ZWFlODA3YjdjZGZhYzg3N2UyZTE4MDk4MjEzYzI2OTBmZmMxNmU4MjllMDNmNmEwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTc0ZWU4YThkMWFhODQ1MzkxYmM2NzllYjcwY2U3ZjQ2YTNjZDZmYjJkMTZmY2NhNjdmYTE3OGY0ZjhjMWUwZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWRlMzlkOWUxM2YyMmY0YmI0NTlmN2QxMWE5ZDE3YzI5MGM2MmE2NmJiM2FhMTFlYTc1ZjZmODQxMTVkMTYwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGMxMjQ3OGFkZWVmYzk1MGZlNDFlYmFlOGYzNzc5NDBlMDZmN2IyOTI1ZTk5ODI5OWIyZTc5ZjEwYTVhZTRiNyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b03deb12d7e9496296aec376f3f35cd7",
+      "statement": "The content padding that encodes the rail width is animated (`transition-[padding] duration-150 ease-linear`) on `SidebarInset` while the gate re-measures on every resize, so a rail toggle re-evaluates the gate as the width animates and can show or hide the plate during the transition.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/AppShell.tsx#L39-L50",
+          "version": "repo-lines-v1:sha256:2a544304e8204079ac7c12e8f510e28411682b368bd78d972a688a251b0e9d67:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzZTMzMzhiZmY2NzlkYWNlMmMzMzYxZDMxNjY0YjBkOGU2ZGUwY2UwYTA4OTNiZWFkNDRiY2Q5ODYwYzE4ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE0NDRhMzFkOGVjN2U4OGY4NTU3MTUyNmJmMjdjOTU4ODIwZGZmZDI5ZjY4NTIxZDBjMDViNzcwNWExZjE4YjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUxNGY0ODkzYTMwZDE0YzkxZWQxNTU1OGMzMjhlNmZiNDc0Mzc5MWM0OTUyNDQzYTE5NWQ0ZmQwYmIzYzJlNWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjZWZiNzNmMjg1NWUwY2NhYTcyZThmZGZmYWE1OWZiYjYzNjQzMjg3NDk2NTZiOWM3MDAxODFiYmZiNWQyMmQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/NarrowWindowGate.tsx#L41-L49",
+          "version": "repo-lines-v1:sha256:e0dc3f7eaa6800b2dba5959aa4293b2216b5e2c90be89ac827f1fa76f3a178bb:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQ2NTQyMDM4NWRhMDNkZmFhYTM3NTBlOWJmNTMwOGE5OTJiM2U1YzQ0NDhmMzVkZmFlODU1YTExOTA3Yzc2NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRjNTJmMDhiMzliMDhiMDFjOGQzMDhiZjg4MGIwYmVmMDJmZDFkZmNjOWQ5YWE5M2E0ZDFiNWY0ZDU4YjZjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGEzODg3ZWYyYzBmMjU1MGE3NDMzOTJlNWY0NTgxNDk0MTM3NDE5ZDBkNzMxZDU2MmI1NDQ1ZDk2ZGQ2NWMxZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGU4MzAxMjUxNTQ3ZDhmNTRkOGY5ZWVlNWIyOTU2MjAxNjQ4YjQyODVmY2FkOGI5MjAxYzI0MzdmNjU1YWMxZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ebc57cf005454884a6a4562e938f59b9",
+      "statement": "The gate is mounted only by the workspace route: `Overview`, `Fares` and `Export` render as ordinary pages under the shell with no width gate, so the desktop floor is enforced for the fixed-plate workspace rather than for the whole shell.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/router.tsx#L17-L21",
+          "version": "repo-lines-v1:sha256:3c1fc388bd68b8801db9fa2c8f186b53ea518bb21ee48f9433d2de6594f7b725:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTZhYThiNTUwYTgwNjRiYjcyNmZiNzRkN2Q1MTUxMGMwMmQxNzY3Y2MwZjg0NTBlYzI5NGFmOGVjZjMyMjZhNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzY2Y2VlYWFmYjgzYTM1Y2UwZWI0M2YzYmZmNGY2ZDgwYzExYmNmMGNjMWNkNzI5NmMyMTI0NmZlZmRhMTQxMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWRkN2U1ODY3NmM0YTRkOTYzMzE5ZWZjNTljNTRmZmRhY2E5NjQ5YjZjYmEzMDZiMjkwMjdiMDMzZDc2NWI4YiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWUyNjRmZWFjMzc0NmViODRmN2ExOGU4YjEwZmYxYzA1OGFiZGQ2NDgzY2E2MDM4NTc1NjYxOWRlOTU5OTFhMCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Overview.tsx#L11-L13",
+          "version": "repo-lines-v1:sha256:c8346ad56c3c0889e224d04bc95a99098bc69d2d0d975d3749a55aa18b5c2e91:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjJhOTRmNDgxZWJhN2NjNzA3MDc3Nzc2MTdhODY5MGQ2M2VkNzQxYTgyN2MxMzcyNDNmOGUzYTU5NzIwYzgyYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzhhODg1ODI2YTU5ZjIxNWY4YmY1MmQ2ZDYwNmM0OGExYzhiZTc0MzYyM2RhMDQwODE2ZDFlNWEyYmFiNDk1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjRmNDdmZWRkYjMyY2YzNjA2MDliNjUwODU4NDUzZTViYmU0MDZhNTNjYzQ4NmE5NjE5NDhkNDI4NGJiYzMwMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYmFlYTM1YzdhNzg5NWMzODc1ODc1MWRmNWEyN2NlN2I0OWFkZjZiMzg3MWM4NmJmYWYwMmIwNTg0NzAzODEyYSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L11-L11",
+          "version": "repo-lines-v1:sha256:35b0e212c9bf929e97cad5af4b35f5ca89f711355eb6e1acfe452c59c6aa6d47:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzViMGUyMTJjOWJmOTI5ZTk3Y2FkNWFmNGIzNWY1Y2E4OWY3MTEzNTVlYjZlMWFjZmU0NTJjNTljNmFhNmQ0NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzViMGUyMTJjOWJmOTI5ZTk3Y2FkNWFmNGIzNWY1Y2E4OWY3MTEzNTVlYjZlMWFjZmU0NTJjNTljNmFhNmQ0NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjNiMWY5YmY1NWYyZWRmMmNkZTY5ODk2N2IzNGE3MTlkYjEwNjEwNjBiZjc0ZDRhMTY1MGQ3MDQ2NTJjMzJjMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTdkMzA0MGJmYzk1OTQzMDg0NTIzYTlhMDhkZTg1OTQ1MWE1Y2ZlOTljNzk3ZWNhM2I4NmI2ZjJmNzBlMmRmOSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/RouteWorkspace.tsx#L142-L142",
+          "version": "repo-lines-v1:sha256:d536a7c263880cef773e39c5a88812e4207cd2117c483c328986bc440c06d8aa:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUzNmE3YzI2Mzg4MGNlZjc3M2UzOWM1YTg4ODEyZTQyMDdjZDIxMTdjNDgzYzMyODk4NmJjNDQwYzA2ZDhhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUzNmE3YzI2Mzg4MGNlZjc3M2UzOWM1YTg4ODEyZTQyMDdjZDIxMTdjNDgzYzMyODk4NmJjNDQwYzA2ZDhhYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGI1ZjhkNDZhY2U1NDZlNzM0ZGI2YWM2OWQxYmI3OTY4MDRmZjg0MTA2ZWUwMmI1YTFmNjgwMjI4MWM2NDE5YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjkyNDI2NWFlMThiNjk1ZGUzYWRmY2Y3M2YxNjBiYWRmMDU5MDQ1NjQyMTEwZDhlMjZlYmJmZDgwNzVjNmQzYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_07881f22cea14eab8c698c94ffa980f4",
+      "statement": "All route components are statically imported by the router: there is no lazy route loading, no `<Suspense>` boundary and no error boundary in the app, so a matched route renders in the same commit as its shell. `BrowserRouter` is used with no `basename` and no hash fallback, so root-absolute section paths require the host to serve `index.html` for unknown paths for deep links to work.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/index.html#L9-L12",
+          "version": "repo-lines-v1:sha256:31b5f67a61ed14b0ecb6c1f58231fd988632871e90d403154bdb1c8c12fe67cc:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGJiY2ViM2NiNjc1NWFkNjQ4ZTYxNTM5NzhhMTdmMmFmYTE5MzVjNWI4MGYyYmJiY2U3ODRhZmIyYzZiN2JkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODU3N2JiZDBmM2U5ZmZhMzdhMTRiZmVmODBjY2UxYWZlMjYxZjM1OWMzMWU2MzY4NDY3ZWExM2VjZTIzYzVlZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTBmMzE0NTEyOWExNTYwY2I4M2M5MjllNTJlMDM1MzM3YjMyZGFlN2U0NzllN2E5YjQzZmU3NmJmNGU5OTRlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDNlZDgxY2QxNmRmODhkNjkyMTY2NDZkOGRhZGE3NjM0YjMzYTY5ODZlOWMyM2E3MjYzMWQxOTMzYjYzNWE1MiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/App.tsx#L1-L18",
+          "version": "repo-lines-v1:sha256:a4c67196be842b5a126213ac58ab44fa8ad035b7da19c798b746beb28b723e0c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NTk4M2I0NGU3YmE2NmY2MmJlOWQwM2M2Nzk3YjAxMjQ4ZTViOTg0Y2FkMDczYzNhMGZhNDI4M2M1Zjc0ZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/app/router.tsx#L1-L26",
+          "version": "repo-lines-v1:sha256:8bcdd49e0bfd73b677abc7edcf78bb4a569d4181e19f4f9fa9c1e9677abcfd2b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3N2Q2ZGFjMjVjYmUwNTVlNTVmY2YzZDcyNWYyOTc5Y2U2MjdmZDQxNzIyMTQ2NzI5ODU4MzBiMWU4Nzc2NjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5e1ba8388e7d40c0a34df8dd7670de8c",
+      "statement": "`apps/admin`'s vitest setup runs node-environment tests restricted to `src/tests/**/*.test.{ts,tsx}` (invoked as `pnpm --filter admin test`), and the shell's pure dependencies are covered there — the sections registry and path resolution, redirect-state sanitization, and the workspace geometry/gate arithmetic — while `AppShell`, `NavRail`, `Header` and `NarrowWindowGate` have no component or DOM tests, leaving the rail modes and the gate plate to manual verification.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L10-L10",
+          "version": "repo-lines-v1:sha256:d04fb2f5a462577422df1b091ac1508715d7237dda8a058bfebddb45c621c5e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzljYWViZWU0ZDY4Yzc2NTc5MTg5YjdiYWUyNmEzMmY0M2I2YTIxYTNiZjE0Yzg5Njg3YzlmZmY0ODA5Y2FhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTgyMWYxNDMwN2YxMjI3OTQ2YWVjY2Y1ZDA0NTE1YzBiNDY2NDc5YWY4OWRmMzZmMzk4NzU0ODRkOWVkMTQ0NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/require-auth.test.ts#L29-L96",
+          "version": "repo-lines-v1:sha256:b3292bbfd09e21582bcceb22c79060613a958acbfd1bb8fabc40f139834b0594:eyJzZWxlY3RlZExpbmVDb3VudCI6NjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwN2EwMGUyOTVlYjlmYzFhODVkM2JkZWViNzM2OGI0ZmM2MjQxZDcyNGQ2ZTliOWJjOWUzYTkyYTlmOGFjMmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NzYzYjYxZmI5YjVkODMxNzEyZTQxYmUwZTQxMjJjOGUzNDUzYzkxODY3NmViN2FmYjU0YjAxOGI0YjZlMWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/sections.test.ts#L4-L33",
+          "version": "repo-lines-v1:sha256:2da727448b2c6fe7592820703568facfe8adea003f50bb37f068ef625d6d0a5a:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMzkyOTVjMmRkZWUzNGYwMTZhNTYyMjJhYTkzM2JmNWI1YmQ4OGYyYTQ3ZTdmOWVlMTljN2JhYmJlODc0YTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3MTE4NWQyYWFjZTQ0MjczNjA0N2VmMDdkZTBiYmQ0NjU1NDIyYzM3NzI0NDFlYWYwNWYzMzEzMzEyZjczNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/workspaceGeometry.test.ts#L9-L56",
+          "version": "repo-lines-v1:sha256:69955d691d820c06591757a81b4e6859cfd58a71c2c36f06c0775d823ce9a627:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkMmI3NWVjNWYzN2U4NDY4YTQzZDEyZWZkN2Y0ODUxNWI3OTUwNDljYjZhNjZmNmI3YjcxODE4MjdjZmNlZjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExOGQ3ZTc3NmJlYjcwYTdlMTkxMWI0OWU1OGM1YWYwMzk1ZmRiNTAzNzZmMDc4YmVjNmE0NTA5N2U5Y2JlZWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L4-L14",
+          "version": "repo-lines-v1:sha256:e1fdebcc63015a12fa2a6c478b3fe895494a25f384fef198a1cc5efac175044e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM5NTU2ODExYWM4ZDk0OWJjZWVjZjE3MjAyNGYzODZmYzZkZDRmYzE0NmFlNTlhODg4ZGUzNzVkMjFmOTQ5MGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

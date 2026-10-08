@@ -1,0 +1,440 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:35f35a1e8a2a309062119c73976d7eed6840cf35b9bc3af453430333768822de",
+  "claims": [
+    {
+      "id": "claim_4edb5f1b9de8468f8d4c7ec2012bba0f",
+      "statement": "Every spatial representation in the repository uses the [longitude, latitude] order with no conversion layer: CoordinatePair is a two-number tuple used by GeoPoint/GeoLineString, MapLibre's click and drag handlers push event.lngLat.lng then .lat straight into store actions, the Mapbox Directions proxy serializes and re-parses waypoints as a `lng,lat;…` string, and the export document declares coordinate_order \"lng_lat\" (ADR-0013 supersedes ADR-0007's never-shipped Leaflet exception).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteMap.tsx#L90-L121",
+          "version": "repo-lines-v1:sha256:75800d1028bc104d5338fc864f1542febc30d9e3e20b867939c7147cc793eba8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRlNmQxMjE5ZDM5OTNiN2ViNTNmYzM0YWU5NzhlZWM0ODcyODM0NDhkZmYwOGRiNjUxMjc5MzBlOGNiMTE5NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzAxMjA1ZDg1YzllZGM4OWUyZmE4MGM3MzNmODNhM2JlMmRkODI3OTljZWY2YWRiM2Y3ZjAyNjhiMDRjYjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3ZDQ0MjcyODg3YjZjZTg2Njk0NGU3NTdlNjNjYTc4MzU4YzMwMzQwMjk1YzEzOGU1ZGIxYjc3MDQyYjQ0MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjUxZTM3MjVkYTAwMmI0NmVkOGI0ZGU4ODAwM2FkOTcxMGRjYWYxOGQ1N2M0NzAxZGMzYmVmZjBiMmM1Y2IxM2YifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/routesApi.ts#L201-L210",
+          "version": "repo-lines-v1:sha256:245e26c2175262acb18be17ca05442caa648e1c1c811e2f51ec1befca80b542f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5NTdmOTQ3YmE3NDNjZGUzOWNlYjEyYWZjMDQ1OGExOTQyMDQxMjUzOTJkNjkyZWUxZTQ3OTM3MzgyNTQyYzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1NDU4ZjMwNjQ4MzRmOGYzNjhmZWU4YjdhOGEzYzBjMmZjNTI2ZDZhNWZjZmM5NDIwYzBkMWIwOGUyMTY1MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgxZjFkYzUwYzMyNDMxMmM3NmZiYWU3MDE4NDRiZTg5ZjllMWZkMTczNmM2MDQ4NDk0MWYwZjQzNTI4M2U5YjgifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L13-L27",
+          "version": "repo-lines-v1:sha256:90c92d98ac42695e26d4462077839c022d5517a3b4d0345c2dfc3a434d358315:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI2YjgzMDg2N2Y5OWJmNTIxZWFlNzUyNDUzYWQwNDI4ZDQ5NjQzOWM5MDE0ZmVhZTJiOTA0NTRhMjRkZWQyOGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRmOTRjMWVhZWEwNThlOTllMmM4NzQ5MGU3MzA5Y2ZlYmYzZmI0NmI1NDc5OWFhZWJkYmUwY2ExMWZiMTcyMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlMDk2Y2VkYTI5MmQyODFkMzFmNjVjY2JlMmNjMjRhZTNkMjVjZWQ1ZTIzYWE0ZTA0NGIxZWVhNTU2YzJiMzUifQ"
+        },
+        {
+          "resource": "repo://docs/adr/0013-admin-maplibre-mapbox.md#L11-L17",
+          "version": "repo-lines-v1:sha256:aef65269aadb25c1148cf6e0665e05c307e67658fbd31f2e61893b3130b70c64:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjQyMjk4ZDZhOThlOWM5MjIzNTQ5Yjg1MzBlMmEyYjNhM2Q0MjU5OGQ1ZWY3ZDEyNzliMWNiMzM3MjQ1NTFlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzViYTQxM2JjNmVlNjY5ZWJmMDk1YTAzZjk1NzU2OTM1NWJhNWE2MjkzODE4MWUzMmU4NTEwZmQ5Mjk1ZDk0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTkxNTg0M2UxODM4YTZmZjI2MjBmNTU5NjRmMjI5NGM5MmM3ZjU2Mzg5OGQzMGFiM2U0ZDhjMTkwNDZkNWM5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDUwOTRkYjFkYjZmNmNlNDhmOTk5MjE4MDIyODZiODdiODQwOWEwMWNmZjhkMjdhNzEzZGRlNWM1NjhhN2ZhNCJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/export-dataset.ts#L4-L5",
+          "version": "repo-lines-v1:sha256:4673d4e5116a494faf80f24725d6ceaacbc6476e65fd102bd2a633ff8659102f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTcyZWEwM2U0ZjRhOTQyNzk5N2U2YzEwYWM3OWUxNTgzNzU2MzkyMTI3NzgzYzBlOWFhNjkwOTVhNThlM2QyZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzZhZjk4ZjAxODQ0NmRmZmI5Zjk2Y2MxM2U5ZDk5YTNhZTRlMDA2MDYzMGYyYTJjNjQ4Mzc4MDg3NzkyNzI0MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjAxMTk5YzQ5ZWMzYjM3ZTE1YzRmODNmMWMzNWFhNmVmNTJmZDQ3ZWJlMDQ4MmU4ZTlkN2QzOWE4NWQ1ZjQ4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmZhOTNhNmEzYjlmOTQyNzg2MTJkNWNkNjc1ZGNhMTFiNjMwMDFkNmNmN2E1MTFiMDA1M2VhMjU1NTEzNDUwYiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/geometry.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:4f8202aa0979931dc0a1103ff861ae051c852da9d27542ad7958a27514f9f52d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxOTM3NmI5N2IwNjliNGNhYWEwZDU1MDMzZTA2Nzc0NTdmNWZkODkxYjg0MmZjMjcyYjE5NWQ1ZDM4MzFkNDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0da83556a2c64dc09cdd4674778a6fdc",
+      "statement": "CoordinatePair is an unlabelled tuple, so nothing in the type system distinguishes longitude from latitude; the only automated check that could catch a swapped pair is validatePair's per-number range guard in apps/server/src/domain/geometry.ts, which is unit-tested but imported by no route, so the request path enforces only the shape (a tuple of two finite numbers, LineString ≥ 2 points) and the ::geometry(subtype,4326) write cast is a subtype/SRID assertion rather than a bounds check.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L39-L49",
+          "version": "repo-lines-v1:sha256:e866cdde780c2149bf038bdb7fe0733deefcc0d55ac6d2016060ee9952e414f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjMGQ1NDBmMmE1ODc1Nzk3ZGUwZWE0NmFkMjU0NzA3MWNkYzhkZTEzNWRjZTdjMWRhMWM1Y2ExNzRhNWNhYWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNGVjMWQxZmY4ZjUxZmExMDM0NDRjNTJhMjZiYmNhODZmMWI5YzdlOGIyNzIwY2I4N2RmNTljNTZiMDJkZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxY2NiNzc5YmQ3M2NkZjdjOWMwZjBkZjYzODJmYzI4N2FhODc1YWU3ZTA4Nzg5ZTdkZWE2YTA3ZjZjMjllYjIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/geometry.ts#L28-L105",
+          "version": "repo-lines-v1:sha256:8ac81d52913a2ab151da8b84917829f0ec9568ee19a611c63c49eb2b7f8fdb2d:eyJzZWxlY3RlZExpbmVDb3VudCI6NzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ZWRkYzdiMjhmMTRjZmI3NmFiYTgzNjA5YzVhOTgwZjBiMzkxMzM2NjRkYjNhNmM2OTg5ZmQwYTE5N2Y0ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ODQ3OTdkMTQ3MGE4YmZmN2JkNWE2YTAyMTRlOTViOWYzMzMwNzg4MWU2NmMzNWZmNzAwNTgxYzcyMDhiZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/geometry.test.ts#L51-L57",
+          "version": "repo-lines-v1:sha256:c80ed82f4162f7931242edee128439c4b43ea9f5531a9778b4fc176225a206cd:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzg0YjQ4NGY1M2E5N2VlNDA3NDcxNmEzMGZhYTFiYzJjOTE2ZDc1NTQzYTEyY2Y1MGM3YzI0ZjJjMGJjMjFhOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiM2EzZTQ2Zjk0Mjc2YjZmNmY0ZWQxZjAyYWY3OGJlZjZhMmVlMWM0MzlkZDU1ODRiOTczOTQ4MzEzMjE0ZDJiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzIwZmM5ZTY3ZGIwN2VkMjM5YmIzYWQyMzEyZWFhYjlhNzBlMWY2ZmJhMDEyODhiMGJhNmU2MWQ3ZjhlZTc4OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDE2YzBlYTI4MjUzMGM2NjdhOWNlOTk2MjBjNzliNmMyMjQ5ZjllMTU2MDUwNjMyZGQxZDk1NzU3NjFiMjYzNiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L94-L119",
+          "version": "repo-lines-v1:sha256:167411ba873f356880006fe35cf2eb0961fe6f1e92ebd500a4ee8c0c1fd324cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFlNzNmMGQxZjA2OTQ2OTEyZTY3NGFhNTA2MDkxODRiZDQyYTk0ODVhZjQ4ZTdlM2IxY2RmNjYxZjYxOGE5ZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg1ZjM4ZjYzYmMxZGU1NmViYWY2MTk0MTU4Y2FkNDJiYTg1NzA4YjljNGYyOTJkMWUwNjIzYmVkYWJiMDE1NDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5OTUzODIyZDBiMjM0MjMxMTM0MGQzMWZlYzcyOWEyMmU2YTM2NzgxZGMwMGFmNGIxNTEwNmFhN2YxYWYyYjUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/geometry.ts#L1-L13",
+          "version": "repo-lines-v1:sha256:04956b7108a17b9a062353274bfa32816f629914a808004ebf9a5169cd1a4618:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxNDUyODY0YjBkOTZlZmU4NjkxNmZmNzQ1YTBmNzdhYzcwYjMyNjU4NWMwZWFmNWMzNGY5ZTRhNGY2ZmJmNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a5e5e39c58f54c76bf71284772ca186e",
+      "statement": "Geometry crosses the persistence boundary only through SQL-expression helpers in apps/server/src/db/queries.ts — reads select ST_AsGeoJSON(col)::jsonb and writes pass ST_GeomFromGeoJSON($json)::geometry(Point,4326)/(LineString,4326) — and because GeoJSON x/y and PostGIS x/y are both lng/lat the round trip is order-preserving while the cast asserts subtype and SRID; the untyped geomFromGeoJSON variant is exported but unused.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L118-L132",
+          "version": "repo-lines-v1:sha256:a368ad4c652fa8319b8120a54b987b273484e066cdefd16470324e4036ea3ee4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkMzkwNTE1MjZmYmU0NmYzNDAxYjQ5NjI2MzE4N2M4YjkyYjEwNDRiZjNiNmQ3MTVmYTY0NDIxNmUyZmQ4MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhlODFjZWU4ZWQwZWEzZGM4ZTgzMTRlMzRiY2FhYTc3MzNkY2QwMThjZGI2ZWY3Y2M4YjljMzgxY2Q1YTY1MjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUyNjBjMzI3MGYzOTk4NDEzY2FlZDU2ZmEyODExZjZjZDJmMDdkZmE0MGE0M2QwM2E5M2M4NTM0ZmZmYjlkZDUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L76-L101",
+          "version": "repo-lines-v1:sha256:b1e7429fef73c6cf7f988b2eaef4a615415bc2bc4eefee3d5321746c8a81d71a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVjY2UxZDU5OTgyMjBiYzJiNTljNmQ0NzQyZTkwM2M3MjZjMTAxYWNhYjYxNjk4NGZkNjJjYWM1MTUwYmY2OGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5YjE5ODJlOGRkNzQ4MTE4MTQ2YjM5YTJkMDA2MmY0MDgxZTM0Nzc5Yjg2NzVjMjM0YzRmYjEyNGRjMzkzOTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YjlhMGIxNmI5OTEwYmFhNWQwYTRkY2FmZjhhNjBjNDI5NjMzYmYyYWUzY2JhY2M4MjAyOTA3NTgwZDEwY2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzNGY3ZGZkMTc2N2Y4MWI5MTAyNzgxODlhOTBlNGMwNDU1MTAwYWUxNjU1ZmFlZTk4OTFiM2U3ZmM5ZjEyZTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/db/queries.ts#L4-L18",
+          "version": "repo-lines-v1:sha256:ab28ba2293175a65ad5cd0e806ed51c091f1dc2262e987c70a02e337c9c1c049:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlNTE3MzJhMTVlODFmZjNhODllYjUyMGY4ZDg4OGQ3NTkxYjlkZjkxMTNlOWQ0M2E4MmExOWQ4M2ZjZTBiMzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiOTIxMGNlMmQ2NDI0MTRiZDg3MTRjMDUxNzg2M2FiNjk1N2VmZTdmYzQwMjk2ZWJiYmJmMjMxNTAwMDY2MjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU5ODY0ZTQ0NGViMGQ4MDU5ZTU1MjU2NWZkNGE2NjZiZDZhMmM0ZjU2OWRkMDg5MzgwM2U5MWExNTQ5ZWVmYTcifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L39-L49",
+          "version": "repo-lines-v1:sha256:e866cdde780c2149bf038bdb7fe0733deefcc0d55ac6d2016060ee9952e414f6:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjMGQ1NDBmMmE1ODc1Nzk3ZGUwZWE0NmFkMjU0NzA3MWNkYzhkZTEzNWRjZTdjMWRhMWM1Y2ExNzRhNWNhYWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmNGVjMWQxZmY4ZjUxZmExMDM0NDRjNTJhMjZiYmNhODZmMWI5YzdlOGIyNzIwY2I4N2RmNTljNTZiMDJkZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAxY2NiNzc5YmQ3M2NkZjdjOWMwZjBkZjYzODJmYzI4N2FhODc1YWU3ZTA4Nzg5ZTdkZWE2YTA3ZjZjMjllYjIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L104-L120",
+          "version": "repo-lines-v1:sha256:688953c9d9d59da2e07748910b2e3fb6221ad10da65fbfa7884a494a2a0fd387:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwYjQ2OWY1ZDY4MjgwYzNmNzk5ODNmZmExZjViZjM0NjMzM2ZmODAyMGQ1NjAwYjY2NzQyMzMyMzUxMWU3ZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjYzQ1NGJmNzFkZWI4NTAzYTBjNzRiMWU3ZDIyMzhhMjY5YmQwOTNhMmVjMWI0YjVlNjM3ZGViNjA0MGMyMjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkMTE0Yzg2YzZhNDQ5YTNkNmMxZWY4OTM5Zjg5MzcxMjUxMzMxNDFlZWUyMWYxODBjNGFjZTUyNzMwYzE1NmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNkOTAyNGM3NDdkNTNiYzQ3NGUzZWQ3ZWIzZmYyMWI5ODFkNDEyYThiNjg3NTM4ZmQwOTRiODg0YzU0MzhmMjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0fe844c0cce0493c8635c7bd31bad034",
+      "statement": "The ::geography cast required for meter-based PostGIS math appears in exactly two helpers, pointOnLineMeters (ST_DWithin) and pointDistanceToLineMeters (ST_Distance), both casting both operands, and neither is called by any handler: all executing distance logic (on-line checks, loop endpoints, plotted-path endpoints) is JavaScript haversine, so the rule currently has no live SQL call site; stops.location's GiST index is the only spatial index.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/queries.ts#L20-L37",
+          "version": "repo-lines-v1:sha256:3885a336eba0889328fc14938bbe717ca2e367298cf57f619049c6f5294b9d03:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyMzliODA3ZGU5MjhiYjlhODhiYWM4OTdiY2JmZmJjYzhhNTdjMjU2MDU4YTI3MmQ3NTcyZjU0MGU2Y2QwM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFiY2VhZTU5ZjkzZDE2MGI3YmRmYTJlYTE4MjA4NzAzZWE5MGJmYzg5Y2NjYzg5YjA5ZmQ2NmQwNmUxYzNmZGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L161-L167",
+          "version": "repo-lines-v1:sha256:5a83fcb71ad75861466e9cd3e31aca052af59219d52272d589e16225ed4f2a27:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzVkZDRhMzY1ZDExYmM0NTNlNWI2YWRlZjZiZjcxOTZkODEyYjBlZTg5YzViMGE5YTUxYTY1ZGU0YjAwYzdhNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTY0ZDhjMDczNDI5ODkzMTAxNTc2ZDg4ZDk5MTI3ZTg5ZDY4OTFkM2IxN2U4OWRmMDJlYzlhZTcwNzA1ZDhiZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTIwOGRiYjQxOWEwNzFlNmE3ZjNmOGM5MzBjMTBmY2NjMzc2NmY3NDE2MjQ4MDAzOTU4MjI3NzRkMTM4YzZmZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWIzNWM2YzcxOWRkZDQ2ZmE3YzhlNjczZTg5MzJhNTdjOTA0MTQ3ZGZkNTYwNDUyNWU1MDZhY2NjNDMyMjI3NyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L127-L131",
+          "version": "repo-lines-v1:sha256:3dbda95e01f7b19bd07bda1cf45368843bef33b827d612644fa04073db6d9024:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmQ1YTcxNGRmOWQ4MzkzZDBjM2MzM2E2YTZmOGFmYmVlN2M5MDdjMjgxYTg1MzBhNDgzOGRlN2Q5NjI2YzMyYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTBmNGYwNmE3YjU2M2IzNjIxNzk3NDE0NDdkOWRkOWY5MWE3ZDk2NjRmMjUwMjM5MDQzNzI4ZTk2MTE4NzBlMCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTg0ZDZiOTg1ZDFiOGMxZWI2ZTlhNTJkY2Q5OTM0YWJkYWY4MjEzMGMxM2E1OWVhOTlkYzE5NzI1OWU5YjZlNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2NhNTVmOGNmYWU1YzZjMjRmZjliMTQ1NThkODA5OWNkNzhiN2M5OTY2YWY2YTcwZDUxNGIyMWI0ZjkxYjU3NiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L10-L27",
+          "version": "repo-lines-v1:sha256:6e07e2e6dabe2d27e5e40d584e93f243924c855d628296aeeba8ac52d5f5da1f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxZmZhYWJhZWZkNzdlM2UyZWQwZjBkNjdkN2U5YzMxMjFhMWMxNTdhZGY0NzVmZWRkMDAxNzI0MmUzNWU4ZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjNWE4MGQzY2Q4ZmEyY2FkMTU3ODRkNGM5NjJhNGNiMWYwYjZkN2Q2NTU4YzM2NjNhZmFhMTUzYzE2OTljYjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU5YzAzNjVmOWM5MDVlMDI3NmZjZGU1NzQ4YTRmODU3Yjk3OGJkZTVkNTMwMWJiMWMyNGMzYjhlM2I2YzcyM2EifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b6d4ccef350d45d2926f957ede442e6c",
+      "statement": "The 100 m endpoint rule (ENDPOINT_TOLERANCE_METERS) is enforced by pathEndpointsOnStops, which validatePlottedPayload turns into a 422 VALIDATION_ERROR naming the failed side and the distance; the end may instead match the first stop for a loop, and the same constant decides in buildDerivedReturn whether the derived return's stop list is rotated (closed loop) or simply reversed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L204-L220",
+          "version": "repo-lines-v1:sha256:3305784c9613f579a1d6373dc5e6c2d9a740ef69093ad8b82934a4e526641266:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyNTEyMzk2NGQ1MjczMTVhMDUyZTNmYjhkMjUwZTU3Y2IwZTZmOWNlZGZiMzI0ZWQ0MzljNjQ2MjkwZTljYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllOWJjMTgxZTQwNGI4N2E5NGZjM2YwZDAzMzU3NGY2MjE2M2RiNTNhYTlhN2Y3OWY3Y2I3YzA5N2E2NzM4YTAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L114-L171",
+          "version": "repo-lines-v1:sha256:22225888dc9afc04edd0e2c703789d68e283463e61c353d530b87ab2aa3e77f4:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwYzAxMWIyZDJjN2YwMzJmMjQxNDc2YTg2YjRjMWFlNDk0ODViYmZiNWQyNjEyYTU1OTVmNjFkZmMxZWU1ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMDQwZTA5NWE5NGUyYWRhNzRlNDIxZjM3MTg3NTFhOTFhODEwYmZkNjZmNDhmNGU5MzljN2I3NDgwZWI2NzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjNTQ3MjA0ZjMzMjRmNmVhYWE0ODM0NWVkNWRlNjAwZjM2ZjI1NzZlNjBkNzM0NTIzZWQ4MTgzMzA4NjU3NmIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L78-L112",
+          "version": "repo-lines-v1:sha256:4a2cec85c7757aa1f60516746d1e306f78a519c8eb98d32163fdf0b7e364336b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjMmE0NjJjNTI3N2Q5YWYyOTI0MTFhOGY2ZDdhMmRiMTY4MmMzYTJlZGI2NWQ2ZDgzYjYzNzUyYmRmZDY5M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YjQ1ZWMzN2UyZGQ4MzAxM2NmNDQyYjAzMTA4OTNiODY2MTdjMzA5ZDVkZmU3ZDI5MjcwZDE4NmRlMWVhNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjMzUyZDdjMGFhZDNjYjhlMDFhMDMxNzE3OGYyNTVjOTk3ODg4MDUxOTk5MTAwMTdiOTY3MWUxODQ1MWU3YTYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L8-L9",
+          "version": "repo-lines-v1:sha256:0c76aef82d3fefea51e9de14341006f60b21b05b8205cc45da0dc35df0902a5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGRkMzNlYWQ3YWVhMTg5NmEwMGUwNDEwZTJjOWI0NDljZTY2NzBmZjBiYjM5YTMzMDYwNmRjY2NkYzVkMWU1MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjJmMzYxODM4YzdiYjFhY2NmYWM1M2VkNzlhNWQ5YmUxOWY5ZDc5MWY2ZTAxNjgyZGQ0NGUwNmFlYTQxNGM2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGE2NmE0NmU5ZjUyMTYzYjA4NzI0Nzk5MmExOGZmNzU4NjAyNjkzMDZmOWMwYTk0MGU1OTkxMjQ5ODRhMjMzZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTk1YmY1YmVkODA0Yjk2MzhiMDY0OWY4NDE4ZmY3MWMxMWUwNmEzZmJlYWFkMjdhNmVhZmU4ZjIzYTQ5NDVmNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4633bd9e77c447f9a9fdfad15ede62e",
+      "statement": "The 100 m endpoint gate is conditional on the request carrying a stops array: POST /api/routes/:routeId/directions without stops and PUT /api/directions/:directionId that patches only base_polyline write any shape-valid LineString without ever running pathEndpointsOnStops, and because validatePlottedPayload runs before persistPlottedPair the rejected case never opens a transaction.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L252-L328",
+          "version": "repo-lines-v1:sha256:eb1f5e5fd2c29dc93ecd6e4266ceb797f5ac8905c7fa254f70aede2d790e08be:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3ZjFjYjNlMDc1OTFiY2Y4ZWJiN2RjOTUzM2QwMTUxMjk3OGE5YjBmYTAyZWUyODE1OWJhYjI5ZjBlYjI3OWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlmZWNiZjMzNDE2OGIxOTgwZWEwODlhYjQ3YjM4YjVkZTdjMzQ3MjdkODkxYmMxMjJhMTA5NTBkY2RjNzE1NWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA2MmRhYTE3MmY1NDQwZTdlNzc2MDJiNzJmMTI5ODkzYTRjNjRiZmNiMzdmYzMzNmFkM2U2YjdkOWI3Yzg2YjAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L340-L409",
+          "version": "repo-lines-v1:sha256:a102db2790341865b200e5e294295bc6e05a7848ac38ecf4af5a2bfd519a238f:eyJzZWxlY3RlZExpbmVDb3VudCI6NzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMDVlOTFkZGRlYjcyZTNjODllZGRiNjQyYjM4YzNlZmYzZmJiOGZjZWNiYmNkYzk3Njc3Njg2YmRlMzQ2N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY4NDAwNTRiYjhiOWI4YWVhNTMxMTZmMDBmOWFlM2M5ODU3N2RhMDBiYjM1NzlhZmU1MzZiNWU2Yzg3MWEwNDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExMjg4MDQzZGFmZmYzMWMzNDliZDU1ZTc4M2M5MDcyNDkwNDM5MmVlMjI0M2NkZjViZjQwODc4NDBlMTJjNTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5ZWIwZDg0ZWIxNjQyZmNkNDU1MTc3M2VjNjJjMzg2NjgxNzA4MmMwNWRlN2E1NjkzZWFmYjFmNTYzN2NjNjcifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L49-L58",
+          "version": "repo-lines-v1:sha256:3c3cda450baf2be0f4a219e396ba7e028c2ed3b9b60910d430cc9ee3ae7594a4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyNzc3ZjgxYWVmYTNjOTAyMTk5MGU4OTg3ZjViZWQ4NGIwOWM4YjYxOTZjMDBmMmM2MjYyZWU5ODhiODczYTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1MzQ3ZWVhMTFjNWExMjIxNjAwODVhNTkzNTJkZTM3MDc5OTI2OTU1MDI0MWRmZjQxYTdjZTlkZWI1NmQxMGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzMTgyOTU4YWMzYTU1Mjc3ODU0MjdmNmUwNjg3MzNlMTQ3ZDUzY2YwYTI3OTUzMzVmMzQzZDM3Nzc0ZjM3ODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OGY2NGUxNzBjYjVmNzBkZDVlMTgxNzAzYTdmNzY3MDM0YTYzY2FmNTNiODQ3OTI1ODA1OWI5ZDU2YTg1NTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9d60f6395dce4fe98bf2ad8e5d849413",
+      "statement": "The 150 m loop-closure tolerance is admin-only (LOOP_CLOSE_TOLERANCE_METERS): it drives polylineClosesOn, the connection helper that appends the last→first closing edge, the plotting store's closingIntent/trustedClosed decisions that re-append the start coordinate before a snap, and resolveConnectingLine's coverage test that decides whether a transient stub is drawn.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/connections.ts#L131-L153",
+          "version": "repo-lines-v1:sha256:58ca63d7f11ced1542e91f676eda5beda34fb1990d012ecac268de889afd3dd0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0ZjlmMDE5YmFkMmNmZWQ0ZTgzMjBkNzdjZjFlNDNiN2JjMGU0MWQyY2VlMzFiYjM1NTFmMzU1ZjliZGRkOTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRkYWY2YTU1YTNiMTE2OGJmZjA0MTcxOTc4MDA0Y2Q0ZDhhZTc2MTIwMjUxY2ZhOWU2OTNhMmIzODkwMWJlNTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNTBhOTY3MmJiNDM1OGY2MDcyY2JlODdlMzIyYjkwZjZmODUzMmRkMzM1Njg2ODc2M2NiMzJiODJjODZjYjUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L186-L224",
+          "version": "repo-lines-v1:sha256:ac72fa3117df8c2f953247556f3cbab58c62043a1b8aa7f0bfb1b805f0f7c500:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiMjBmNjk3ZWI4NzQ4ZjE2MzRkYjI0NjRiMjg5ZGYzZDRiY2ZmMzVlYTE2ZWNiNTcxYzRiZTQwODRjM2I2ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVjNGY0YTgxZDcwYmY5NDBmYTgxNmVhYWQ1MWZhZDFjMmQ5ZjYzMTUzNWZjNmU1ZWE3ZjI5YTEwMTdiMWRlODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiZjM3YjliYzUxNDM5MTQ5YmRmNWMxMzFlMjU3ZWE2NmVjZWMwMWFmMDY4MDAwNjllYjE5ODg2ODU3MTFhYjcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L64-L83",
+          "version": "repo-lines-v1:sha256:a7867adbb6ba236f05d06cfcee1ca5af2ad0307ea9150c078d1ee0f6c6d2b31e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmM2ZiZDU4MmIzMWZkOTE2YzYzOWQ4ZDQ0Yjk0YmQ2YjVjNWI2N2U2MzFhZWQ1YjAzNTBhNmJmZmE2ZWMwZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwNTk5MjFiMDFjOTYxNmExOTEyNTdjYzE3ODM4YTFjMjk5YzE2YjgxOTVhMzRkOGM1MTE0ZTJiYTYxMDRkZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0NzQ5NzVlYzcyMzI5OTVkM2E5NGVhM2RiNGFmZGM0NTQ0ZDJiNjk5ZDNhZDQ4YWUwZTVjNTI4OGY4YjkyMjYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L425-L446",
+          "version": "repo-lines-v1:sha256:b039556ef0165a8bb37dc7c8ba5c7c64036d10c68d0540d422316a322389b754:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjNmIwYTQ3ZmMwZTJiNjIxOWYzMjMyYzRiMTc4ZjQxYmQ2YTNlZDQzZTgwZGM5N2JmNmMxN2U1N2EyNjJiZGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0NmYwN2Q4YWE3ZDQ1OGViNTg3ZGFlZWM1MDZhOTI2YjA2MTRhOGI3ZTgzMDdlYjJhOTRmZDk1MjUzZjQzMmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMTc1ZTFiYTUyNWYxOGYyNTRlNzI0MzFkNmRiZDUwN2M4OTBhNDQwNjU3YTIzZjliMjJhMWY1ZTNjNzBkOTgifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L775-L817",
+          "version": "repo-lines-v1:sha256:5abbb682d93656b2b7c0726f9c1f59c16066b74480c6ed81e8ef0ee76c8ebbac:eyJzZWxlY3RlZExpbmVDb3VudCI6NDMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZDIwY2U5ZjVmYmYzNGFmZWNjZTA0ZTUxN2YyOWYzZjNiNjg3OTkyNDMwZDY2OTk3ZTc2Y2YwNTQxYTBkNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhMTJlM2QwZDAwN2JmZGRlZWMyODA3Y2Q4MjYzNzNlNTE4MjViNjUxNjU1MDUxZDYwZDY3NzBiYjNhMmFkNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgyM2U3YzNjMTEyYWUwOGI2OTM0ZDc5YjZkYTYwMDA0NTU4NGNiMmY2Mjg1ZTFjY2UzZDczNmQ1ODBiMjVlN2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6ef98ee0a9eb4a8b817d1479f4469159",
+      "statement": "pathCoversStops (default 150 m) is a client-only interior-coverage gate requiring every stop to lie within tolerance of some path vertex; the server checks only stop count and endpoints, so a draft whose committed path no longer matches its stops is refused by the admin while the API would accept it, and the admin pairs it with a pathStopIds equality check for stale stop order.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L266-L324",
+          "version": "repo-lines-v1:sha256:ebfbeab279ceb03f511fe81f6128aab857d6167179f04fc1771b6d414fb4fd4e:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjYjRkZjAxMDc1MzZmNjFiMTA1Y2JlNTM5OWU1YTRhMmQxN2IzZGJiZWE3YzVhMzA1OTRlZTU3NGY2YzlmNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1YTExNmU4Y2JlZTYxN2IzZGQyOWExMDcwYjAyZjVjOTE5MWUxYjNlM2M1YzhjOGRhNzkyYjcwNTQ4MDE5OTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NDFlN2E5MjQ0MzEzMzQ0NGFiZGU0ZjgyYTk4MjMwZDc4ODg1ZGM5OTY4MmQ5NDhhODUxODMwNTFkNmVjYWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L234-L256",
+          "version": "repo-lines-v1:sha256:8b33563241fe1a000c01ef4424629f8ef6668d1ce24d20ef6f704ac1969e8530:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEyMjBkYmNmY2NhYzY3OGRiNzQ0YzQyYjNlNjY2Mjc3ZGE4NjljNDI1NzQ1ZDk2OTYwY2NkMzFiNzNkYTY2NDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRjMzAyNDU4MzI4OGZiN2UxNjYyYjBkOGVlNWUyOWYwMjA4ZDBlNTE2ZTc3NmI1ZTg4MmIzNjM4MWMzZmZhZjMifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L204-L220",
+          "version": "repo-lines-v1:sha256:3305784c9613f579a1d6373dc5e6c2d9a740ef69093ad8b82934a4e526641266:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyNTEyMzk2NGQ1MjczMTVhMDUyZTNmYjhkMjUwZTU3Y2IwZTZmOWNlZGZiMzI0ZWQ0MzljNjQ2MjkwZTljYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllOWJjMTgxZTQwNGI4N2E5NGZjM2YwZDAzMzU3NGY2MjE2M2RiNTNhYTlhN2Y3OWY3Y2I3YzA5N2E2NzM4YTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f6868b9871bc4ad28702bed241de0f33",
+      "statement": "inferDetourFlanks carries its own LOOP_CLOSURE_TOLERANCE_METERS = 150 to decide a base polyline is a loop and to wrap chain-neighbour flanking across the closing arc, and the plotting store treats a newly placed stop within LOOP_CLOSE_TOLERANCE_METERS of the chain's first stop as intent to close the route.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L463-L486",
+          "version": "repo-lines-v1:sha256:18b9d6db94b0d6475706ca2e7c02096f1adc685f2fab7287179e660202b30aad:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZjgxMjg3MzAzZDgxMjc0NTQ5ZjVmM2NlMzZjMmExZjhmYjdhZjkzN2I4MTE1OTY5NzMxYTEyZTBhYzU4MWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiMzQyYTVlOTRlM2Q4NDVhY2QyOWJlNDBhOTVjODY1MDkyMWU0MzBiMmVmNmE2MjljOWFlYTc1NzliZDViZmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY5NGY1MTcxZmI1ZmVlNjQ1YmYxYTE4Y2VhYTllZGQwZTE2NDU3YjBkNzBkZWY0MTNiNDdjMDg3NzI5YjQ2YWQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L606-L624",
+          "version": "repo-lines-v1:sha256:89a31835113e9ed3a89f9da02999a9e4b50a164ea41e670514757371d598a9dd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmNzQ1NDJiM2NhYjI4ZDI0NWQwNjA0YTI5NDI4NWY2OWYyYjdiNzczMzgzYjk3ZWY0MDBjOTNjYWExYzczODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY3OWI0Yzk4NWExY2E5OWI5ZGQ5MjVkMWY2ZTZkOTEyNWQxNWMzYzdjMzk2MjI1YWZlODJkNThlMWUyNzcyMjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY5YzMxOTY3OThhNmQwMTVjOTc5NmYzYjYxYTI1OTAxODYwYzM0MWZjZjJlZjM2NmE0MTJiYzEyMGZiMDhhODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L775-L790",
+          "version": "repo-lines-v1:sha256:04da98bb33462069043e9649ecee5b62c0ed5428ef39fd0458459d2f7ce9c91b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZDIwY2U5ZjVmYmYzNGFmZWNjZTA0ZTUxN2YyOWYzZjNiNjg3OTkyNDMwZDY2OTk3ZTc2Y2YwNTQxYTBkNWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNiZTgyZGY5ZWU4ZDBkYmIzZTgxYWVkZDU1ZWQ4NmZlYjg3NzMzMzZjODM5MjMzZTMzNmI0NDA5NjcyYWY0NzYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhMTJlM2QwZDAwN2JmZGRlZWMyODA3Y2Q4MjYzNzNlNTE4MjViNjUxNjU1MDUxZDYwZDY3NzBiYjNhMmFkNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5NGNiNDY0MjY0NWU0MjMxMDE3Yzk5ODFmODAwY2YyZmFkZWI0ZTIxMjNmZDllMzI1NTY2NmVkZWY1ZjFlYTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4452f4eb8d6a458bbc1a529689db6987",
+      "statement": "The 30 m detour tolerance (DETOUR_ON_LINE_TOLERANCE_METERS) backs three server checks — entry/exit within 30 m of the base polyline as an exact point-to-segment distance, loop first/last coordinate within 30 m of entry/exit, and rejection of an entry/exit pair 30 m or closer as degenerate — and a PUT touching any of entry, exit or detour_polyline re-runs the loop check against the current stored values so a partial edit cannot drift the loop off its endpoints.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L176-L200",
+          "version": "repo-lines-v1:sha256:d7e7d8f52ecf009d355dceafdd347971099ff1085e47236a06e2a3574fa5c5fb:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4ZGE3ZTkzYTU1Nzg0OWFlYjhjNDRjNmZmOTA1NjRkOTcxYzE4NzAxMDVkY2EzYzI1ZDE0YzQ0NGZjODBhYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmNTkxNmM2ZmViM2FlZGJmYWY0ZWY0YmM3NGU1OTdkNzlmYTM4Mzg5MmMwNzBlMmY3MWRhNTE2NWY0MzllNTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiNjY5MjMwODY5MzY4MThlZWVmMGE2MDA0ZDJjZGNmNWQwZmM2NjkxMTBiYTdjODVkNDg4ZWI1YzM2ZjZkOGQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L8-L76",
+          "version": "repo-lines-v1:sha256:c1b7fe87b8cf867a3c531bf3dd0c2b1258dd9468357fc120d728b19fc02d86f0:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlOWI0MmYzYjBhMWQ5OGEyNzM3YjU4YTc0YTVhOWEzNzBkZWQ3MzU5ZWQ0Yjc3MTFlZDFiMTVkNGQ3YjYwMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0NzQ3NWM3Nzc0ZDUzMzQxZTg0NjQyZmExZDM2N2M0MzgzMTM2MWZiYzRiMzA4NjJiYzg2NmI2NjE1NWMxYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMTc2YjZiN2Y3NjdkYWNhOTFkZjQ4M2JlMWExYmVlMDhmMmM2NzMxYzgzNWQzNDc0ZTMwMmYwYWUxODY0NjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e930c5bae7964489813e65bae6d5f52c",
+      "statement": "The admin mirrors the 30 m detour gate so authored geometry always passes the server's FR-023 check: DEFAULT_DETOUR_SNAP_TOLERANCE_METERS = 30 is projectPointOnPolyline's default, NODE_TOO_CLOSE_METERS = 30 refuses a degenerate split/merge pair in the detour store, and inferDetourFlanks defaults its snap tolerance to 30 m.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L393-L418",
+          "version": "repo-lines-v1:sha256:b4728fddb338588480e188e236da004065cadd27a9ee1d9643d5a45965a1dae0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkZWUwMmNhNTZlOWM1OGI2NmY4ZGE1ZjUzN2JjYmM4Njk0MDlhOWE5ZjQxMDgxOTNjZDhiMTMyZjhlZWY2ODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4MDA1ZDU3MTA2YTM2MmViMDAwZGFmM2RhNDY3NGM4MmI1MThmZjVhMmUyZjY3ZWU4ZTc1N2EzMzNjMmFmNjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE4OTdlYmUxZmQwYjY3YjdiZTFmYTkxYmFkOTQ4ZmI2YTZkZjZlZmZkYmFiMzNhNTQyNTQyYjI3NjdkOGJjYWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjYwNGU3MzM4NGU1OTY0ZmUzYzI4OWIyN2NkY2RjNTAzNTRjMThmOTI1YzFjYTc4YjExMDUzYmEyZmRmNWNlMGMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L80-L83",
+          "version": "repo-lines-v1:sha256:6307d7304465c0add6e5719b790468a79a7ef4e426529835bf45494e6c42a912:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjJhOTJlYjJlMzk0MmU5N2Y2ZDBkYmQzMTVlNzFhMzdjYzhjZGZjN2EzNjZhNjMyNmNkOTRjYzQ1ZWNmMGZlMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTYxYmVjNWQ1ODJlOTMzNDRjY2NkYzgxMWZmYjc1NGNkNGZhYjVmODBmOTcwNDJjMGFkMjJmM2FjNmVkZGY0OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2YzOTY2YzdhYzc4MjUzODc2NjE3NzNiODJjMjc1MzNiMjlmNzI3OTcwOWNkODY0NWYxYjZjYjJhMjg5YTM3MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGI5ZDYyMDM2ZDRiZTE5Y2ZlZTNkNWNiYjlhOWFkOTQ1NzZjMDYzZjhhZmE1OGE4ZTI1NGNhNjM0OGI3MTQyMSJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L258-L291",
+          "version": "repo-lines-v1:sha256:ff866c3032f1b0727b3d07ceaf91615bae366e64d58a180c477642b5c20713c0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2NjE0MTlmMzkyNDdkZjI4ZmY2N2YxNTMxNjMxNmJjODkxYTc2OGZiMjllMmJkMTAyOWIxZWM2YjBlMzEwZTAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwOTAwMjlmODZmYTJmYWE5OGRiOTFmYTZlMjExZDg0ZmFkNDQwMDdiZjg2N2VjMDdhM2QzOGJjYWQ2OThhZWYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L468-L477",
+          "version": "repo-lines-v1:sha256:c58a464c794d15da74e21f6e61c45bbac886161bc8510ae7a42ea3fdce24a0f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxY2QyMjE3MjhkNWExNTRjNTE1NjJiNWVkNDQ3YTM5MzU0Y2Q3M2FkNTM0NzQ5NWQ1ZDM2NTJlNTMxM2RiODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY3NjRiMzYzZjgxZDdhNmFmZWUyYTNlMDkxODUzNWZiYzFmYjk0YjE4OWEzOTgzNmUzYTU1ODMzYjNhYmNhZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjczZDRjOWVhMmVmZDQxNjVjNDU0OWNmZGRiZWQzOWU1YzcyMGQ2ZjY1MzQ0NmYxMzRhZDAzYmYwNzdmYjg3YjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlOWExZTMzNTQ5NDFmYmI1ZTMwMzFiMDI4MDE4ODEyNWZhZTc4NWM1OGE4MDM1YjQ4YTFiOWY1NWNlMDUwMmMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a82b46fe597e4c9aabfcd84ca7254202",
+      "statement": "The 20 m overlap tolerance means \"the same physical road point\" in two display paths: findOppositeOverlapRuns matches vertices within OVERLAP_TOLERANCE_METERS whose travel tangents are opposed (dot < -0.5), requiring ≥ 2 matched vertices for a run and, within one polyline, vertices at least 100 m apart along the line; divergingSegments uses the same 20 m default to keep only the runs where the derived return actually leaves the base corridor.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L108-L190",
+          "version": "repo-lines-v1:sha256:ab1d1d621e54e162def3a219144a7971b9153ed5dad7a2141b6d717c9e753a9e:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4OGZjYWY4YmEzYWE2MmE5M2MwMmRhNTJkZWE2NjE5ZWVhY2Q0OGQ5ZDBjZGZiNTdkZWEyZTcxMjgxYTE0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxZjc1MGU1NDk3N2RjNzc3ZWQ5NzFmZDhlYzFlMGJhYTE5OWFmMTllMDBjMTRlYWVkYWQ2ZGVkMjUwY2M2MjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNWYzNmUzZDMxYmQyMmMzNjlkYzA1NmQ4MzZjZjc4Mjc2MTM5ZWE3ZDg3MDRiYzUzMjMxNzdjNDhlNWJiZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwOGNiZTRkYjlmMjU3YTQ0ZDBiMjZlZmVmMGFkMTc2ZGJiMzg3NjBiM2I0ZTk0ZjA1Y2M3NzA3ZWU2MGU2YjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L85-L117",
+          "version": "repo-lines-v1:sha256:c507a86600ed60dbe8b594f4daec12894b3f2e0e5cc6a8122f803c71708e0275:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5NGZjMGMxNzNkMWVjM2ZjNTAxZDdkZmE5Mjg1NTAxYzUyN2NmYjQ3MTI1ODNkYTNjYzM2MTgwNTY2YjRiZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMzYWNiNjI0MDRjMDE1YmUyOTgzMWE3YjU3ZTY4ZjJjZjU2ZThiYTEzNzllODY3NTI3OTJhMDY3NTJiZTQwOGYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L27-L49",
+          "version": "repo-lines-v1:sha256:53b12b0ea933e95558138b77cde96a18d25de4b0abc3e5ba5b980a192cb7c902:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwNzhhZjMyZDlmYTZjMWMyNmY4YWM1ZDk4ZDhjMTNiMWE4ZDQ3ZDZhZGVhNDE0OTkzYTllMDk0N2Y4ZTI5N2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNGM4NmM0MTUxNjIwZTFlYjg3YTI5NzQ5NTI0NzViNzZkN2U4YTk4MDIxNDg3MjcwOTM3NjBkODZhODVmMjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM0ZDIyOGFiMDkwN2FlZTlkYjFlN2M0ZDIxYmM4NDUyOTgwMjUwYzZjOGIwMTg2YmI0MGMwYmEzODY5NTFkM2QifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L83-L191",
+          "version": "repo-lines-v1:sha256:2754463dddb5ecfb2a2ff5ec4fb930d0087596e48056675d0b1e93e104f3b90a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTA5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJlYWYyMmNmMDczMjU5MmMyNDcxNDFjYmU2MWVmYTExMDEyNjEyZjVhMzEyMmI5YWY5YmJhZjUyZjU3MjRkMTk0IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIyN2U1Nzg4ZDVkOWQ3M2QyNGE4MWRiYzBhNWE3NGJmYTgyYzljM2IzYWY5OWU1MmFmNzk2ZTkwYjQ2OGE4YTNkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwZmVjMTZjYWY3YmZkYzc0MTZhOWQ0NjE1MDY3OTY5Yzk0ZGQxNGE0MWEwNzk0ZGFiOWQzYTQ0NDM4NWQ1ZTBmIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiJkYWE2NmQ3OGVmMTAwNzE5YjJmMDY3NDdjMWVjYzQ2ODBlNDk0ZDgxMmY1MWY3OWFhNmM5NzFlNzYwOWIzODM3In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_4d9f243cbb29447390e9ab150c096807",
+      "statement": "Overlap offsetting is display-only: shiftOverlapRuns moves each overlapping pass right of its own travel by OVERLAP_OFFSET_METERS = 1 m with a 0 → full → 0 taper over OVERLAP_TAPER_METERS = 30 m, so the two passes end up 2 m apart — the module docstring's \"3 m → 6 m total separation\" figure is stale relative to the constant that the code and tests use.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L141-L187",
+          "version": "repo-lines-v1:sha256:ef26179465084cf41b67ec52b9bf842fcf6ea81f2b168aa300d08e1ad34e76b0:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNTZmMTRiZmM4ODMzMmMzYWNkODQ2YTY1N2JlODdmMmIwYjk2OTA4OTQ4ZTUyMDEyZjA5YzRiZjZiYjY2NzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyZDExY2FmNDNlOTdlZjM2OWU2YmVlZDFhMjY4YmQwNTgzOGYyOWI5ZGQyNTRiZjY5YmE2NDg4NDE0NzIzNGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjYyYjFjMGU0ZTk3OTA1YjdmZTBhZjNlM2JlNmVhNjZlNjAwZGRjNzlkNGYzZjYxOTQyODJlNGNjOTM5MWFlODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5OTMxZmVlZDQwNmJhOWMyYzgyMjUxYmZiOTFmNTBmNDdlYzUzNTIxOGI2NDMzYjYxNGY4MDAxNGIzOTdhZjYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L20-L32",
+          "version": "repo-lines-v1:sha256:7820f8e8748476e46c32a545ec2951f64f8cb14e0d8254b5cec4a036514c26d7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJkYzAzZWFlNjMzYjZmNTI1NTA1ZTA0NGIyNDYyZGI0Mzk4OGU5MDQ0MzI2ODlmZTkyMTQ3YjNjMjJiODc1MzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ZWIwYjI5YTY1MDBmNDcwNzg0MzI0YTMyMzlkZGFkNDAwZDE4Njk4Njk1ODYwNjZlNWQ3ZjE3NjEyZGNhNzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ3MGYzMTBmN2U5MDg4N2M3OGY2MzA3ZjEzZWM0YzBjYzNlZmY4YzVlMDU5MzJiYjNlMWQ1MDRhOTcyNTVkNDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmNWQ2OTA1YzQ3ZGVkMjk4NzdmMWE3YWQwMDc3NDIxNjlhMzJmN2Y5YzNlYjlhMjJjNjMwYjY1YWEyMmJhZmQifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L222-L275",
+          "version": "repo-lines-v1:sha256:0a0e78c739b81ff2d84c8745f54cb6a6085338d1765996cb9b220b2107232649:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ0YjMzMTAyZTBjOTA3ZTlhNTVlNDIwZTIyZWQ4N2YzMGI3ODhjZDhlODM5OGM0YzJhM2FjNWQwMjY2YWYyNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/overlap.test.ts#L110-L143",
+          "version": "repo-lines-v1:sha256:cb47b6f20e103e5a7232b4c2ee5ad5a1404ade945d497fd93db10c538d835786:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRmNDJlMTllYTg2YmYxZThjMmM4NGJjYTJmNDdjOTM2ZjhkOTg0OGZjMjBlN2I3NDRiYmE5M2I5M2UwY2M1MzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjIxNzZmNTRhZTI4MzJiMzdhNDBhYmNiZjNiN2NjZjk1NGZmNWI4MTM0M2QwM2ZiMTE0YWYxNzM4M2FkZjIyMWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ba73e851a72849e2a8f5f815b1d46431",
+      "statement": "Great-circle distance is implemented three times with the same 6 371 000 m radius — coordsDistanceMeters (admin), coordinatesDistanceMeters (server derive), and a private haversineMeters (server validation) — plus a local flat-earth plane in overlap.ts (111 320 m per degree of latitude, longitude scaled by cos(mean latitude)); @komyuter/shared exports no distance helper, and the duplication exists because the admin must pre-validate drafts without a round trip while the server cannot import app code, which leaves the 100 m and 30 m thresholds duplicated as separate constants that must be changed together.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L47-L62",
+          "version": "repo-lines-v1:sha256:d8ac8e00be4ebc9aa7e9d43b24475a88b9f89509caa3f2730b1e2cb3cfd86df3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2YzNlYmUzMzc0YjIxM2ViMTgyZTNjYjFhMGE3MmM0ZTc5MzVjNjA0MDg2Y2MzNTQzYWJiNzIyMzNlY2M2N2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxMTE1YjAyY2JlOTgzM2U3YWY0ZDQ5NmZhZjVjZTIxZmU1YTAzODRkY2VlM2VlODA4MDY2MjNkZTYxZTZkZmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjZWY3ZTk0YjVlOTRlODI4NThiNTE4MTUzNzA0YzY0M2EzNmFjNzNjNWIwZGIxMzJhYTBmY2I1ZGIxMmYzMWEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L56-L65",
+          "version": "repo-lines-v1:sha256:3adc65a2c2e4f69153e44e0608b5b888fef76b79b93d7b4b7453d6ee3c7b4ddc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlYTZlMDE4NzI5MTQyYTYwZTdlZTZmMDA2NTNhYTZkMzQyNTQ4MmQzM2RiYWZkZjdiNTcxYzQyYWVjMWFjN2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY4ODMxNjIyODExMDZiZGRhYzcwMGQ1M2U0MDFjYzA1NDFkODhkMzkyYWY1Njk2MTA5NTE0YTQ3MTlkNTJkNWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkNGUyN2ZhMGZkOTYxNDQ1NDcwYWEzY2FiMDA5N2FlMGNmYThlNTRiMThhMTVjODFmNWU1N2JiM2ZjNzcyMjgifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L46-L61",
+          "version": "repo-lines-v1:sha256:1a59c3007f56fff86a7fcb8f55b24c34a10e4492416a152b7f300be873d45a41:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2YzNlYmUzMzc0YjIxM2ViMTgyZTNjYjFhMGE3MmM0ZTc5MzVjNjA0MDg2Y2MzNTQzYWJiNzIyMzNlY2M2N2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAyMGI0OGIxZWIzZGM2ZTQzNjRlZWRmYjhkYWZlZTg2MmExOThkZTc2NWZhZmY3ODBiOTA3MzRmMDJmYWVlOWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjcwNjBlOTFlZTNhYmJlZGMzNmNiODI5MWE1ODE2Mzk4NDYyZmZlMjA3YzgzNjg5YWRmMjVlZTFiNGVmYjJjMTYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L99-L113",
+          "version": "repo-lines-v1:sha256:2188a809285563669c3c7c3f10829d3b83e40471d65b05cdbd9998da9fa70632:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmZjEyOGY1NWZlMzg4NDNhNmU5MjRiOTY1YmI3MzFkODM3OTNkZGQyZWM2NTNhODU3YWVmOWYzZTM5MDNhZTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllNTQ5YTVkZmQzYTRjMTBhNDhlMmJlYjhjZDc0YjcxOTQ5Y2I3Yjc4ZjY4NzFmZmQ3MGEwM2MyODkwMmUwZDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZmOTQ5ZTkzYzFjMWZkZmJiOWQ1ODQyNWU0MDRiOTIwZTQyZGY3ZDA5NGYzOTk4NWY1NjJjYmQ1NmFiNzNlYmIifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_247f11b63a15416dbb798e94234e301c",
+      "statement": "Tolerance comparisons are inclusive in the permissive direction — a distance equal to the tolerance passes (pathEndsOnStops rejects only on >, assertPointOnLine only on >, pathCoversStops and the overlap/separation tests on <=) — while the detour degeneracy clause inverts this by rejecting an entry-exit distance of 30 m or less; the boundary behaviour is pinned by validation.test.ts.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L28-L45",
+          "version": "repo-lines-v1:sha256:1b6a20074ffd5c5e0fd7b6900a0c145e2e650683c85e773b95191bd1b3bfe5cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxMWRlYTY4MDZjNTk4ZjQwYjg4N2I5NDc3MTVlM2ZiMzBiNmFkN2YwZTU1NTE5OTY0NmY0MjIxZGM1ZDkwZjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhYTFhMTc0NWY3Njk0YWY4MmUxMzMwOGViMmM0OTBlYjgyYWI2M2EwOGZhM2ZiMjI1ZDY4YzUzYjU0MjA5NjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc4Y2QzYjVkODk4MmRmZDliOWNlMDYzYjRjNTYxNjU1OWFkYmIyODBkYjhhMjRhZjE1Y2NjYTEyMmNhNzAxZmEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L138-L170",
+          "version": "repo-lines-v1:sha256:acb3c29a07a7849ecdbbe87c6f52cf2280940e9fc70e9ea34c74251aeed31de8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJiZDIxNGJiYTBlZmNlZDIxMjliN2ZhMGQ2MGFlY2ZlMWU2YWQyYzM4Y2YwM2M5MmE3MzI0MmYwODAwODc3NTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5NjE3MmNiNmVlNzdiOGRmNDk1NDE0YWUxMTljMTAyYzBhOTY1MTVjNzdlNmNlZjI5MGIyYmM2ZjE1ZTE5ODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4MjE0Y2VmOGI1YTNmNzI3NzAyZDk5ZjIwMTA5NjYwZmI0NWY0ZWU2ZWE5MTRkZWI0NjYxMDFkYzliNTk3ZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3OTI5ZTkxZTBmOTljM2U4MjVkZTY5YjQzNWZiNjQ4NGQxYjBhMWRmMmY0NjU2MWFiZjFhMjlmMDQxODhiODgifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L22-L26",
+          "version": "repo-lines-v1:sha256:fe45814706e08ec55fdda85970cc438b7010db5f2065c5cdba0dc3cbc57b92d2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2QwODQzOTNkYTEwY2YxMmEzMTFmNWM1NWNmM2U3Mzk1YmFkY2NkOGM3YWI4NTYzZTBjYTExZDM0YjViZTJhYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjdlNTc4OGQ1ZDlkNzNkMjRhODFkYmMwYTVhNzRiZmE4MmM5YzNiM2FmOTllNTJhZjc5NmU5MGI0NjhhOGEzZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjhiYjU0Y2NiYTJmYTgyYjc1NGMzMzE5MDkwZTI5YTk3NzY4Yjc4Y2ZlMmFkMDNlYjkzYmQ4NGFkMmZlYzYzNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzc5MjllOTFlMGY5OWMzZTgyNWRlNjliNDM1ZmI2NDg0ZDFiMGExZGYyZjQ2NTYxYWJmMWEyOWYwNDE4OGI4OCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L57-L75",
+          "version": "repo-lines-v1:sha256:c3c6b793eb077ecd7b0c4fb26d29ca7cc8bc62fd1235113f59e0ae767cf0c7cc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ3Y2Q4YWY0ODQyODMxMjAxNzQzNjBmZWFlZTQ2NWFlMzZiZDUwYzdmMTFmZmM5N2YyYjFmNWYzNTBlMzgxMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0YThmMmFkYmJhZjNmZDczMDJhYjk3NDNlZTM4NTRjNGY5MDEwM2Q5OTRlNjQyZjhlZWE3NTlmNzQzYjU4NTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRlODVlNGFiM2E4YzFiYmJiMjgzNTQ0YWQ5YjhmNmNmN2VhYTcwZDhjOWUxZjA2ZWE5YjUyODRlOTU2ODdmMzgifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/validation.test.ts#L42-L51",
+          "version": "repo-lines-v1:sha256:95df1e1848ae60c6041e902b921588ea1ece0762565b12210d52d6b2ac365021:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNjN2Q5ZDAzYTdlMGU4YzM1Yjc0OGEzMjNhODM3YWI0ZTk4YTIxNzQ2OGNiMDc1ODgzMDI1ZmNmNGU5ZWVjY2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhNGE5NGYxNzMyNjc3MmY3ODJhNDg4N2Y1YzhlZmQzYjBjOWIyNmY5NzAwMjMyMTFmMTc5NDhjMGVhMjNlMzMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1ODY3NGM1YzYzOGEyNTdjNDlmZjMyY2RjNzcwMjZkOTM3MjQ1OTBiNTE1MWVhZDMwZjQxN2QxOWIxMGY2MWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_eb574bc43c354a9b9c90b3d34c1abf1b",
+      "statement": "Tolerance gates run at three distinct moments: client authoring gates in the workspace save handler (pathEndsOnStops, pathCoversStops, pathStopIds) and the detour store, server save-time gates that reject with 422 before any write, and render-time display math (overlap offsetting, divergence trimming, transient stub lines) that is never persisted.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/RouteOverviewLayer.tsx#L108-L190",
+          "version": "repo-lines-v1:sha256:ab1d1d621e54e162def3a219144a7971b9153ed5dad7a2141b6d717c9e753a9e:eyJzZWxlY3RlZExpbmVDb3VudCI6ODMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE4OGZjYWY4YmEzYWE2MmE5M2MwMmRhNTJkZWE2NjE5ZWVhY2Q0OGQ5ZDBjZGZiNTdkZWEyZTcxMjgxYTE0ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxZjc1MGU1NDk3N2RjNzc3ZWQ5NzFmZDhlYzFlMGJhYTE5OWFmMTllMDBjMTRlYWVkYWQ2ZGVkMjUwY2M2MjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJhNWYzNmUzZDMxYmQyMmMzNjlkYzA1NmQ4MzZjZjc4Mjc2MTM5ZWE3ZDg3MDRiYzUzMjMxNzdjNDhlNWJiZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwOGNiZTRkYjlmMjU3YTQ0ZDBiMjZlZmVmMGFkMTc2ZGJiMzg3NjBiM2I0ZTk0ZjA1Y2M3NzA3ZWU2MGU2YjEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/routes/workspace/RouteWorkspaceProvider.tsx#L283-L324",
+          "version": "repo-lines-v1:sha256:3ecd51b70a6e1de94f8f2d19ddafc2f1a61ac0e91f536e00233f79e16f01eea1:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlNzJkNzYyZjczMDNlNmVlMjQ5NGJhY2Y3ZDEwMzM5ZmQ0NzZlMjMxNzUyMDllODg2Mzk2YjcxNjVjYTZlOGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhODI1ZmYxMDE3MGRhZDlhZTc4NjUzYjQzNmZiZjVmNTA0NDA5OTQxYzBmZTZkMzY5ZjM0Mzg3MGY1MzI5ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NDFlN2E5MjQ0MzEzMzQ0NGFiZGU0ZjgyYTk4MjMwZDc4ODg1ZGM5OTY4MmQ5NDhhODUxODMwNTFkNmVjYWYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L111-L115",
+          "version": "repo-lines-v1:sha256:2b01dfaca00e5ca08f1db6f88f6baa541e0e9813b43cb9093027232a056f9f75:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDU4ZDUwNmVlNGQwNjliYjQxMDc2NTk5ZmQ2OTQ5ZWI3NDZlMjU4YzBkZDc3NTRiZmIxYmMzM2VkYmE2MTkzZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDY5Y2Y0NzEwMWQ3NTNkMjAzNTE1ZjFmYTU1Y2E0Y2JjOGI3YzkyNGVkNzY0MmJlZDQyYjBhMjVjZjlhOTBiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTkzMzc0NDhiZGY5NzBmODI3OGNjNjM0ZTdjOWNlOGFjNDgzNDFhODVhOWVmYWU5MzA2ZjFhZGU0NGI3YTM5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzJkNjc0ODBmYzFmNzJjYmUwOTFkYmY5Njk4ZDBlYzJhM2NmY2E2NmIxZjVlNTUxZGY2OTkzMWY5ZDZkZDlmYiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L204-L220",
+          "version": "repo-lines-v1:sha256:3305784c9613f579a1d6373dc5e6c2d9a740ef69093ad8b82934a4e526641266:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyNTEyMzk2NGQ1MjczMTVhMDUyZTNmYjhkMjUwZTU3Y2IwZTZmOWNlZGZiMzI0ZWQ0MzljNjQ2MjkwZTljYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllOWJjMTgxZTQwNGI4N2E5NGZjM2YwZDAzMzU3NGY2MjE2M2RiNTNhYTlhN2Y3OWY3Y2I3YzA5N2E2NzM4YTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4ec3dbc00a374f74b26a5459b96e57a0",
+      "statement": "The straight-line snapping fallback is treated differently by the two authoring flows: the base-route auto-commit path commits only when the proxy reports snapped: true and otherwise shows a warning, while the detour loop builder persists whatever snapPreview resolves with, so a snapped: false fallback (missing token or upstream error) becomes detour_polyline with mapboxWarning left null because that flag is only set when the snap request itself throws.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/DetourGroup.tsx#L450-L455",
+          "version": "repo-lines-v1:sha256:bb1edf6b6cde6c4d86af3f07c6dd8b1f4c4653ba6c9cf59fa708eaa129f9c72f:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdmYmNkMTYxOWI0ZTE4MWZjZGVjYWI3NjNjZmVhNDBlYmY0N2IyM2IxYTFmNjNjNGU3ZGFlMGIwOTk2NjlkMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzEzMDA0ODQ3ZTA0ZDg4NDEyZjk0ZWFiNmIwNTY0OWQ2MmIwNDIzZDA0OWJiNGIzMjdhODE2MzE2ZDY0NDNjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODcwYjMwNjA5Yjg3ZmU4YjVmYzk4NTI1MDMxOTg2MWU2MzFmMTVmMzgwZDM1N2I1ODljYTEzZGE2Y2Y1NzgwYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGNjNmVjODhlNDZmZmVhNzhiYWY4OGI1ZTIxYmJkYmJhOTU5MjlmNzA4OWJlNDQ4ODgyMjYxNmQ3YzY0MWI5ZiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L122-L126",
+          "version": "repo-lines-v1:sha256:d3ced1a2991e28152daffab4df02c9abf91703af47a70ca698b931387f32b6d2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzlhMmY5ZjRjZWQ5MzhiMmVhMTY3Y2I4YmEwNDk0MTFmNGQxYWY5ZGEyYjdiOTE5NzFmYWExZmE3MGJiNzE0YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjM5NGRkNTE4YmU4NGZjZDI0Mzg2ZWZiNTg1NDA0ZTgzZjkzMTU1ZGRhZmIyY2FkOWI2YjlkMTE5YTI2ODdjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTRiOGY1Yjc1NjU4MjAzZGU0ZDhkOWVhMTlkNGYyYmNiYTM3ZmY2ZDVlZmQxZGQ3OTA5ZWY0MTFmMzhiMGY5NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L245-L277",
+          "version": "repo-lines-v1:sha256:7b807bb396ce8b06126cdc09f55564babd3794298685151df1b72c741ec24612:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2N2IzODQ3MzA2NDdmZGY0NWRkZDI0OTUzYWVmMzYyMzE0ZTlmMjRjMjAxYWEwMWY1ZTJhODA3YjFkNGFlZDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjMyODY2ZWRlMmVlNTlhZDRmMTcxZmU4ZGM0ZDVmODY1YzU5N2VkMGJlMDg5MTBkY2M0NTBkODZiZDcwOTgxOGQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmMWFkYjBiNDNlYjdlNGNlOWFiYTc2YmQwMDVlNTg3Y2Q4MzhhODE1NmY1YzQzNmYzMmZlMTlhMjczZWYyNmYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/plottingStore.ts#L447-L540",
+          "version": "repo-lines-v1:sha256:3c47625891f2a69cf9d117ceeed790e19d954f03f62f22369c727410c827c558:eyJzZWxlY3RlZExpbmVDb3VudCI6OTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3MDI1YmZmNWYxMTU5Y2EwYTJjYWY4NTZiYmU3MzcxOTdmZjE0Y2Y0NzRiN2YxN2MxYjMxMTZlNzBkNDZhNTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRjNmJkZjQ5NTI2YmQ1OTVhZjQxYmM5YTcwYTIyYzA5OWFlY2RiNjI5NWVkMmJmZWNmYTMzYTU3NTIxMmFkN2UiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0YmVhMGZjNDA0MWU2ODhjMmFmYjE5ZWEzMjA1YmY5ZjNjZDJiYjc5ZmY4MjMxMzAxMTZlOTZmY2Q3ZWVhNWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViOThhYjc1MWJiZjdmNWI0MGY2ZWQxYWM3MjA0ZWFkMTZjODNiYmMzOWY1MWNhNzQ5M2U4Y2M3MWM1ZDI0M2MifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L107-L163",
+          "version": "repo-lines-v1:sha256:08a8acea2ccbe342adbf89539428c190d003933fc418833938f7def5422dceee:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjViNDUyMDliMjg0YWMxZWIxM2RhZTMyMWVkNTc2YWIzM2M4MDUzNGVjZmEyOThjMTYyNTAzODk0YTIyOTcyZjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNmYTdmNDA4MWRlMzU1YzM5MmIwYzFkOTZjMTdiYzQ0MTg3ZDllOTlmZTMzMWFiN2FlYWI3NmNhZTc1Njg5ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMWJmMmE1NjhkYmY2MmM0ZTQ4MGNiMTliOGZjM2QxNTNjMzIzMmRjYjc1ZWQ1ZDE5MWIwZGMxODE4YzY3MzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5677d106299b4def958983ae11e6366a",
+      "statement": "Projection and request caps are separate from the tolerance gates: the Mapbox proxy chunks paths at MAPBOX_CHUNK_SIZE = 25 coordinates and drops the duplicated joint coordinate when joining, detour split/merge clicks (and node drags) are projected with a 5000 m corridor so nodes always land back on the base polyline, waypoint clicks are stored at the raw clicked coordinate, and the MAX_DETOUR_VIA_DISTANCE_METERS symbol referenced in the inferDetourFlanks docstring does not exist anywhere in the repository.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L362-L380",
+          "version": "repo-lines-v1:sha256:48f583dd65e1ab5a81866ab00120fd5b67f5e15461025ad530f8f2a8b9971d51:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOTk0MjQ5MmRhNDkyYWYyYmI4MmFkYTEyZTVlYzU4NzYxMTlkNWVkMTVhMTRlZTc0ZTFiMjg0OTU4ZTM2OWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFlZWJjMzkyNjk0ZmZiOTE1ZjI2NzQ0YjEzMDRiMDQ4N2FlZTY1ZjA2NmJkNWNlOGFlZWNkZWViZmFkODE2MjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmN2QwOTc5ZWVlNmNjNmFhNWI2M2Q4ODBhNDUyYjgyMDg2MTcwMjQ2Y2NmOTBjZDA1NWRiZDdlNjMyMjUzMzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRkMzQ5MmRjYzlhM2RkY2FhZjUxNTU2MTM3MTUyZTE3Y2VjOWFkODg5NzQ0NmNkZmJkNzcyOTE4NzdkZDk3YjcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/detours/detourStore.ts#L476-L502",
+          "version": "repo-lines-v1:sha256:2284bec0569bfc6cf7fdb3749732629034345706563e9a33f3e10b85c825013e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2ZjU3YjM2NDUwYzg1OTY4NTU2Y2I3N2E1MzQxYjY4ZTdkZTVjMjMzZTAwODYwODY3NzIyYmMzNWJkMTdiZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NzhlMjUwM2I4Y2YzN2EwNmY3ZDZmMGEzYTZiNmZlMzU2OTFmYmNhYjUwYjg3NzVjYWI2ZmFiYzcxYzU5MmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllYWFhMGRiNGQ1Y2U2NTU2MTlkYWU0ZDNlYzg5N2FkNzAyZjc3M2E1NjNkYmNhNTc1ZWQ1NDJmZWRlNmExNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjkyZTllZWM3MGQyMDQ0MzY0YzM0MDk1MmFkYTQ4YzcxMTc2ODZhMTMwNjk1ZmY5YTA5ZGYzMjEwODIyNWU2YjMifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/coords.ts#L577-L586",
+          "version": "repo-lines-v1:sha256:64426d21c6d161c3c21e0b3f2ee5e22774a61af68bb1bb2501657867dae6edae:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwZjY2NjdmYjU5MDM4YmJlMjVlNDY5Zjk5YWJhNzhhMDI1NzkxZmNjYTk3NmE1YTE2MmRiYmU5ZDRlZWEzOGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmZWE3NGQ5NjM5YTJmNTZkNDgzNzVjNjU3YTI5ZTlkNWM0ODk1Njg4NjUyNjA2OWZiYzJjOTEyMjA0YjNlZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjIxN2M2NTcwZjM2YmI1OTRjNjhlZTBjMDFjZGY3NTE5NGQ1MTA2OWEyZTY4ZGJlNDRiOGEyODM2NzQyZGFjNjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkYTM2NmMyZmM0YTEyMmJkNTkyYzg2YWYxZGM4MjlmMTAzODZmYmRjNzdiYTc2YmZjZjZiZTE3MzQ1NjBlNDAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L48-L67",
+          "version": "repo-lines-v1:sha256:bad9f1688a2c4f58b214b94108dd7317a51d8c6353a0bb01848c29b54c2b9e35:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI0ZTEzOWY1OWM1OGQ2YjUzNWZjZWJlZjI1NTJkNGVlMDFhNTlhNWM0NDgzMmUwMGQ4MTY5M2Y0NzVmOWQ4ZTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5MmRjNjFmYmI0YzYyNWUwMTEyYzM0ZDg4YzU1NGVhYWMwYzZjMjU0NWM1NzcxZjAzNTVjZDgxMjFjYWMyMzQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L6-L39",
+          "version": "repo-lines-v1:sha256:40712d3d1a9cc1e45309700f42fdf22c2c329558abb2ae07dc1d3084511c83db:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE3NzUyMjc1MjU4OWJiY2U2YTNlODAxNmIyMjA1MjFjYzU4NTZhMDJmMTdiNzQ1YjZlYjFhYTUwYjA1MWY5NjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVkY2U0MGU5NjRlNTlmMGI5NGQ0OGY5ZDFmNzc0MDQxNDMzMzJjMWFjY2ZiYjgzM2M5OGIwNjRjZjM4YWYzNDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4Zjk4MmQ0NDFiYmJiNmMyZWEyMWU4MWRiNzIwZmQzNjc2Yjc3MDg4ZjU0MGQwZjVjOTdmM2ZkMzJkMmQ1YzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ac1af1dba97c46bf8e68ff345ad59efd",
+      "statement": "reverseCoordinates reverses the coordinate array without swapping ordinates within any pair, so the auto-derived return keeps every [lng, lat] intact and direction of travel is encoded purely in vertex order — the property the direction-aware overlap detector relies on and the reason the two-direction model needs no re-projection (ADR-0008/ADR-0011).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/lib/overlap.ts#L4-L25",
+          "version": "repo-lines-v1:sha256:66c0643db60d79871da57586b849bdac8bb19366d2c1c1ee1ac5cde136fffe66:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3MmE0MjkzODJiMmUxNDcxOGUwZTM3YjA1NzBhOGExNzAyOTkxZmNkODQ5OGNkODQwNjBhOGJmNGYwNTAxN2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVjMWJkOTJhMzIzN2E3MTYwMTQ2MWY5ZTI5MGI1NjI0YzZiODhjYmI2MDQzNWNkNTdkMTExYmEwMTc4ZDI0ODciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE2NGM1YzY1NTQ1NjQ3YTlhMGNjMTA5MmRmODcxMTU2YzFhMWJjMWQ3Y2Y1NmUxNjY3ZTI3YjNiOGI3NmViMGYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L36-L44",
+          "version": "repo-lines-v1:sha256:e5d70a9642eca52725698afe2ba3e25ad52ccfb60d87544d17731ed6b37cfb47:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWU1NDMzMjNjOWY1MzlkNGFlMTAzOGM5MDA0MDhlNTBhOTk3ZTNhMDRlMmI0NzBhZTViYjE2ODA1NWRkY2UxMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOTlmYzdlMDVkNGE2NTllMTBiYzRhMTU0MzVjOTlhM2U5MTM3YWJhMTBiODYxNTdjYWEzNzFjNmI2OTJmZjA5ZSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L78-L99",
+          "version": "repo-lines-v1:sha256:c4ede8face83951e49eec01caf2c1d5d150bcba5fb7a5b9a797b17317274db51:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjMmE0NjJjNTI3N2Q5YWYyOTI0MTFhOGY2ZDdhMmRiMTY4MmMzYTJlZGI2NWQ2ZDgzYjYzNzUyYmRmZDY5M2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1ZGY0N2ZhNzFiMjhmZTgwM2M2NDlkZDlkZmZmNzQ2YzRmZjE2ZDU0ZDhkYjhlYWJiNmFiYTJmYWEwZWM2ODkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YjQ1ZWMzN2UyZGQ4MzAxM2NmNDQyYjAzMTA4OTNiODY2MTdjMzA5ZDVkZmU3ZDI5MjcwZDE4NmRlMWVhNmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVhODdjZWY1M2M2OWMxOWJhZjBjOTRlODI0OTY2NjY3ZDk3YTUzYzY0NWUxNTFmYWZlZThjZjliYzhkZjBhYzcifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

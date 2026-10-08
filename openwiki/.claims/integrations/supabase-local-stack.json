@@ -1,0 +1,502 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:aa930f4a9dd6ab46559642ee26764c9ffa8014ccf1f6958f0371c958b80603dc",
+  "claims": [
+    {
+      "id": "claim_63cb45d441bd491787092c56919c15f4",
+      "statement": "The project's database, spatial extension and identity provider come from one local Supabase project declared in supabase/config.toml (project_id \"komyuter\"): Postgres with PostGIS on 127.0.0.1:54322 (major_version 17, shadow_port 54320, health_timeout 2m), the API gateway on 54321 that hosts GoTrue Auth at /auth/v1, Studio on 54323, a local SMTP mailbox on 54324, analytics on 54327 with a postgres backend, and a disabled connection pooler on 54329; there is no hosted Supabase project and no deployment configuration for one.",
+      "evidence": [
+        {
+          "resource": "repo://supabase/config.toml#L33-L42",
+          "version": "repo-lines-v1:sha256:4782c8a9d78b2935b12be1c894fa8cffac0db19d9d4022bf80846a0a5e485d9f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0YmMzOGQ4NGRjMjU2NTg5OWU1ZWJhOTExZWMyMWY3ZWY4Zjk4YjYxOGM0N2JiZGQ0NzU4NDMxZmJlM2I1MGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFjMTk1NWQzYjE2ODAwMDNiZGE2NzJmYmZjZTJkYjY1MDBlZGE0ZjZlOWFmOGQ0OTQxOThmNzU4YjFiODFmM2YiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQxYmFmM2IzMTM2NzAxMGZmNWUwZDBiNGI3Mzc5N2MzZjJiOTEzOTM2ZjljOWZiZTQ3Zjc3YTYwMWNkYjlkYzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2MjcyNTMwZmQzZTI1YmQ3YWNjNmVmYmQ2NjFiODc1M2Y3MzE4NjUzZDlkZjBmMmY2NjMwMjI4N2YzYTYyMDgifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L391-L395",
+          "version": "repo-lines-v1:sha256:b62f2d60906dbd0c0b64e7b9857c92f084d90dcabbe0d4d0cbe41d68b87ed53c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjM2Y2NkZjQ0YmE5NzBlMjY4NzIwOTBhMWVkMzI0YmIyMTIxOTBlYjBhNWQ4YWEyOTk3ZDY4ZDcwZmUwZjJjMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTYxY2I0NjMzMTliZGE5NDY2ODQ1ZDY4Y2Y5MTY4Zjk4MWM1MzQzNTM4YTkyMWM3NDAzMzY1ZThmY2VlYmRiYyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTA3ZTdjMjdmY2QxNDdkMzA5MThiZmJlYWI3ZDZmOGU3OWQxNTE2NjI0NGVjNTY5NmJkOTQ2MjgwYWJlMTk2MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTU1MTA2MzI5NjViMWFiYjlhZWI0NTM1YWY4OTRmNGUwYzRjN2RiN2Y4YTA2Njk0YjczYjU4YjAyNzVlOTQ4MyJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L44-L54",
+          "version": "repo-lines-v1:sha256:88e510d124f02136ab0e371807389a2251e8e0ec528666e6c7937aaf7304dd1e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlNTYwNGY2MjczYTQ1YmE0MTAzZjVjZmNkM2Y5ZWYxZGE5NzRlOWFiNTAxNjQ2OWNiNDA4ZTI3ZjliOTYxMGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4ZDkxNzM1NThhZmMwZTNlYTk0NDcwNTcyMjM0N2U4M2I0ZjdjNTdmMmQ0ZjE2NDljZWFiMTUzMmJhMTQ2NWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA5MjkzZDJhNWQwN2M4MWRiOWEwNjMzNzhkNWIzNzI0ZTc3YmZmY2U4NTM1ZWE2YjcyZTVjNTdiY2U1Y2RkMTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwOTI4N2VmNzdlMzMwMmNiMDc0OThlZjNmYmU0ODVlODk5YTU3ZWVkMThmN2JmYzg4Njg2MDVlMWNjOTkxYmEifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L5-L10",
+          "version": "repo-lines-v1:sha256:2c77a1705e82edea45c5b31df11cc66b3509735eb49a433e60e91b5c8e9ee21e:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGJjZjNlMDk1NGIwMzA4OTNkMTUwZjNiNGJkYThiMzE2MGM3YWJjYjBhOGI0YzdhOGMxY2IwMDU5NjdjMzRiMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0MThlMjdmOGU3MDhmOWQ1N2M3YWExOTM3NzA1Y2EyMmMxMTRkZDBiZWZjY2RkNDgyYTdiNjhjOTUxYmFlMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzY5OTBhYTg2MDQxZjM0NmM1YWU1MjJkZGM3OTVmYjg4Y2Q5MGUxZWRlNDNlMDNkMjA4YzQ5MTdkMGZhMjllOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzYzZWQxOTQ1MDg0YmUzODhlZWFiZTNlNDJmMjc5NzU0NjY2MjM2NmM3MjJkM2Q1YzEyOTI0ZGNmNGM5YjY3MiJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L94-L108",
+          "version": "repo-lines-v1:sha256:a90b0ea431f14b822e67c11c05258ab9175ae74148a87bf9435f0513219e5905:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyYjY0YWQ4MDIyNmNjMThhOWI4ZmViMmQyNWNkNDE5MWRhMWQ2OTdiOTQ5ZGMzNzgzZTYxODY4YjgzMjMxNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5Y2RhYTljN2QzODMwYjgwZTk4OTcwMjA2ZjM0NzE1MDRjZWZlY2VlN2U0ZWRhMGFiNjc3ZGM4Yzk4ZWE0NjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc4MDlkOWExOTAwMzY4YjRmZDlkMGMwYjVlZjc1YjYzMTNkMjFkZGMyYjQwNzFlNGQxNTBkN2RmMWFiZWQ3MjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwNWM4MjdhMzY0MzQ0ZTNiNTgwNmJmMGYzNDIxNDcyYWRjMjc0NDE3NTk4ZjFiOTM0MzE0NmE0ZjFhNmVjODUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_46ec0d11ce3a4eb0b909716af8de05b9",
+      "statement": "The stack is configured as local-only tooling rather than a hardened deployment: api.tls is disabled, db.network_restrictions is disabled with allowed_cidrs 0.0.0.0/0, and the connection pooler is disabled; config.toml already carries the stricter auth values docs/SECURITY.md lists as pre-shared-deployment hardening (public signup off, minimum_password_length 8, confirmations on), with rotating the seed password the item still outstanding there.",
+      "evidence": [
+        {
+          "resource": "repo://docs/SECURITY.md#L115-L115",
+          "version": "repo-lines-v1:sha256:cd4fe454d3ad985b86b607d8cb0bb4cf930c012da5559cf148f16aaea7501981:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Q0ZmU0NTRkM2FkOTg1Yjg2YjYwN2Q4Y2IwYmI0Y2Y5MzBjMDEyZGE1NTU5Y2YxNDhmMTZhYWVhNzUwMTk4MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Q0ZmU0NTRkM2FkOTg1Yjg2YjYwN2Q4Y2IwYmI0Y2Y5MzBjMDEyZGE1NTU5Y2YxNDhmMTZhYWVhNzUwMTk4MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzU0ODBkZjNjYTIxM2Y1MTk4MDU4NWNlNWViMDUwMTRmMmExODhhZGE0OWNhNmY5OWRiMTZhYTBkZGI4OTVkMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjIzYjFmNDRjYjdhOTc4NDgyZGM1OGIxNzZiMjc3MmY4NDM5ODY5ZWM1MGQ2NjRmNzIzZGRkOGFkZmVjMjA3MSJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L176-L185",
+          "version": "repo-lines-v1:sha256:daac157d2ba8be092dbbb44910e3a1ca34f59af547bc24d6be9d32ced9257c0e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI4YzI3M2FmYjFmOTM5ZWIxZjhkMzMwYTVlZjFlMGE4ZGM2MTExZDIzZjQ0OWEyMmNhNDljZDc2NWJjNDE3NjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMxOTU5MzhjYjEzOTQzMzM2YzUwODMwZDY5NDQwN2IzNjRmZjc0NmVlYmY0ZTBmZTc1YzI1ZGIxYWYxYzQ0NWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxODZmMWJhYjU1ODhmYjQ5ZjNhNjIwOGJhYWUyNzgxZGU0YTUxYjA5YWYxOWVkODdlOWVmZjQzYmE3NWFkNzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJlYmI0NTU3MjE1MTg5MTM2MTAzOWI0ZWIyM2NmNTVhNzkxYjIxYjgwNmU0MzczZGU2MGJmNTQ2NDIyNjhhNDQifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L26-L31",
+          "version": "repo-lines-v1:sha256:808c573e941d93a5ad305923c8166fc952f94bc20d0d71477744c02cfd25b9aa:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQ5MzM1YzA5ODQ1Yjc4MTBlYmJmNjkxNzU1ZTZjNTI4MGM3NzM3Mzk2YzFjOGUzNWRiOTk5OWUwOWRiYzMwYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTkyMzIxYzY5ZmE0OTRlZmQ1NTUzYmRmYWQ4MzEwZDZhYTA2YThkOWNjMGFmYmIxNTYxMDA1NDA0NGNiOThhZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ5NDU1NTBlMWFlNjgyN2IxZTEwZDNmZDhkMzA3NTY5MTU2YjU3NzE0YmY4ZjI4ZjAzY2U4OTczZTlkOTQ4MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDYxNGFmYzIxOWEwZDBlMWU1NGQ5MmQ4MmYyNmZhYWU1OTc3Y2NmYzE3YjdkOGIyMGU3YzEzN2NjYmIxYjNmMiJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L73-L81",
+          "version": "repo-lines-v1:sha256:c6780afa3111fba79977493f98659922c743d8f3f92e06cc55545883b33aa6b4:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDAyNTQ5NmRlMDI4YzQxZjFjOTI0MWE2NmM2OGI0ZTVmMDMzMDA0OGE4OTY2MDZmZDg2MTQ5ZjM4ODE1YTBlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWI3ZWJlNGIzNDgyZGM0MzFjZGQyNTAyZjhiN2EwZTY3OTEyNjUzODM5MWNjZWQ4OWE5ZDMxY2UzMjhkYzlhOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2ZlNzJlOTkwZmY1OTcxMzJkY2U3ZjFjMzdkYWRkMzc1Y2I1MWZiMGVlNTZhYzZjNGQyMzcyYjczMmUzY2ZkOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDM5MDAwN2VmM2ZlNjBhNmExYzRiZmJjMTUwZmY5NGMwOWRhYzVjNzE0NTUzZGU2NzQzOTM5MjgxNmMyMDJkNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ec86827750974aebaf72745e4673a880",
+      "statement": "Only apps/server talks to the Supabase stack: it builds a single service-role supabase-js client with persistSession and autoRefreshToken disabled, plus a pg Pool wrapped in Drizzle from env.DATABASE_URL, while apps/admin has no Supabase or Postgres dependency and therefore always reaches the stack through the Fastify API.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L12-L34",
+          "version": "repo-lines-v1:sha256:8f0e4b36b7d52fa9ada982d4c3473e21a56396aec16daae89a16279cc81ff8b7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEyNzI2MTQ1NmRlYzAzZmEzODQwMjExMzg4M2FlY2YyZmMyOTZmMGRmM2NmZmUyMmNlZDFhMzg1Zjc5ZTgwMzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ1MDZlOWNlYTFmNzg3Njc1OWM0YjM2MDcwOTQ3MGZjNDQ1MjNjZTFkZjBhYWJhZDU1YzAxYWQ3OGVmMGU0ZDYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/config/supabase.ts#L3-L13",
+          "version": "repo-lines-v1:sha256:d6532ba114dfd46305dbf05ae23532226cb2a4eb9c602f8a4addc3fe3d453913:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhZDIyZTQ5YmZiYjljNzQyNWRiMzBmZjRlYmJhODA3YTUwYWRkMDA0ZDgzY2MwYTQwZmZjMTZjMGJlY2I4ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmZWFhOGY4ZTNlNWNiNTI5NWVmOTI3NzIwYzNiOWYxOGI2MmQzMTY3ZjBlMTY2MzUyZjM3NDU0N2YzODg1NTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/index.ts#L6-L23",
+          "version": "repo-lines-v1:sha256:06be845e5b22e9cb09f7177b186faaedcbd1ebfb8409d84a8c1fb6974cae0223:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyNDNjMjc0N2VjZWUyYWQ2YmEyMTg0M2YwZDU1YTA4NzAxOGQxMTg1OGE0YzljNjY5OTYyNTY3Y2Q4NDZmYjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA4ZmZhN2ZlNTlkMjM3ODI0OTk2ZWU2MGQ2ZjgwZGZlNTMzMzExMzdiZmRhODZkZDlhMjM1NzE3Y2M3NmE5ZWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0NTg0Mzc5MjlhMDhkZDNjYzRmYjRjYWQwODZhYzQxOTdhZDAwYTg5Y2QyNDExNzA1ODg5NjA4MjE3ZGZmOTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b383b74d87fc4923b410bc4bcfee9d96",
+      "statement": "The PostgREST/Data API is not an access path for the project's tables: although [api] lists public and graphql_public as exposed schemas, auto_expose_new_tables is left unset (the config comment documents that new entities are then not auto-exposed to anon/authenticated/service_role) and no migration under supabase/migrations issues a GRANT or row-level-security policy, so all data access goes over the direct Postgres connection the server owns.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/config/db.ts#L7-L10",
+          "version": "repo-lines-v1:sha256:c3b6ad79ffa0cccfad0e7fb7b2b9bb80b56f4ce08477652ba149116a05078529:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWNhMjZkNjU5Y2NkN2JmMmRmMjcxMTVkZjQ5YzIxZDI1NzBkNWQzYzU2M2Q5MzNiZDM1OWFmNzc2NTFjNzQxMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDUzMGEyYWUzN2YzMTEyM2Q2NDE1MjAxNzNkNjFjMDMwMWI5MTA4MWE5MTg2ZDFmZTBkNmQ2ZDA4YmVhZmNlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L7-L24",
+          "version": "repo-lines-v1:sha256:5c810f5e7c8a7454e8dac2b03739fdd5fcef6bc87c68dd9e02e9a3d528f32ccc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAyZWQxZjczYjczMjgxNjVkZjBkYTMzMDM2OTMwY2MyMjM5Mjc0NzRjMWVjMDQ5NWJmZTg1ZWViMDcxMzk3YWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzOWFkMmQxMGRlODEzMmE3MWEyYWQzMTRkNzU4MWJiMGQ4YTVkYzhlOGNhZjI4MjY5NzQyYjY3MGNjZjQ4YmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxZTNiZjhhMTkzNzMwNzIwZWExZDVhNTM5ODkwN2Q0ZGVjNTU1NWIzODhlNGE4NDZjZjgyYzNiZmZkNGY0MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlYzk5ZTcwZmFkYzY4ZGZjYmI0MmNjNjJjYjliNGEwYWQ0ZWIyNWUzNzhmMjBlNzUzZGYwM2MwMTU1YWFkMjIifQ"
+        },
+        {
+          "resource": "repo://supabase/migrations/0001_hard_roland_deschain.sql#L1-L103",
+          "version": "repo-lines-v1:sha256:5bd09f37e2a3b24059c565044e2737015cf13b6055056f82ad07df975ed93f82:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI4NDgwYzIyYzk5MzU1YTZjODMwNjc3OTZlMWViMzQ5NDkyYjVlZjM0ZTMzOTY2MjcwZjE2NTdlNzc4ZmFiYjgxIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI1ODhjMWY5MzUwNTJkMmU2MGYxYWQ2ODliYTVkZDZhMWE4ZTVhOTNhYmZhMmNhZTRlZmY1YzY0ZDg2YzI0MjA4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MCwicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://supabase/migrations/0005_detour_stops.sql#L1-L20",
+          "version": "repo-lines-v1:sha256:f3ec0b9f439635bd6159a27008a4a3cfccfa31d6399b1ab310616737c5eef1ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBiYjE0NDgyNjgwODA2N2MwYmMwMjU2ZDEyNDQwYWJhZTkxMjM0MjJmZTRmNDBiYjE5NmU4NGJiMjg0Mjk5MDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZiOTdmYjQxNDdkNjBiNzRkZjczN2Q1MzJmMjZmODk4MmVkZGQ5MmEzNGQyMzBlNjRiYjEzZmQwNDM0ZjkzOWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f02ddf636cf94eca849116a80c3c803e",
+      "statement": "[db.migrations] enabled = true plus [db.seed] enabled = true with sql_paths = [\"./seed.sql\"] make supabase start (first boot) and supabase db reset apply every migration file in filename order and then run the seed; db reset is the documented clean-state command and is destructive — it restores only what the seed inserts, so a plotted dataset is lost — while supabase stop followed by start keeps the data.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/README.md#L17-L36",
+          "version": "repo-lines-v1:sha256:8d2b023caca4156aaad6295e8160a80847a37f9a2e53959e69e0be1dcd823726:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjNDNmYjg5ZGQ3MTM5MTcwNmJiNjU1MzM3MTM5YWU2NmFjMTBmYWNjNDI2MmJjZDI0OGMyMjljZjBlMjVkMDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0YTcxYmM2YjUxYjcyNDEwOTE4NzExNjBkYjYzN2E2NDU5ZWIzZTA1NmNhMTM2ZDFlYzc5MmZmMmI5MDdlZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU2ODE3MzI2NGExYjg2YzJlMWVmY2ZiMTZhNTk2OTRiNGI4OWUxNWJhOGJkODhmOTI0NmMzZTU1ZTdmNTM5ZGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0YTY0NTM4MDdjODFmZDlmMDBhY2Y5YTNlMGE1YmY3MjQ2NDZhODM3ZDEzMWE5MTUwOGJkNWE3MDAyMWU2YTQifQ"
+        },
+        {
+          "resource": "repo://specs/001-local-supabase-backend/quickstart.md#L43-L43",
+          "version": "repo-lines-v1:sha256:4c731479010c138740fda33fa7d4ca8e5e28adc5fe1a063f10c19493ef93bd71:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGM3MzE0NzkwMTBjMTM4NzQwZmRhMzNmYTdkNGNhOGU1ZTI4YWRjNWZlMWEwNjNmMTBjMTk0OTNlZjkzYmQ3MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGM3MzE0NzkwMTBjMTM4NzQwZmRhMzNmYTdkNGNhOGU1ZTI4YWRjNWZlMWEwNjNmMTBjMTk0OTNlZjkzYmQ3MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGIwMTQ5ZGUxZDlkMjgyMzU3ODZmNTJkNmE0ZTA3Njg1NTczZThkZGI0ODc4NWVkMTAxYjZlZGNlZmM5ODNlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMWFkZTgwYjczNDBjMjI3YWRjYjE1NWMxZDEzZDk4OWQ3OGM5ODI3ZGU1MmI4MTk5MmE5ZmNiNzMxYWNiODQ1MCJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L59-L71",
+          "version": "repo-lines-v1:sha256:ac2640bc8510a0f049ae8af74fa477a025fff32ea931366dd455cf54a453ac74:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEyMWIyNjhmNDgyNjgwODgyMmI0OTQyNzU2MjU3NTczMGQ2M2MyNTY4NWE0NWRjODVlNWZjNTg1ZjUxOWNkZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzNTY1YTk2OGNiYmZhN2ViNzU0MTIxNzY2YWFiNGQ2ZTIyNTE5MTQ5MWFlMGUyYmM2MTFiMWIzMDgyYWZiNTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjExOGNhZWU1MjcyZTdkMGI2ODFhNTliYWYwZDU0YWFjOWViNDlkODljMmJhMDAzM2U2YTcwMGQyZjEwYTljMzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3NzM3NzcyNGFhYmU1ZTI3NmIyMTEwNDBjZDUyOTc2ZWM4NjYzYTc5MDEwM2UwYzQ2MWI0MDAyZTcxZDMwMzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_51d91974ac5a43379a682de528951487",
+      "statement": "supabase/seed.sql is idempotent: every statement ends in ON CONFLICT ... DO NOTHING (auth.users on id, auth.identities on provider_id plus provider, admin_users on user_id, fare_configs on fare_config_id), so re-running it after a partial reset is safe.",
+      "evidence": [
+        {
+          "resource": "repo://supabase/seed.sql#L1-L6",
+          "version": "repo-lines-v1:sha256:25207b99d1b6f4fec141d278ed84e374a1a250bce6193b0b3b1efcea9e1ffb61:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFiZDdhODNiYmRkYjAzZmEwNzE3ODkyZmM4NGE2ZTVlOTQ1MzlmNWM0MDUyYjU4NDAwNTZhZGE5N2U1OGNiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Y3M2IxMzNhYjcxMGE2ZTNmYWViZmZiZGNkZjFmZmM0NDYzZDRjYzBlYjc3NDEwOTIyMDNmMTEyYWFjNDhjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDI4ODdmNDc3OTk3YTNhZDA0NTlhMDViYWEyODQzZmE0ODRjZjFhOWYyOWY5ZjQ5ZjJlOGU5OWY3MmI5NmUzNyJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L107-L110",
+          "version": "repo-lines-v1:sha256:0ec42efb5a4d5d69222765ce583de1363a9424fe2795f524dd717ef6a1cc8ad2:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFhMzAxNTMxZTVkNmIwYTJjMTFmODdjOTIyNzM1NzA0MjJhN2FlNjRlZjAzNWMwMGJjM2ZiM2I0OGQ5OWNjNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDY0ZWQ5ZGQyMDk1MGNkYWYwM2EzZjFkYTgyY2Y4ZGQzNDA4Yzg2NWYzYmVkZDFlNTU0ZWRkMWZlNTU3YjA2OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTkwMjRhMDQ2MWQ4YmMwODJjODJiZDRhM2NiZjNhODNhMDY0ZWM4MjVkNmZmZjQ5MWE5YjNkYmUyMTk2NzJkMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L48-L48",
+          "version": "repo-lines-v1:sha256:c417737fbe87612b073e8379c9bdeed7f475b338aa705ff5272ac07d4dbcaa46:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzQxNzczN2ZiZTg3NjEyYjA3M2U4Mzc5YzliZGVlZDdmNDc1YjMzOGFhNzA1ZmY1MjcyYWMwN2Q0ZGJjYWE0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzQxNzczN2ZiZTg3NjEyYjA3M2U4Mzc5YzliZGVlZDdmNDc1YjMzOGFhNzA1ZmY1MjcyYWMwN2Q0ZGJjYWE0NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzA3NWMxYzg0Mzc4ODEwM2M1YjQ0NmViNzM5M2EyZGE1ZDYxYzI0NTYwZWMyODA4ODYzMWFkNzQyOTY3OWU4ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWQ0NWEzMjNkMmMzN2M1OGI3NTgxNGI1MDAzMDJmYmUzZmYxZTAzMmRiMGQ4ZDYyNzQ3ZDBiODhhMTNiNjIyOCJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L74-L74",
+          "version": "repo-lines-v1:sha256:50e179b1c03069adec020730d04c6f84c89268e003f40f4e2e997ad4b4d78be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTBlMTc5YjFjMDMwNjlhZGVjMDIwNzMwZDA0YzZmODRjODkyNjhlMDAzZjQwZjRlMmU5OTdhZDRiNGQ3OGJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTBlMTc5YjFjMDMwNjlhZGVjMDIwNzMwZDA0YzZmODRjODkyNjhlMDAzZjQwZjRlMmU5OTdhZDRiNGQ3OGJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjc4MTI2YzViNjFkZTExNWE3NGQyODUzODhhNGE3NTdjOTBlOWYwYjM1NzEwNDA1Y2Y5MDEzYzkyZDIyY2E4NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWRkY2Q5MmRiM2E3NmMzYzYyNDUxNGM5MWJlOTdjZDkxZjBkZjRhZTEzZjE1YTc5YmM0ZWNkNzMxOTE4MWU5ZCJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L79-L81",
+          "version": "repo-lines-v1:sha256:d8577d0f057b4c65174e49909d122b9f32669bdb75feb8e2676b410494228b48:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDMwZWY3Zjg3MmNhZTgzN2E4MTg5MGM0YjIyZWQ3ZTcyNmNlZDNlMzk4YjBjMDRlNDAzYTgzNDViMjdhZTFhOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzc4NzBhOWQ1NzI5NjNiYWVlZTA1ZWRlNGQ0NDJhZmMwM2MxZDdjZjkxZjc2ZWE4MWY2YWY4NWRkODIyYzhhNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2FkYTAwMTNjOGZlNzg4ZGM3N2E1MGNjZTJiNWVmNGIzNDIxM2ExMjdmYzc5OTdiNGJmZGY4ZDExMTUwMzZkYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2FmYjk5NmI4MWMxYzI3NjNiOTQwNjkwNTg4ZjNjNzVmZTFhYjE3NTA2MzQ0ZjQ0MjQ1ZDZkMDg2Mjg0YWE3ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_52953dd9bea64f468a0b974a952e2ae7",
+      "statement": "The seed creates the local Auth admin with fixed UUIDs (auth.users 00000000-0000-0000-0000-000000000001, auth.identities 00000000-0000-0000-0000-000000000002) for admin@komyuter.ph, hashing the password with pgcrypto's crypt/gen_salt('bf') to match GoTrue, inserting the row already email-confirmed (so enable_confirmations = true does not block it) and storing user metadata full_name \"Admin Komyuter\", which the login and /api/auth/me responses report as name.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L48-L66",
+          "version": "repo-lines-v1:sha256:a8a7e2a677552f72e2106a8ad5e6f616b43a024109d149d098706937ae42a617:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyZGRmMzI2MmEzMTlhNjE0NjNiMGQ3NzFjYWY3YjhhYmNhOTdmYmMyMzUyMjU4N2MzMDNjMGUzMTVhNzg3MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxNzQ0NDBmOTJhYmEwMGQ3NWMyMjdkNTcwMWI0YThlMzMyYTZkOWExNDAzNzQ1MmI4ZDliNDI5ZWZhYzhiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2YWQ5MDIzNDFkYzY5MzVmZWQ0ODI4OGJkYWEwZDlhYWY4OTIzMmRlYTM1MmY4ZTNiMjk3ZTM3NGY1NTI3OGYifQ"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L8-L74",
+          "version": "repo-lines-v1:sha256:1830458bddf3bf29ad118400f1a07559194f4eba77920cf28f93325cb091bd09:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNzM2ZDIwN2I2YmE0NWJjYjljMzMyYjc2YTg4YTM3ODU4MjM5YzM0ZGYxZmM4MzIyNWI4NDkwMDdmNmU4ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUwZTE3OWIxYzAzMDY5YWRlYzAyMDczMGQwNGM2Zjg0Yzg5MjY4ZTAwM2Y0MGY0ZTJlOTk3YWQ0YjRkNzhiZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNjhjNzgwZTI0ZTBkMzIwNzNlMTQ1NWI2ZGJkMmIzNTNhOGJmNTk0MTBiZjhjMDQ4YTJkMzdlNDkzMjI1M2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlkZGNkOTJkYjNhNzZjM2M2MjQ1MTRjOTFiZTk3Y2Q5MWYwZGY0YWUxM2YxNWE3OWJjNGVjZDczMTkxODFlOWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6241d58151d549628b129864d07423d3",
+      "statement": "The seed's admin_users insert, written against the literal auth id 00000000-0000-0000-0000-000000000001, is the entire authorization state of a fresh database and is order-independent with respect to the auth rows; admin_users membership is the single rule consulted by the login route, /api/auth/me and the /api/admin guard through isAdminUserId.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L26-L53",
+          "version": "repo-lines-v1:sha256:bb7367ef243df3bc46a8d7a2c96daa6cc090f0ba64b20d8a939fb20d7bdeec22:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyZTk1N2Q3MTRjMzE3OTNkYzZiZDc1Zjc5ZGNjZGI1ZDc5MzMwM2UwMTY0N2RiODE2MWMyYzRkYmQ4ZDg3M2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiMTljOTAzMzBmODZkZTJhZjUwZjNhZDcyZTAxMDg0YTBkNGE2NzNhYTljNzMyOGIxNDg2OTQ0NDNjNTg4ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRiNDQ2MmQwNzIyZmRmYzA2YmE3YmZlNWMyMTA5ZThhM2RlZDY0N2U3MGNjYTY4MTU1NzBhOWU4MzE1ZDBkM2IifQ"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L11-L12",
+          "version": "repo-lines-v1:sha256:aba1474fadfd53a8f25ed23956662af313a03fbf1ed3ea04dc962b11ecf594df:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDUzOTY3YmZmYWIyYTkxNzZiYzJkYjViODMyOGJiZTdjZGJhM2M4Y2IyYmVhOTEzZWY3YTkzZTA3NzY3YzU4MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWYzYzI4OTZiYjdjZjA3MDhiNDQ0YTkyNDU2MWE2M2YxODA2Mjc3MWQ5YjZiNmYwZmE1OTllMGRhMTZhYzgwZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2E5MzNiYTYxYzM3ZDVkOTdiZDE5Nzc1NTI3Nzg1ODZkOWE4MGYzYWU5NDUwMDQzMWQ5MGFkZTJkZWUwNWFkYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDU4MzE1NjQzMzU5OGM0YzhmOTNhNTJkNWYwNjBmZGY4MWRlMGI5ZDY2NTY4OGNhY2Y2ZjljYmUyYWMzN2I5NiJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L76-L81",
+          "version": "repo-lines-v1:sha256:3273ee0a5b4f1c8f425f6fde985d1e5ded49af4f18e102a2ed7444d6915d6f0b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjE3MzZkMjA3YjZiYTQ1YmNiOWMzMzJiNzZhODhhMzc4NTgyMzljMzRkZjFmYzgzMjI1Yjg0OTAwN2Y2ZThlMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzc4NzBhOWQ1NzI5NjNiYWVlZTA1ZWRlNGQ0NDJhZmMwM2MxZDdjZjkxZjc2ZWE4MWY2YWY4NWRkODIyYzhhNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTA5NWRjZTI1YWYzMmQzOGY1ZWFmZmU2ZDFmMTg3NDRhZGY4NTA1NDhiOGYyYTlhNDliNzkzMDEyMDBkODQwZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2FmYjk5NmI4MWMxYzI3NjNiOTQwNjkwNTg4ZjNjNzVmZTFhYjE3NTA2MzQ0ZjQ0MjQ1ZDZkMDg2Mjg0YWE3ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f0f0f9b9d3e247f88b0c27990f76440c",
+      "statement": "The seed inserts exactly one fare_configs row (fare_config_id \"default\", label \"LTFRB Default Fare\", base_fare 13.00, base_distance_km 4.00, rate_per_km 1.80, 20 percent student and senior discounts, is_default and is_active true), which satisfies the one-default rule from the first reset and is what lets the admin work without manual setup: the New Route dialog pre-selects the is_default configuration and blocks route creation entirely while no fare configuration exists.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/routes/NewRouteDialog.tsx#L40-L63",
+          "version": "repo-lines-v1:sha256:c83c3367f6f22506c07f0dcb815c6f544a65a876867cc99aa0d36afb114b8816:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmYWY2Mzg3YTE2ZDdkNzY3OTRmZGFmZjA0YTFmMGQ2OGNiMGIyMjYwOTBmNDdmOGM1ZTY2MGE4ZTE5MWVkMjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcyYTViMDQ1ODE5YjNiNjNlZThhZmFmZjA5MmYxYmNmMWE0ZWNmZTU4ZTMyNjIzNjYzNmQ5N2YwNTI3YmFhMDciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdjMjcxMDNhMzVjNzUxMDgyYzJhMTZhNDBiNTBhYmJiY2I1ZTI1MDQ4MTMwZjI1MDk4ZDI0NGJmMjA1NjZjM2YifQ"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L83-L110",
+          "version": "repo-lines-v1:sha256:abd811e650c0baa9b42ba703cb2707611a6b812e1a61713a2220993b743679f0:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxNzM2ZDIwN2I2YmE0NWJjYjljMzMyYjc2YTg4YTM3ODU4MjM5YzM0ZGYxZmM4MzIyNWI4NDkwMDdmNmU4ZTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ2NGVkOWRkMjA5NTBjZGFmMDNhM2YxZGE4MmNmOGRkMzQwOGM4NjVmM2JlZGQxZTU1NGVkZDFmZTU1N2IwNjgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhYzI3NWQzZDI3NTNlODMyYWRhZTBjYjhlNTdlOGEwOTc0MzY0YWQzMDhjOTUzZjlhY2RkNDYyYzc2NDAyNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d9968ff9bfb24a9fa2393614292c16c6",
+      "statement": "The seed provisions only identity and fare configuration — no routes, directions, stops, detours or restrictions — so a freshly reset database exports an empty dataset and /api/status reports zero counts with dataset_updated_at null.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/status.ts#L18-L56",
+          "version": "repo-lines-v1:sha256:d2c42b240327dd18e0f41a53bf19499e56424a4538ab26725445fe8a5416cefc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiZDJmM2NkN2FmYmIwOGExMDg0ZjJiZGUwN2ZkZjg1MWU4YTZmYmNjNWE2ODAyNDhhMjM4ZWVlMDJiZDQ5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/export.test.ts#L126-L139",
+          "version": "repo-lines-v1:sha256:d75dbc79d79e5cddebd19a55640209b7e315525786a2d77e5781cb430197bd17:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiZmIwYzVkYmIxYzZiNGQ2YTBiYTYwNjM0YWQ1ZDUxZWYxNDJmM2RkM2VhN2RkOWVkNzVkMjdiMWY3NDFmNDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA0YzE4MGY0MjdjODQzNjkzMDlmYzIxMGI1OTg4NjBiOTlhZTZhNWQxNmM1NjRmZmE2NjAyYTBmZTc3NzE0ODUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc3NzgxMzFiNGM0MzliM2ExNGYzYzhkY2E0MjZmOTk0ZmJhYWE1ZDYyODY2Nzg2ZWEyNThmYmNjYjBjNWFmNjMifQ"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L8-L110",
+          "version": "repo-lines-v1:sha256:cdae23f7ed714b2f7f9aeca46e736419a55e59d9ac8c8da388e335e301b3e302:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAzLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJiMTczNmQyMDdiNmJhNDViY2I5YzMzMmI3NmE4OGEzNzg1ODIzOWMzNGRmMWZjODMyMjViODQ5MDA3ZjZlOGUzIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0NjRlZDlkZDIwOTUwY2RhZjAzYTNmMWRhODJjZjhkZDM0MDhjODY1ZjNiZWRkMWU1NTRlZGQxZmU1NTdiMDY4IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiMzY4Yzc4MGUyNGUwZDMyMDczZTE0NTViNmRiZDJiMzUzYThiZjU5NDEwYmY4YzA0OGEyZDM3ZTQ5MzIyNTNjIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_55b9c2699e0245718c5e65bc08be0d51",
+      "statement": "The admin password komyuter-admin-dev is a committed dev-only default because the Supabase CLI executes seed files verbatim with no environment interpolation; it must not be treated as a production secret or as a defect — apps/server/.env.example mirrors it, states it must match supabase/seed.sql, and instructs changing it before any shared or production deployment.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/.env.example#L10-L14",
+          "version": "repo-lines-v1:sha256:045a443b9d9a18fee10cde9e923c212065f75bed6f64eb0bfb566f63254c7c83:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzc4MTc4ODU1OWY0YjE5NWYwYzU5MjgwZDhmMGQ4ODVkMGY4MGMxN2YwMDc5MjYxZGZlOTdkMGMzMTFiZThiMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzE5NTU3NGE0NjZmNGM4MTIwZjc4Njk2ODA5ZDgzMzE4YmE5MGU2NTEwM2Q0M2EwZGRiYTcyOWE3YzVhYjRmNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODJiZTIyNzA2YWQ2MDAxMWY4ZTA2MWQ0YjY4M2M0NWRhYWI4Y2Y1NDBjNWYwNjNiOTVmMTRmNDE5NzZiYjdhMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGYxODExNGE1ZTIzN2E5MTFkNzgwZjQ1MjNhNGVkMjVhMDI5NTBjYjMzNmFkNTAwNGQzOTU0YzA5NjVmMDE4MyJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L1-L6",
+          "version": "repo-lines-v1:sha256:25207b99d1b6f4fec141d278ed84e374a1a250bce6193b0b3b1efcea9e1ffb61:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzFiZDdhODNiYmRkYjAzZmEwNzE3ODkyZmM4NGE2ZTVlOTQ1MzlmNWM0MDUyYjU4NDAwNTZhZGE5N2U1OGNiMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2Y3M2IxMzNhYjcxMGE2ZTNmYWViZmZiZGNkZjFmZmM0NDYzZDRjYzBlYjc3NDEwOTIyMDNmMTEyYWFjNDhjNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDI4ODdmNDc3OTk3YTNhZDA0NTlhMDViYWEyODQzZmE0ODRjZjFhOWYyOWY5ZjQ5ZjJlOGU5OWY3MmI5NmUzNyJ9"
+        },
+        {
+          "resource": "repo://supabase/seed.sql#L37-L37",
+          "version": "repo-lines-v1:sha256:2ee0be357403f4a837b60bfa4ea354f7c8cbc1a1c68711b1badba5d472f76f5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmVlMGJlMzU3NDAzZjRhODM3YjYwYmZhNGVhMzU0ZjdjOGNiYzFhMWM2ODcxMWIxYmFkYmE1ZDQ3MmY3NmY1ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmVlMGJlMzU3NDAzZjRhODM3YjYwYmZhNGVhMzU0ZjdjOGNiYzFhMWM2ODcxMWIxYmFkYmE1ZDQ3MmY3NmY1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWJjMDI5NjExMDdhZjBlY2E5NDk4NmQzNDQ0NDMxOGVhMDA0MDk5ZjY1MTZkNjkzNTExODZiMDZmNTAwNDA0OSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjEyNDBjMGM0YjQ3YzUyNzdhOWJlMDJlNmE3NTUwODg2NWQyNjZkNDNlOGYwNGNhMWNlNWEwODEyNTNlYjRjNCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2ee04575eeb84fec991ea78931089f21",
+      "statement": "The seeded pair is also the server's documented dev credential, refused by the Fastify route POST /api/auth/login unless ALLOW_DEV_CREDENTIAL=true (default false), while the manual token-minting path the server README documents (POST {SUPABASE_URL}/auth/v1/token?grant_type=password) is not gated because the gate lives in the route and not in GoTrue.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/README.md#L38-L51",
+          "version": "repo-lines-v1:sha256:278af6557354487284f63ba6980ac686ace6f4291b8b12c7bdb54d6e449ebff9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyMzg3YTQ1OGRjNjEzNWVkMzA3NWQwZGMxZjZhZmMzMmQ1ZWQwYWQ4Y2RjMWZjMzYwNTRlYjE1MTJlN2RiMTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQwNGY4MGY5YjViMTQzOTdkMzlhY2U5NzE5OTZkZjU3ZTgyYjczYTgzMzNhYWQ0MDU5YTZlODVlMzAyMzMyMDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2MzNiZThhMTgxNjRlNzgzZTdlMzcwZTEyZjdkMmEyMDExYWEwMTU3N2JjNTAxMWI5OTk1N2RlZDQzMmY3MzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE1ZmU3MDE3NDVkYWE5NDQ5Yjk0NTNmNjExN2VhZjI1YmYzNzA0OTA1NThlYzRlYmQzNjZiMjQyNWMyYzkzMTYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L20-L24",
+          "version": "repo-lines-v1:sha256:1a01c8829f8105ef3a11e73b614e4bfbaca8483ecd49901c82b26de65698562a:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ1YmI4YTA1YTk4NmQwMzgzOTZiMjIyMWI0YTIyMWFmYThjYWFkY2M3YjcyMWM1ODhmNTYwNWEwMWFiNjNhZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2RjZGM5ZTg2NWZmZTRiNzdiNTJjMDljZmFlNjc1NTdkZjJiNTAyOTc3MzI2NDYwOTMwYTkzZmQ2MjRlMzcwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTRhMDE2YzU1YWQ2NDIxNjkxZTk3YjAxNTkyYTZiNWRkZGRjZjhhOGY5ZTY5NjA5MjEwZTQxODZhNDdkNGFlNyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L72-L79",
+          "version": "repo-lines-v1:sha256:8a46dffff7d43aa331ac582b3a9c221488bc98286463967951a086fb978c19db:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg0M2NjMTZhYmY3YjQ3MDBhMWI0OTM2OGY1Zjg3M2JhYjU4OTg3ZjI4ZmE4ZTc5ZmFlNGNlMjcyOTdmODlkNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI2MmY2MGQ4NTkwYTU3OWNmNDZmOGQ2NzM3OGM0YzU3MmI5NjJjZWNjZGI5MGM3YTVmN2I0MmI5NjA3ODJhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2ZhNzY0NjJhMTI3YTFhNzRhZWNhYzc0MGU0MzgzYzJhNjY5N2E5ZTIyMjFiN2JjZGEyYWQ3ZWRjYTVkYmM5MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGNjNTZmMmEyNDZkNjI2OWYyZTJkYjA2NjRkMTJlNzMzYTQ5N2Q3MDU3YmIwNzg3YzhlNTBhNjhkOWI4OWI5YiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/config/env.ts#L17-L22",
+          "version": "repo-lines-v1:sha256:1a01ba467cce5f882c5c5e0a03641da575da90bc772d044ea00f8d75d0fe6d0a:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjc2OWM5YmY5ZWE2ZDQyNmFmNTcyNTI2ZTIwNTc4MDAyY2M1MTk2MTk1MWQ5OTA3ZTlmM2NhMzc2ODdmMjM3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjMxMDE3ZWQyNWU1NjhkM2IzNmY0ZjExNTM5MDk1YjJhNzRmYjBkZjA5ZTk5ZmY1MGM3YTQwZDllNDdlNGM2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjc3ZmI4ZjcxYzQwY2IxOWZhMGU2ZDVjMzkzMGI4MDJiMTFhOWFhZmIxNzY3YTVlNTJkZjViZjRmNjViNjU4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzhhOTliODhhM2E2MWZlOTJjZTJlZGU0M2JiNjNlODlkYTYyZjZjYTQ3NmM4NWEyNGFhZWQ4MmU1ODQ5Mjc3YiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_28440143da4a4a19832513dc695a32ee",
+      "statement": "ADMIN_EMAIL and ADMIN_PASSWORD are validated by the server env schema but consumed only by the integration tests (seeded-admin sign-in and the test database's admin lookup by email), not by any server runtime code, so their only invariant is that they stay in sync with supabase/seed.sql.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/config/env.ts#L8-L14",
+          "version": "repo-lines-v1:sha256:7d5f058d0afae2b0e0336be2332015c7aa34f9dd4f92ea3b728c8eb9eade232e:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmMwMjJiMWUyYzgyZjE3Y2ZiN2M2YjU5YTEyYzMwNzA2NDEyNDE5YzYyY2Y4ZTA3ZGJiZGIyNzViM2ZiZjVlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGY0NDM3OTZiMGQ2NWIzYmNmNGQ0MzJlMzQ3OGJiNjc5ODU2NTUzZmIwZTU0Mzc5MGZkODE0ZTBkMzExNTFkMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDZiMmNiYjdlMDZmMzhkZmExOTFhYzBkYmJmZDY2YWViYmFmZDAxZWNjOGZiYjEwODBkMzJiNmNhNDM0MWYzYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDkwN2Q5MTcxMjM1ZWQ4ODUwMDRkMTIzNmQ0MjMxNTYxODI3ODRkYTkwMGI5ZDIzNTBjNDQ2MDc0ZDA5Y2VmZiJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L101-L114",
+          "version": "repo-lines-v1:sha256:85fc48c5aa73c11b4cc33475c860b4108e58f29147c927de740edda05e98f0df:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwYTAyODIzMDNkYmRhMTZlMjUxNjI0ZGI3ODI3NzU5ZTYzMTgxYjcxMjlhY2FmODU0MzUxZWE1M2E3YzM5OTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YWIzYzlmOGRhNGVhMWQwMTU0ZjYzMjkyMGRhYzI0MDY5YmRjODUwNzUzOWYyZjYzN2JlODgwMjc5NjBhN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0ZGZkNGM1ZTIyZjZhZGRkYmFmODc5ZTEwNDZiYjhlMzVlNDc2ZjNmN2U5NTVhOTUzYTI5MTk1NjU1NDEwODMifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L60-L76",
+          "version": "repo-lines-v1:sha256:86d9056c9aa776cbc8e8fc690ccac07184e5b582b99eccd1cdb35db2f7b4d1bb:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRjNThlNTA1YWFmNTMxNTUyOWJlMjFjNmQzMjBlOGQ3YjRlMmM1Zjk4ZmYwZjEzMDYwOTBlZWJhMWM3ZmIzNGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1NTM3OGFiODc0ZjdmNzUyNTgwNTFiZDEzNWYwNzE3YjIxZGE5MzllYmVkY2UxMDUyNjRlOTU3NTY3ODQ3NGEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0M2QxMzZhYWRkOWYxZjhmOTRhNmE2NWRkMzI2YWRmM2Q0YjY0ZGY1Zjk3MmYxZjkyN2FiOTRiNDAzYzc1ZDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_88203c5b18f144c786b08ac719b11723",
+      "statement": "Supabase Auth is configured for a closed local deployment: enable_signup and enable_anonymous_sign_ins are false while the email provider stays enabled ([auth.email] enable_signup = true, which the config comment warns is also the provider switch — setting it false breaks email login for the existing admin), with minimum_password_length 8, enable_confirmations true, and jwt_expiry 3600 with refresh-token rotation and a 10 second reuse interval.",
+      "evidence": [
+        {
+          "resource": "repo://supabase/config.toml#L155-L186",
+          "version": "repo-lines-v1:sha256:66975d5e1e5ddbcaa4632dd4488e7ec56a5a80198abca0639e54ba51abe785d0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MDA5ODZlYjdmMTI2OTRhYzM5YTVjNDlkM2I5ZjQ1NDAwMjRmNWE0NjczMTA5ODAyNDg2MDlmZTIxZDA0MzQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNjODRiZDMyZTVhZWRhMGVmMTE2NzE1MmU2ODIyYTUxYmEyZDRiZmY4N2ZmODBlOGEwNTBjY2Y1OTU4YmI1ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIxMTA0NjI3MzRjNmEwNzNkM2U3ZWM4YTY0OTI2NDMwMTZiYmEwN2YxNGRmY2QwZmMyMzRmOWRkY2I4MDc1MmIifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L219-L237",
+          "version": "repo-lines-v1:sha256:a77e8290634675c4e7c12aff5f8417b76371fc12828117402be82a4018554abf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkxNzc2ZWE3YjFiMDU2MzMwOWE2NGY5MTc0OWM4NzMxZjgxMGYxOTU5YjE2YzdlNzA5NDc3ZGEzNDZmMWVhNzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1MmFkZjgwNjZhNGU4M2JlMGU0NDUzNGZjYzE5ZTM0YWRmMjI4ZThkNzc2YWE2OTFlYWZlNjZjNWI4ZjBlOTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQyNTE1NTA4OGI2YjYwYTdiMmRhMTllYWMzZDYwYzI4MjZjNWE2ZGEwN2Y1YjM2NTA5ZTg4OGFhYzg5ZWU5MjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU3ZmNiMzViMWY4MTg4ZmVlYzRlYzM5NGVhZjA5M2JlNzcyN2M3OWQxNmVlZmQ2YjI1NGQ2MmE1ZDBlNjJmZDEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a0a2fc25507f486aab0d89e326d483d4",
+      "statement": "Because enable_confirmations is true and the local SMTP server only captures mail instead of delivering it, users created through the service-role admin API must be created with email_confirm: true as the test helpers do, or they cannot sign in; the seeded admin is already confirmed by the seed.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L69-L99",
+          "version": "repo-lines-v1:sha256:8fc0566b954061b3f69bd3eeafc992595368004225508f8ce1546b0f3079cc9d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmODcyOWU4ZjU5Mjg4NTYyNGNkZmNiZTAzZmRjYTgzODkyOGUyNzM2OTM5OTEyYmRhMDUxNGY5OGMzNjQ4NTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhMmVkNWE5MDFkMzc0YjA4MWZmNzQ0NTM3MTZjYjY2NTUyMDM1ZjU1ODVhMDBlYTc5YTU4YmEzMzAxNjRjY2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM5Mzg5M2IzNDdlNWYzNDU1MWE3Zjc0NThkNWQ4MjgwNmRiMTBiZTA2MTYyMDI4ODk2OWU1YTY4OGQ0Y2YxYjAifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L103-L108",
+          "version": "repo-lines-v1:sha256:e8ada84275ad33c74c4b5efc7b6c77e186f090349f9a25f0821444b9568c737b:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGE4Yzg3NmNlNGJmYmYzNDIyZWQyMzAzMjJkNjdkZDZiYTViNDg3MDcxZjIzOWQ4OTNkYzIzZmQ4Mjc4ZGYwMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDljZGFhOWM3ZDM4MzBiODBlOTg5NzAyMDZmMzQ3MTUwNGNlZmVjZWU3ZTRlZGEwYWI2NzdkYzhjOThlYTQ2MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTBlMDc3MmMxZjUwZDRmZDY4ODBmZWY4NzUxNTFjYzNiN2FlYTI5ZmMyYzk4ODJmNWI5OGZhNjdhM2M4N2E0ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzA1YzgyN2EzNjQzNDRlM2I1ODA2YmYwZjM0MjE0NzJhZGMyNzQ0MTc1OThmMWI5MzQzMTQ2YTRmMWE2ZWM4NSJ9"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L227-L233",
+          "version": "repo-lines-v1:sha256:31bf4f02a4c59ac16cbb5530f4b56c5350f2d8e1e130ba66617ccfb57b74c5ad:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDg4NmZhZDI3YjQ3NGVlNjcwMjVjYmM4MzIzYWU2ZjlmZjY5ODE3YWMyOTc1NjQ3NzdiMDA5NWE3OTJjM2NlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWM4YTg1MDM0YWRiZGY2ZjlmY2E2ODU2NGZkMjQwNWJjOTliNTY5NGM0YjZlMzhkN2NiMjk3NGU4ZTUwMmVkNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODRhYjNhMGRkODNkNGMxZDA4MDIyNmQzZGIzM2MyODI4MjRiZTIxMjMwODc5YzBkZTlmM2IzMWIzNzk4MjMzOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNzEzMmE4MDIzZDBjMDRjNWVjYzU4NjAyMzU1MDdjODUzNjhkZTQwZDcwMGViMDA5YTFmNjY2ZTI0ZmZhOGNkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1d59ffe67b4d429c9f7970bd1c0021ac",
+      "statement": "Migration 0002 adds the project's only cross-schema constraint, admin_users.user_id referencing auth.users(id) ON DELETE CASCADE, hand-written because the Drizzle admin_users declaration is a bare uuid primary key; the cascade is how deleting an auth user revokes admin access (there is no disabled column), and the constraint means a grant cannot be inserted for an id without a matching auth row.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L60-L62",
+          "version": "repo-lines-v1:sha256:17a1a301d56fcaa2c75f150975802094436224ccac4b90bdeaaeb8751f9d3a8e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTY5OWQxZmI4ZDdhMDlkNzBmNDQ1NTQ4NTc5MzU0NjdiYWM1ZDlkNTdiYjliYzU5OTY5OTE4OTA5ODczYWE1MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGQ3ODFjODk5ZTk5NDFjZTI1OTQwM2YxNmM4ZDhmODU1ZjRjNzJlYmQ2N2EzZTEyOTY2MDNhMWI4NDdhZjZjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmYxZGQwM2ZkODJhMmJhZWJkZmUxYThhYjc3Mzc2ZjRiMGNjMDk3MmQxZDBmZDc5ODViMTQ5ZmFhM2E0YWY5YyJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L95-L110",
+          "version": "repo-lines-v1:sha256:4bc2894a39ebe1c85a045f3e52a42fbae1f656de5842fed462f5a01556034148:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ0NWNmY2UxYTFjMGI1NmRjNzNjY2E2YjBmOWY2ZTRiNTRmMGQ1YjAxNDkxYmJlNjYwODZlMzhkOWZmNzMxNGEifQ"
+        },
+        {
+          "resource": "repo://supabase/migrations/0002_admin_users_auth_fk.sql#L1-L3",
+          "version": "repo-lines-v1:sha256:2bd9e03ef8369ce3047d4cf92ec4c1e9290f0584faa664ca26664be1f683ceba:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQxZmYzMmMwZDEwYjRiMGJlYjE2MTcwMjAxNWU0MDQxNzhkMjI2ZWQ3NjViMzcwN2E0OGI1YjJiN2JkNGM4OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjI3YzVmMTA5OTc1MTI4MzgwN2JiNWYyMDkxNjFjMmM5NzJhMTg4ZTRmYzI1MjBlZjE1YmRiYTg0NWJlN2Y3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_20f3ff536b0049d5a7ca32202cb603de",
+      "statement": "drizzle-kit's ledger supabase/migrations/meta/_journal.json holds a single entry (0001_hard_roland_deschain) while 0000 and 0002-0005 exist on disk without ledger entries; docs/DEVIATIONS.md Appendix A1 records the drift and its consequence — a plain supabase db reset applies only 0000 plus 0001, leaving the applied database behind the code and the Drizzle schema with the admin_users to auth.users foreign key and directions.direction_kind absent — and records the fix as journaling and re-running those files before relying on an applied schema.",
+      "evidence": [
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L82-L82",
+          "version": "repo-lines-v1:sha256:ce0f30833de7b517c3ca3ffeff00105ac5bb1f746a01ae7016a3ccdb674cb65d:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2UwZjMwODMzZGU3YjUxN2MzY2EzZmZlZmYwMDEwNWFjNWJiMWY3NDZhMDFhZTcwMTZhM2NjZGI2NzRjYjY1ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2UwZjMwODMzZGU3YjUxN2MzY2EzZmZlZmYwMDEwNWFjNWJiMWY3NDZhMDFhZTcwMTZhM2NjZGI2NzRjYjY1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWUwMjVlMGQ2ZDk0ZTQ5ZGI2NmE5MGQzZTVkZGY0NmFjZGI0M2Y1NDQ2ZjJhZWFjOTE2MDQwODY4YTMwOWE2MyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTA1ZDgxMWRkMmI3NTE5ZWVkNjMxMDEwNjM5NzkwNzJlNDIxNjI3ZDkzODliNTM3MDEzM2EwYjlhNjU2ZGNlYiJ9"
+        },
+        {
+          "resource": "repo://supabase/migrations/0003_direction_kind.sql#L1-L8",
+          "version": "repo-lines-v1:sha256:315a77aad2a1dae9ee16ebeb42dfcfc2a000b4efdfd1533403235d6bfb9d4d0a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2FjMGJlZjlhY2QwMjhkZDdiYWVlYmU4MGM4M2M5NDhiNDY5ZTExMTliNTgyNzRkMWY0MjVlZGY2ZDhhNjEyNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGNkNTg4Y2EzMjVhZDQwYjliMjU2MzE0MTVlM2MzNDI2YjMxMzVkOTc3MGZjODcwMmJmMzY5Mzk0MDIwYTc4YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://supabase/migrations/meta/_journal.json#L1-L13",
+          "version": "repo-lines-v1:sha256:74375c9df33efb5e68286f29b59697f7acd3ba845b8172e34c5a7cc4cd3800ca:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_db324d74b2fb457dbcf486b7b1165b9e",
+      "statement": "The integration harness does not depend on the migration ledger: it reads every *.sql file in supabase/migrations, sorts them by filename and replays them onto a clean database, which is why migrations 0002-0005 are genuinely exercised by the suite and why a malformed migration fails global setup rather than a handler.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/global-setup.ts#L17-L24",
+          "version": "repo-lines-v1:sha256:0ed4207459e4902cf90ff3e00b0b6ebc2dc6401063437ac2a6e7e53a183a51c1:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWNhOTkxYzgyZmYwODA0ZGIwZmZjZTg3ZjQwMzdjOThmM2M3ZTdmMjFmN2M3ODkyOTUzMDU3YTY5YmMwZDg2NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjdmNmIxM2VjMzFkMDRmODA0MGIwMjJhNzBiZmMyYjAwYzU3YTFhMmU5NjJkM2I4MTA2OGJjZDYzODc1MjRlNiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L11-L54",
+          "version": "repo-lines-v1:sha256:eff1c66221a65be74c433fce7d35e6399a26d8486198aba84a95c4ab6cac0908:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZmYwMzhlY2JiYzcyZGNlMTQ4NTcwZGNmMzQ1OTA0YmM1NWJkMDY2OWE4YWI0MzE5MGY0OTgyNWIxZGZmYWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4NTdjNjkyNDc1ZDczNjdkMGFmMDg3MTFiNzgwNzhkMzgzYjY2NjYyZmQ0YWI2NTQ0ZWRkNzBjMGZhNDQ4NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMDYzNmRlYmQ2ZmFmMTY4Y2I0NjRjMWVjMTdjMDY0MmIwYWUwNmE0Yzg3Zjc2ZGM4Zjk5MTQyMzBhYjM0NmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c3661e2a871e4f15ac1b5e0362afb5de",
+      "statement": "The integration suite runs against a dedicated sibling database komyuter_test whose URL is derived by replacing the pathname of DATABASE_URL (not configured separately); it is dropped with force and recreated at global setup through a maintenance connection to the dev database, and dropped again at teardown, so CRUD tests never touch the live dev database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L21-L31",
+          "version": "repo-lines-v1:sha256:c183d55e24b649f14dadbc3e8a554405c35e6b9b1ec13d2f05e48ef4df46ff00:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg2NDdmNWZhMWJiZWJjMDYzNDJjNDM0ZDQzYzYwMTIwMDg2Mjk1ZWU0YWVhODYwYTlkZTM4YjJmNjU5YWIxZTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI4MTRiMTBkYzY2NTYyZGFjNzRlMmY0ZTFiMGI5MGE2YWE1YTI0ZTNhOWI0MTgyMjdmOWRjODkyMDYwZTEyZDQifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L27-L36",
+          "version": "repo-lines-v1:sha256:419cdb16d298c850e21cab24b9b1da4dd44cf0ec2794beeea68db9d1fdac74a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQyODA2NWIwYmNiMzVhNWIwNTAyMWIwOTAxMTBjNmJkMzM3NTNmYWI5YmM2NDQ1MjcwNmE2OWM0MDk4MTA0N2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc2YzI3MjA1ZGJkNzcyOWVmYmJlNjk3NTQyY2YwNmIyMTU0MmY4Y2JjMDJhODdiZGMwMTc3MDJmZDdiZTQ5MWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5YzkyYmUwN2JiZmZlMzEwNjU1ZWRjYWNjZjU1ZjVlZDllNzBjMGZjNWIwYWJiMzdlMmNhNmQ0NzMyM2ZkZGUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L85-L93",
+          "version": "repo-lines-v1:sha256:0ee36b322e48df382fd037d0b153adf5580d9d4823b4f0d0b2d7a4f7e17dcb50:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGExNjQ3NjNjZGIxYTU3OTdiOWM0Y2VlOTE5YmZhNzA3ZjY0ZjFiNTZlNTI3OWEwZDkxZTZmMDk5YmMwNDdjYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmI1ODBlOTY0ZjgzYTQ3M2Y0M2Q0NDM4NDYyOTQ5ZDY4YjU2MDBmZGE3ODdmMTYzNzQ1ZDAwZGU4OWNiZjM2YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzA4MDk5NGY2Y2MzNDQyYjllY2I5NWEzYjEyNjM0YzZhMTc1NjlmMDhjYmUwZGM2NmRlMmMwYWJkNzRlZDgzZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_ec034c8726e44388b4acf43f9526204c",
+      "statement": "The test database has no GoTrue: before the migration replay it is given create schema auth plus a hand-made auth.users (id uuid primary key, email text) stub so migration 0002's foreign key resolves, while real auth users are always created and cleaned in the main database where the auth service keeps its schema.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L42-L50",
+          "version": "repo-lines-v1:sha256:d2c3af71abf82c46a0b405df7239f1967cad752338007020f5ba55073a8d2766:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDA3NThjZDRjMDUyN2Y2ZGNkOTJjM2Q5NjcwOGYwNGUxZmI3MWYzODc2MjVmYmMyODM1ZGVmNWY0MzhlMDY2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2FjNmNmZWU1YTIwMTIzNzNkNDJhYzdkMzlkNmQ3MTA5OTc4MGMxZTQ3YmFmOTRlZjZjOTlmYjM2MzIyMjcwYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTdhZGI1ZWY5MjY4MzVhZjU4MDhkM2NlMDVhNmZkZWRhMjEzMjE0ZTgyNjViNmJiMWY3OTA2MDBjNmM3ZDFjMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L13-L44",
+          "version": "repo-lines-v1:sha256:3102326a81874dbc63a180d7fb796913cbba50b0ea470a5cfa9600712151a92b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0ZTQyMDhjZDZmZmI4YzRhMzU0N2IyZjU0YWRhMTk5NzhjM2YzNjVlNzhmOTUwMmVmNTE0NWNkZDJhYTg1NDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4YWY2ZGFhOThiMWI4MWRhODY1NmQ3NTQ4ZTdiMTM1YjQ2NzYzNmM0M2M4YTg5NDY2M2Q0ZWViMDdkZTlkODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImJkYjViMDdjZGEyMmUxODJmMDI4MzIxMmU2OGU4MWU3NDdiMWViNmE4NDVhZDY3MDZhYTRlZTkzYzMzM2M4YzUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_42ab342898d54e73be9e448fba844466",
+      "statement": "Global setup copies the admin reference into the test database: it looks up the auth.users id matching ADMIN_EMAIL in the dev database and, when found, inserts a stub auth.users row plus the matching admin_users row into the test database so the /api/admin guard resolves exactly as in dev; if the stack was never seeded the lookup finds nothing and no admin exists there.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L56-L79",
+          "version": "repo-lines-v1:sha256:dcc261ce325d133a81a226c6285b533ad2b52c9fa5ae3643f0849b99a46135ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlMDUzYzNhZDA2M2ZiOGE3NzAwYWE1M2NlMmVhOGYzYWZmM2RkZmIyMTQ1YzdjNGNhNDZmNTRjOGY0NWZmNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5MTFkZTg4YjA2ZWU1ZmNiMTJhNjlhN2EzMmZkM2VjNTc1YWZjYjllYTIzOGJlMTBhM2ExMDk0ZWY4ZjM2ODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5MzA5ZDg0ZDUxNDA0NmM2Yzk3YTZiNWQ1MGRlYWQ2M2ExOTIyYzA1YzcyOGZiYzMyMTk5YTA0Yzk4ZGJkY2YifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c6a1017ce7e442eb95e297f6732ff2ce",
+      "statement": "Test admins are real confirmed users created through the service-role GoTrue admin API in the main database, with their id stubbed into the test database's auth.users and inserted into its admin_users; signInAdmin signs in against real Auth and the resulting token is used against an app built on the test database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L48-L58",
+          "version": "repo-lines-v1:sha256:be68c50da654757e8d4bd03388653965d191ae1bc65990fadb7992bc30735991:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQzY2UyZDE5YTQyZmI4ZWNlNDA0NjY2MTNkZTUyZTY4ZGVkZTBiMWZkYjQ3ZjQ4MjkyOGVjMTRiMTQ1MDRhZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjA3MDcwNDliOGQ0ZDU1MjRmNWIxMGI1ODVmMjM1NWMwZmExMGUwZDM5MzNmODFlOTdkNjExODkzNGI4MzRkNTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU3MDFiYzQxYzA4ZGU4ZGRkMzQyNWUxOTBiYTkyMGVkMTM3MDZlOWNlYzA5MDJkNjIyMTUwMjRhMGYxNmZiMzcifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L65-L114",
+          "version": "repo-lines-v1:sha256:774939ac69c46dfe041b66fc639d548540d1aa57c71ccc5ece561f62a6c86588:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZmYzE4N2U3NTM2ZjU5NTRmZTA0YzdlNWUyNzc2NTg5MDEzZDUzZmQ1NzQ1OGVjZjlmZGUzOTdhMDJiODRjOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0ZGZkNGM1ZTIyZjZhZGRkYmFmODc5ZTEwNDZiYjhlMzVlNDc2ZjNmN2U5NTVhOTUzYTI5MTk1NjU1NDEwODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_213c82fc73a748a58e06ba80ae673ed7",
+      "statement": "Because the replay loop reads only supabase/migrations, supabase/seed.sql is never applied to komyuter_test: the test database starts with an empty fare_configs table, so the seeded default configuration and the one-default rule are observable only against a CLI-built dev database, tests create their own fare configurations, and the fare-default fallback is covered by unit tests instead.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L1052-L1069",
+          "version": "repo-lines-v1:sha256:359f6ab504c0b2292ad8f6becb7119d9b4a48843144926524769ef03cf3daa78:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZDFhNGI5YmI3Y2FlOTI0Mzc0MTQ2MzNhM2RjYWM3NTEyODNkNzUwZGIxYTBhNzU0NDA0NWE1NTViOWEwOGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkZWFhNjY0MGM0ODI5ZjIwNjdmMjYxNGEzYzI2MGMzY2UwZjM5YzQzMTUyMzU4N2E5ZjdlOWRhNzNjMTVhNzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/test-db.ts#L11-L54",
+          "version": "repo-lines-v1:sha256:eff1c66221a65be74c433fce7d35e6399a26d8486198aba84a95c4ab6cac0908:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIzZmYwMzhlY2JiYzcyZGNlMTQ4NTcwZGNmMzQ1OTA0YmM1NWJkMDY2OWE4YWI0MzE5MGY0OTgyNWIxZGZmYWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU4NTdjNjkyNDc1ZDczNjdkMGFmMDg3MTFiNzgwNzhkMzgzYjY2NjYyZmQ0YWI2NTQ0ZWRkNzBjMGZhNDQ4NTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMDYzNmRlYmQ2ZmFmMTY4Y2I0NjRjMWVjMTdjMDY0MmIwYWUwNmE0Yzg3Zjc2ZGM4Zjk5MTQyMzBhYjM0NmYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/export.test.ts#L29-L43",
+          "version": "repo-lines-v1:sha256:66a44297ab6aff8a952a859d5650c4642b67c9896606ac77e02167452984d47f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ0ODZmMDc5NGY0MDg4NzY2OGE5MDNmM2EzMmUwYTFmMTI0ODhiNWIyOTExNmRhMDNhNWE0ODYzMTdjZTY3YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM2M2Q1MzVjZTM4MDYzZDZiNGM1MWQ4YzM4NmE3ZjliM2U1ODBhMTRhMTBjMDdiMTk4ZGZhZjE5YzkzYTNiZmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxMWYxN2RjYzNmZWUxZDMxMWMzMDM1OGMzN2VkMmM3Y2Y0MDA4NDA3MWYwZWEzNDZmYzI1NDE4NTI1NmQ5ZGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg1OWU2OGI2MjViZjFiYTAwMmVjNjUxMTdjODk3N2NmZTI4ZTc1M2U0YTAwM2NlN2QxNGIyNjgwNTBhNjYxMTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d25a4d0bbb9d4804b19626290d718e7c",
+      "statement": "Global setup sweeps leftover test auth users (email like '%@komyuter.test') from the main database and captures a restorable baseline (route and fare-configuration ids from the test database, test auth user ids from the main database); teardown deletes everything outside that baseline — deleting routes cascades to directions, stops, detours and restrictions — removes the test auth users and drops the test database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/global-setup.ts#L8-L24",
+          "version": "repo-lines-v1:sha256:659530b5deff887154ed386aa60e908890e31e0702b87553b5bacc92dd793aa8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQ5NDAyOTQ2YWRhNTU1ZTQ2ZTRkOWJjOTU4M2VlNDU2ZTQyZmZmOWIzZDk2MzA5MGVjMzE4MmQ2NTBiMjczNjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L145-L181",
+          "version": "repo-lines-v1:sha256:db2300aee96bba6e9fb6373ff88d8c7a9e9628b5934d71f52e6aa4110bc74945:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYwMTJhNWIzMWU5NWI1MDI4NmU5YWNiMDBkZDRlNjgwMDI0OWM3OWJkZTU3NGE1ZGVkNzgzMzZlMDkxMjJjZDIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU5YzNiY2I0YzMzMDk2ZDYwMjIxYWE0ZmM0MTI2ZjM4ZTgwZTQ5ZmZjMGIyMTlhNTc2OTZhZWMzNTQ1YjE1ZDIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzYTQ4MTc2ZjJiY2Y1MjBmOTdlNTFjOWNkOGZmZmRkNTIxMzMxMzJlMzAzZGE2OTEzOWZkZjUzOTllM2IxMzMifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L183-L239",
+          "version": "repo-lines-v1:sha256:766d5bd6b469dc9baf0d3f7a97c109d87bf303f95d32ac725fe37dbf1f157c9c:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6ead83fb75c0411f87f02b477815d519",
+      "statement": "Vitest for apps/server is configured with fileParallelism: false and a globalSetup that owns the test-database lifecycle, because the integration files share one real Postgres database.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/vitest.config.ts#L3-L16",
+          "version": "repo-lines-v1:sha256:1f9de650c213ef9242eb23ed137796bdd02bb958857d08a474cc112840236516:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwNmQ1NjlkMTVkZjJlMGU3NTI1MmRmNWIxZjRmZGRlOTI1MDM0NjE2OTVhYjMwYzY0ZTEwYTVhYTExMGRkNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a27d114f149c4e9bb378eb8ec0c7e1f2",
+      "statement": "Every guarded admin request performs a network round trip to GoTrue (supabase.auth.getUser(token)) before the admin_users lookup, so the API depends on the Auth container being up, and database failures (stack stopped, wrong DATABASE_URL) surface as 500 INTERNAL because the central error handler maps only ApiError and validation failures.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L66-L88",
+          "version": "repo-lines-v1:sha256:084cb6d324cfed5af24d6c700e18649c9a4313619dca1f6c9a8b6dff64680a5b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNGQ5Y2ExMWJkNjY0ZTk3MTI2Nzk3MDlhZTVhZTA1MTJmZWY3ZTI1ZmQ5YTgyOTRmZDNjMDcxN2VlYjU1NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkMGE4YTE5NWZhZTQ1YTRmNDY3N2UwMDJmNTYyYjE4M2RlZDFiYTVjY2IzYTkzZTIwZDg0NjlhYjIzOGEwMGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyZGM5MDljNDA3YjdkZGRiZDU0NDI0M2JhZWZkY2JmYjA2MGE1ZDUzMDIzNDk3YWQ3MWJiOWE0OWE4MDAwNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM3NmU1ZWM5NTMwZDhjYzE0Nzc2YmM3M2U5OGFhZjcyZWI1NGY2ODE5YjE4YzYwNWQ0YjczYzM5MzdjYThkMWEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L40-L54",
+          "version": "repo-lines-v1:sha256:1ac7b2a7d09be523c329dbb1f23951073967bbd9af719787da1655fa3a8ebbad:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0ZmE4OTI0YzM3NTY4MjY5YWYyMWI4ODFhZDI1Y2ZjZjI5ODAyMmM2MWYzODE2MzZhODk4NGJiNDBlZGY3MjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiODFjZDQ4YzUwMDY4ZjViZmYzY2FmM2NhMWVlNTU5OTY3NDZlMDA5YzM2OThhMzM2MTBmNDA2NjdjMmUyMjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://docs/SECURITY.md#L88-L88",
+          "version": "repo-lines-v1:sha256:76d9e2f6d01fb940906d395690ffb25d21a61f9edbc354d1bfd0fcb03f35198f:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzZkOWUyZjZkMDFmYjk0MDkwNmQzOTU2OTBmZmIyNWQyMWE2MWY5ZWRiYzM1NGQxYmZkMGZjYjAzZjM1MTk4ZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzZkOWUyZjZkMDFmYjk0MDkwNmQzOTU2OTBmZmIyNWQyMWE2MWY5ZWRiYzM1NGQxYmZkMGZjYjAzZjM1MTk4ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDU3YmJiNTM1NWE1MzA5NWQ1YTNmYzRjMmE4MTgzYTNhZWJjM2MyZjNkNzI3MDlmYThhMzVlNzU5NjRlMzUxNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDMxZDRjNWEyMzUzNmEzNDViOTAwNmRhNmU5ZmZkZWI4ZTUxZWIxODU5ZWFjNjEwNTQ1Mjc4NWNkMThmYmY1MCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_92eb1c15f13c4b988500891f9347afae",
+      "statement": "GoTrue's rate limits are the only brute-force protection below the application (sign_in_sign_ups 30 per 5 minutes per IP, token_refresh 150 per 5 minutes, email_sent 2 per hour); the Fastify login route adds its own per-account and per-source throttler on top.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L40-L70",
+          "version": "repo-lines-v1:sha256:605254d57a3b277bd0336d0f3e881e05824c279622387c158266efc9e3bc89ed:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2OTBjNjUzOGE3ZmRmYjI4MzhkMjhjOTViMjg1ODgxMGFkNTU3NTIxOTQxOWQxMDQ3ZDk4MDQxZWRlMGY2Y2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmNzI1YzA2ZDlmNjI0MzlmZjNlYWRkNzg1M2Y4NjdkYWQxYjgxNTA1Y2ZiODkzNThiYzljMDVhNDc1OTBkOGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4NDM4MTAxYzJkNDgxMjA2ZjQ1M2M1YmZjNzJiZTk3ZThiZTQ1NjNmNDY4MThhYmYwZTY1Y2ExMWI1NDFlMzUifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L197-L211",
+          "version": "repo-lines-v1:sha256:1c322de6351d4f8d807da224c5ff31d3911f027ab8d4942cafa9773978162db4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4ZTBkMzIzMWI1ZmY5MTZkNzg3M2NmYTQ5ZGVkODRiYTQ1Y2M3NmMyMGIyMjFiOTZlYmZkYjI5YjY5ZmQ3ZDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2YmYzZTAyYjk0ODI3N2FjZGIyYTkxZDk1NjExYjFjMGUxYjA2NGRjNzQwMzJhM2IxZDhlMGYxZGVlNmNiMDAiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJkNDZhNGZlOGY4ODEyOWE0NmU3NDhmMzJkNjk0NDU2MzZjYzliZjE4NDYyYjUxYmE1YjIzNzY0ODU4M2M1Y2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4MTNjZWQ3NWI1NjUwZGI0ZWQ4MWFiOWFhNTkyZjE4NzNkM2Y2YzVjMjU0ZjdlNzM4MzRlNDk2YzY1MjI2MWQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d484511c2ff74929a7d76289b3c630ce",
+      "statement": "The integration suite requires the local stack to be running with apps/server/.env present; its login test signs in with the seeded ADMIN_EMAIL/ADMIN_PASSWORD through /api/auth/login, so it passes only when the local .env sets ALLOW_DEV_CREDENTIAL=true, while the two dev-credential gate tests build their own app instance with an env override and therefore cover both values of the gate.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/README.md#L84-L88",
+          "version": "repo-lines-v1:sha256:7bd70c49d23e3dedce9894737c96da69f295d520d8c9fbcb9cba9d6e17c8ade5:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMWVlNzRiOTNjM2I5MWZmMjBiNTJiNTkxOWE4NzQyMGY0OTQyYzdlY2RkOTg3NjM5YTZjOWQ0ZWUyMzliMWYxMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzMxMDZmNWQ2OTM5Y2E4Yjk3NTFmOGY0MjViNThkYzNjMGZlOTdkOTVmMzlmYzliNDlhMzNiMWYyNzJlNjcwOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTg5MjBiM2E5ZmI0ZmIyNzc3ZmEyZTdlNDZhZTdlOWI5OTBiODg2MDA5OWZjZjk0MDM0ZTcyNmUwZmIzMjUwZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L244-L276",
+          "version": "repo-lines-v1:sha256:59aa0eee0c630b942f7cbc2a8c76304565b56debf310685e16b224a927d08b5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwZTBkMDQ3NWY5NmRhNTMwNzg0ODY4YTVhZGUzODBmMzQxMWE5ZjA5ODdlMzAwN2QzMTJiYWIyZDRhY2JhODIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhkOWVlMzdkYzMwYTE4ZTBjZmM3MzhmMTJkNWFkNzgxOGJmMTI4Y2Q1ZmU4ZTgzNDVhZjk4NTk1ZTI5YThmNzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzZDhlNDE0YmQ4Yzg4ZjJhZmYyNjJlZTM2YzA0MmJlMDUwZDFiNGY4NmNhYTQ0M2IzZmU5Mzk1OTEzMjlkOWYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L48-L66",
+          "version": "repo-lines-v1:sha256:a8a7e2a677552f72e2106a8ad5e6f616b43a024109d149d098706937ae42a617:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMyZGRmMzI2MmEzMTlhNjE0NjNiMGQ3NzFjYWY3YjhhYmNhOTdmYmMyMzUyMjU4N2MzMDNjMGUzMTVhNzg3MjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxNzQ0NDBmOTJhYmEwMGQ3NWMyMjdkNTcwMWI0YThlMzMyYTZkOWExNDAzNzQ1MmI4ZDliNDI5ZWZhYzhiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2YWQ5MDIzNDFkYzY5MzVmZWQ0ODI4OGJkYWEwZDlhYWY4OTIzMmRlYTM1MmY4ZTNiMjk3ZTM3NGY1NTI3OGYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L11-L19",
+          "version": "repo-lines-v1:sha256:552b210ef8adb7f2b78d826bb99ceeec052ec133027bc79eb15f92d9259878fd:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI4YzQzMWNmNDIyNmNkYzdmMjhmMTI4ZjVmYzM2MTE4MTlmOTNkYWNkNWE0MGY4OTUzNjNiYjUzZDA2NzBkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGI5YTJlYWI4ZjNmZjA5OTg1NDI3OTJhMGRlOGQyYzI2NTYzMWQzMTM5MzY1YjU5ZTgwMWIxNzgwZDQ4YjBlMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTgzMDY5MWIzYTc5OTcyZDFiNmZmZjJhN2MxMTMzZWZlNWE0NmVkYjlhMWRhMGJkMzk3M2Y0NTFhNjUxYzY0YSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:149973d33435ba5ba28ed23365b44d2f45915345517d0fdde1fe82a9ff800f90",
+  "claims": [
+    {
+      "id": "claim_1426b0a4c6b445e082cce5abc0e624aa",
+      "statement": "Design decisions are recorded in docs/adr/*.md and take precedence over other written documentation — where a design doc still disagrees, the ADR wins — while the repository's root design docs are documents for the target system rather than a current file map, and the generated wiki is optional just-in-time context rather than required reading; wiki pages therefore cite an ADR by number instead of restating its decision.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L10-L13",
+          "version": "repo-lines-v1:sha256:7a0d30770bc3fa67620f2ee0b826a10e45d72b4c62ac44e0c22bdc6943ee92d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGU0MmNjNzg4MzgxMTRjNDNhMDY3NGJmMGJlYzBlNTQyYWU2MDRmMGUyNTdjOGIxNTQxM2Q4ZDgzMjExODhlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE5YjI5ZmI3YWQ5MjA2ZGI3NGJiNzdkYjY3YTAyZTAxMDMyMTZkNjQ1Y2ZkYWVjMTk3MmFkYTg1YWUxYjc0YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmEwMTRhYWZlOWU5YTRkOWVhODNkYjMzNjg0MmNmZWEwYmU2N2YwYjY4MGFkOGRjYTBhZDViZDVlMGIwMTUxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzY0ZWU2MTM5MTcxNWUyMTU4N2Y4Yzc3N2NjZDY2MjQ4MWZmMTk0Y2NjNDUzZmJlMzQwNDkzN2U5NDcxOTJiMCJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L64-L73",
+          "version": "repo-lines-v1:sha256:45569094b674c0e87f0bbccddf34bef5399304df484372cdf49db04320d90d26:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI0ODM2ZWQ3ZTAwNTM3NzVhMGE5NjZjZTg2MTM0YjIzNDdkODUxYTdiMDJmNDgxMmJlYjJjNTlkMWM2OGQ1MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjYjMwNWRjYjE0ZGNiNDE1M2UxYTNmMjU5NDY1Y2VhZGFkYzliMDQ0YTc5M2RhNDI3ZDJjNDNkM2EwOWQ0OTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImViMWJjNWJjNGEyMzdmNTc4ZTZhZjRhNDE1ZDA2NDdmOTkxMGIwM2IzNjRlMWUyN2MxZjFkYmFhNzQzZDAzYmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1NTI0OGI2MmY1NTJmNmNiNmY3MTEwOWM4M2NhNDlmZTk1NTJlOTY2MmEwYWZjY2U3YzY2OWEyYmJhMGVjMGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_889fdf95408c4afb8563d668e57e14b0",
+      "statement": "A set of hand-authored documents is authoritative in its own right and is read as evidence rather than rewritten: docs/adr/** (the design decisions), docs/BACKEND.md (part of the authoritative current-implementation spec for the routing/AR/trust layers), docs/ADMIN.md (which cites ADR-0012 as the authoritative R2 scope), PRODUCT.md and DESIGN.md (product strategy/voice and the visual system, with DESIGN.md winning on visual decisions), docs/CONTEXT.md (the glossary), specs/** (specification artifacts), docs/CRITIQUE.md, docs/DEVIATIONS.md and docs/thesis/** (thesis process records), and the historical design docs docs/OVERVIEW.md, docs/TECHSTACK.md, docs/SCHEMA.md and docs/SUMMARY.md, whose line numbers the ADRs and docs/DEVIATIONS.md cite.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L10-L13",
+          "version": "repo-lines-v1:sha256:7a0d30770bc3fa67620f2ee0b826a10e45d72b4c62ac44e0c22bdc6943ee92d7:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGU0MmNjNzg4MzgxMTRjNDNhMDY3NGJmMGJlYzBlNTQyYWU2MDRmMGUyNTdjOGIxNTQxM2Q4ZDgzMjExODhlZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTE5YjI5ZmI3YWQ5MjA2ZGI3NGJiNzdkYjY3YTAyZTAxMDMyMTZkNjQ1Y2ZkYWVjMTk3MmFkYTg1YWUxYjc0YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmEwMTRhYWZlOWU5YTRkOWVhODNkYjMzNjg0MmNmZWEwYmU2N2YwYjY4MGFkOGRjYTBhZDViZDVlMGIwMTUxMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzY0ZWU2MTM5MTcxNWUyMTU4N2Y4Yzc3N2NjZDY2MjQ4MWZmMTk0Y2NjNDUzZmJlMzQwNDkzN2U5NDcxOTJiMCJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L49-L53",
+          "version": "repo-lines-v1:sha256:63df8a9fc8dc39dff221ca0153b68e0dc92e59e95ffa6bc6b9410b1db658b68e:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzZlNmE5Zjc4N2IwYmI4OGFhNDI0Yjg4NGE2ZGRjMGZiZDZjY2JmYzA3NTdiYzM5YWUxMjgzYjI4YThlNWNlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjUwNzViOTEwZDkwMjlhMmU1YTY4ODBjOTY4OWU4OGMxYTVjMThmYmUxNWI5NjJlMTcyNjNlZDFlYTA5NmI1ZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTgwYzBlYzU2NjA1OTE1NDUyMDhiNjk0NmU5YTU1NWIwZjU1NjFiNDEzNjJiMTZmNjAyOWU1ZDZmMjdiMWMyZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmMxZDg4OGQ2YmFkMmUyNDk3NjI0OThkZDc3OGM0YTE3OWQ1Y2NjZDI1MmM5YTRiZDMyODJjOTM5Y2FkOGU2NSJ9"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L16-L21",
+          "version": "repo-lines-v1:sha256:01d8843d8b26f2a269eb54012fe91163933d51f297013eb3452e2a488b443cde:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJiMzQyNjhmNTBkNDBjNTE3YjU1YTRlMzg5ZjA3OWI0MzY2OTAwODExOTYxNGJiOTUxNjdhNTIzOThjOTllYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGZlNGI3N2Q3NGJkNWFjNzg3MDgwZGYxZWNhZjljZTJjMTQ5YWNmYWRjNmZiZTZjMjJmYTAwODQ5YTliZjVlOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        },
+        {
+          "resource": "repo://docs/adr/0012-detour-conditional-triggers.md#L25-L25",
+          "version": "repo-lines-v1:sha256:753b7c8ad473a257fb53522e6334e7593ec3a2398028f7d4ab740218619a36ee:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUzYjdjOGFkNDczYTI1N2ZiNTM1MjJlNjMzNGU3NTkzZWMzYTIzOTgwMjhmN2Q0YWI3NDAyMTg2MTlhMzZlZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzUzYjdjOGFkNDczYTI1N2ZiNTM1MjJlNjMzNGU3NTkzZWMzYTIzOTgwMjhmN2Q0YWI3NDAyMTg2MTlhMzZlZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDQ5NDVkMGU2MjJmYTVjZGMwNzQxOTE1NTNhZTg3NTcwNDcxMGEzNWNiYTk3NDdjYjEzMDRlNjZjNGI2MzYxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWY3MzI4OWRlMWJiNWUzYTg0MzRjZmYzNjE2NzM4Zjg1ZTdkNDMyYzkxMzZjYTgwOTQwYjQ1OTgwYThhZWI4ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_43b48e3f2f2441e093f8ae37fe69a161",
+      "statement": "No graph builder, Dijkstra, navigation endpoint, ETA, GPS-trace pipeline, trust scoring or AR exists in the repository: the server registers only status and auth publicly plus one auth-guarded plugin at /api/admin holding the CRUD modules, export and the Mapbox proxy; packages/shared exports only domain types and Zod schemas whose interfaces carry distance and geometry fields but no duration or speed; and apps/mobile is an Expo starter whose dependencies include no camera, sensors, map or SQLite package.",
+      "evidence": [
+        {
+          "resource": "repo://apps/mobile/package.json#L14-L67",
+          "version": "repo-lines-v1:sha256:5a3fa431be451b9bac40b0193ee8cb6e8f1a678e24ac373755942b0f71419dba:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhM2I0NjlkOWUwOTc1NzIyNDY2NjczNGM5ZWY3YjI1NGQ4ODUzNGY1ZDViYjcwOTg5NjA4MDVjNTUzZGMzMDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmYzJkZDA3OGVmZjQ4YTY5ZGQwNzAwMjRjZDk0M2JkZDAzOGI1MWI1ZmUwNGE1YjMxZWMwMmIwYWI3MWI1MDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjY1ZDRkMzEzNmY1MWYwYzE0NzEzZGMxMWMyYmIyY2YzMjNmMjE2NzRhMjBjMmI1M2MxOTFjOGMwNmNjMjUyOWIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L14-L37",
+          "version": "repo-lines-v1:sha256:a8d5fac833d4d8ccf8b1da07b3973e6d932f1fab33b4c0dd20055f5b41c99286:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Y2IwZWJmY2U3N2UxYWQ0NjA5ZDI5OGI0ZjRjYzcwOGYxYTI0MGFjMGRjYWUyOGEwNjNmMjcwZWJmNjE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTZhNWZjM2Q4NWU5MjIwYzI2YmZiMWVkOGIwZTkyNDE3ZTMxYTgxZDYzNzE1NTc5ZTUxYTAzNmY1ODBlNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://docs/DEVIATIONS.md#L16-L21",
+          "version": "repo-lines-v1:sha256:01d8843d8b26f2a269eb54012fe91163933d51f297013eb3452e2a488b443cde:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDJiMzQyNjhmNTBkNDBjNTE3YjU1YTRlMzg5ZjA3OWI0MzY2OTAwODExOTYxNGJiOTUxNjdhNTIzOThjOTllYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGZlNGI3N2Q3NGJkNWFjNzg3MDgwZGYxZWNhZjljZTJjMTQ5YWNmYWRjNmZiZTZjMjJmYTAwODQ5YTliZjVlOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDAxZjJlYzE3NTkzYzEwNTRlYjQ2MzY3ZDg0NTNlZjI0YTE3M2NlOTZiNzExN2Q5MWY5YTY4ZDQ0ZmVmOGIwMSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/index.ts#L1-L11",
+          "version": "repo-lines-v1:sha256:3b3f6b7613efdf2e432ed6b0e5c5d54ad389e89026c60efebf5f629b082d6f21:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUyYzA3ZTg0NTUwM2MzMTJmNGI0ODE5YzZiNDg5YzUxYjQ0M2M2MDFkNmY4YzNmOThkMDA5NTRjODViMmE0NGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhjNDA1YWU1NGE4MmYzYzU5Nzc4N2NjNzM2NDBjN2U1NTllYTY2ZTkzMmZiNGU1NGQ5NzcwYTExZGEwYjlmMTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/domain.ts#L24-L120",
+          "version": "repo-lines-v1:sha256:fd3d0edc6456061840bc6b26a23449d4ed87feb79b47af76530463bf975f62f7:eyJzZWxlY3RlZExpbmVDb3VudCI6OTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMzMmM0ZmFmNzExYTE5NGM2NDliNTFiNzhmMjA2MjgwOTQ0ZjA1Y2M0YzE3OWUyZjFjN2I4ZWVmNjZjNDRhZjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0ZWJiOThjNWNhNjY1MDUyNzdjNGI3MGZhMjNjODI2N2EyZTBmOTY3OGY5MWYxMTc3MjNjMmQ3MDVkN2Y0MWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_97aa77004be949e69b118a3729526eed",
+      "statement": "CI (.github/workflows/ci.yml) gates a push or pull request on, in order, pnpm format:check, pnpm lint, pnpm typecheck, the hermetic apps/admin suite (pnpm --filter admin test) and pnpm build; the apps/server test suite is deliberately excluded from CI because its integration half needs a live local Supabase stack, so it remains a local pre-merge obligation.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L23-L39",
+          "version": "repo-lines-v1:sha256:90b6b5fe91868807a41829985395d906bd8b5873a6626e49cb5e015c2deab200:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZhMjE2MTIwNTY3MjZjYjc3MGQ1ZDA4Y2ZiNDdmMDgwNjYyY2MyYTk3ZDIzYzQ3ODkzNDc1ZTQxMmFhNGE0YTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMmQ0NDlhNDJkNDY2NWQ4NWIzZTMzZjBiZmRkN2FmMjBkNmJkMDIxMzE3MzA0MWUxMGE4ZmJlZjIzMTJkNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjNDQzZGZkMTliZGM2YWUxYzI2ZWY1NDRjMDYzMzQ4ZjZhOWVmOTI2NDg3YTg2MTUwYzc4M2VjYjVhNDE1NGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_efcb446b5364434ca39336bdf9e8d2bb",
+      "statement": "Running the system locally requires the Supabase CLI stack (supabase start, which applies supabase/migrations/ and supabase/seed.sql on first start), an apps/server/.env copied from .env.example with DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ADMIN_EMAIL, ADMIN_PASSWORD and PORT, and pnpm install; the Fastify server then runs on http://localhost:3000 via pnpm --filter server dev, the admin SPA on the Vite dev origin http://localhost:5173 that the server's ADMIN_ORIGINS allowlist defaults to, and of the two test suites pnpm --filter admin test is hermetic with no database while pnpm --filter server test needs the local stack plus apps/server/.env.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L32-L36",
+          "version": "repo-lines-v1:sha256:d2886427f0c5a9a58aa7f9083802c0d6bb35ba6bb0f30e30a8b191d5af40aed9:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTRlYzFkMzE5NmRiYTI5NDllYzc2ZTQ0YmJhNTc1ZmQ0MjZhYTIyZjQ4YzQ0ZWJmY2ZkYTc4YTRlZDFmZWI3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTgxYzJlMGY5OTEzMzljOWM1YmY4ZDNkMmI4ZGFmNDg2YjM2OGQ4ZTIxNGE1OGJkYzBiYTFmZGQ1NGM5ODUyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDE3MzA1NjI2Njc0MTkyMzJmYTBhOWExZWNlM2YwYThjMDE5ZmIzNmIwMmM2YWYzZmY4YWM3YjY5ODQ3MTIzNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGU3ZmFiYjYwNDAxMDNkZjBmNTQyYjg4ZTE0NmUwMTU0Y2YyNWRmOTgwNTU3ZTVmNjJmZDFiNzNjMmI0MzZiMCJ9"
+        },
+        {
+          "resource": "repo://apps/server/.env.example#L16-L25",
+          "version": "repo-lines-v1:sha256:e9994f8207b03d7373008ec3011feb647c1982d73d0f1975ad1ca367873c00a1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiZGU5NjUyNjNkMDE3NjM4MDM0ZjlmNjM2MDY5MDVhZDE3Yzk1ZjNhMmQ0NjNhZTk3OTJjNDY5YTVjNmRmMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExMTk2MjNmODVjNjFhYTRlNDhlMTNiMmU3ZDUzNzRhNjk5OTExZjI2ZGJhNGIzYjM1NDZjNTJjNzY5MmY2MTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2ZjM2MDlhZGUwNzVmMGRmMTg2MmMzMTIwZDhjMTg3Zjg1OTlmN2U1OTdlMzliNzZlNzlhYjBjYmNkOTM5NGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhYjMzZTdjZDBlZjJjMTdmZDBkZGFmMmJmYjZlOTUzZTEwNTI4MmZhODNlNjFmMmFkMjk2NDIyYzI1M2Y3OGIifQ"
+        },
+        {
+          "resource": "repo://apps/server/README.md#L15-L36",
+          "version": "repo-lines-v1:sha256:2060eb54625f1ce9aad2a979e4536b2e64c7733bd3013818e683a6ba67c66f12:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUxN2ZkZDFhYTMwY2M0ZGFjNDk2MzcwZmQ1NmViZWIyMTI5MWE2Zjk4MGZjMDU3MzFiYTg2MTM3MWIyNWM2NDMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE0YTcxYmM2YjUxYjcyNDEwOTE4NzExNjBkYjYzN2E2NDU5ZWIzZTA1NmNhMTM2ZDFlYzc5MmZmMmI5MDdlZjQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhmMDYxMWVjZTVjODM1YmZjOTg0MjlmNDY3MmZmNWVhMzZjNTJmMTkxOGNjNDZkMjA1MTg0MTA2NmYyZGNiYjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk0YTY0NTM4MDdjODFmZDlmMDBhY2Y5YTNlMGE1YmY3MjQ2NDZhODM3ZDEzMWE5MTUwOGJkNWE3MDAyMWU2YTQifQ"
+        },
+        {
+          "resource": "repo://apps/server/README.md#L77-L86",
+          "version": "repo-lines-v1:sha256:c7fede5da5cb252b9ad1ee2abc0567f03fb9f38f6646e364eb0864fd28c09e67:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyNTljOTBlNmY4OGQ5MzQxZDQzNjE2OWJmZTczOTY0YWQ1ZTM0YzdiZDViODg4MGFhZDViNmI4YTI4MjdhNGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMxZDE4NDYxMjQ1MDIwMmY3Y2I3ZWRjZjczYTg4OWNlMzg1YTUyMjM4NzZlNDU4MTM5ODU3YTE0ZGQ0MjU3OTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJiNDBjMjk2ZjVmYTI4MGI5NzYwY2YyY2JkMDYzNGFmNDE3M2QwZTE4NzUyNzU4ZTEzOTgxOTdmNTMzNTFkN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlMjQ2MzMwMGE3ZjZmZWY0ODBjYjEzYzViMmRiZWUxOTQ1ZDZmMzQ0OGI3ZjE3MTQ4ZTRlNDZhZGI3Y2M1OTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

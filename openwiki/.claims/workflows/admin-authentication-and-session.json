@@ -1,0 +1,454 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:e1f1e2e0f6fa35f11a70ef2bf46f3a5f9871bcaa99e08fbb480c019b260511fb",
+  "claims": [
+    {
+      "id": "claim_e494b2b9c7554900a9acf50ebc8492f8",
+      "statement": "The admin SPA obtains a session only through POST /api/auth/login on the Fastify backend: the route signs in against Supabase Auth with the service-role client and returns just the access token and identity, so the browser holds no Supabase client (ADR-0006).",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/api.ts#L14-L24",
+          "version": "repo-lines-v1:sha256:026f338cd934af4cd92ab51517f46ee34089cadc1202cf962c70b39d33b93edf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MmJkNzZiZTI5N2E3ZjJmODMwM2JlNjcxOGE3YWE4NTU4MDk4ODIyNWY4ZGIwNDAxODAyMWE5ZmY0NjllMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwOWNlZWZiYzc1N2Y3YzFjY2UzYjZjNTI4MmUyMjI3MjBjYTQwMmZiOWVjZWFhYTMyZmFhMTQ2ZTE2MzBmZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjZWQ1NWM1YTliZTEwMzM5MzFhMzQzYzYwYzAzZWM2ZGYzYzMyOTVkNjAxODVlODkyOWVjYmIxMTAwMDY4NjcifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L81-L117",
+          "version": "repo-lines-v1:sha256:b359a3e082bda222730f379b28ad81cad9eefe388e4b21042971c66c69d688e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5YzllMDlmZmI2MWI3MThjMmVmYThmYWNmNjJhMTQwOTllYjgyOTdmMzM5NjhhOGM1OThjZWY2MmI0ZmViNTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBmN2ZmOGEwM2FmODg3MmFjNjM5ODU4MzI1NjE1MzUzNzNlMzNjNTExZDg4ODNlYWVmYWMxYzNmZDVlYmU2ZmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmZmQzM2VlMWRhMzY1Yzg2YzYzZjdlZTk3NzIwNWM0ODUzYTU2OWI5ZmEzODdkM2RhN2MyYmZiODNkZmY2MzgifQ"
+        },
+        {
+          "resource": "repo://docs/adr/0006-supabase-auth.md",
+          "version": "repo-file-v1:sha256:0f1cf891ad6b10db0964c66b811f8e0f6c7f1da1533c3e34ca857230f6ade57d"
+        }
+      ]
+    },
+    {
+      "id": "claim_8d3356b5e3eb4f348f7d1f7c9eef1eb1",
+      "statement": "Every login refusal in POST /api/auth/login is produced by one shared `deny` helper in a fixed order — throttle pre-check, dev-credential gate, GoTrue sign-in, then admin_users membership — so no branch can diverge in response shape.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L52-L95",
+          "version": "repo-lines-v1:sha256:274f29c3f7ef77aa71beef6e7aaecc1d2e0a6fde76e0579b26b46e701fa33dc5:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YjY3NzQ5NDM1NTc5YTc2MWVkMTEwYzI2NjM1MWUyNGRlYzMyNDA4ZTM4YmZjZDdlYjUzN2IyNTEyMjUyY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdiZTFkYWRiYzM5NzRiNGU0YTFhNDIyMmUxODlhZTViODJlZTExMDcxZTVlZjE1YmM5ZDA4OWFlYzY4MjZiNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0ODJlOWViNDRiMTI5M2FlMjNmYjAxNmJlZmQ5MTllYTI2MWU5NWFlYWQ5YWNkYWZiYjMxN2RmNmVjNWE2YWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_84d3ba5687f248bf83971c22a31e30f4",
+      "statement": "Every login denial returns the identical 401 UNAUTHORIZED body with message `Invalid email or password` after a uniform `DENIAL_MIN_MS` = 250 ms sleep, deliberately making a throttled attempt, a refused dev credential, a wrong password, and a non-admin sign-in indistinguishable to the client.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L17-L18",
+          "version": "repo-lines-v1:sha256:228d3bdc1260a1fad2ba36b75bbece23ab350dc55a29888d3208ddc1bdb302b9:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDJiYTI1MjJiNDhiY2EyNzI4YzA0NGFhMWZiMDIzM2Q1MGNjMDU2Zjc5OTEyMDlkNmM2ODg0NmM5NzI3ODkxZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzhiNzdhOThjYWNjOWMxYjBiMTRhOGI3Y2ZmNjhhZWM0YTA4YTkzMDYxMzhiMTI0ZDhmMzY3ZmVkN2VmMDYzYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTkzMjBjNTEzOTgyOGQ3NmQ2NDRjN2YzNjkzMTQ1MDE1N2JkNTFhMjM1ZjRmMTlmMTAwODViMWM3NDgwNzRmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTVkNzAwNjQ1NjE4MTBmYTVhZTA2ODE1YTUzYWRiNTMxNTczYmMwNjYyYzNlMDhlYmRmNzhhZjYzODYxZDEwMCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L52-L65",
+          "version": "repo-lines-v1:sha256:a803a40cad645650859b44b7946516ee0ec04159a88adb6d8c0ba8b9bd2b92e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0YjY3NzQ5NDM1NTc5YTc2MWVkMTEwYzI2NjM1MWUyNGRlYzMyNDA4ZTM4YmZjZDdlYjUzN2IyNTEyMjUyY2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdiZTFkYWRiYzM5NzRiNGU0YTFhNDIyMmUxODlhZTViODJlZTExMDcxZTVlZjE1YmM5ZDA4OWFlYzY4MjZiNzciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImViNmI2ZTc2YTg1NTM5NWE4Y2YxZjEwNTBhOGJiMTMzMDY2YmQyYzk5NDFkNDVjZDQ1MzA2OTdiOGM3YmNhOWUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/throttle.ts#L15-L16",
+          "version": "repo-lines-v1:sha256:bedb3483bcc49bcd43110faad45afd61985a91d0c913e201af2c0208ad4ed6d3:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWM2YjFiZjZjYTViMTA5MDU4ZWE1ODMwNjA5Y2ZjYjIzZDgxOGJhZDU0NjNmYjA1NWI3NmJkYTAwYmQyNjg3NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTBkYWYxYTZmZGNiYTg1MzVlNWU2ZmY2NWMxYTAyNTI2M2M0ZWJkZDhhNzdlNjM2N2YyZDc5MzVjZGUyYjU2MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDY2NzJjZDE4MmE0ZjhhNzQ4NDJkODYwM2FhMGE2NjUwMDI2NGM4NDdkNGU1ZTYwODU2NDc3NDlhZmRjZDE4NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWU2NGRiNWI0NzQzYzgyYTRkZDA1YTUxZTY3ODVlOGU0OTI1YjA4OGJjY2E5NmExMmExNDgyMGE5MTY1M2E4MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_db06c8413e9946cbbd6cc82863161e2b",
+      "statement": "The reason a login was denied is written only to structured security-event log lines on the request logger, never to an HTTP response.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/security-events.ts#L21-L36",
+          "version": "repo-lines-v1:sha256:b9dbce2f1f55ed39dee722ce9837e6effcc28a9e25444485f34b03799aa4dd5f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxMjI3MTZiYmM1YTZiYWMyZTJiNjM5MWRmMTZjNDZlM2MyOWYzNGE1ZTRlYjc5NDNhMGUxOWMxOTFkNjJiNDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdhNTZjMTQ3NzEwMWJlMDdmOTk2OWIzMDU0NWY3MTgyZjY4M2I2MmViMDMxNzVhOTJjN2QxODhhNjhjZDBiNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/security-events.ts#L3-L8",
+          "version": "repo-lines-v1:sha256:cf810a4e7980172fc358e67fbfe315c5c593616101432ed3d2abf08f4d205187:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWFmMjJjZjA3MzI1OTJjMjQ3MTQxY2JlNjFlZmExMTAxMjYxMmY1YTMxMjJiOWFmOWJiYWY1MmY1NzI0ZDE5NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTcyYTQyOTM4MmIyZTE0NzE4ZTBlMzdiMDU3MGE4YTE3MDI5OTFmY2Q4NDk4Y2Q4NDA2MGE4YmY0ZjA1MDE3YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZmNmNzUzMTQyYTVmYWIyOTMyOTcyMTk1MTU4OTA1NjNhZGYxZTFkNDNlZjAyNTI1ZDZiODc0ZmY0YjcwMWEyZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjYwYzJhNDkwZjFiZjNiNDMwYzQzMjBhNDU2MjYzMGYzZTAzNTM0ZDc5MTE0YjBjNDVkOWUxMDI3MDA0ZTMyOSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_d02d6e21f29b4636ad44ef616b079fb0",
+      "statement": "The security-event catalog is `security.sign_in_success`, `security.sign_in_failure`, `security.sign_in_throttled`, and `security.sign_out`, each emitted with event, account, source (request.ip) and outcome so lines correlate by reqId with the request audit line.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L47-L64",
+          "version": "repo-lines-v1:sha256:cff27dd91ad5ee75f2372c94b43ab65a1c58021a63c1b9397572fcff5764467b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5MzVhZjcxYTM3N2U2NjQyMmEyMWMxMjJkNmVmNDEyYTg0YzEzZDIwODg4YzJkZjYzZTM0Y2I2YWE1NDZhZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4ZDJjZDI5NzQxNzQ3YzAzZjBiNzRlNzU5ZmJjZmU4OGE1MzAzNjZhMWFlYTM4ZTI5ZGFkZWI1MmE3YWIxODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3ZTRjOTVjYjQxMzVmZTNjNzBjOWRkYzU4YTJkN2Y0ODc3OGQ2NGE1MjRkMTkyYjNlYjY3ODRmNmY5M2E3ZmIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/security-events.ts#L10-L20",
+          "version": "repo-lines-v1:sha256:524e22b871fb1ac8b1e4fbc591b7861d6d5020ffc7f16249653b1cb3ad627fbf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzNmEyZWNlNjAxMzU3ZmQ2NGVhOTAzOWExNmVlM2Y2Y2I4ZjIxMTFiNjAyMDExYmEzYTA4MWRlYWEyYjI2NzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5YTg1NWU3NDZkNmQyYTdkNTkxNzJhZmRiYjk5MTRmMGIyOGMxMTNhYjc1ZWVjZDFlYTE1MjBlNTU5MDc5ZjMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjMjMwOTg1ODlmMDg2NWFhYjNlMjkwODk0MDEyMzI5NTIxMGM3MGIyZmI5NDU4ZmFmZTZhMTZlNGE4ODM0OTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4349caadce48486fb17fb2338d99b6c5",
+      "statement": "A malformed login body fails zod validation in the central error handler as 422 VALIDATION_ERROR, before credential verification, so it is never counted as a failed attempt by the throttler.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L66-L86",
+          "version": "repo-lines-v1:sha256:401b2f221849f774fe419ee255b3b18ec9e205c59a17cd725e87bc1e1a913674:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNGQ5Y2ExMWJkNjY0ZTk3MTI2Nzk3MDlhZTVhZTA1MTJmZWY3ZTI1ZmQ5YTgyOTRmZDNjMDcxN2VlYjU1NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyZGM5MDljNDA3YjdkZGRiZDU0NDI0M2JhZWZkY2JmYjA2MGE1ZDUzMDIzNDk3YWQ3MWJiOWE0OWE4MDAwNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjMjU0YmMxODI0ODQyMzk2YjhiMGQ2YzJmNjJjMWNjN2YwMjAxYWFhMTlhNzg0NDY0YjQ5ZmY4YmI1NzY5ZDAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L12-L15",
+          "version": "repo-lines-v1:sha256:5ca5e579cfdf2bd18322457115d38cfa520f3f2120f3631edcaa8cbceacb5e5a:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTIzYmY2ZGFmNjhmY2Y2NDcwMzdlZGM5YTdmOWMxNGQzYmUxZjU3MTVmMjliZWZjOWI1NmRkMzY1ODk5ODRmZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODA1NDRiNTA2MDVjNDBiMDMwZGNhYjU2YWQxMWFkNzZmMjlmZTJjZWNmYmZkN2Q0ZjRhY2IxOWZhNjVjNWM2YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGVmOWVmNjRiYzI4OTc1Yjk3ZmQxYmIzZGYwNTVlYTUxNjEzYmUzNDgwMGU0ZDAzNjQ2M2QyNDYzZTZmOTAxZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_49543a1b5e244390ae0bf642b1b72365",
+      "statement": "A successful login returns the GoTrue access token plus `{ id, email, name }`, where name comes from `user_metadata.full_name` (empty string when absent), and the session's refresh token is dropped.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L26-L29",
+          "version": "repo-lines-v1:sha256:855de10c9e7618175e920f61ead0d2dfdcd513e18ba0b69fee32ee9148551461:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzFhMGM1MjlkNjU4YjJkNmE2ZWJmMzUwMWU2NTlkOTYxODQzMWJjNjliODkxN2NkYzcwYWNmMWFlNTE1YzgxMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWRjMDFhZTJiM2NlODQ4ZjFjYjJkYWVkZmYxNjk4ZDkzZjY5YTE0MzU1ZTAyNTM3Nzg3ZmRmNmY2ZTc4N2FiZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmJiZjY1NjUxOWM4YjgwYjg3NjNiMDk2YTA2NTRiOWRkYjRkNTQxYjkzZjE3NzEyMzNlM2ZlNGNkMWFhYjNiZCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L99-L117",
+          "version": "repo-lines-v1:sha256:85ecc7a243ae4bdfe49c96fbf3579740247fe0b58ea388fd6f90b5f4ba294356:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxZWZiMzRkZmU0M2RhNWYzY2ZjNTM4MWQzNjIyMzZiYmQzYTU0YmEzODc2OTEzODI5ZjEyOGY4MjZmY2Q4NGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE0ODJlOWViNDRiMTI5M2FlMjNmYjAxNmJlZmQ5MTllYTI2MWU5NWFlYWQ5YWNkYWZiYjMxN2RmNmVjNWE2YWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmZmQzM2VlMWRhMzY1Yzg2YzYzZjdlZTk3NzIwNWM0ODUzYTU2OWI5ZmEzODdkM2RhN2MyYmZiODNkZmY2MzgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_32c3d5c681cb48f0b073a999cef261c5",
+      "statement": "Login throttling is per-process and in-memory (ADR-0005): keys are the normalized account (trimmed lowercased email) and the request IP, five failures inside a five-minute window block a key for fifteen minutes, and an active block outlasts pruning of the underlying failures.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L49-L50",
+          "version": "repo-lines-v1:sha256:418b1ec7f26f403cf72ab2ec4fbd974063a9af249139efc752f96d8d15c8f126:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTY5ZjgzOTEwZjA0NWE2YTFlYTFjOTQ3NTA0OTI5Y2JhYTNlMDU5MjVlYTc5MDFiZWI2YjMwZWM2ZWMxN2ZjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGVmYzA2YjJjNTI5N2M2ZTBlMDIyNDJkNWM4ZjZhMzIyYTA0MGNiNDVmOWJjNmY4ZTFjZjk4NDdiMWExMzVjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjgwOGNmMWZmMDA5Mjc4ZjgwYWRlMzQ1NDkyOTVlZDBiZjlmOWE5ZTY2NGEwNWVjYzg4NzFiY2UxZTgwMjY1ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjM3NTc5ODQ0OTczYTAxNzFiY2FiNzNjMmI0NzRjMGQyYmVlY2Y0YTMzMjJhYjc5Njc5M2FkNTYzNTgwMjBlMCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/throttle.ts#L1-L76",
+          "version": "repo-lines-v1:sha256:d413c11ddebd5528d8d31dbe1be81d7b17b4704939efaac3cfc8819b2cacaa52:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://docs/adr/0005-no-redis.md",
+          "version": "repo-file-v1:sha256:2ee9a2a26a80a41bea08ec32e1c8554b93425475edab2f037a1fb69dae547c1c"
+        }
+      ]
+    },
+    {
+      "id": "claim_b28e7c1ee5d9466982758ad381e7a34b",
+      "statement": "Each failed attempt records a failure against both the account key and the source key, a successful sign-in clears both, and the throttled pre-check refusal records nothing new.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L58-L70",
+          "version": "repo-lines-v1:sha256:5d66b0e999f6073f37e20a347417441c010f2a0adcd0dca608f248c537f5a17c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5ZTI3NmY2OWQ4ZmZkZjgzODU5M2Q4N2M5MDFlMzhhNWRmNmYxMGQ1ZDc1MmIyYTIwMmVjYmE2ODUxYzVkNDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjEzMWVmZTk3ZWI3OWFjYzZhNDhkNDk4MDQyNmQyODZjMDVkYWRhYTFhNjg2YWRhMmUxN2ZhNmRkMDdiZmIzODAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE4NDM4MTAxYzJkNDgxMjA2ZjQ1M2M1YmZjNzJiZTk3ZThiZTQ1NjNmNDY4MThhYmYwZTY1Y2ExMWI1NDFlMzUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L97-L98",
+          "version": "repo-lines-v1:sha256:5a13fcf1623402dcaedf0de04159ba3c08d980da5e3fb3a6017cb2efaa7dccbc:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDU2OTBhZmE5OTNmYTY5YmJiOGVkNTQ0NmVhM2U4NjFiOGM2YjViOWMxNmFlYmE0NzljZGQ0ZDdhMjYwMmIzMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODBmMzBiNWIzNDNlMjllZmRmYTU0ZjhlZTE1NjU4OTY0ZTcyNGJlNWRkYTZmMTlmZWQwNWEwMjZiNDIwNjhhMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMGY3ZmY4YTAzYWY4ODcyYWM2Mzk4NTgzMjU2MTUzNTM3M2UzM2M1MTFkODg4M2VhZWZhYzFjM2ZkNWViZTZmYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWJlMGI3Mjc2ZTRkOWM4OWUwOGNmNDA4YmMxNDk1MWRiMzU5MTE4ZWZkMDE4N2U5YWFjYmUzYTk4ZTUwMDNiMSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9386109e2cde4a9d82c0660ef7b17756",
+      "statement": "The throttler is instantiated per app instance inside registerAuth, so each buildApp() gets isolated state and a process restart clears every counter and block.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L39-L42",
+          "version": "repo-lines-v1:sha256:74fadc01abc639e9b6d142c844a3d8e37cc9a2135276043704bb7364b29754d3:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTkzMDVhYTM1NzgxY2IwMWI2ODNlOTFkMGZjMDgwM2YxMmRmN2QyYTgwYTMwYjdjZjRiY2YzZTQ5ZWY4YTQ5OCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWUyZTgyOTVlNTIxZGRhNTU1NThiNDRhZTVjZTljZDAxMmFhYzdhYWI4MGNmODc5N2I3ZTQwMTQ2M2YyNGRlZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzgwNzg2MTMzZGY1ZGZmMzU0ZWI3NzRjMTQ5YjVlZWMzZmIzNTc5NWJmMDE4NGEyY2YxYzBhNzg3YjFiZTFjOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWRkNWFmMGEzOWU5MDAzM2VjNWNjZTA1ZWZkMWZkNGJjNGFhNmYwYWYxMmNhMGEwZDY1YzQ3OWU5Y2NmOTVkOSJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/unit/throttle.test.ts#L9-L26",
+          "version": "repo-lines-v1:sha256:cfd230fb21e75fc58351eba31f4cdbe86c778547869ab3bd356dff34d6a70ed2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5YTIyZTlmM2M3NmFmYTEwYWU5YThmM2QzZDdhN2VmYjFiNzY5OGJiMTBjOWUwOGUwNWRlY2E4NDQ4NDU3MzciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIxODg1OWU3M2Y2N2FiMTJjYjljM2ExNjQ3NTY5YWJlY2NkNzM1ZGVkOGRjMTJhY2M0OGRkZTRkNGQ0MjliNzEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0MDQ0ZjBlNDRmODY5YjgwNDdmOTNiOTNmZDQ4MDA1OTc3NTMyM2Q3YjY5NTkyNjIxZTM0OWY3NGE5ZTY0N2UifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4544dd20633e4ec0bcb516c2098f2d1a",
+      "statement": "The throttle source key is Fastify's `request.ip` and buildApp never enables `trustProxy`, so behind a reverse proxy per-source throttling would collapse onto the proxy's address.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L35-L45",
+          "version": "repo-lines-v1:sha256:8dae05a0f70f888bed4332edc3a91be8a520459cd7fddae9082e3a9bd89e2982:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5Y2ZhNGUyNTAwMTA3ODFlM2FjMzg1YzU0OTFlY2M4N2Q2YzMxZTMwNzNkNzA4MTRlOTczYjdiZDcwNDRjM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFiNTVlNjM2NjYwYjAwMGVhNjEyOGNmMzBlYjcyM2Q1ZTk1YjYzOWVlOGM1YTE4NTEyN2I0YTNlNDFmYTBhODYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlOWQxMjhiOGYwOTYxZjU5N2FkOTczYTYzZmY5NGVhMGYzMGNkMDc3OGNmMmUzMzg5ZWZiYjM4M2QyOGZlNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjVlZjU0ODEwYTE5NTk0N2M1MjRiZWJlNjdkYzAxZGFkYTQxY2ZhYmI4NzRhMTk2NTQ1MGJhYzgxYzIyNWIxZjMifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L50-L50",
+          "version": "repo-lines-v1:sha256:0efc06b2c5297c6e0e02242d5c8f6a322a040cb45f9bc6f8e1cf9847b1a135ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGVmYzA2YjJjNTI5N2M2ZTBlMDIyNDJkNWM4ZjZhMzIyYTA0MGNiNDVmOWJjNmY4ZTFjZjk4NDdiMWExMzVjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMGVmYzA2YjJjNTI5N2M2ZTBlMDIyNDJkNWM4ZjZhMzIyYTA0MGNiNDVmOWJjNmY4ZTFjZjk4NDdiMWExMzVjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTk0NDlkYjUyYTRjZGEzY2RkNzBkYTQ3MmZmYzYzZmEwM2ZiY2Y2YzcyY2IzMjJkMzg3M2ZhNTM3NGZjMWNlMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjM3NTc5ODQ0OTczYTAxNzFiY2FiNzNjMmI0NzRjMGQyYmVlY2Y0YTMzMjJhYjc5Njc5M2FkNTYzNTgwMjBlMCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_3dc46ef9506c4070b97f5bdeea3ccf27",
+      "statement": "The dev credential is a hard-coded DEV_CREDENTIAL constant that the login route refuses, before calling GoTrue and through the ordinary denied branch with a failure recorded, whenever ALLOW_DEV_CREDENTIAL is false (its default).",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L20-L24",
+          "version": "repo-lines-v1:sha256:1a01c8829f8105ef3a11e73b614e4bfbaca8483ecd49901c82b26de65698562a:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNmQ1YmI4YTA1YTk4NmQwMzgzOTZiMjIyMWI0YTIyMWFmYThjYWFkY2M3YjcyMWM1ODhmNTYwNWEwMWFiNjNhZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWExZDFhNjMzOTAyMjljNzk4MzQ3ZTgzYTA0MDU0NDFjOTQwMDAzNTI4NGFkMTY4YzFiZjZjZGYxZDcwYTM3MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2RjZGM5ZTg2NWZmZTRiNzdiNTJjMDljZmFlNjc1NTdkZjJiNTAyOTc3MzI2NDYwOTMwYTkzZmQ2MjRlMzcwMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTRhMDE2YzU1YWQ2NDIxNjkxZTk3YjAxNTkyYTZiNWRkZGRjZjhhOGY5ZTY5NjA5MjEwZTQxODZhNDdkNGFlNyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L72-L79",
+          "version": "repo-lines-v1:sha256:8a46dffff7d43aa331ac582b3a9c221488bc98286463967951a086fb978c19db:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjg0M2NjMTZhYmY3YjQ3MDBhMWI0OTM2OGY1Zjg3M2JhYjU4OTg3ZjI4ZmE4ZTc5ZmFlNGNlMjcyOTdmODlkNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI2MmY2MGQ4NTkwYTU3OWNmNDZmOGQ2NzM3OGM0YzU3MmI5NjJjZWNjZGI5MGM3YTVmN2I0MmI5NjA3ODJhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2ZhNzY0NjJhMTI3YTFhNzRhZWNhYzc0MGU0MzgzYzJhNjY5N2E5ZTIyMjFiN2JjZGEyYWQ3ZWRjYTVkYmM5MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGNjNTZmMmEyNDZkNjI2OWYyZTJkYjA2NjRkMTJlNzMzYTQ5N2Q3MDU3YmIwNzg3YzhlNTBhNjhkOWI4OWI5YiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/config/env.ts#L17-L21",
+          "version": "repo-lines-v1:sha256:a11d47e04069f847aedd133831f297fcb81417d3f9a02ca8f5118886ed132668:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjc2OWM5YmY5ZWE2ZDQyNmFmNTcyNTI2ZTIwNTc4MDAyY2M1MTk2MTk1MWQ5OTA3ZTlmM2NhMzc2ODdmMjM3NyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjYzZGFjMDBmNzM1NGQ5ZDI4MDYxM2UxZGFkOTZiYmM5NTU4YzY5NWM0NmMyM2IyNmUxODQ2NWJlNDViNjEwZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjc3ZmI4ZjcxYzQwY2IxOWZhMGU2ZDVjMzkzMGI4MDJiMTFhOWFhZmIxNzY3YTVlNTJkZjViZjRmNjViNjU4YyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODc2ZjRhNTA5MzY5N2FkYmJhZjk3YTRlZjQ5NGM2ZGUwMzRhYzQzMWQ1ZjA0ZjIxMjZhMjllMGM4MTc2YWNhMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_42300ab1ef1a4633b972af20fbab75a3",
+      "statement": "ALLOW_DEV_CREDENTIAL=true does not make the dev pair trusted: the pair still has to sign in through GoTrue and pass the admin_users check.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L74-L95",
+          "version": "repo-lines-v1:sha256:e97b97af5931ea93e8375f307d3d19d7e81b80e3d7a2a7a3fd740c8064514a59:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI3ZmIyNzQ3MTY5YmFkMTEwNDBmNDFmNDBmYjk4MmUyNzY4YTUxOGEzNTI1ODg3ZGI0YmI3MDAyNDRhODE0NmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE4NDM4MTAxYzJkNDgxMjA2ZjQ1M2M1YmZjNzJiZTk3ZThiZTQ1NjNmNDY4MThhYmYwZTY1Y2ExMWI1NDFlMzUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0ODJlOWViNDRiMTI5M2FlMjNmYjAxNmJlZmQ5MTllYTI2MWU5NWFlYWQ5YWNkYWZiYjMxN2RmNmVjNWE2YWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d0593e946fa34febb0ce32152db70aae",
+      "statement": "The dev credential is a committed, dev-only fixture: supabase/seed.sql inserts the admin auth.users row with a bcrypt hash of that password and is executed verbatim by the Supabase CLI with no environment interpolation, so it must be replaced through Supabase Auth before shared use.",
+      "evidence": [
+        {
+          "resource": "repo://supabase/seed.sql#L1-L48",
+          "version": "repo-lines-v1:sha256:be1876f082775ef161d90f9652600a79d52b85ecb5e4b1c781174512f8c9a83b:eyJzZWxlY3RlZExpbmVDb3VudCI6NDgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjcxYmQ3YTgzYmJkZGIwM2ZhMDcxNzg5MmZjODRhNmU1ZTk0NTM5ZjVjNDA1MmI1ODQwMDU2YWRhOTdlNThjYjAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MTc3MzdmYmU4NzYxMmIwNzNlODM3OWM5YmRlZWQ3ZjQ3NWIzMzhhYTcwNWZmNTI3MmFjMDdkNGRiY2FhNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFkNDVhMzIzZDJjMzdjNThiNzU4MTRiNTAwMzAyZmJlM2ZmMWUwMzJkYjBkOGQ2Mjc0N2QwYjg4YTEzYjYyMjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f08dc0e8f70e497da76aeb302ad0ee9c",
+      "statement": "ADMIN_EMAIL and ADMIN_PASSWORD are required by the env schema but never read by server code; only the integration-test helpers use them to sign in the seeded admin.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/config/env.ts#L12-L13",
+          "version": "repo-lines-v1:sha256:1e034b99a448c562a91a255981e9ba0c263d28e981b9b59e0624f07e400a2474:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWViYTE3NjE1YTFkNzg3YmNmZjhjMGU3YjYzM2FiNWJmNGE2MWVmY2U4OGI2NTBhMGU5YjQzYmIyNmVlN2M2YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDg3YWM1MmZmNTk2ZTM1YTZjNDBiZTZjMmUxODc4ZTRkYTJmYjY4YzEzN2ViYjhlZjY2NTMyZjI5YzdkNDU1OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzdkYjRmNDljZDNiYTMwOWY4MmNhZjNkMzI5YjIyNjRjZTVhMWI4OTc5ZGZhNDc1MDAzZGU0MDM4MWEyZWJmZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjc3ZmI4ZjcxYzQwY2IxOWZhMGU2ZDVjMzkzMGI4MDJiMTFhOWFhZmIxNzY3YTVlNTJkZjViZjRmNjViNjU4YyJ9"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/helpers.ts#L101-L114",
+          "version": "repo-lines-v1:sha256:85fc48c5aa73c11b4cc33475c860b4108e58f29147c927de740edda05e98f0df:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQwYTAyODIzMDNkYmRhMTZlMjUxNjI0ZGI3ODI3NzU5ZTYzMTgxYjcxMjlhY2FmODU0MzUxZWE1M2E3YzM5OTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0YWIzYzlmOGRhNGVhMWQwMTU0ZjYzMjkyMGRhYzI0MDY5YmRjODUwNzUzOWYyZjYzN2JlODgwMjc5NjBhN2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE0ZGZkNGM1ZTIyZjZhZGRkYmFmODc5ZTEwNDZiYjhlMzVlNDc2ZjNmN2U5NTVhOTUzYTI5MTk1NjU1NDEwODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8925102ae9ce46dc808b2d28051b811f",
+      "statement": "Administrative membership is decided by one shared rule, `isAdminUserId(db, userId)`, which queries the admin_users table; the admin guard, the login route, and GET /api/auth/me all call it instead of doing their own lookup.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L131-L133",
+          "version": "repo-lines-v1:sha256:c4deb711dec645832419329ce5c9c911e0ed8543cb43bf3b4e0b4a8828db85c9:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWVkZjk0MGQ0YTdmMDgxMGMzOWM0YTU3OGYxOTQ0NWUwMGI3MDI0NGUxNzBhMTMwNjU4ZGZlMzc3NjViZjg0ZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTkwM2E5YWQ4M2RiYzQ4YzIwZjA4Nzc4ZjcyMzkyNmY1NTY5OWFkZTk1ZmNiOTMwZGU0MDgzYjgyZWVkMmFiOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzhhMzlkM2RlZWVlMGY4OGUwOTA4YjU5YzljM2U3NDc1YTQ1NjAxYzdkZjA1MjVmNDRjZTRhZWIyNTBhZjFjMCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L93-L95",
+          "version": "repo-lines-v1:sha256:5b132211e8233307f6d03ab51780ab7d4f9e7e23b24ed50cf139d6a4eafdf00c:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDhjMjM5NTQ0MTYxY2EzOTMzNTQ5OTdjNjA0OWUzMGVjZjVjOGQwNmY3NjkxYTBkOTZiNzJjZjU0N2NkM2RlYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWI2MmY2MGQ4NTkwYTU3OWNmNDZmOGQ2NzM3OGM0YzU3MmI5NjJjZWNjZGI5MGM3YTVmN2I0MmI5NjA3ODJhNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNDA0MWU2YTI3YWVhY2FkOWI1NDUxYzQ5ZGFjNWRlNDk5ODMxZDc2OWFlNzk3NzY2YjUwMzVmMjVhZjZhNzgyNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTQ4MmU5ZWI0NGIxMjkzYWUyM2ZiMDE2YmVmZDkxOWVhMjYxZTk1YWVhZDlhY2RhZmJiMzE3ZGY2ZWM1YTZhYiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L26-L38",
+          "version": "repo-lines-v1:sha256:2ed797b8f941b7852755329844ea58ca1449c600b0856f0ca85595e9f9a67f88:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFiMTljOTAzMzBmODZkZTJhZjUwZjNhZDcyZTAxMDg0YTBkNGE2NzNhYTljNzMyOGIxNDg2OTQ0NDNjNTg4ODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhNmEzYjZmNDgxZTU4Y2RhZmY1MDA0YzdlMDVjZTQ4ODM2ZmYyNTkzNWE0YzBhNThmMTJjZmQyNjM4M2FhYzEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e3da23949ff347ffa75c6db8e621ad9e",
+      "statement": "The admin guard is a single preHandler registered on the /api/admin plugin before its child modules, parses a strict single-part Bearer header, answers 401 UNAUTHORIZED for a missing or invalid token and 403 FORBIDDEN for a non-admin, and records request.adminUserId which the onResponse audit line logs as adminId.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L47-L64",
+          "version": "repo-lines-v1:sha256:cff27dd91ad5ee75f2372c94b43ab65a1c58021a63c1b9397572fcff5764467b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5MzVhZjcxYTM3N2U2NjQyMmEyMWMxMjJkNmVmNDEyYTg0YzEzZDIwODg4YzJkZjYzZTM0Y2I2YWE1NDZhZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4ZDJjZDI5NzQxNzQ3YzAzZjBiNzRlNzU5ZmJjZmU4OGE1MzAzNjZhMWFlYTM4ZTI5ZGFkZWI1MmE3YWIxODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3ZTRjOTVjYjQxMzVmZTNjNzBjOWRkYzU4YTJkN2Y0ODc3OGQ2NGE1MjRkMTkyYjNlYjY3ODRmNmY5M2E3ZmIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L14-L55",
+          "version": "repo-lines-v1:sha256:5ef2c99438dbaa98455fd6a5666067606b8d8fed938be06d8435783e62e0d223:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmNmQzN2UxZWNhMThjYTE2ZTAzOTYzMWI3ZTA5YjEwYzcyZmNhODA3YWU1ZWE4MzRjMjZhZDM4YzdkYzI1OGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L14-L36",
+          "version": "repo-lines-v1:sha256:cc5d728f37999836f5a5550cc2b48a7d7d26875865535c4f961dd93326c9549b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Y2IwZWJmY2U3N2UxYWQ0NjA5ZDI5OGI0ZjRjYzcwOGYxYTI0MGFjMGRjYWUyOGEwNjNmMjcwZWJmNjE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTZhNWZjM2Q4NWU5MjIwYzI2YmZiMWVkOGIwZTkyNDE3ZTMxYTgxZDYzNzE1NTc5ZTUxYTAzNmY1ODBlNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b851c3c9b49245e3a27a84bf832ffe96",
+      "statement": "admin_users membership is read from the database on every request rather than embedded in the token, so granting or revoking administrative access takes effect on the next call with no restart and no token rotation.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L31-L37",
+          "version": "repo-lines-v1:sha256:3542bf0a1bd50b20719e4402eccbf992a50bb91118cc9c96c36f99a7f85066dc:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmMxZjcxNDlmMDc0OTUyOTNmODRmZTkxYmE2MjliMWMyZjYzMDM2MjdlNjVhZjRiMDg2OGJiYTczNjlkZjFiNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTRiNjhhYzY1NTgzMzcxMjMxNWYxY2UwZjcwNWQxNzU2NmVhNGEzZDRlZTFmZWI5NTk0Y2I0Y2UwNDhjMDVlNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOWI3NzI3YmZmNjJlOTdjMjFlNGU2ZDI1ZmY5MTJlYWZmYWJhZjYwNmM3ZWMyYTEwY2E2MjEwY2EzNzFhOWUyZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTQzM2FkNmRmMDU5ODdmNGI3YmUyY2MyOGI5NzIzOWZiMWNlNzA2MzY4N2RmMDZhZjAzMmI3ZjhjMDRlN2JhOCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L23-L36",
+          "version": "repo-lines-v1:sha256:7991a0d7075757b0df8ee79566ca425b522e54123271020aee276998684c4122:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4NGYwYjRhNjExZGIwOWY5NjI0MzU1NDJmYWE1OTY4MzBhZTVhY2Q2M2Q5MzBmZTJkMGE5NGVjOWI4NTQ2MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzNDgzNDJlOGQ1ZmE2Zjc0ZWM3N2FmZWM4MmE4MmMzMDY2MGUwYmI4MzlkMzRhYWNiYzIwN2VjZTQ5MmEwOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d984c106ec044dbcb8151e8ec0774c05",
+      "statement": "GET /api/auth/me repeats the same token verification and admin_users check as the guard and returns `{ id, email, name }`, answering 401 without a token and 403 for a signed-in non-admin; it is registered outside the admin plugin and therefore not itself behind the guard.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L120-L143",
+          "version": "repo-lines-v1:sha256:1611968d319088b86430abb7727a9b91f2062635a4c27c554249f6203060c492:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1NGNhNjEwYmVkNTU1ODUyYjlmOWQxZTg0NGJlYjI4MWRhYTc0YWU0YTkxN2VjM2EyYzJmOTJhMjU0MzVkYzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjYjMyYTQ3NzE5MjYwMGE4ODc4MjkzYjE3ODQ1ZTUxNDUwYzdjOTc0NzllOTAyMDkwMTViODZhNmY4OWQxODEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_50d2c58cefb84996b851c686ac11dc94",
+      "statement": "The SPA's `restoreSession()` distinguishes three boot outcomes: no stored token short-circuits to unauthenticated without calling /me; a successful /me yields authenticated; a 401 clears the stored token and yields unauthenticated; a transport failure or any 5xx yields unreachable with the token kept, and any other failure signs out while keeping the token.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L37-L71",
+          "version": "repo-lines-v1:sha256:7b977ee2dd74d54049a5069764a124767a3909001b000a20e6eecddf6fb4fef9:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI1ZTYzZWQ4OTBjYjk5NjBmZjE0NDc4NGYwMjA5ZWMwZWI1NmU4ZDU2NTA2MTczMDMyNjMwMWFjYzE3NjU3NTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNiMTY4NWY5MzUxM2ExN2U0YTc0ZTZkZmM0MTZhMzg2NzUzNjQ0Y2FkYWQ0NjQwM2JjMDJhMDY1ZjIzY2E0MjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_958aa4ed5b7b4803b2df2c1378159148",
+      "statement": "RequireAuth renders a loading spinner while status is loading, the BackendUnreachable retry plate when status is unreachable, and a redirect to /login carrying returnTo and the sessionExpired flag otherwise; retry re-runs the session restore.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/RequireAuth.tsx#L6-L36",
+          "version": "repo-lines-v1:sha256:5f678bdcf3fa2ebbfc89335fcdbcbdf8bc9946efa82f2d285300c18ff6314b3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUyM2YwOWFlMGEwOGUzZDVkN2I4ZjNhZmM3YmI5ODkxYTI4M2VjYjg1MTFhZWQ4YjFlYTU2NjJiY2U2YWMxNmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgzZmMyZmI0OTYzYjIzYTdjYTcxMzRiOGE4ZjJkYTRiZjE1Nzg3ODk5MzYzNWQ4ZGU5ZWJjYzk2NDNkMTAzZmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk4NDgyZDlhYmViYjc4ZDY0YzM1NmIyODljYjFkMTZlNTIyMjA1NjYzY2Y4NjgwNjlhZTY3NmQwN2MxOTA3ZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L125-L133",
+          "version": "repo-lines-v1:sha256:25a9816f852d89a1b1229ca4e6ab47d7a93b3e5fb2cee72475a51d43460e5714:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTk2YWU2NzBiMTNkOWJiZjc5ZTFjM2Q4NGNlODM2MmExYjQ4YWU5MWY1N2VkZjk1NWU1OWEzMmQ2NmM4YzkyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGY4YmQyOTdmZDIzYWE0MjBlNGJmM2QyNDJhNjEyYTBjMWE3MjA2MmExODExZjVjOWQ1YjhjMTI0OTc1NWY2MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmZhMWNlMzdlZTUyOWE3MWQyNWI3ODlhZDEzNGFiMmQ0NjdjODdmZjc1YzlhYjdjMzJjNWQ4M2Q1YzhlNGRhZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2VhMGY2ZGQzOTQzNzFjMDY4ZWRhN2MxMzRkZTkyMDAxZjE1NDJjNDljOWVmMzY3MDgzNDYwZjNjNzZmYTk0NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_6338e46c6c944a5bafa7bcf27f777b8d",
+      "statement": "The session token is a plain browser value stored in localStorage under `komyuter.admin.token`, attached by the axios request interceptor as `Authorization: Bearer`, and written only by the login API function.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/api.ts#L14-L24",
+          "version": "repo-lines-v1:sha256:026f338cd934af4cd92ab51517f46ee34089cadc1202cf962c70b39d33b93edf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MmJkNzZiZTI5N2E3ZjJmODMwM2JlNjcxOGE3YWE4NTU4MDk4ODIyNWY4ZGIwNDAxODAyMWE5ZmY0NjllMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwOWNlZWZiYzc1N2Y3YzFjY2UzYjZjNTI4MmUyMjI3MjBjYTQwMmZiOWVjZWFhYTMyZmFhMTQ2ZTE2MzBmZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVjZWQ1NWM1YTliZTEwMzM5MzFhMzQzYzYwYzAzZWM2ZGYzYzMyOTVkNjAxODVlODkyOWVjYmIxMTAwMDY4NjcifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/api.ts#L5-L43",
+          "version": "repo-lines-v1:sha256:65f8959a103c29cc35fc9e5a63148082fbe4e8b72a6b49f08b584197744f44f8:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOTBmZDA1MmYyMGU5NmI5OWMwOTgwZTkxZTM3OTcxNWRlODJlOTFkMmJhYzk0NWZlODk1Y2FmOGVmYmEzYjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzMzNkYzcxOTEyM2M3NWFlM2RlZDVkOTgwMmUxNzUwZDM5ZWM0NjhlOGNhOGRiMjg0OTVmMGI0MTUzODVkMTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4MjI3M2YyYmY0YTc0OGI3Y2I0NjdjYzNlYTg1MTFiMzUwYmU3MDA2NGI1ODU5YjFmMjc4MDU0NDFmMzhiOWMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_673f8110bc2a40b092e19237e30cf946",
+      "statement": "The axios response interceptor treats any 401 whose URL does not end in /api/auth/login as a mid-use session expiry: it saves the current path to sessionStorage, clears the stored token, and emits on the sessionExpired bus, which AuthProvider converts into the unauthenticated state.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L79-L88",
+          "version": "repo-lines-v1:sha256:89f9396514895110f2016a261aec6e1346ea8c734b8a31ca7859613a72e9e709:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxYTZkNTdjNjNkYTM3ZTljN2ZlNDdhNDlhYTdlZWM4ZmYwNGUyNjM0ZDA2MzQzOGY3Yzc2YTZkY2ZmMGZlZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkYzUyZjA4YjM5YjA4YjAxYzhkMzA4YmY4ODBiMGJlZjAyZmQxZGZjYzlkOWFhOTNhNGQxYjVmNGQ1OGI2Y2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZhZTI3Y2JmYmI1NWFmYWFkMzY2MzFkYTdmZjcxMjk5MDc5NDI0NzNjYTg5YzBlYzQ5ZGUyNTA1ODhjYTlkMGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhkMWI4YmNlY2NhN2JhZWJjYTE0OTA1NDZjOGVlNDU5NGIzZTU0ZDhlNTcyNjhhMGZhMzU2MGVmZjUxZjc1YTYifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/sessionExpired.ts#L1-L20",
+          "version": "repo-lines-v1:sha256:3e2471046c2abd8ecc216c6441aac81e3f3baa1dafce465014977d49ded069ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkY2I2NDY1ZDMzNDhlYzBjNjBhYmE5YzAxOWEyN2M2ZjQ0MzhhYTcyMDc4OTEwY2Q1ZTFhNmIxOGE4MTEzNDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/lib/api.ts#L45-L76",
+          "version": "repo-lines-v1:sha256:b250a2e0ab33ac42b1452dcd057026ef17a29153b28a3bf4cbbdff885b528597:eyJzZWxlY3RlZExpbmVDb3VudCI6MzIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjMmRkYzBjNTVlMjQ1ZjA0NTQ5NDQzYjA4ZDU1ZjZjNThhMWE3ZmJjYWRhOWY2OTY2MWIzMjc5MjU0NzYzMjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1NzI0MTM1Nzg4ZDQxNDY1OTVlNDcxMDU4NmY1YTkyZWZiZmQyZWIwOTYyOGEyMzBlOWQ4ZGE3N2RiMTFkN2MiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMwOGMyNjEzYzU4ZjI1MzYwMTg1NWYyMDBjNzQ2MjI5MmMxZTBlNDdlYzY5NzM2YjJlZmE4OTdhNGEzYjhiNGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9dd399bfe8f3424a83dd8c19aa57eb6e",
+      "statement": "The post-expiry return path is sanitized: `getReturnPath` accepts only strings starting with / and not //, `getSessionExpired` accepts only a literal true, and the login screen prefers the sessionStorage copy of the path over router location state and clears it after use.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/redirect.ts#L4-L44",
+          "version": "repo-lines-v1:sha256:0f1edd65062f4ac067fef8973bd68d43e1ba5877678f2b87fa89c858d6370f87:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZjYyZTkwZDA3ZDIyNjRkMTllZmIxMWI2OGZmMmUyYWYwOGIwMDExNzY0NzRhNDg1NmU1OWU1MTU0ZTBiYzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyMmMzZjAzYjYyNzUxNDJiYWQ1MDUzMjdmMDgwYTJkYjRlOWQ5YTAwYmQ4YmQ4ZmZhMjU5MTdmY2U5NDVmOGUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/pages/Login.tsx#L26-L34",
+          "version": "repo-lines-v1:sha256:b7dd3875ab5f9dd4f01d3c31e2f26d134d365a4818435325a532da2ddd6f6bda:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWFlMTRkZGQ4OThiOThhZTJiMTc1NTYxMjdlZjBhY2YyZGY0YTY0ZDBiYjhhMGVlNDBjMzE0YjAxYTE3MTU2YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODViMTgzMmNjOGJlMTQ4NWJkMGE0NmFjOGVjYWRkN2M0NTY3NTA1Y2NjYzAzNDUxYmM2YjMzNmZhZGNmZmM1MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOThlMTQyYjZkMTliMjBjNGVhODEyM2U5ODQ4M2VmYjRiZmI3MWY2MjdjNjAzMmNlNWU4YTBjZTRhOGVjYTk0OSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1040715f50044821a431436660cf9215",
+      "statement": "There is no token renewal path: the login response omits the refresh token, the admin app has no refresh call, and supabase/config.toml sets jwt_expiry to 3600 seconds, so an expired access token ends the session until a fresh sign-in.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/features/auth/api.ts#L14-L36",
+          "version": "repo-lines-v1:sha256:951597b37153d0d3527f8457f876c19f3be2953845469473fd36ebb508f6806c:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MmJkNzZiZTI5N2E3ZjJmODMwM2JlNjcxOGE3YWE4NTU4MDk4ODIyNWY4ZGIwNDAxODAyMWE5ZmY0NjllMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYwOWNlZWZiYzc1N2Y3YzFjY2UzYjZjNTI4MmUyMjI3MjBjYTQwMmZiOWVjZWFhYTMyZmFhMTQ2ZTE2MzBmZDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L106-L116",
+          "version": "repo-lines-v1:sha256:1c630227c32704eae9607023c5e343c804756b57a8cc0a49ea0e4f569e95e1ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MGVkYmQ0ZDc3ZTY1NzVkNDZiYTQzZGM1MjUyNWIwYTExZDY0NDY1MGE1MTY5N2I3NWFjMTM2YzQ1NGY4OWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZlMzNkYzczMWU3ZDA3YjFmMGMwNWNmZWJkN2UxOTIyMDIzZTYwNzdiYzBhZTdiYTMwMTQ4ZjUwODMzYTI1YTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImExNzZmMmFjNTE5YjliZWNmMjM5OThiOTJlYWE5NDU3MWIzNGYyZDgyZjNlMzU2MGU4MDIyMWJkZDkyYjMwMmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUifQ"
+        },
+        {
+          "resource": "repo://supabase/config.toml#L164-L165",
+          "version": "repo-lines-v1:sha256:52c270ab8ddb1dfc15cbf62a376a97e3ac4885be3627665fbe4ea78c928728f7:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjBkMWFjZTAwN2FkMmIwYmQ1NzYyYTkzMTQ1YWU3MWFiODhhOTYzMTQxMTA5MDMzNjcwNmU3MzkzMjBhYmYyNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWU2Y2YyODUzNDIzNmYxNjRiNjllOTJiY2Q3ZDdhZGRjY2Q2ZDgyZDI3YjdlZWI4OWEzZmI1MzEzNGYzOWU5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNkNGZhNGQ2MTZhODFhNzZlMGY0ODg2ZWI1ODFjYWZhMjQ0N2Y1MGQxODdhZDMzODVjYjY4ZTQxNjEwMjdkMyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOGMzMjZlNjcwNTJjYmM2ZjFjYjU1MTkwMjU1MjBmYjRmMGM2ZDc1MjVkYTY0Mzk5NTVlNTRjNzRkNmE0MGMyYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_cceda672ed3248c18b0426cf46c793ba",
+      "statement": "POST /api/auth/logout is idempotent by contract: it best-effort revokes a resolvable token globally, swallows revocation failures, emits exactly one security.sign_out event with the resolved email or \"unknown\", and always answers 204 with an empty body for a valid, invalid, or missing token.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L145-L162",
+          "version": "repo-lines-v1:sha256:2ed399dac398ffbf7a790a8021870d41aadc7e44482f6e1f626e9997c4ad7ca4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YTc5OTUzNjkzMGIzMTU2ZWIwYTM4OGU3NTA3ZGZjYzUwOTA4ZWYwMDQ0N2Y5YjVlYmFlYWFiYmVkNmQ0ZWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3M2Y3YWExNDAyYjk4NzU5MzA1MWQ3ODQ3ZDkyMzdiMzIxOGYyOGUwYTZlMzM2NmJlNjNlM2NkZmJiMzMxZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4c27d0f7fa1a40e398f1bea71f40b2c8",
+      "statement": "The admin SPA never calls POST /api/auth/logout: its signOut() only clears the stored token and resets auth state before navigating to /login, so a UI sign-out leaves the GoTrue session valid until the token expires — contradicting the \"sign-out → POST /api/auth/logout, global revocation\" description in docs/ADMIN.md.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/app/Header.tsx#L38-L42",
+          "version": "repo-lines-v1:sha256:e624732f3d97118ffb2eb7d9f09774b9f71505d843923918ae32a366f3e58ad2:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2M4ZjhmZTMwYmE4MWVlMjFmM2E1YjBlNmViYjVlOGI0MThmZTNkZjdhYmU0ODA1MTQ5NDAyYjVhMzk5NTNlNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDJhMmNiMjVhMTIyYjQ0MjIxYTYyMzRlYzY2MGE3YjVmYjdmOWJkZTdiM2I5ZTJiM2M1NTlhMGQ5NmZhYzczOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDljMDY1ODZmMGJkNGRjZmFiYTQ1MzkwYmZiZDViNGU1NWIxOGQ3Y2Q1YmY2ZjdhNDQ1ZTE4NzE5NzQ1MTE1MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDNmNTExNzA3ZTY1NjRkY2Q4NTRhZTdmZGM5MDYyODJjMzY0OGJhOTNjMzRjZjI0YTE4NjUzMzMwNTgwMWE0ZiJ9"
+        },
+        {
+          "resource": "repo://apps/admin/src/features/auth/auth.tsx#L118-L123",
+          "version": "repo-lines-v1:sha256:cf5028ac343a46430fd0fc9a2a67b2ef786e373c6246270a334ba318235aea65:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYmZiOWRmNTU1ZmE5NzU5NjA3YThkNzkzODYxZWZiZDkzZTYxYzUzZDQ0NGVhNmI0MGUyZjAyNjljM2YwOWU0NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmRjNTJmMDhiMzliMDhiMDFjOGQzMDhiZjg4MGIwYmVmMDJmZDFkZmNjOWQ5YWE5M2E0ZDFiNWY0ZDU4YjZjYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTY2MTdjNTk1ZDFjNzQ2MDYwOWYwYzJkYzEwNWU0ODUyZTQ5YjAxZjg5YjY1NDM0OGFhZTVhZWZiMTQ4NWZjMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2M2MWFkNjY3MzM1ODdhNmJmOWJlZTg0MzlhNjQxZWVlZTZiY2EyYjA0Y2ViNmUwNzgwZGU4NjYwYzIwYTg4NiJ9"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L124-L124",
+          "version": "repo-lines-v1:sha256:a134993aeac8ac8472897aefb3f951cf578d707f8121cdb9d267adb9a59f74ce:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTEzNDk5M2FlYWM4YWM4NDcyODk3YWVmYjNmOTUxY2Y1NzhkNzA3ZjgxMjFjZGI5ZDI2N2FkYjlhNTlmNzRjZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTEzNDk5M2FlYWM4YWM4NDcyODk3YWVmYjNmOTUxY2Y1NzhkNzA3ZjgxMjFjZGI5ZDI2N2FkYjlhNTlmNzRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDQ5YWE2MGFlNGNlY2FiNzIzMjU2NTBiOGM3MTcxZjRiOWQ0MmUzN2U5YTA4MGI4MTFiMWRjNDJkZDZmODNhOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDA0YzZhN2IzZjYwODRmNWQ1MTNkOWZlYTFiZGM1N2I0ZjA3ZjkxYzE1MzNmMWJkZTViYjI3OGJmOGEwMTA1ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e18b1f0451f44d969de5f82e22cb3ca4",
+      "statement": "The origin allowlist is a root onRequest hook registered immediately after @fastify/cors, so it covers /api/status and /api/auth/* as well as /api/admin; a present Origin not in ADMIN_ORIGINS is refused with 403 FORBIDDEN, while OPTIONS preflights and requests without an Origin header pass through.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L41-L45",
+          "version": "repo-lines-v1:sha256:d2c1f8176d07f8648b13614b1576ba1deb64b115c9590ff6ba52fcd17320d8f7:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTRkZGRhN2UwYzRjNjM4OWE5NmFlNTM3NWY5ZDllODQxYjBmYmRkMGFhYWFjMmViNzU1MTg4N2IwOThlZmIyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI1NWU2MzY2NjBiMDAwZWE2MTI4Y2YzMGViNzIzZDVlOTViNjM5ZWU4YzVhMTg1MTI3YjRhM2U0MWZhMGE4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTkzYzM1ZTJkNTIyYTZjYzVjMThlMjJiMzE5NWI2MjY5NTY1NjYzZTJhNDE3MzMzOTc5NmMxZTY0MDJjZDk3MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWVmNTQ4MTBhMTk1OTQ3YzUyNGJlYmU2N2RjMDFkYWRhNDFjZmFiYjg3NGExOTY1NDUwYmFjODFjMjI1YjFmMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/origin-guard.ts#L14-L30",
+          "version": "repo-lines-v1:sha256:6c84a9e1a6f1a852f51571c606954bb9a2071df6a813776e06bb290d07f1f278:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmNWY3ZTE0YjI1N2I4NTUxYTE0OGQ1YzllNTY2MTkzOWIzZjU3NjYzY2IyMzAzM2Y4ZmU4MzllMDExMmVjMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQyYTJjYjI1YTEyMmI0NDIyMWE2MjM0ZWM2NjBhN2I1ZmI3ZjliZGU3YjNiOWUyYjNjNTU5YTBkOTZmYWM3MzkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1OWViMTQ0ZmY5ZTcwNmE1NTNiYzEyZjhkYWUyOWJhYTdiOTk4MDVmNTA5MzYxMmQ0M2JhNTgwMzIxOTg2NjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0aea427e2bbb47d6a243821e4189abb9",
+      "statement": "The server integration suite pins the auth contract: unified 401 denial with a measured minimum delay for wrong-password and non-admin cases, account blocking after five failures from distinct sources, source blocking against another account, counter clearing on success, both dev-credential gate states, the origin-guard outcomes including the OPTIONS pass, and 204-plus-revocation for logout, while a separate suite pins the guard's 401/403 behaviour on the /api/admin subtree.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L20-L34",
+          "version": "repo-lines-v1:sha256:409722c6b576491c927c35b3301e2acba8a15fb0ac8f5c3e365fa0a9e26d92ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3ZjZlMDgxNGQxNjYzOGQ2MmQ1ZmJjZDkwMzRlMDk1MzJlODk2Yjg1YzY0NWMzN2NmOWRkYjk1ZWIyYjlmODYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVkYzAxYWUyYjNjZTg0OGYxY2IyZGFlZGZmMTY5OGQ5M2Y2OWExNDM1NWUwMjUzNzc4N2ZkZjZmNmU3ODdhYmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5ZjZlOTY2MzBmMDU5Zjg4YzlhZGIyOWM5ZWE4ZTYxOWQyZjRmY2IzZGY0MTU4ZTkwNTdjOWM2NGQ0ZDZiZDMifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L201-L276",
+          "version": "repo-lines-v1:sha256:198e14d89feb60071ff6264e45873566d01b8b27725facbe91e4f565694ed9ad:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYwMzMwYjE3MWQzNGJhYzNmMGZmZGI0YWM5ZDQ0ZDZjMDZiYjNjODQyYmU4YzQ4NDhjZDU1NmRlODAxYjljOTkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk2OWQ0MjUzNDg1ZDllNjlkYzZmY2M0NWM2NTZjZDU4M2I2NDVkZWUzYWM1YTQ5ZGMwMGUxY2Y0Mzg1NTM0MDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQzZDhlNDE0YmQ4Yzg4ZjJhZmYyNjJlZTM2YzA0MmJlMDUwZDFiNGY4NmNhYTQ0M2IzZmU5Mzk1OTEzMjlkOWYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L279-L392",
+          "version": "repo-lines-v1:sha256:91e406baa22285010f80244f7553d260decb78f741092cdd29a654c2350e8a45:eyJzZWxlY3RlZExpbmVDb3VudCI6MTE0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI5NjUyZjE1NTgxOTdjZmMwMmRlOTRiMzdlMWE2YmQwM2QxOWM0Mjc0MTc3YzljZThhMWNmNjVlYzg4MDMyNGY5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJiNzc5ZDExOGQ2ZTNjYmY0NTA1Mzk3NDhkZWU3YTQzMDdhY2JlNjQ0NmNiYTI5N2YyNzYwZmE1ZDBiYmExYmMyIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/auth.test.ts#L28-L76",
+          "version": "repo-lines-v1:sha256:15418b83003b2ab21946c50fc63126516faffb046ed940f1e2e540e50b5565a7:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4NzhhODMyOTFlYTAyZWY5ZWNmZTcwYzhkZmJhNzc0YTg4ODYxMjM4MDJiMjA5NzE2YzY1MWVlMDVhODg4YWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1MTI3OGIxMTM0MTgyMDU0MzJlODdkNjUzNDE0MWE4YmJkMTg0OWYzODY1OTkzYWY1MTlhY2E3NzUxMjhlNDYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYzZTgwODRlMWQzNjA0ZDU0NDdkODA1MjA5ODI0ODhkYWFiYzk2YmM3ZjI3YWZlNTIyMGJlMDkzNmQ0NzgyYjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f760cfd798734d3a904c1425025628bf",
+      "statement": "Client-side unit tests pin the session behaviour: the three restoreSession outcomes including the token kept on 403, the 401 interceptor side effects and its login-URL exemption, and return-path sanitization together with the sessionExpired flag parsing.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/src/tests/require-auth.test.ts#L29-L97",
+          "version": "repo-lines-v1:sha256:7d855348120a098b15992e3fa9a4753dbcd9ab8a64cb5a8db801b62e7efa9e5d:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwN2EwMGUyOTVlYjlmYzFhODVkM2JkZWViNzM2OGI0ZmM2MjQxZDcyNGQ2ZTliOWJjOWUzYTkyYTlmOGFjMmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1NzYzYjYxZmI5YjVkODMxNzEyZTQxYmUwZTQxMjJjOGUzNDUzYzkxODY3NmViN2FmYjU0YjAxOGI0YjZlMWYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/restore.test.ts#L35-L96",
+          "version": "repo-lines-v1:sha256:32dc12bd047b51e0767123d2ef9224b3d246d4264f1ea47856b40ade63e07c58:eyJzZWxlY3RlZExpbmVDb3VudCI6NjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0NmJmZmQ3NTAxMWFiZDJlYzY1NWYzMDZjNjYwZTNlNmJiZmFhNTdjYTE5ZWE2ZTY5ZjljNDc3YTY3NDg3ZDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxZGViNzYyOWUxNGZlNTQwNTRiOWM2YTExODVkYjI2YzYwNGU4MTkzOTc0ODFjMTg1MzBhMjUwOWFjYWEwODkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/admin/src/tests/session-expired.test.ts#L107-L146",
+          "version": "repo-lines-v1:sha256:0b9fcbb376a52f18ca6233cdf52fe527ba3026eacc1112aa6cc14980923c8874:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMzZjE1ZmI4Nzk1OThiNzQyMWEzNjAyNjNlZTI2MjI2NjczNThjNjJiMzJhZThhYTg3NGM5NmYyZWViMDA2ZGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI3NzlkMTE4ZDZlM2NiZjQ1MDUzOTc0OGRlZTdhNDMwN2FjYmU2NDQ2Y2JhMjk3ZjI3NjBmYTVkMGJiYTFiYzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNiMzQwN2UyYzM0N2IwZmJiYTI3ZjMyYThjYjU4NGQyOTdmMjlmMDUwNDljYzg1NWU4MzllNTU5NGMzYzQ5ZjgifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

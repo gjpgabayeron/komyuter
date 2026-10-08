@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:8adfd67ea9f93118f87ee6cace32cc54350dad533c817e2c9b910d65938bbeb5",
+  "claims": [
+    {
+      "id": "claim_e312dce0a6804a08b767d8966386063f",
+      "statement": "The pnpm workspace is exactly two globs, `apps/*` and `packages/*`, which yield six members (admin, mobile, server, @komyuter/shared, @repo/ui, @repo/typescript-config) and deliberately exclude `navbench/`, so the benchmark harness's Rust, Go and Node toolchains are never touched by `pnpm install` or a Turbo graph.",
+      "evidence": [
+        {
+          "resource": "repo://navbench/node/package.json#L1-L12",
+          "version": "repo-lines-v1:sha256:5bdf882aeafc1487eeefd30fb9a98ca3b0d928941cf9a5b21fe67923d71ef8e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://pnpm-workspace.yaml#L1-L3",
+          "version": "repo-lines-v1:sha256:08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWRiMDc2ZWI4MGFkZTE5ZmVhM2UwYTQzMTk4NmI2NTVmNWZhNTllZDYyNjdlMTA3ZDY4OGI2MWMzZjQyMTc5NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiODlkNjdjMzRmZGJlMGVkMzRlN2Y5ODcxYjA4OTU5ZjgzZTJmMmYwOTM3ZDAxZWU5Mzg0YWU4YWRlYjFkMjU2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L3-L16",
+          "version": "repo-lines-v1:sha256:977552bef5b3f094031637ad49c21bed9c4c86fcccb32c115b12aa82bb16d9c5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2ZTIzYjQ5ZWQ3ODBkMzgwMzk3YWVhNzllM2NkZTgwZmU5NGM4YzU3YmZmODc1MjJjODMxNjM4MDhmN2M3OTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1YTg5NTdkMTljNTY5YzU0MmJjZjI2MDEzYWEyMTA5ODVjYTM3N2Y3ZTAzOTIwNzIwZmJkZjMxYWI1YmRlZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmNzM5YTA2YzFjYmIxMjQ0ZTMzNjNkMzhiY2Y5ZmE1MGNlODRmZWQzOTljMjE5M2EzYzdmMDhkNTk5MThiMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ab04d9425c984f10bc8e513d009a0ed1",
+      "statement": "The package manager is pinned to pnpm 8 by `\"packageManager\": \"pnpm@8.15.6\"` in the root package.json (authoritative over stale docs claiming pnpm 9+/10.12+), the lockfile is in pnpm-8 format (`lockfileVersion: '6.0'`), and CI installs that same version because `pnpm/action-setup@v4` is configured with no `version` input and therefore reads the `packageManager` field.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L13-L14",
+          "version": "repo-lines-v1:sha256:b4c717d0ee738a688bd68c7171dccc65e164efc621638be9c992e704ddd3b7c9:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNjBjMmQxMDdjOTk2Y2UwMjMyMDEzM2UwZjI3MTM5YWEyYjBhYTE0MjliNGVmODA0NzYxOTFiMjAxZmViYzM3YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFiYTQ3MTljODBiNmZlOTExYjA5MWE3YzA1MTI0YjY0ZWVlY2U5NjRlMDljMDU4ZWY4Zjk4MDVkYWNhNTQ2YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWY3N2U4ODYyZWMxZDQzNjk0MjZmY2FmYWQ5MTBhOGM5MDQ0MTAxMDQzZmE1MmZhNjQ2MWY3NWJmY2RmMDlkYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjZkOThlMzNhNTkxYzU0MmEzZGRiZDg4ZjI5YmExZjM0NDVjZGRiYzZlMzMyYjFjOWVjOGNlMGE2YWU2Y2MyYSJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L14-L14",
+          "version": "repo-lines-v1:sha256:df703769a5d4733206793e2ae92671b64ea60f2cb2801d5aa18a7532bb9deb31:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGY3MDM3NjlhNWQ0NzMzMjA2NzkzZTJhZTkyNjcxYjY0ZWE2MGYyY2IyODAxZDVhYTE4YTc1MzJiYjlkZWIzMSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGY3MDM3NjlhNWQ0NzMzMjA2NzkzZTJhZTkyNjcxYjY0ZWE2MGYyY2IyODAxZDVhYTE4YTc1MzJiYjlkZWIzMSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTcwZTJlYzQwMzY4NjQ2YjgwNDFiYmJhZmExNmZmZGUxMzljNTUyNWZiOGU0MTQyNDc1NmRmZTE0YmMzNDY5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTI3Njc2NDgyNTQ4Nzg0YjM4MDAwNmY4NTY1NmJlYmM0MTM3MDhiNjgzOWY5MmU2ZTlkMDhhNTM4MWZhMGEwNyJ9"
+        },
+        {
+          "resource": "repo://package.json#L34-L34",
+          "version": "repo-lines-v1:sha256:b8209f3493268ac7ebec94b509fdc4a37089201ae2a162701bf5cec0e5c3bb26:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjgyMDlmMzQ5MzI2OGFjN2ViZWM5NGI1MDlmZGM0YTM3MDg5MjAxYWUyYTE2MjcwMWJmNWNlYzBlNWMzYmIyNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjgyMDlmMzQ5MzI2OGFjN2ViZWM5NGI1MDlmZGM0YTM3MDg5MjAxYWUyYTE2MjcwMWJmNWNlYzBlNWMzYmIyNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjU5YzY0ZGQ3YjQ3YjY1Nzg2MDFmNjZjNGNiNDEyNTdjOTVjZWQ4NWYxNGY4ODM0ZjgwYzFiYzVjN2MxYTlkNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZhZjBkMGYyODE3NGRmNTBiMjY3Zjk2ZWNjMzNlMzE1ODBmNjJlZDg2MTUyZGQ2YTM2NTFiZDMyZWU1YTMwMCJ9"
+        },
+        {
+          "resource": "repo://pnpm-lock.yaml#L1-L5",
+          "version": "repo-lines-v1:sha256:ddcc501ca81ee617ca9d98a66198b27f37656d84b26a704e77c2263502bb1c23:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTRiMWNkZWViM2IwYzZmYzVhNGRiMDlhMTgwNjIwYmNhOGM4ZGQ3Yzk1OTFhZjU3OGI3NzY0NjE2MzhhMjk2NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjMzNjAyZjc3YWQwMzViMmFiNGZhY2IyODIwZGEzYmM5MDhkMTQ3OTMzOTk4YTNmMWQ2YjI2NTY0YzIzYzZjYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjhiNDEyNGUxNWQ5MzRlN2Y2Y2FlYzEyYmNiMDM1MTY5ZjQ2ZmVkYzE3ZjIwNTAwMTY0ZTk2Y2UwMTY1Zjg1ZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b37e302738744f25b6113029e2d913fe",
+      "statement": "Root `.npmrc` enables `auto-install-peers = true`, while `apps/mobile/.npmrc` is the only per-package override and switches that member to `node-linker=hoisted` and turns on pre/post lifecycle scripts.",
+      "evidence": [
+        {
+          "resource": "repo://.npmrc#L1-L1",
+          "version": "repo-lines-v1:sha256:b0b7209a6d51e77a192aa6b93ccb3eb48ef285118fcbc59eed35b0ca38581192:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBiNzIwOWE2ZDUxZTc3YTE5MmFhNmI5M2NjYjNlYjQ4ZWYyODUxMThmY2JjNTllZWQzNWIwY2EzODU4MTE5MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBiNzIwOWE2ZDUxZTc3YTE5MmFhNmI5M2NjYjNlYjQ4ZWYyODUxMThmY2JjNTllZWQzNWIwY2EzODU4MTE5MiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/.npmrc#L1-L2",
+          "version": "repo-lines-v1:sha256:a4b404ee7ae2fcc2168f9335fbc700643168143408c76992e47f9728a984ba6f:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTI4YzlkODZhODk4MTA0OWQyMDNhZDE2NGNmZjFlNzUzZWQ2MWRjMDQ2MGVlODc2NTMxNmNiYjNkMDAwN2QwMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTE2ZTQ2YTA1MjIzMjg3YTEwMGRmMmQ0MTIwYmFmN2MyNzI4NDZiYWUzYWI3ODJhYzgyNWQ0YWUwN2I2NDU0ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_159479a1f25c498f8ceaf5bd259d309f",
+      "statement": "The root package.json is the sole gate entrypoint set: `build`/`dev`/`test` delegate to `turbo run <task>`, `lint` is a bare repo-wide `eslint .` (not a Turbo task), `typecheck` is a hard-coded chain of five `tsc --noEmit` invocations (four by `-p <tsconfig>` plus `pnpm --filter mobile typecheck`), `format`/`format:check` run Prettier over `**/*.{ts,tsx,md}`, and `prepare` installs husky.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L3-L12",
+          "version": "repo-lines-v1:sha256:0149cd4f0adcf9df5db33e17f607686c5557e39af0da970c26a4dda7e59210e5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM0ODMzZDU5NDljMDNhNDBjYTk1MjQ5MTYxMGE2NjU5NjQ0YjNhYTQ2NjM2MmY3OTkwMjBkYmYxOTgxNTQ3ZGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjZmI1MmIzYzgyZWMxNjllODhkMzgxNWI0NGQzZDA5NDEyZmRiMWQ1MGJhNjhhOWEwNTIwZWVhMDFiZjRjZTkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM0MzQ1MzQ5NzA5N2U2ODA0ZTA4OTNhYmI3Y2E3NjBlMTQzNDhhNGVjNGM4ZTFiZGFjYWIyN2E1MjUzZDgwZTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ef87b1e043e046bfb621f6e7c18f720d",
+      "statement": "`turbo.json` declares four tasks — `build` (dependsOn `^build`, inputs `$TURBO_DEFAULT$` plus `.env*`, outputs `dist/**`), `test` (inputs `$TURBO_DEFAULT$` plus `.env*`), `lint` (`{}`) and `dev` (`cache: false`, `persistent: true`) — and declares no `typecheck` task, so the typecheck gate runs entirely outside Turbo and gets no Turbo caching or filtering.",
+      "evidence": [
+        {
+          "resource": "repo://package.json#L7-L7",
+          "version": "repo-lines-v1:sha256:e3bb9b0b7fba6ae6f3c4b98880a31b247dd8a1fe81dfaad332710f51190e2be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0NGIyY2IxMTk3MjNmNWYyNTRhZmU2MmE4NGJjMzQ0MWVlZGY2M2Y5MDVhODM0OTQ1NGFiMTAzZmI1OWU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L3-L17",
+          "version": "repo-lines-v1:sha256:8b031d32123985d7d36611e16b044f130197469326738152578da245af9938f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk2ZTIzYjQ5ZWQ3ODBkMzgwMzk3YWVhNzllM2NkZTgwZmU5NGM4YzU3YmZmODc1MjJjODMxNjM4MDhmN2M3OTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1YTg5NTdkMTljNTY5YzU0MmJjZjI2MDEzYWEyMTA5ODVjYTM3N2Y3ZTAzOTIwNzIwZmJkZjMxYWI1YmRlZTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_1157a43510d44377983505b5718f0e1f",
+      "statement": "Only `apps/admin` (`tsc && vite build`) and `apps/server` (`tsc`) define a `build` script, so `turbo run build` never builds `@komyuter/shared` or `@repo/ui` — both ship TypeScript source through their `exports` maps (`./src/index.ts`, `./index.ts`) and rely on the consuming toolchain to resolve it — and `apps/mobile` declares no build script at all.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L6-L11",
+          "version": "repo-lines-v1:sha256:a7116575ad520e900fce6d1928298ac08dbfea216b4a24a67dd1e9a5fa9b16d3:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2E2M2JmMDk0ZjUzYTg5MTIzMjc5MjRlMjllMTE5MzIzYjJjOTU5YWNjMDEzMmZhZmEyNzE1MmI1YmQ5Zjg2NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmUzY2Q1NmU2OTEyYTVjYjdlN2RkMGYyYWUzMDg5YjAwZTllNTY5YmQxNjE3Nzk5ZjVhZDc2OWEyNjU5YjI1MSJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L5-L13",
+          "version": "repo-lines-v1:sha256:09122b94fc1311935c8a5996a01befa26dfdb06e39f1e9420895aea03d045052:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQxNmZlMzA0YThhZGNhMzBlYzc2NmYzN2Q4ZDlhZWQxOTM3ZjM0YTBlMzFiYjU3YmFhYTYwYWI1ODJmYTVhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU0ZDBmNDc5ZDBjZjAyOWQwY2E5MWUwM2Q3NmRiOTVmZDcwYmE2NjJiNGI1MjEzNWZmZGQzMzE5NTgxNDJlOSJ9"
+        },
+        {
+          "resource": "repo://apps/server/package.json#L6-L11",
+          "version": "repo-lines-v1:sha256:4f7eaa21549c81878e3ade310a2c856e5a6c1e8747a5b16d2f8994b86bc5763e:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc4Njg4ODc1OWM1YzdkOWQ1ZDZiMGE4ODY2YmQ5ZmJhNzMzZDY3NTdhMjY5MThhZWYxZWJhNDRkMzFjZjlkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGY0NjU1NTBhNDRiYTU0MzU1NTA4ZWM1MWU4Yjk5YWUwMDBmN2QxODg0ZWNhZDU0ZDg4NmUwOTA2MjFkNTcwOSJ9"
+        },
+        {
+          "resource": "repo://packages/shared/package.json#L4-L10",
+          "version": "repo-lines-v1:sha256:bee565305ed90dd1e2470395545b3165fbba71dad8d8a2734a7ebe426414a8ea:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDBmYTZiN2M3YWRjMTFjZTA5OGE0YTljZjc1MmViZDg1ZGQzZTU4YWMwZjhlODA0ZDkzMjljYWY5YjRhYmZlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGE1ZGZiNmIzOGY0NzE0YjIyYWQ1ZjA2NTk3NDcyM2Q5MjAwMjM4MDUzNWQwMGJmMmYyYmMxNzJlNTE1MjU4MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDdkNGQ0NTM0NTU3MTQzYzRmNmY2MmY0YjM0Y2Q4YThkNTQ2YzJhOWZlNDI0MDViYjJiMWY0OThlZWI2M2RhNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGY5MGQ4NWNhZmQwNzA2OTI3YmEyNDA4ZWE5MDM0YjdiY2M0ZWI0MDljNjFkNjk3Y2JlOTZiNmM2MTA5ODM0NSJ9"
+        },
+        {
+          "resource": "repo://packages/ui/package.json#L4-L9",
+          "version": "repo-lines-v1:sha256:9a18b968ba5eba814f50910f2c3e1df95f02ea51f79e097ec11632fb08f05eb5:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2MwNWJiOWY0YThiOTg0NTEwZjgxNWE1ZmM0MDc4ZDc3YzVhMjBlOTNmMzM3M2RjNWRkZTRhMzQxZDFiNDBjOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTIzYzY3NjA3YjNkNTYyNzQ1YWIxZmZlMWFkMWEzNTFmYTUxZjQ2MGQyMGM5Mzk1N2NkOWQ4MDU0ZDI2YTY5NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMjdiNjhhNTkxNTYyYWI5OTg3MGQwZGM1ZGI4YmU4YTc0NDcyMDYwMTQ2ZTI1MTc1MzI3OWJmZGU3YjU3OWM5ZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8653cbe37bd1490db7b48028553fa482",
+      "statement": "Only `apps/admin` and `apps/server` define a `test` script (`vitest run` each), so `pnpm test` (`turbo run test`) spans both suites; `apps/mobile` defines neither `test` nor `build` and therefore participates in the pipeline only through its `dev`, `lint` and `typecheck` scripts.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/package.json#L6-L11",
+          "version": "repo-lines-v1:sha256:a7116575ad520e900fce6d1928298ac08dbfea216b4a24a67dd1e9a5fa9b16d3:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2E2M2JmMDk0ZjUzYTg5MTIzMjc5MjRlMjllMTE5MzIzYjJjOTU5YWNjMDEzMmZhZmEyNzE1MmI1YmQ5Zjg2NyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMmUzY2Q1NmU2OTEyYTVjYjdlN2RkMGYyYWUzMDg5YjAwZTllNTY5YmQxNjE3Nzk5ZjVhZDc2OWEyNjU5YjI1MSJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L5-L13",
+          "version": "repo-lines-v1:sha256:09122b94fc1311935c8a5996a01befa26dfdb06e39f1e9420895aea03d045052:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQxNmZlMzA0YThhZGNhMzBlYzc2NmYzN2Q4ZDlhZWQxOTM3ZjM0YTBlMzFiYjU3YmFhYTYwYWI1ODJmYTVhMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGU0ZDBmNDc5ZDBjZjAyOWQwY2E5MWUwM2Q3NmRiOTVmZDcwYmE2NjJiNGI1MjEzNWZmZGQzMzE5NTgxNDJlOSJ9"
+        },
+        {
+          "resource": "repo://apps/server/package.json#L6-L11",
+          "version": "repo-lines-v1:sha256:4f7eaa21549c81878e3ade310a2c856e5a6c1e8747a5b16d2f8994b86bc5763e:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc4Njg4ODc1OWM1YzdkOWQ1ZDZiMGE4ODY2YmQ5ZmJhNzMzZDY3NTdhMjY5MThhZWYxZWJhNDRkMzFjZjlkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGY0NjU1NTBhNDRiYTU0MzU1NTA4ZWM1MWU4Yjk5YWUwMDBmN2QxODg0ZWNhZDU0ZDg4NmUwOTA2MjFkNTcwOSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L10-L16",
+          "version": "repo-lines-v1:sha256:7846216b531bc63b6990b6e58ada2b18d9228df7cbd950ddb1a3ab7fff3a1867:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzgxZGJiZTM5NDc2MjY2M2VjYWZhNmIwMDc3OTI2MDc0MDU2ZmIxZTgzNDdhMDA4MmNkOTFiMTI1NDEzMWVkOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjQ3OWViYjY0MzMxMWUxMjYxZDEwMDg2ZmIyODNhN2NiYTNkMDlmMzRjYTVhMDNlZTkxMTYxMmQ0YTczNzM3ZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjIsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGY3MzlhMDZjMWNiYjEyNDRlMzM2M2QzOGJjZjlmYTUwY2U4NGZlZDM5OWMyMTkzYTNjN2YwOGQ1OTkxOGIyYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_156210fb8beb4eb6a2f392f4fd240a83",
+      "statement": "The `lint` task declared in `turbo.json` has no caller: no root script invokes `turbo run lint`, and `apps/mobile` is the only package that still declares a package-level `lint` script (`eslint .`), which is already redundant with the root repo-wide `eslint .` that covers mobile through the flat config's scoping blocks.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L20-L20",
+          "version": "repo-lines-v1:sha256:fe9a5365c634dafd60bdfc77584a0236799c34fec0dd348b1969d6450a7dcdd7:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZmU5YTUzNjVjNjM0ZGFmZDYwYmRmYzc3NTg0YTAyMzY3OTljMzRmZWMwZGQzNDhiMTk2OWQ2NDUwYTdkY2RkNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZmU5YTUzNjVjNjM0ZGFmZDYwYmRmYzc3NTg0YTAyMzY3OTljMzRmZWMwZGQzNDhiMTk2OWQ2NDUwYTdkY2RkNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNjYzM2YyNWQ4MDMyZDcyNzI1YjIxZTEzMGU4MTBhYmNmNzhiNmI5M2Q2NmU3ZGM3NzMyZThiZDQ5MDMxZjcwYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWI0Y2Q4ZWQ4NzcxYmIxYjkxZmQwMTFhZTc1Nzg1MjYzOGEwMzZkMjk3ZjY0NTM5NzMzYTVkMjViOWVkYjU3ZCJ9"
+        },
+        {
+          "resource": "repo://apps/mobile/package.json#L11-L11",
+          "version": "repo-lines-v1:sha256:101d31924443e772aa6841c660942dbb624b21f459a52ae92222eaec96eb4666:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTAxZDMxOTI0NDQzZTc3MmFhNjg0MWM2NjA5NDJkYmI2MjRiMjFmNDU5YTUyYWU5MjIyMmVhZWM5NmViNDY2NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTAxZDMxOTI0NDQzZTc3MmFhNjg0MWM2NjA5NDJkYmI2MjRiMjFmNDU5YTUyYWU5MjIyMmVhZWM5NmViNDY2NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmU5YjQ1ZjZiOTFhY2VkNjNhNGI3MTZjYzY4NzhiMzI0MTdiNDJlYWJiZmIxODI0ZmYyODRjZDYxOGE0OTFmZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDUwM2I1MTcwZWM5MjBiYjlkODUzNjlhMGVlNGY2M2RjNTEyOTY2ZGJiZTU5NmRjOGJmODE3YTgzMTYzNGEwMyJ9"
+        },
+        {
+          "resource": "repo://package.json#L4-L8",
+          "version": "repo-lines-v1:sha256:fdeeb20c70b2bbe2029bb6f8730ec0f9ae0596bb00e1b56610243bd2ec0c41fa:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjgyYjcwZTg3NTU3NWY3NGMwYjJhZTdiZmQ2Mjg3MzI4YzY1OTc5ZDUxMmE5N2YzODg1MTNhNjk4NDE5YmFjMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGE4MmJlMjcxNmYzZDNmZmM4NjgwNjhhYjBlMGYwZmU2ZjczNDc1ZGEyNWU3ZGEzZmVjNDNlOGU2MDVlODQ5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzUwNzM1YzNiMWUxNzAwOWZjZjNmOTBiMTI3MWRjN2MxMTkxOGUwZjE5MTU4MDVjZTBlODVlZWQ2ZDJjOTc4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGI0MjlhZGRlOGQ4NTc4YzFlZjMyY2Y3ZjA0ODhkMWY5MzU3YjAyOWEyYjFiMzZiOWM5NTM0M2VmNzE2ZGMyMSJ9"
+        },
+        {
+          "resource": "repo://turbo.json#L9-L9",
+          "version": "repo-lines-v1:sha256:2a98fedd386645c030c4b64b4ebf7a60a8b6667d8adf4d9ab170d93e4c5a0ecd:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMmE5OGZlZGQzODY2NDVjMDMwYzRiNjRiNGViZjdhNjBhOGI2NjY3ZDhhZGY0ZDlhYjE3MGQ5M2U0YzVhMGVjZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmE5OGZlZGQzODY2NDVjMDMwYzRiNjRiNGViZjdhNjBhOGI2NjY3ZDhhZGY0ZDlhYjE3MGQ5M2U0YzVhMGVjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiY2UzNjcyOTg5MGY2YzA5NjY5OWMyM2VjM2Q2MWRhZmViZThjNzBlODBmZjg2MjEwMTA3YmVmMGU2NjY2NTI1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWRjMWNmYWY5MmQyNjQzODEzMjIwNzc2ZTZkZWJkZjE0MWRlMmY2YmM0YjkzYWFmM2NkOGVjZmMyMDYxYzUzOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_2956af8345ad46a880d44b67279a0969",
+      "statement": "Linting is one root ESLint 9 flat config whose shape is: a global ignore list (`node_modules`, `dist`, `.turbo`, `public`, `apps/mobile/.expo`, `navbench/**`, `pnpm-lock.yaml`), three file sets (`webUiFiles`, `mobileFiles`, `serverFiles`), Expo's shared configs re-prefixed into `apps/mobile` by the `scopeExpo` helper, `@eslint/js` + non-type-aware `typescript-eslint` recommended rules scoped to web-UI and server files, react-hooks/react-refresh rules plus browser globals for web UI files, node globals for config files and server files, and `eslint-config-prettier` last to disable formatting rules.",
+      "evidence": [
+        {
+          "resource": "repo://eslint.config.mjs#L47-L92",
+          "version": "repo-lines-v1:sha256:66f170f5b3b025fa82334325299be67e0b833f48751cbdfcf45af5d296df0edd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImI5NjA1ZjJjNWE0YWFhNjY0MDg2ZWE1MjBlNTE4MzJlYmM2NDkwNDVkYzdiYjFlM2UwOTllMmIwZTYzOWNkOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkY2UyZTk3YTVjZDNmNGEyYTljMGRiMmRjMzNmNDhlNTc0YjU5NjY0ZTQxMmRmZDMyYzU1Y2IzMDIzYmNhNWYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgxNDJiYmE1YjJlOTY1Y2ZjZDk0YzQ2MzJhZDQ2OGNkYmJjZDIyMTliNWVjNWIwOGI0MzE2YmVkY2M5Nzg0NWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L9-L46",
+          "version": "repo-lines-v1:sha256:8cc6b412806b4b14526afcc046dbb89329af218cc99bd9fb2eca31e1dd8fae8d:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1NDI0MmQxMmQwMmQ3YTI5NWY1MmQyOGMxZmU3NTIwM2RhNWUzZTdhNTI2MzdhZmRjN2NjM2RkNjU3NzcyNWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2ZWIxYWVjYjlhNDA3MDVmMGZkOTIzNjk0YTEyOGUyNTA3NGE4N2IyYWE4NmMwNWMwYzA5OTFjYTlkMTU2MzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJiNGUwMzc0ZmNiMmQwMmQ1ZjhjZDg2Mjk1YzUxOTM5ZGJiYWZiZjkzMGQ4YmJmYzY0NTM1ZTg0MjI2OTFjM2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a18aa2caa00b4a2b9692a031ce892d64",
+      "statement": "The flat config still contains globs for `apps/web`, an app that no longer exists, and the removed `@repo/eslint-config` package / `.eslintrc.*` files must not be recreated; the root README.md still describes the create-turbo starter with a `web` app and `@repo/eslint-config`.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L21-L21",
+          "version": "repo-lines-v1:sha256:b0fe2a2a3aac30e8837b6bf4e175cd8eb29f710aa80876a29d1047227f590738:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBmZTJhMmEzYWFjMzBlODgzN2I2YmY0ZTE3NWNkOGViMjlmNzEwYWE4MDg3NmEyOWQxMDQ3MjI3ZjU5MDczOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjBmZTJhMmEzYWFjMzBlODgzN2I2YmY0ZTE3NWNkOGViMjlmNzEwYWE4MDg3NmEyOWQxMDQ3MjI3ZjU5MDczOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzY4ZmUxNjVkZDQxMGM2MjNjMjA0ODMxY2U1NDllZWUzMmEwZjA5NTQxMzA3ZGIzNTVjYjI2OTRiYmUwMTYyZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjA2NDEyMjA4OWVjNjY1ZTkwZTM2MzQ2OGU2YWFmMjhkZWVkZDcxNTM2MWI0NDZkOTM3NzYxYWFhNDdjMzI3MCJ9"
+        },
+        {
+          "resource": "repo://AGENTS.md#L33-L33",
+          "version": "repo-lines-v1:sha256:99ecce6d0fc12665a915d4287c4be0e69fc57d2eeeb0522888dfa602fcb325e8:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTllY2NlNmQwZmMxMjY2NWE5MTVkNDI4N2M0YmUwZTY5ZmM1N2QyZWVlYjA1MjI4ODhkZmE2MDJmY2IzMjVlOCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTllY2NlNmQwZmMxMjY2NWE5MTVkNDI4N2M0YmUwZTY5ZmM1N2QyZWVlYjA1MjI4ODhkZmE2MDJmY2IzMjVlOCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTI2NGY0MzA2ZDRkODQxOTVlYTNkYmNmMzI4ODc1NmU1M2RmZGM4OGFhOGY2M2U2NWVmYjkyYTk2NzY0OGNmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDhjZDBiZjIzMzk1ZDY2OWNkMjE3MzNlYmZiZmE5MGU5YzkyYjdhZWYwNWIwY2JhODQwMjRmNGI1YzBkMTE3NyJ9"
+        },
+        {
+          "resource": "repo://README.md#L13-L24",
+          "version": "repo-lines-v1:sha256:3725763dd6f5acc19097c66a759ad83f12ae2c6d24af8039991b7ba71cda2324:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0YmRmMWNkYjYxZmY1MWM5MTdlZDQ1NGM2NWJiOWUzYTI4MzU3NzVlOTFmOTMwYWUzMGRiYmNjZDYwMjcyNmQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU0OTQxOTVkMDg5YzNlZjg3NTExZDAzMzI1Y2EzZDVmNDliYTgwZmU3ZmVmZGI1NzdmMzAzZWM4MGFmNmIxN2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImU3M2FlOTZlNzgwMjE3YzhhNDNhZWU5NjliZGI1N2RlZTQzODczYzBlODdmNzU0ODNlNDkxODFmMTQ3ZWNmNjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEzNzgyMzcwOTYyOGRlOWRmZGYyNDNhNDc4YWY2YWRkNDdiYjUxMjcyYzI1MmI0NmMyMzdjOGMxY2ExYmU4ZjgifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L9-L13",
+          "version": "repo-lines-v1:sha256:815f0efc770b8e8fd35b7784b4d8a2c30713a4157b415e3f7e3358eed7346991:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTU0MjQyZDEyZDAyZDdhMjk1ZjUyZDI4YzFmZTc1MjAzZGE1ZTNlN2E1MjYzN2FmZGM3Y2MzZGQ2NTc3NzI1YSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjAyZDJjMGQ2ZGM1ZTc0ZDkyZmExNGI5MWRiZWEyNjQwOTBiZWIzNWZkYjkxODhkOWIzNDExODFkY2U5ZjRjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzZlYjFhZWNiOWE0MDcwNWYwZmQ5MjM2OTRhMTI4ZTI1MDc0YTg3YjJhYTg2YzA1YzBjMDk5MWNhOWQxNTYzMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNmNDdhN2ZmOGU4NmNhMDFmOTgyZmI4NjVmYzhhZTllZDg5ZTNkMGZhOTk2M2Y3M2RkNzgxNDFlMmMwNzg2MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_409cce7fba084d4fab3b14b58b2868bd",
+      "statement": "Prettier is configured with semicolons, double quotes, LF line endings and the Tailwind class-sorting plugin (with `cva` as a recognized function); because the root `format`/`format:check` globs cover only `.ts`, `.tsx` and `.md`, JSON, CSS and YAML formatting is enforced only by lint-staged, on staged files, locally.",
+      "evidence": [
+        {
+          "resource": "repo://.prettierrc.json#L1-L7",
+          "version": "repo-lines-v1:sha256:e6d41a4c8735706e6a81b58c869e5436c9efbc6564a6694802919955984e463a:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://package.json#L13-L16",
+          "version": "repo-lines-v1:sha256:88878b0da8f802b1a325c2a7ced77d636a440ca3ca53493f0d001b03de98e00d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdhZGRlYTcxNmZkYzQwNGZmN2FiZTJjMTdlMDJiODZiZGVkODgyNWE4Zjc2MWJiZWQxOWZkYTFkOTRlOGYwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFjZWIwZTE5OTgxMTYxN2Q5MmM3N2E3YzNhM2UxZDkxODlhMjA2OWM1NWRmMWEwMjZhNzVjYzE4NmU0MWFiYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWQzN2ZkMzYzMThmMmVlZjNlNzJiZmI3ZDI2MDIyMjJhOTRmMjhkMGRlOWM0YjQzYmM5MmE0NDVhNzY3ZDBjZCJ9"
+        },
+        {
+          "resource": "repo://package.json#L9-L10",
+          "version": "repo-lines-v1:sha256:f9921901ce79c6e7293a6a39d67d8e6218c1ee5e0a0c9b9b420d494594dc6c23:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGExZDJmYTU5YmJlMWVkYzA0MGU5MjNmZDQ3M2Y2NjNiZDhjNzgyMDgxOTE2Y2QzZTU1NzA3MTlhZmNkNzcxYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGMzNmM4NGRjZWQ4YTFhYjVmNmQ1MWYxNTEyOGY3YWNjOWMzYzEwNmM4YjNlMGZmOGNjMzJmZWNjM2Q5OGM5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFjZWI4OTE3OGJkZGE1MTIwNGI5Yjg4ZTc3OTQ4ZDdkNjFiMWJlYmVmMDkxNmI1Y2I3MjI3ZjQ5NWEwZmRmNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc1YjQxY2EzZDA1NTI0YjQ3YjllYTk3Yzg2ZGNmMDNiZGVlN2ZhN2UzYTZiY2VkYTBkM2NiMzI3N2MwYTVlMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e7254eb730614eaa8181efdf63789029",
+      "statement": "`.prettierignore` excludes `node_modules`, `dist`, `.turbo`, `pnpm-lock.yaml`, `supabase/.temp`, the five root design docs and the entire `/openwiki` directory (with a documented rationale: generated wiki output plus the hand-authored INSTRUCTIONS.md would otherwise fail both `format:check` and lint-staged), but it does not exclude `navbench` — so navbench Markdown remains inside the format gate while `navbench/**` JavaScript is ESLint-ignored and outside every Turbo task.",
+      "evidence": [
+        {
+          "resource": "repo://.prettierignore#L1-L19",
+          "version": "repo-lines-v1:sha256:e39ff0e30159724bf0f2d98d489ea6e0c0fa9b61ebf41f7b4432e1487e440d06:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2ZDMwZTQ0NjIxODlmYjE0ZGQ2MTFiZGI3MDhjNTEwNjMwYzU3NmExZjM1YjkzODNlODlhNDM1MmRhMzZjOTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJlZTlhYTQwZjNmYjcwN2QzNDFjZjVmMTM4YzUzYjNmY2M3NzJiZTJhZmVmYjJhZmU3MWY2MmFmY2Q5YTQ1ZGEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://eslint.config.mjs#L37-L45",
+          "version": "repo-lines-v1:sha256:5624a58b861e01587130d4ccec040498c3ed31a611e5eea878f1fe860e2c7527:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjgzZjBiOGVmOTVmODZhYzZmMzdkMWU5MTU2Y2Y0ODAyNjZjM2I5YWQ3NmE4OTg3ZmVhMTAwZTc2YmY0NzY4NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzYzZDUzNWNlMzgwNjNkNmI0YzUxZDhjMzg2YTdmOWIzZTU4MGExNGExMGMwN2IxOThkZmFmMTljOTNhM2JmZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDQ1NjczNmZlMThmNjU4M2QxYmUwZTA1N2E3ZTA0NjY0YmU5ZjkwMGNlZjE3NjZiNjg1NWE2ZTA4ODU1NTA0MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZmNjZDhjMTFmNjNmMjdlNGUzM2E2MmM5NmYzZmQ5MzFkYmVlNTczZWZjYTM1NWVhOGE2ZTg2OWYwMGRlZTI0OSJ9"
+        },
+        {
+          "resource": "repo://navbench/node/package.json#L1-L12",
+          "version": "repo-lines-v1:sha256:5bdf882aeafc1487eeefd30fb9a98ca3b0d928941cf9a5b21fe67923d71ef8e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_31253ae1f2804535bb516246a73ed996",
+      "statement": "Husky is installed through the root `prepare` script; `.husky/pre-commit` performs a warn-only branch-name allowlist check (`main`/`master`/`develop` or one of eleven `{type}/` prefixes, never failing the commit) and then runs `pnpm lint-staged`, while `.husky/commit-msg` is a one-line `pnpm commitlint --edit \"$1\"`.",
+      "evidence": [
+        {
+          "resource": "repo://.husky/commit-msg#L1-L1",
+          "version": "repo-lines-v1:sha256:8e774865c063495d249911d8b6f28498e919590898bee328ef10b65637e92b9b:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGU3NzQ4NjVjMDYzNDk1ZDI0OTkxMWQ4YjZmMjg0OThlOTE5NTkwODk4YmVlMzI4ZWYxMGI2NTYzN2U5MmI5YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGU3NzQ4NjVjMDYzNDk1ZDI0OTkxMWQ4YjZmMjg0OThlOTE5NTkwODk4YmVlMzI4ZWYxMGI2NTYzN2U5MmI5YiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://.husky/pre-commit#L1-L11",
+          "version": "repo-lines-v1:sha256:1788864503e7c252fcde65e4c32bca4d346ba549d06ee3a381fbd0d267d67335:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZkYzE0ZWVmZWU0YWRlOGE0MTBmNGRmZWRlYTZlYTRjYTllOGY2MTU0ZjJmZTdmOTE5MmEwNGJhMWFiNjFiMTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxY2VlYTNhZDA4N2IzYjQ1NWUxNDJhODJkNWEyY2ZhOWVmM2E4ZjVkNDJhYjRkNGNiNjQ4YzE3NmIwODBjNjkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://package.json#L11-L11",
+          "version": "repo-lines-v1:sha256:241b9ae2b368443ddaba4f4b305adf48fae024c6a69dca2b2d82eb8fee1ae791:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQxYjlhZTJiMzY4NDQzZGRhYmE0ZjRiMzA1YWRmNDhmYWUwMjRjNmE2OWRjYTJiMmQ4MmViOGZlZTFhZTc5MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMjQxYjlhZTJiMzY4NDQzZGRhYmE0ZjRiMzA1YWRmNDhmYWUwMjRjNmE2OWRjYTJiMmQ4MmViOGZlZTFhZTc5MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDAyNWNlMTE2YWUzMWQ5MWI1OGUyN2E4NWFhMTlhZTI4MzVjM2ZmNDNkOGFmNmRiMmIxMGE3ZWE2OGQ3NGRiMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_87b763e4dc03469d9396d51f97f9efb5",
+      "statement": "lint-staged runs `pnpm exec eslint` on staged `.ts`/`.tsx` and `pnpm exec prettier --check` on staged `.ts`/`.tsx`/`.json`/`.md`, with no `--fix` or `--write`, so a lint error or formatting drift blocks the commit and must be repaired manually rather than being auto-corrected.",
+      "evidence": [
+        {
+          "resource": "repo://.husky/pre-commit#L11-L11",
+          "version": "repo-lines-v1:sha256:41ceea3ad087b3b455e142a82d5a2cfa9ef3a8f5d42ab4d4cb648c176b080c69:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFjZWVhM2FkMDg3YjNiNDU1ZTE0MmE4MmQ1YTJjZmE5ZWYzYThmNWQ0MmFiNGQ0Y2I2NDhjMTc2YjA4MGM2OSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDFjZWVhM2FkMDg3YjNiNDU1ZTE0MmE4MmQ1YTJjZmE5ZWYzYThmNWQ0MmFiNGQ0Y2I2NDhjMTc2YjA4MGM2OSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjgzMjI2Njk5MGIxZWQxY2U0NWFjOTk4NDEzZWRiYTdiNjY0NDQ0ODllNzMwZjQ4NWJjNTdiZTNiNDlmODI1OCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://package.json#L13-L16",
+          "version": "repo-lines-v1:sha256:88878b0da8f802b1a325c2a7ced77d636a440ca3ca53493f0d001b03de98e00d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdhZGRlYTcxNmZkYzQwNGZmN2FiZTJjMTdlMDJiODZiZGVkODgyNWE4Zjc2MWJiZWQxOWZkYTFkOTRlOGYwZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDFjZWIwZTE5OTgxMTYxN2Q5MmM3N2E3YzNhM2UxZDkxODlhMjA2OWM1NWRmMWEwMjZhNzVjYzE4NmU0MWFiYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWQzN2ZkMzYzMThmMmVlZjNlNzJiZmI3ZDI2MDIyMjJhOTRmMjhkMGRlOWM0YjQzYmM5MmE0NDVhNzY3ZDBjZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_e18d2dbaf09041d2806f4998065be577",
+      "statement": "Commitlint extends `@commitlint/config-conventional` and adds a `scope-enum` rule listing eleven scopes (`web`, `ui`, `mobile`, `admin`, `server`, `shared`, `db`, `docs`, `config`, `ci`, `deps`) at severity 1, i.e. warn, so only the `type(scope): description` shape is actually enforced and an unknown scope merely produces a warning.",
+      "evidence": [
+        {
+          "resource": "repo://commitlint.config.cjs#L1-L21",
+          "version": "repo-lines-v1:sha256:3dc6562639e4425b16a4cd0e3be62536f75f6fd7b70c31527f5f8b1a083d9813:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4ZTYxZmRmMjAyOGEzOTQxMGYwNTFmOTdiZTBkYjU4MGMzZWZiYWJmNWE3ZjI3Yjc2ZDQ4N2U1ZDA5OWZiMzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFhMWQxYTYzMzkwMjI5Yzc5ODM0N2U4M2EwNDA1NDQxYzk0MDAwMzUyODRhZDE2OGMxYmY2Y2RmMWQ3MGEzNzAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_511466e4e2064d7fad85a8382a9b2c9b",
+      "statement": "CI is a single non-matrix job named `check` on `ubuntu-latest` triggered by every `push` and every `pull_request`, running sequentially: checkout, `pnpm/action-setup`, `actions/setup-node` (Node 20 with the pnpm store cache), `pnpm install --frozen-lockfile`, then `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm --filter admin test` and `pnpm build`, so the first failing step stops the rest and a red format check never reaches the build.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L1-L39",
+          "version": "repo-lines-v1:sha256:90d145baccee19e11b6a263f92df8778ca8b46e02556c46f9108429736275214:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA2ZTFiMzJmYTA5MDc5YWUyZjAwMDFmZmYwZWNhMjdiNDk4NTk1N2Q0ZWI0ODU3OTI5YjNjZjA1OGZhYWU1NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjhlMmQ0NDlhNDJkNDY2NWQ4NWIzZTMzZjBiZmRkN2FmMjBkNmJkMDIxMzE3MzA0MWUxMGE4ZmJlZjIzMTJkNGMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://package.json#L4-L10",
+          "version": "repo-lines-v1:sha256:077a58196b1e5ba8bda0dc7a565177831ce3dd15a42560f875031750f2b0b520:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjgyYjcwZTg3NTU3NWY3NGMwYjJhZTdiZmQ2Mjg3MzI4YzY1OTc5ZDUxMmE5N2YzODg1MTNhNjk4NDE5YmFjMCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGMzNmM4NGRjZWQ4YTFhYjVmNmQ1MWYxNTEyOGY3YWNjOWMzYzEwNmM4YjNlMGZmOGNjMzJmZWNjM2Q5OGM5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzUwNzM1YzNiMWUxNzAwOWZjZjNmOTBiMTI3MWRjN2MxMTkxOGUwZjE5MTU4MDVjZTBlODVlZWQ2ZDJjOTc4MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMDc1YjQxY2EzZDA1NTI0YjQ3YjllYTk3Yzg2ZGNmMDNiZGVlN2ZhN2UzYTZiY2VkYTBkM2NiMzI3N2MwYTVlMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_a08eb62de3204431b09dd8d990ad1ac1",
+      "statement": "The CI test step deliberately uses `pnpm --filter admin test` instead of `pnpm test`/`turbo run test` because the server suite's integration half needs a live Supabase stack; the repo constitution makes `pnpm lint`, `pnpm typecheck`, `pnpm format:check` and the admin suite mandatory pre-merge gates enforced by CI, and `pnpm --filter server test` mandatory only whenever a change touches `apps/server` or `packages/shared`, which is therefore a real gate no automation enforces.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L32-L36",
+          "version": "repo-lines-v1:sha256:d2886427f0c5a9a58aa7f9083802c0d6bb35ba6bb0f30e30a8b191d5af40aed9:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTRlYzFkMzE5NmRiYTI5NDllYzc2ZTQ0YmJhNTc1ZmQ0MjZhYTIyZjQ4YzQ0ZWJmY2ZkYTc4YTRlZDFmZWI3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTgxYzJlMGY5OTEzMzljOWM1YmY4ZDNkMmI4ZGFmNDg2YjM2OGQ4ZTIxNGE1OGJkYzBiYTFmZGQ1NGM5ODUyYiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDE3MzA1NjI2Njc0MTkyMzJmYTBhOWExZWNlM2YwYThjMDE5ZmIzNmIwMmM2YWYzZmY4YWM3YjY5ODQ3MTIzNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGU3ZmFiYjYwNDAxMDNkZjBmNTQyYjg4ZTE0NmUwMTU0Y2YyNWRmOTgwNTU3ZTVmNjJmZDFiNzNjMmI0MzZiMCJ9"
+        },
+        {
+          "resource": "repo://.specify/memory/constitution.md#L137-L154",
+          "version": "repo-lines-v1:sha256:362763d07ad8aa0e1e8a5a6cb30f1994c31d27b0417812acc00b90d3a35cfa6a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhOTNjODUzMTY2ZWUwZDczMzlhMzk4ZmYzM2JlMTlkNWI1NDQ5ZTJhZTZjNWZkNzlmMmU3MWE3YzAyZTAzMDYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4Mjc3Njg3YjJkMDI0NDkzMjk5Yzg0Yjc3ZjVmY2VjYzY1OTk0NjYyMjNjZmFlMDk1MmM1NmM0YmJmZDhjMWQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRiNTQ1NTIzNWNjYmJmYzkzYjMzNjhhNzgzZjhhMTkzZWI5MGNlNzk0YTdiM2U5N2FhZTQ1YmE5NzFlYjMwODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg0NzY1MDAxMzc3OGZjYTZjMzg5OTI3Njc1YTVlYjRlMDk2NzhhMmQ0YjdmZmRlYjVlOGI4NTM5YWExMDI1ZjAifQ"
+        },
+        {
+          "resource": "repo://AGENTS.md#L23-L26",
+          "version": "repo-lines-v1:sha256:14893f1c394c3ec49a454c1c697cd23251fc0e89c703eee122cdd42c7db92d22:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMTdlMTQ2Mjg0NWY5NzBmMmQyMjE5NDExMzk5ZDBjNGQ5NDFlODIwZTg4NzY5ZDNkY2NmYWViOTJkMDVjYzQ5MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNzY1OTdmMjYxZTcyYTU4MTdlZGU1ZmExNTc0MzZlNzU4M2I2NmQ1NWUyYjZhYWM5M2QyOThjY2QzM2U0NDkwNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNzQ0YTVlYzVjOTQ3OTg5NWRjMjQxMzg0ODA3ZjZjYzVmNjUwNTk3YmZmMmQ3ZWIwYTRmMzM3NWUzYWNjNDdmMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODQ2M2YzY2JmNjNjNjI0OTAzNWUwNmNjODg1NzliZjRkMWFkYTU4MjZhYmQ2NDc4YzZjOTc2MDZjZjM5ZTk3NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_005129dc5d224350ba514a7dc2e74a27",
+      "statement": "The admin suite is the only behavioural gate in CI: hermetic, node-environment, limited to `src/tests/**/*.test.{ts,tsx}` (23 files / 311 tests per AGENTS.md), with `passWithNoTests: true` in its Vitest config — which means a broken include pattern or emptied test directory makes the step pass with zero tests executed.",
+      "evidence": [
+        {
+          "resource": "repo://AGENTS.md#L24-L24",
+          "version": "repo-lines-v1:sha256:d31dc2582edf26b3261804ee83c06abd85c30d7f4b7b5c483e3bf29bd73e6c71:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDMxZGMyNTgyZWRmMjZiMzI2MTgwNGVlODNjMDZhYmQ4NWMzMGQ3ZjRiN2I1YzQ4M2UzYmYyOWJkNzNlNmM3MSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDMxZGMyNTgyZWRmMjZiMzI2MTgwNGVlODNjMDZhYmQ4NWMzMGQ3ZjRiN2I1YzQ4M2UzYmYyOWJkNzNlNmM3MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYWI0Y2Q4ZWQ4NzcxYmIxYjkxZmQwMTFhZTc1Nzg1MjYzOGEwMzZkMjk3ZjY0NTM5NzMzYTVkMjViOWVkYjU3ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWY5OTcwMGFmYzdlOGIxZmNiOWI2MWM3NzcyNjliNDA1MDM3YzdjZDJmMGU4NDZhZTVkMzcyMjU2YjU2YmZjMyJ9"
+        },
+        {
+          "resource": "repo://apps/admin/package.json#L10-L10",
+          "version": "repo-lines-v1:sha256:d04fb2f5a462577422df1b091ac1508715d7237dda8a058bfebddb45c621c5e6:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDA0ZmIyZjVhNDYyNTc3NDIyZGYxYjA5MWFjMTUwODcxNWQ3MjM3ZGRhOGEwNThiZmViZGRiNDVjNjIxYzVlNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzljYWViZWU0ZDY4Yzc2NTc5MTg5YjdiYWUyNmEzMmY0M2I2YTIxYTNiZjE0Yzg5Njg3YzlmZmY0ODA5Y2FhZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTgyMWYxNDMwN2YxMjI3OTQ2YWVjY2Y1ZDA0NTE1YzBiNDY2NDc5YWY4OWRmMzZmMzk4NzU0ODRkOWVkMTQ0NCJ9"
+        },
+        {
+          "resource": "repo://apps/admin/vitest.config.ts#L10-L14",
+          "version": "repo-lines-v1:sha256:95145163067b26972444b6f90ed1af156699cc5c8e3be096e5ea50d1a808580c:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTkzNmRmN2E1YTNhYWYxODBjZmZkMWQ2NWM2NDZlZjZhZWEzNTJjYzI3Nzc0Njg2MTk5Y2Q4ZmIzZTg5OWM3YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNGU5NzViZTczN2YxN2Y2NzJmNDM2NDQ0YTE1MjJiNzFjMDNhOGY5ZDhhM2U4ODQ4YTY1NDIxZGJjZGNhMWViYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZjZmNWI0MGIxNTg0NTdkMTc4NjRmMjE3OTA3ODZkZDVhMmVjZGI2NGI2NmE2NTFmNzg4ZDRlMjVjZDMzMDNkMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_797897c5c2a44d8988f38dbb233731ca",
+      "statement": "The server suite cannot be a hermetic CI step on its own terms: its Vitest config disables file parallelism because the integration files share one real Postgres database, snapshots and restores that database through a `globalSetup`, and allows 30-second timeouts.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/package.json#L6-L11",
+          "version": "repo-lines-v1:sha256:4f7eaa21549c81878e3ade310a2c856e5a6c1e8747a5b16d2f8994b86bc5763e:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzQ4MzNkNTk0OWMwM2E0MGNhOTUyNDkxNjEwYTY2NTk2NDRiM2FhNDY2MzYyZjc5OTAyMGRiZjE5ODE1NDdkYiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNGQ1Y2QyZmI0ZjNkZjg4NDUxNTI1NWIzOTUyM2YyZjhiNTQ3MmJlZWE5ZjU2NmZmY2EyMDRkYjgwMjU2MTA0MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTc4Njg4ODc1OWM1YzdkOWQ1ZDZiMGE4ODY2YmQ5ZmJhNzMzZDY3NTdhMjY5MThhZWYxZWJhNDRkMzFjZjlkZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZGY0NjU1NTBhNDRiYTU0MzU1NTA4ZWM1MWU4Yjk5YWUwMDBmN2QxODg0ZWNhZDU0ZDg4NmUwOTA2MjFkNTcwOSJ9"
+        },
+        {
+          "resource": "repo://apps/server/vitest.config.ts#L3-L16",
+          "version": "repo-lines-v1:sha256:1f9de650c213ef9242eb23ed137796bdd02bb958857d08a474cc112840236516:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyY2VjYjE0NGE0NmY1ZGNmMTJhNjE2OWZjZWVkNzY5NWU4Mjk0YjA5MGRlNzZmMzY2MWNkZDAyNDkzMDAxNDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkNWNkMmZiNGYzZGY4ODQ1MTUyNTViMzk1MjNmMmY4YjU0NzJiZWVhOWY1NjZmZmNhMjA0ZGI4MDI1NjEwNDEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwNmQ1NjlkMTVkZjJlMGU3NTI1MmRmNWIxZjRmZGRlOTI1MDM0NjE2OTVhYjMwYzY0ZTEwYTVhYTExMGRkNGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_56621a36d3324fc390293619380d4028",
+      "statement": "`pnpm typecheck` covers five TypeScript projects (packages/ui, apps/admin, apps/mobile through its own script, apps/server, packages/shared) under `strict: true` inherited from `@repo/typescript-config/base.json`, but no project's `include` list covers repo-level configuration files — `apps/admin/tsconfig.json` includes only `src`, and `apps/server/tsconfig.json` includes only `src` and `tests` — so `vite.config.ts`, `vitest.config.ts`, `drizzle.config.ts` and `eslint.config.mjs` are linted but never type-checked.",
+      "evidence": [
+        {
+          "resource": "repo://apps/admin/tsconfig.json#L1-L11",
+          "version": "repo-lines-v1:sha256:4fa9d7122cf37dcebaa5ebe648057876029831835510e3d3c65ff8ca3665ecef:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/mobile/tsconfig.json#L1-L10",
+          "version": "repo-lines-v1:sha256:33fbec05014adb7efa753ebc06c71b741c1cb91639d3fecb1f1c0ce081584282:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tsconfig.json#L1-L8",
+          "version": "repo-lines-v1:sha256:3c9e7dc72531b259d13a6bd3aff3faa5947d94b4749f8bede48c8dbd8bba1954:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYTZmYjA4ZmRhMWFjYjk1N2I2MTE2YmQzNzgxMWExZmU0MWEwMTYxMWMwNjMxZWRiZjc4NmQ2ODg5YTI3YTU1YyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://package.json#L7-L7",
+          "version": "repo-lines-v1:sha256:e3bb9b0b7fba6ae6f3c4b98880a31b247dd8a1fe81dfaad332710f51190e2be5:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTNiYjliMGI3ZmJhNmFlNmYzYzRiOTg4ODBhMzFiMjQ3ZGQ4YTFmZTgxZGZhYWQzMzI3MTBmNTExOTBlMmJlNSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzg0NGIyY2IxMTk3MjNmNWYyNTRhZmU2MmE4NGJjMzQ0MWVlZGY2M2Y5MDVhODM0OTQ1NGFiMTAzZmI1OWU1NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYjBmMmQ3NGQ4ZGQ1NzA2YjUyM2MxNGFjNzhiM2ZjNjc4YjkwMTk3ZGVlNzA3ZGQ3M2Y2NGY1ZWVmNTIxMjI4NSJ9"
+        },
+        {
+          "resource": "repo://packages/typescript-config/base.json#L1-L19",
+          "version": "repo-lines-v1:sha256:2d47789934e2f3fc1a74472b90a0f5ad2ba4adf59e4a62814ee0ff5c23587811:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2ZmIwOGZkYTFhY2I5NTdiNjExNmJkMzc4MTFhMWZlNDFhMDE2MTFjMDYzMWVkYmY3ODZkNjg4OWEyN2E1NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU3NGUwMDEzNTNlZDM4NzgwYTBiZTUwZWZkMjhjNTQwOWU1YzBkMTI0ZWJiZTkyODhhMjM0ZDFhMmU0NGZmOTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_5f5369db58884267abc0e439a8eec8a0",
+      "statement": "The only caching in CI is the pnpm store (via `actions/setup-node` with `cache: pnpm`); the workflow has no Turbo remote cache, no artifacts/reports, no matrix job and no branch filter.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L15-L21",
+          "version": "repo-lines-v1:sha256:70059a25f558baad30716b030b5181e16dbde011f3c8c4b01480aa4d4107a2da:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTJjODViNDk2MGZmNzMzNzZmNDI2NGMxMmU2NDJiMmYxNWEyY2I3OWY5ZTg0YzM5YmQyMDYxNDc1YmJkZjU4NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmMzNmM5ZjFhM2QxNTY5MmFjZmRiMmFlMWFhZjUyYTJmMTQwMDRmNDBiNWIwNzQxYmY4YjU4YTU0MWIxMmU0ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTZmZjU0YTM0NGM4MDMxNmJkZmZmYWU2YjZkYzZmYzYzNTIxMzdlNDk5ZWM1MDQ2MzljOGZlYjY5ZGVjMGIxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMzI0ZDM1YjE5NDc5YmU2NjI3YWRlZDYxMjNmMDM1OWYyNzA5MjUyM2Y2YWJhNGI3MzAxMTA5NDc0YWUxYWJjYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b0243661178043c5a4369cbaf84000ea",
+      "statement": "The repository's only other automation is `.github/workflows/openwiki-update.yml`: `workflow_dispatch` plus a daily cron, Node 22, npm-installed `openwiki@0.7.1` (with mermaid/jsdom), `openwiki code --update`, removal of `openwiki/.run.json`, and a `docs: update OpenWiki` pull request on branch `openwiki/update` restricted to `openwiki`, `AGENTS.md`, the workflow file and `CLAUDE.md` when present — it is a docs refresh, not a quality gate.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml#L3-L36",
+          "version": "repo-lines-v1:sha256:fa54f335f75e28d3d195b9a5ee447f2f7e903e1d5a6f0a155540ff0bfd56edbb:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5NmRjNDgxNDlmNWE4M2QxZWQ2ZGJiMzliYmM3ZTJiOTAyYWEzZDM0ZDZiZDVhZTRiMjkxYjY4ZGYwY2E3OWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0MWM2MGQ4MzU5N2M3NmNjYTY5NmFhYzc0ZGZiN2FjNWRjMzM2MmZlNjUxZjhjYWI1YTMwNDk5NjMwMTdkNDMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjoyLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1YjFmMjRlNjE4MDVlZTFhOWJjNzgwNDdlMWU0YjNkODYxNTdkNmUzN2Q4YWMwYmNiZWJkNWU2NWU1ZWYxYWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjM5MjQ3NzIxNDRhNmNhNTFhMjljNjljYjg0OTU4ZWY1MmZjOGQ0YThmMzdmOGExNTk5ZTVkNzRmOTk5NGY2MDUifQ"
+        },
+        {
+          "resource": "repo://.github/workflows/openwiki-update.yml#L50-L72",
+          "version": "repo-lines-v1:sha256:c9ae9ccb06e2cc28f9a73729ba2f7fcd88734219ff049c3dbff192bc32b79a65:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3OWM4ODBmNjJkNDIyNTM4YmNhODRjYjU1ZWNlOGZlMTBlOTY1OGIwNjExMTVjM2ZhYmNkYzdiM2JlY2Y0NDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkYTQxNjY0OTBiMTcyOWI1ZWNiZmFmYmRlMmY1YmFiMDlkMmY3ZWVmZTQ0ZGQ1ZWZkMDZkZmUyMDViYjYxYTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQxOTEzNzMyNTgyYzNlNjAzNTkwNzg2Yzg2ODM2OTUxZmYzNWU5YjJkMGY4ZDMxMDY3ZDRmNGM4NzQzZGIyYWIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRkODlkZGU2NjgwODU1NjRmYmRkYzFiZDc3MzAxMGMyNGNhZGViOTViYzQ2ZTcxMTBiMzE5N2NkYmJhN2NkZjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_415ce860015a4adfa0b74b16764e9398",
+      "statement": "Documented build/CI claims disagree with the config in three places: `docs/TECHSTACK.md` sketches a CI running typecheck/lint/test/`migration-lint` on pull requests to main/develop while the workflow has no `migration-lint`, no test step and no branch filter; specs and `docs/ADMIN.md` cite `pnpm --filter admin lint`, a script that no longer exists anywhere except as the mobile package's own `lint`; and `apps/server/README.md` requires Node 22 LTS while CI pins Node 20.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci.yml#L15-L18",
+          "version": "repo-lines-v1:sha256:63f13789f1bef169e7e8f9387b8d182c8574d4a44ded7aec1a1d23d4918ccc8d:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOTJjODViNDk2MGZmNzMzNzZmNDI2NGMxMmU2NDJiMmYxNWEyY2I3OWY5ZTg0YzM5YmQyMDYxNDc1YmJkZjU4NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNjNiMmY0ZDQ3NGJkOGQ3ZGJiNTk4MjMwMmQ3ZWRhOGU3YmE2YzYwZTEyNWI0ODViY2YxYjU5ODg4MDM5OGZkOSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTZmZjU0YTM0NGM4MDMxNmJkZmZmYWU2YjZkYzZmYzYzNTIxMzdlNDk5ZWM1MDQ2MzljOGZlYjY5ZGVjMGIxOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiODlmZjVhZjc4MDFhODg5MjVmYjIxMmE0YWUwNGYyMGIwYWU5NWVjMWE1NzhlNjU0YTNkMDY3NjU1MjEwODVlZCJ9"
+        },
+        {
+          "resource": "repo://apps/server/README.md#L9-L13",
+          "version": "repo-lines-v1:sha256:797e711588e5db8543c88aeb20aadf9ff7e278672c04357780be6b55d3d04221:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWQ4ZmVmZGY0MjlkMDg5NzkzNGYzMDZlMmJhYjM5ZDFiNmJlMjdjYWEzNmY4MzRhYjNhYWQ2YzNlY2U5OTc2MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMmU0MDMwNDRlZWI2YThkNWZhZGFiY2YyMWRjZWY5OWIzODUxODU5MGNkZmFhMDQwMmIwNDkyYWUwM2IwNWE4MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTQ0NmI4ZTIyOTIzMmUwNmQwZjJhZWZjNzVkNmM5YTliNGYyNTU0OWM0NDE4YmNiYTEzOWFiZjc1YmE3OWVhZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTY4MTczMjY0YTFiODZjMmUxZWZjZmIxNmE1OTY5NGI0Yjg5ZTE1YmE4YmQ4OGY5MjQ2YzNlNTVlN2Y1MzlkZiJ9"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L205-L205",
+          "version": "repo-lines-v1:sha256:3670ad4f9ed2ffc515fce5d79db0cb51e83c5aae76f527bc8817ce849899db2d:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzY3MGFkNGY5ZWQyZmZjNTE1ZmNlNWQ3OWRiMGNiNTFlODNjNWFhZTc2ZjUyN2JjODgxN2NlODQ5ODk5ZGIyZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzY3MGFkNGY5ZWQyZmZjNTE1ZmNlNWQ3OWRiMGNiNTFlODNjNWFhZTc2ZjUyN2JjODgxN2NlODQ5ODk5ZGIyZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTE4MmM0YjU5OTEwMzQwNWMzMTA2NDZiMjgwZmM2NWE3YjM3MWUzZWIxZjQ5YTk0ZGU4ZDIxNTQyOTJkMzA3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTVjN2FhNmQ0MGRjNmZhYTdkZjkxZGFiMzUyNDM0ZjUxOGIxZDRjNDE4MzM2ZTdhNjRiZGUwN2YxYjE0NmZjMCJ9"
+        },
+        {
+          "resource": "repo://docs/TECHSTACK.md#L125-L136",
+          "version": "repo-lines-v1:sha256:29fc74c7706ff0492703af0bba8e4796c6263b9926e28e8348c1bfce72e521f9:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU5MGNhYjZlZGQzMjU4NWExNjc4N2E2NzJlMWE4ZmIyMmEwMDRiZjU3NDI5NmIwYTllMzk3OWUyYWUxMGQ2ZDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAwMWYyZWMxNzU5M2MxMDU0ZWI0NjM2N2Q4NDUzZWYyNGExNzNjZTk2YjcxMTdkOTFmOWE2OGQ0NGZlZjhiMDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAwMWYyZWMxNzU5M2MxMDU0ZWI0NjM2N2Q4NDUzZWYyNGExNzNjZTk2YjcxMTdkOTFmOWE2OGQ0NGZlZjhiMDEifQ"
+        },
+        {
+          "resource": "repo://specs/008-admin-route-workspace-refactor/plan.md#L52-L52",
+          "version": "repo-lines-v1:sha256:b39539b767317952bbd46ab6a8f0a6ca05e5b0a50419bdf3b9f56d8c85653b36:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjM5NTM5Yjc2NzMxNzk1MmJiZDQ2YWI2YThmMGE2Y2EwNWU1YjBhNTA0MTliZGYzYjlmNTZkOGM4NTY1M2IzNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYjM5NTM5Yjc2NzMxNzk1MmJiZDQ2YWI2YThmMGE2Y2EwNWU1YjBhNTA0MTliZGYzYjlmNTZkOGM4NTY1M2IzNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjU4ZDRlMjNiZDhkZjIyM2EwOWRkNDIxYzMzZWZmMzAzN2VmMGQ5MWRjYzEwNWFmZjZhZjlmYjRjNGE4MTE4NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmEyMzI1YWM2Y2NhMGRiODU4MGNkM2EwZTBlMjc4ZWE3OGIwYzE0ZWRiZWVlMjQ0N2I4ZWFkYzg2YTc0NzEyNSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}

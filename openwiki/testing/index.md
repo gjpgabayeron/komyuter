@@ -1,0 +1,4 @@
+# Files
+
+- [Admin test suite: what is hermetic and what is not covered](admin-tests.md) - What apps/admin's node-environment vitest suite actually protects — the plotting and detour stores, chain and geometry helpers, overlap detection, draft and overview storage, session/auth helpers — and which surfaces (React components, MapLibre rendering, live network flows) have no automated coverage at all.
+- [Server test suites: hermetic units, database-backed integration and the test database lifecycle](server-tests.md) - How apps/server is verified — the eight DB-free unit files versus the seven database-backed integration files, the drop-and-recreate komyuter_test lifecycle with migration replay, the auth schema stub and baseline restore, the injectable buildApp test seam, and why the suite is a local pre-merge gate rather than a CI step.

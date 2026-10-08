@@ -1,0 +1,468 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:956a9949410cb06261d54a339bd9ce22273efae567719d9f731ae89980956ec5",
+  "claims": [
+    {
+      "id": "claim_7de6cbdf6bf74299b18125d7f6c313bc",
+      "statement": "The server's entire HTTP surface is defined by buildApp, which installs @fastify/cors, the origin guard, an onResponse audit hook and the central error handler before delegating to registerAdminRoutes; that function registers status and auth unguarded at the root and exactly one plugin mounted at /api/admin containing routes, fare-configs, directions, stops, detours, restrictions, export and mapbox.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L35-L91",
+          "version": "repo-lines-v1:sha256:8a4df1211318b838f88ca1a3510d8a3f6c7630558e76ba8e176776f953d98569:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5Y2ZhNGUyNTAwMTA3ODFlM2FjMzg1YzU0OTFlY2M4N2Q2YzMxZTMwNzNkNzA4MTRlOTczYjdiZDcwNDRjM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlOWQxMjhiOGYwOTYxZjU5N2FkOTczYTYzZmY5NGVhMGYzMGNkMDc3OGNmMmUzMzg5ZWZiYjM4M2QyOGZlNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L14-L37",
+          "version": "repo-lines-v1:sha256:a8d5fac833d4d8ccf8b1da07b3973e6d932f1fab33b4c0dd20055f5b41c99286:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE2Y2IwZWJmY2U3N2UxYWQ0NjA5ZDI5OGI0ZjRjYzcwOGYxYTI0MGFjMGRjYWUyOGEwNjNmMjcwZWJmNjE5ODMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlhZTZhNWZjM2Q4NWU5MjIwYzI2YmZiMWVkOGIwZTkyNDE3ZTMxYTgxZDYzNzE1NTc5ZTUxYTAzNmY1ODBlNDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a7e454041d6d4c4f91ee4fadc631d80f",
+      "statement": "The Supabase admin guard is a single preHandler hook added to the encapsulated /api/admin plugin before its child modules are registered, so every route inside that plugin is authenticated by construction and a newly registered module inherits the guard without per-route code.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/index.ts#L23-L36",
+          "version": "repo-lines-v1:sha256:7991a0d7075757b0df8ee79566ca425b522e54123271020aee276998684c4122:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU4NGYwYjRhNjExZGIwOWY5NjI0MzU1NDJmYWE1OTY4MzBhZTVhY2Q2M2Q5MzBmZTJkMGE5NGVjOWI4NTQ2MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjgzNDgzNDJlOGQ1ZmE2Zjc0ZWM3N2FmZWM4MmE4MmMzMDY2MGUwYmI4MzlkMzRhYWNiYzIwN2VjZTQ5MmEwOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d1385382594f4906b0ec81ce9aaabf57",
+      "statement": "createAdminAuthGuard extracts a strict single-part Bearer token, verifies it with supabase.auth.getUser, then requires a matching admin_users row through the isAdminUserId helper that the login route and GET /api/auth/me also call; failures are 401 UNAUTHORIZED for a missing or invalid token and 403 FORBIDDEN for a valid non-admin user.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L120-L143",
+          "version": "repo-lines-v1:sha256:1611968d319088b86430abb7727a9b91f2062635a4c27c554249f6203060c492:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1NGNhNjEwYmVkNTU1ODUyYjlmOWQxZTg0NGJlYjI4MWRhYTc0YWU0YTkxN2VjM2EyYzJmOTJhMjU0MzVkYzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNjYjMyYTQ3NzE5MjYwMGE4ODc4MjkzYjE3ODQ1ZTUxNDUwYzdjOTc0NzllOTAyMDkwMTViODZhNmY4OWQxODEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/auth.ts#L14-L55",
+          "version": "repo-lines-v1:sha256:5ef2c99438dbaa98455fd6a5666067606b8d8fed938be06d8435783e62e0d223:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmNmQzN2UxZWNhMThjYTE2ZTAzOTYzMWI3ZTA5YjEwYzcyZmNhODA3YWU1ZWE4MzRjMjZhZDM4YzdkYzI1OGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9408185cd1484d2a8923b5c4981a229a",
+      "statement": "The origin allowlist is a root onRequest hook registered immediately after @fastify/cors that reads a comma-separated ADMIN_ORIGINS list, rejects a request carrying a non-allowlisted Origin header with 403 FORBIDDEN, and lets requests without an Origin header and all OPTIONS preflights through; because it is a root hook it also applies to the public /api/status and /api/auth/* routes.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L41-L45",
+          "version": "repo-lines-v1:sha256:d2c1f8176d07f8648b13614b1576ba1deb64b115c9590ff6ba52fcd17320d8f7:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTRkZGRhN2UwYzRjNjM4OWE5NmFlNTM3NWY5ZDllODQxYjBmYmRkMGFhYWFjMmViNzU1MTg4N2IwOThlZmIyZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYWI1NWU2MzY2NjBiMDAwZWE2MTI4Y2YzMGViNzIzZDVlOTViNjM5ZWU4YzVhMTg1MTI3YjRhM2U0MWZhMGE4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTkzYzM1ZTJkNTIyYTZjYzVjMThlMjJiMzE5NWI2MjY5NTY1NjYzZTJhNDE3MzMzOTc5NmMxZTY0MDJjZDk3MSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWVmNTQ4MTBhMTk1OTQ3YzUyNGJlYmU2N2RjMDFkYWRhNDFjZmFiYjg3NGExOTY1NDUwYmFjODFjMjI1YjFmMyJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/origin-guard.ts#L14-L31",
+          "version": "repo-lines-v1:sha256:1e26167fd8e6bf3102734328d2afc4a2adddca1340a557335fc43016672e57e4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlmNWY3ZTE0YjI1N2I4NTUxYTE0OGQ1YzllNTY2MTkzOWIzZjU3NjYzY2IyMzAzM2Y4ZmU4MzllMDExMmVjMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1OWViMTQ0ZmY5ZTcwNmE1NTNiYzEyZjhkYWUyOWJhYTdiOTk4MDVmNTA5MzYxMmQ0M2JhNTgwMzIxOTg2NjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/auth-login.test.ts#L291-L328",
+          "version": "repo-lines-v1:sha256:2f1933eaaac6b6bbc8cdc2fb3aca755ecd3bc70513bf4a382c0e173e2af590aa:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4ZmFhNzc5MWIzYjU2ZDYxMDJmZjFmZGYzYzZiNWFmZmYzYTI3NDlhNTkwZDVhYmE1NjgxM2I3YmJjNzQ3N2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjcxNzQ0NDBmOTJhYmEwMGQ3NWMyMjdkNTcwMWI0YThlMzMyYTZkOWExNDAzNzQ1MmI4ZDliNDI5ZWZhYzhiNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRjODM3ZDExYzBlNzUwMDIwOGUxYTAxZWUwYTdjZTBmN2Y0OGRkYzRkMzgyYmRjYzg3NTNjNDNlMDJhYzZhZGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_52b1a75fe75f4bfea383fda3336b3a24",
+      "statement": "setErrorHandler maps an ApiError instance to its own statusCode and code, maps an Error carrying a validation property (the shape @fastify/type-provider-zod produces) to 422 VALIDATION_ERROR, and maps everything else to a logged 500 INTERNAL with the fixed message \"Internal server error\".",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L66-L86",
+          "version": "repo-lines-v1:sha256:401b2f221849f774fe419ee255b3b18ec9e205c59a17cd725e87bc1e1a913674:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRiNGQ5Y2ExMWJkNjY0ZTk3MTI2Nzk3MDlhZTVhZTA1MTJmZWY3ZTI1ZmQ5YTgyOTRmZDNjMDcxN2VlYjU1NzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjkyZGM5MDljNDA3YjdkZGRiZDU0NDI0M2JhZWZkY2JmYjA2MGE1ZDUzMDIzNDk3YWQ3MWJiOWE0OWE4MDAwNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImNjMjU0YmMxODI0ODQyMzk2YjhiMGQ2YzJmNjJjMWNjN2YwMjAxYWFhMTlhNzg0NDY0YjQ5ZmY4YmI1NzY5ZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0a4808ad83b54a9984230bc384a7c3c2",
+      "statement": "The ApiError factory helpers fix the code-to-status pairing as UNAUTHORIZED 401, FORBIDDEN 403, NOT_FOUND 404, CONFLICT 409, VALIDATION_ERROR 422 and INTERNAL 500, and the shared ERROR_CODES set contains exactly those six codes, so there is no rate-limit or upstream-error code.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/errors.ts#L21-L43",
+          "version": "repo-lines-v1:sha256:423f77d0a19c4cbb639da3e8615210699b9394f8abafd96725d4009c1c45e2fe:eyJzZWxlY3RlZExpbmVDb3VudCI6MjMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjkyYzM0ZDA2NzNlYTlkOTRhODhkY2ZkMGIyMTViZjlmNzE0N2ZhZGE5MzZiNWNhYTJkMzk2YzYwZjJiY2ZiMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://packages/shared/src/types/envelope.ts#L1-L8",
+          "version": "repo-lines-v1:sha256:a1f409976776c2f8dc88d14560e68f812219babd76606c2c1640304d31df2eb9:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWViMTY0ZmIyNDU1NjU3M2ZhZTY2ZGM5NTgxM2U4OTU0NGRmM2NmM2EzN2FhNjM0ZTUyMjQ1N2UxOGQ0MDE4YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNmNkYzc2ZDEyZTUzMDRkMzA3OWVkYjVmODkwMDA3ZWEwNWYyMjZlNGQ5M2I2OTU2ODQ2MGNhZmFmODAwNzQ0YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWFmZDEwM2NmM2YyODY0MjAzMzI5ZWU4NjQyZjRhMTJmNTQ0NDliMzIxZThiNTZjODZhZmIwMGYyMTIzY2NjYyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_96485c6997614c349042290f68aad711",
+      "statement": "Success responses use the { success: true, data } envelope except on two deliberate paths: GET /api/admin/export/dataset returns the raw assembled dataset with Content-Disposition attachment filename komyuter-dataset.json, and POST /api/auth/logout returns a bodyless 204.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L145-L162",
+          "version": "repo-lines-v1:sha256:2ed399dac398ffbf7a790a8021870d41aadc7e44482f6e1f626e9997c4ad7ca4:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0YTc5OTUzNjkzMGIzMTU2ZWIwYTM4OGU3NTA3ZGZjYzUwOTA4ZWYwMDQ0N2Y5YjVlYmFlYWFiYmVkNmQ0ZWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3M2Y3YWExNDAyYjk4NzU5MzA1MWQ3ODQ3ZDkyMzdiMzIxOGYyOGUwYTZlMzM2NmJlNjNlM2NkZmJiMzMxZjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/export.ts#L10-L19",
+          "version": "repo-lines-v1:sha256:658179ae9d78c0088c1a08a165bf41004eb07fff944db7cb124b20906095693d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImMwNDEwMTk2M2Q3Y2M1ZjExZWEwNDVmMzBmZGYwNjM2MGVkNjBmNzY4OGFiNTViNmMyZWQ0OGE4Njg3YTM0MTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_08f1feac245f4e9c9b3f96283aa4efe7",
+      "statement": "buildApp installs a central error handler but no setNotFoundHandler, so a request whose path matches no registered route is answered by Fastify's built-in 404 body (statusCode, error, message) rather than by the { success, data | error } envelope.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L35-L91",
+          "version": "repo-lines-v1:sha256:8a4df1211318b838f88ca1a3510d8a3f6c7630558e76ba8e176776f953d98569:eyJzZWxlY3RlZExpbmVDb3VudCI6NTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5Y2ZhNGUyNTAwMTA3ODFlM2FjMzg1YzU0OTFlY2M4N2Q2YzMxZTMwNzNkNzA4MTRlOTczYjdiZDcwNDRjM2MiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRlOWQxMjhiOGYwOTYxZjU5N2FkOTczYTYzZmY5NGVhMGYzMGNkMDc3OGNmMmUzMzg5ZWZiYjM4M2QyOGZlNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ce7e7978d5c740ec8b41ffd851a22175",
+      "statement": "An onResponse hook emits one structured log line per request with method, url, statusCode, a derived outcome of success, redirect or failure, and adminId when the auth guard recorded one.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L47-L64",
+          "version": "repo-lines-v1:sha256:cff27dd91ad5ee75f2372c94b43ab65a1c58021a63c1b9397572fcff5764467b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU5MzVhZjcxYTM3N2U2NjQyMmEyMWMxMjJkNmVmNDEyYTg0YzEzZDIwODg4YzJkZjYzZTM0Y2I2YWE1NDZhZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY4ZDJjZDI5NzQxNzQ3YzAzZjBiNzRlNzU5ZmJjZmU4OGE1MzAzNjZhMWFlYTM4ZTI5ZGFkZWI1MmE3YWIxODMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM3ZTRjOTVjYjQxMzVmZTNjNzBjOWRkYzU4YTJkN2Y0ODc3OGQ2NGE1MjRkMTkyYjNlYjY3ODRmNmY5M2E3ZmIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_859d4579eaf6436aabeeca3ec20d01d1",
+      "statement": "DELETE /api/admin/routes/:routeId hard-deletes the row and relies on foreign-key cascade to remove the route's directions and, transitively, its stops, detours, detour stops and restrictions; a repeat delete of the same id returns 404.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L260-L278",
+          "version": "repo-lines-v1:sha256:1ae39cb19c8330332dab0709062d70a4df0e8df28af58e55bd02d041260a2af2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5ZWRlNWZlYmRiNmMyNmQzOTRkYmQzYjFhZTFjNDE5NjFjYTQ4ODA5N2NmMjQzN2RmYjc4NGI0ZGE0MjZhNmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L119-L139",
+          "version": "repo-lines-v1:sha256:df3d8e1b92d4b1e0e0e7e179f02aeebb06b082d1b1c2e38d2da84aac3533b54f:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxOWQwMDJmOWZmYTNmYmQ2MzEzNTdhOGY4YWZjODdiNmExN2FkNTU3Y2VlNjMzNDhmMTdiZWVkNDFkZjRlMmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY1YmQ1MGQ1ODBjYTE1MjFmZTAyYmQ5NWQ5YjhhZGZlYmNlMGVmYmJlYTA3YTQ0ZDVhYzJmNWMzMDcyZjBlMDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiNDI3MzA3NTYwMTY0MTc0MTdhZDUyMmYwZTM5MjQyMjE3ODI3YWY0YmIxNDdkOTcwN2Y2ZjYxOTZiOGI0ZTAifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L66-L81",
+          "version": "repo-lines-v1:sha256:72b0018e3b05fcfe085bf3d3817bdc3d4b61ef63f1414a7811b48f4a5cb7c40d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQzN2EwYjE3Mjc0MzUyMzVkNTYxZmEwMThmZTdlZjQyNGYyOGU4OWJlMTIwZjY5OGM0MjMxZWRkMDI4Mjc1ZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI1OGEwNWU4MzY1Mjk3NWUzZTVjODg1ODFlNjQ2MGQ4MWNmNDBkOWVmZjQxODUxZDI0OTM2MDY4YmI0MWU1M2UiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMxMmZlMDU3MDUyZGVkMzM5ZTcyZDY1YjJjOTZiNmI5MjdjMDFmY2ZhNzczNTMwZGJkNGRiYjExNDIzYmU0N2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_913ca74ca19b426d8cf09ba61cc8ff10",
+      "statement": "DELETE /api/admin/directions/:directionId soft-deactivates by setting is_active = false and returns { direction_id, is_active }, leaving the row and its stop rows in place and readable.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L416-L441",
+          "version": "repo-lines-v1:sha256:5db337705bdec3a0399df566f7d1a760f4aca5193157d7b163ce044101888f7d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0YTQ2NjJkMWMwOTZjYzM3ZTUwM2NkNmE3YjkzNmJhYTE0MzBjOTVhMGJhNDdhNWQ2MDhmZDhmODg4NGQ3ZmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_039b227624714ca19f3d00ea2d5b09f2",
+      "statement": "DELETE /api/admin/stops/:stopId soft-deactivates the stop but first refuses with 409 CONFLICT when the stop is referenced as any direction's origin_stop_id or destination_stop_id, via assertNotDirectionTerminal.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/stops.ts#L163-L187",
+          "version": "repo-lines-v1:sha256:127938f6ecb1340bb08f0af01d585d701274ac6e86935ff1f5d995ff16cde7ff:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjczMmRmZDcwZWY3OGE0N2E5MjljNDI3ZmZjMjJkNWE1ZTZjMGQ2MGU0YWM3MTI4MDFjYTFjODYzZGJiYTUyNzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L115-L134",
+          "version": "repo-lines-v1:sha256:9368cb3d27f4a6196185e58174acd72c6f9ca00877837c8348948947589b2d94:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxOGE1NTY4MGE5OWI4NDRiZTI1MDk0ZTAzNGQ1NjFhZDQyMjQ1ZmU3OWFiNjBmM2E5MDMwMjAzNzNjNDY4ZjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNjZjg5Mjc1MDUyZThkYjk0ZmU0NDVkY2JmNjQyYWM2MzdjMDU3YzU1NzM0NzQyY2UxZGU1NmQyNjMzNTBjOTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg5OTA1YWVlZmYwNTZmMjEzYTU0NDk2ZGQ0MGY4MTgxYTgzMTEwNjljYzY2ODI5NDM5NzY5YzFjYmM5Yzc0YjMifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L190-L235",
+          "version": "repo-lines-v1:sha256:bb041321e0f81ed34595d5fcab0f03c6b370fe079a211bb25c420819242a8219:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkYWUzYjU3MzYyOTg3YjQwMGNjMzIxNGI3ODMxODFhYjMxNmUzMDY1YTlhZGI2NjVhNzc5OWQ5NDg1YzY3YjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRiZDRlNjg5YTA5NDMyYjc2Mjg0ZGE0ZjNjNjBkZWYxNjVjMTQ5Yzg1NjEzYWZhYjgzNTk0YTU2NGQxNDI2YTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjU1MWE2NzE4YzJmYzFlMWE1MzdmODk1MzE5YTA1ZmU2N2M2YjRjMjBhOGU2MWM5MWJkNTY4NjdjZDdhMzhlMjMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f109b1ca505648d6859f081e2d05cd70",
+      "statement": "DELETE /api/admin/detours/:detourId removes the row permanently, cascades to its detour_stops, frees the detour label for immediate reuse in that direction, and makes a repeat delete return 404.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L254-L278",
+          "version": "repo-lines-v1:sha256:dfbebf426c17e70a32ec9c9fe709aeeebe6a1cbedfa8ef0152faaa7b6eaa508a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkNDdlY2Q4NmUxOTE0MDU3MmJjYzAwM2FhN2ZmZDJmMTU3MTY3OTU4YjdmYjIwNWU4NGRhNDE4MDk3YzYyYWIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L194-L215",
+          "version": "repo-lines-v1:sha256:af0642b6f4d036ee2b8983c4589da5464eddb226de0697679390a89faa15a184:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlZjQyNmU0ZWM0OTNkOGEyMjRjZGE4Zjk5ODk5MDVkYWJkODI5YjVkMGFlMWIwMmY1NzlkYWFlZGExMDI5ZTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MjU5MjBiNzg0YzhjYzczNjgwMTE4YWVlMjJlNjE4ZGM2YWYxMTVjYWM1YzQ2M2QyNTMwMDNhNTg3M2ZhNDciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlMmM3MWFkYjRjYWVhZWQ3MjEyMWRjZGMyNWNhNjVkOGU0MGY2ZmI0N2UxZTBhNmRhYTJkMDFiOWY2MzYzOTIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlmNjlkZDQzNTcyODY1OWMzMTgxNDU5N2Q1YWIwOTBlZGJjYzljNWQ3NDIxYzhjMDRiYzcyZmZlNzc5MDMyYjcifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L646-L675",
+          "version": "repo-lines-v1:sha256:017a5be1f2abbd08ae9cc488ab59909b0e11eff54fbc170f332b74eaac6bd250:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNmZDM2ZTViNzM5YTNjY2Q3MmJhNGZiNDE0YTIzMjJjMjMwOWMwZDZmZjExZTE2ZjFlNWZjYThjZGNkMTA4YTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJjYTQ0ZjQ2MzcyMWU1ZmNmZjg4MTJmMzYwZjE5YTU4YTM2ZWJkMjQzYjQ5ZjNhOTJhYzIyYzM5MzBiMjhhYTgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY2NDEyZGI3OTUzZDlkODZlZjZhMWQ2ZTk4ZGFjY2E2NWJhZDc0ZWFjMjYwZDIwNzZkNjc4NzkwNGZjYTcyZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI0NDAzMmIyMDQ1ODQwZWE0YWM3YWY5ZjU0Y2RkZGNiNGE1MWE2MmFjMzAxOTY1ZGIwNzY1M2M4YTUzNGFlNWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a60e2b575b4b4cba945d75f19cf6b1d3",
+      "statement": "DELETE /api/admin/restrictions/:restrictionId soft-deactivates the restriction by setting is_active = false and returns { restriction_id, is_active }.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/restrictions.ts#L150-L175",
+          "version": "repo-lines-v1:sha256:9e11c05f4675313904351543e03b8df648a2dad84ff31d914f912204ad3df4b6:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5OGFmZDI1NjA0MTBkODliNTYxYjA1ODYxNWZhZjY2YWJmM2NkMzI5ZWIwNGIyZDU4ZWIwY2NlNGEwZDdlMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7aa97e06c53b4595add0dacc2e47aa63",
+      "statement": "DELETE /api/admin/fare-configs/:fareConfigId soft-deactivates the configuration only after two pre-checks that raise 409 CONFLICT: an active route still references the config, or the config is the current default.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/fare-configs.ts#L209-L254",
+          "version": "repo-lines-v1:sha256:56e89a177e0996ca180d29e23aa650e0b2f20114caaf721a99106574333ffe2f:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUxOWFlZDgzYzU1N2RiYWFiMWIzOWIwMzQwMTkyZjg2ZTFkNTY4MDc5MmM0YjA2YTc4NDBlYWJkYmI2OWI0YmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b05dddf7b5a0426089be28a0b3be150a",
+      "statement": "Fare-configuration writes enforce a default invariant: PUT rejects with 409 any change that would leave the default config inactive or leave zero defaults, and POST/PUT with is_default true first un-marks the existing default in a separate statement that is not wrapped in a transaction.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/fare-configs.ts#L149-L197",
+          "version": "repo-lines-v1:sha256:5ed4b900a3876b2dd2234d763efb3fb55e5c280be3d9d0d30f97b1327c03f698:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliMWQyMjRmMWVjZTQ2NDMwMzVlODgxOWYzNTUwNTJkMDdlMzYxZjU0MzliM2FkODE3YjdkYmExMWUzNjRhZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwYTcxNzk0YmYwMTRmYTQyNjIyM2FkMDcwYjlhM2RjYTc2OTQzOWEzZTI3Y2NmM2ZiMGE5ZWMxZDRmYmNjYmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImFmOGQ5M2M2MDhjNmY4YWU2MWI1MTAxMzQ0NjAzMmFiZTA2MmYyYWEzZTM1NzFiZDc4OTA3Y2YyMjViNjJhNzkifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L988-L1063",
+          "version": "repo-lines-v1:sha256:195826210a52f34ed76b9a5bffacbaf92a3e051d1b9a659cdcd2f5cfbf8a06fc:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0ZWVkNTA4OTVhNWYxNGYwOGE4Njg4ZTNlMjY4YjhmNGRlZWExZWEzODFhMDI0NTdhZDBiYzNlZGQ3ODIwYTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE2OTI4Y2U1M2VmNjg3MTg3ZDFlZTZmYWUwZGRlMmM2YzA4YmZmNWU2MTViOWM0NjVjZjVmY2YxYjQ2YTJkYjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJlNmNhNDRjNTM0ZGUxYzJjOWQ0ZWFjMmFmNmRmZTg2ODkyNjdkNzk1ZDU5YzI5YTIxMTg2Zjc5ODI4MjhhZTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIyYjBjZTMxYmY3YjlmZmEyZGNmODBkYzllMjY4Y2ZlZGRkYTcxZGEzMGU1NGMyYzg2MzU1NWQ4NGExOTI1YTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_7a36513d165b413099883cbbf31ee553",
+      "statement": "GET /api/admin/routes/overview is a static sibling of GET /api/admin/routes/:routeId declared first in the same module, and Fastify's router gives the static segment precedence, so the overview path is served as an array of route summaries and is never interpreted as a route id.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L112-L157",
+          "version": "repo-lines-v1:sha256:19030cb40dd4fe0e11d45f9417e4276b4a862adfe0ffdbcfb296eca6bb71aefd:eyJzZWxlY3RlZExpbmVDb3VudCI6NDYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZWFlYWY1YWU3OWMxY2JmNTk3MjgyODgzODI2MDNmYjFjNzQwOGM3ZDRiYWY5MmM3ZTYyM2IyZWIxNmYzNjIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEzMGM1OGE5MTcwNWFhODYzZTdmZDIzOTJkZGE0ZGNhYzM0YjQwODQ0ZjQ2NzgxZGNjOWI2M2VlYTM3ZmRjMmUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0M2RiMTNiNDU0MGZiODUzOTZhYmRkN2M2NGJlMzU0MjM1OWE5YjdhYjQxMGJmYzFjNDkyNzRiYTM1MWIzYmYifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L396-L445",
+          "version": "repo-lines-v1:sha256:54c1400e34a51c5cf99713d01d9177326228fa4b3e8b31a0a6e28822be42f651:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhNzFjOTMzZjZiNGM0MWViZWM3ZWVhYjEyMWUwMDRiZDRhYjgzNjJjNDVjYjJkMzRjNjBjN2QzODc1OGVjNTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiZGJmMmE1NDcxNDIzNWI1N2ViNjg2YjI4NDhjYTk0MjU0YjhmZmE1ZjhkZDIzMjUwZTcyYzIxOTc0ZjE3ZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY2ZjViNDBiMTU4NDU3ZDE3ODY0ZjIxNzkwNzg2ZGQ1YTJlY2RiNjRiNjZhNjUxZjc4OGQ0ZTI1Y2QzMzAzZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4ad1a77399c74d6798a2567c8d011103",
+      "statement": "The string \"overview\" is reserved at write time in two places: uniqueSlug adds it to the taken set so a route whose slug would be \"overview\" is generated as \"overview-2\", and POST /api/admin/routes adds it to the set checked against an explicit route_id so route_id \"overview\" is rejected with 409 CONFLICT.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L66-L79",
+          "version": "repo-lines-v1:sha256:91dfa1ae61ffb312322ecaad60e3e5af07cd48254bf2743455c5b4138c75e4f5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkZTkyYWE3OGViZTc3NWU0MGZlOGYzMmUwYjgwMDI3NjY1ODAxMjg1N2JjN2EwNWU1MjJhMmI0M2VhZjQxMGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjliNjJmNjBkODU5MGE1NzljZjQ2ZjhkNjczNzhjNGM1NzJiOTYyY2VjY2RiOTBjN2E1ZjdiNDJiOTYwNzgyYTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjdlOTVhZmIyYzkzM2JlYTU4MTNlMTU0N2E0YmY4ZGU3NmJkOTc0ZDRjNWMxYmVmNmZkZTY2M2FjZGNlN2I1NWEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjRiZTY4Y2ZhZDI1ZWZhYjkxYTM2MTgwMWIzOTMxNGFlN2VmYzhmN2QzYWVlZGRjYjRlYTQ5YTBmZmU0NTU2NjMifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/ids.ts#L15-L28",
+          "version": "repo-lines-v1:sha256:dd743ab0abe4ee53cbca5f50ecc6c2bf892c9815a32adf886eb1b3da8a13d340:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkYWJkN2E5MDI1MDAyNzk5NjVhYTk5MzNkMTBlN2RlZWQ5YjZkM2MwMTU5MzA1ZGU2YWMxMmMyOWZmZTA0MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ1ZmRhMmE4OTg3ZDUzZjNjNTJkZGFkMWNlMmU0ZjViYTA5MDNlNWE4ZTg2MjRkZTQyZDY0MWI0NTQyNjFjMTQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_062b6a83accd40f4a1057c8dd5991f2f",
+      "statement": "POST /api/admin/routes/:routeId/directions with a non-empty stops array persists the base direction and its derived return inside one db.transaction, rejects a third active direction for the route with 409, and answers 201 with the base direction payload plus a nested return_direction; the same PUT path with stops replaces the stop list and re-derives the sibling return.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L49-L202",
+          "version": "repo-lines-v1:sha256:d48cd148bf895d8bc476e3db53fc4a0ca00f64dd2d53715bc67dec8960281a9b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTU0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiI0Mjc3N2Y4MWFlZmEzYzkwMjE5OTBlODk4N2Y1YmVkODRiMDljOGI2MTk2YzAwZjJjNjI2MmVlOTg4Yjg3M2EwIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIxMzE4Mjk1OGFjM2E1NTI3Nzg1NDI3ZjZlMDY4NzMzZTE0N2Q1M2NmMGEyNzk1MzM1ZjM0M2QzNzc3NGYzNzgwIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiIzMDdkODRkZjcxYjc1OTEyNGYwMDliY2U0YWRiN2QyNzU2OGZjOWMzNDJjOTkzYzIzODZlNmFmZGZhMmY3MDc2In0"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/plotting-save.test.ts#L199-L251",
+          "version": "repo-lines-v1:sha256:e6cf6f624cf850d5470b7cfa3e7709918110264cea09f5515a6bf0fd6750e661:eyJzZWxlY3RlZExpbmVDb3VudCI6NTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjOTkxOWQ2MmE4Y2ViZTJhNWQzMjlmZDgzMTBlYjIzOGQ5NGQxYzllYjUxN2NkYzZkMDMxN2YwNDM0OTM2NDEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE3MDMwYTk5MzlhN2E4YTNhYTNiNzNkNjczNjg0NjlkNGMxYjIwZmQ1MjJkMGQwNjJjZmNmYWEzZGU1NTcwNmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlM2Y3MzVkNDBlYTU0MmMyNTE2NGEwY2Y4MTZlOTEwM2FjM2E5N2U3NzdkYTMyYTNlYWRkMGM3ZTM0YjRjYTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4039dbe1e4504081bc51be644339b403",
+      "statement": "The derived return is a separate direction row with reversed polyline coordinates and a rotated or reversed stop list inserted as new stop rows, labelled \"To {base first stop}\", and its terminal pointers reference its own first and last stops.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L172-L198",
+          "version": "repo-lines-v1:sha256:ca737bb58e031fcda658ad60242a4eb5a0f765ca471dca48368c8bfef91602f2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRlYjZiNDMwZmIxZWUzMzNjYzM3MzY2NTI3ZDY1ZTM3NzAzOTBiNjFjOTFkMzk5OTRmNmMzOWRiNWQzODdkYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlMmIyMDllNDFjMzBiNzUxODE2YjVmY2MxNzk4MjU2MmQ4MjMyZjRiYmUyZTI3YWMyNmQxNWI3MjdhZDY1ZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMzNGY3ZGZkMTc2N2Y4MWI5MTAyNzgxODlhOTBlNGMwNDU1MTAwYWUxNjU1ZmFlZTk4OTFiM2U3ZmM5ZjEyZTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1Y2RjOTk4MTRiZDZhNGIyOTBiYmMwMTNiNGJjYzkwYjBmMjBjZWUxNDA1NGQ3YzI5YmUxY2RkYzMyNGY5NWUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L63-L112",
+          "version": "repo-lines-v1:sha256:f353684d1e145adb04ab7cd294a883ed2e8827629fb8ed73717f8a62d5a92cf8:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImMwNTk5MjFiMDFjOTYxNmExOTEyNTdjYzE3ODM4YTFjMjk5YzE2YjgxOTVhMzRkOGM1MTE0ZTJiYTYxMDRkZTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjMzUyZDdjMGFhZDNjYjhlMDFhMDMxNzE3OGYyNTVjOTk3ODg4MDUxOTk5MTAwMTdiOTY3MWUxODQ1MWU3YTYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a0223444587f474285360d98984dc689",
+      "statement": "POST /api/admin/routes defaults is_active to false for newly created routes (draft-first) even though the routes.is_active column itself defaults to true.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L89-L92",
+          "version": "repo-lines-v1:sha256:cd12beea2b8c95031740495ac6860c96df90cc83efc2e52172b0407c8b877ee6:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYWY1NmEzYzcwZjdkMzA5NjQzOTRhNzNjMmM4MTYzNjlmYTNhYjc4NzkzOTdiNWQxMzY0MWZmMTk0MjMwMDcwZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjliMTk4MmU4ZGQ3NDgxMTgxNDZiMzlhMmQwMDYyZjQwODFlMzQ3NzliODY3NWMyMzRjNGZiMTI0ZGMzOTM5MCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTdjYWYzNTVjOTQxZjY4M2U0YzQ4ZDZhZjI1MGE2YTA2Yzk3Y2NkZmMyMDNkYjhlYmY5YmM4NGRhNmJjNjc2NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiN2UyOTA4MDVkODUwYzliMTU1NTA2YmQ4NTUzYWJlNjY4OTc5MDZiOTJmZTNmYTdhYTIxOWRiYzcxMzU3YzIyZSJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/db/schema.ts#L100-L117",
+          "version": "repo-lines-v1:sha256:60cb3fb9ea7a4424713b1119c140a399ecbeb869e953b4620a1a330a8be73a0f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM1NDg4Y2JiZjJjNTdmNmUzYWU0NjUxZWU5YWFiODkzNmQ0NWMzYWYyMjI4MDVkNWY2MDVlZDg5YmU2ZTZhYzkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5OTY3ZWMxZWQzODM2ZjhlYjE3YWZmMTcyYjViZmVmN2RlNjA0ODVhNDM5YzZjYTExYzU5MWUxNzU1NzM5YWUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJiNzIxNWEyOWIyMTkwOGY3ZmY5YmZiMzI2ZmM4YTJmNThiYWZkOTgyNDQ2YWJmMmQ4OWYzZmFlNTE3NzI1NDUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYwNjEyOTJjY2NiMmY0NzI1ZmZlNGVkNGVlMzMwNDQ4NmVkNzkyNmM1MGFiYzAzMTI5ODJkMjFkOTVhOWQzYjQifQ"
+        },
+        {
+          "resource": "repo://apps/server/tests/integration/crud.test.ts#L44-L55",
+          "version": "repo-lines-v1:sha256:c8d12b085438fd2fd2a695a4c14d77dfb278493d0d3df899f4e6cab0e05b9da2:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3ODMxMjYzZGQ4ZjYxYmM2MzliYjM1YjZmMzhkMzk0MDRjNGVjMTk4NWQ3NmE2OTc3Mzc0MmZmZTkyM2Q3ZDgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjVkMTdmNGI1NzdlZmY5MDY1YjEwODkyNmQyNGRhYzNlNTk3ZDNkYTlhMDVkNDcwZjA1N2I1YzE2MjE1NzcyNmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjVmOTVmNTdhMjRmYzgwOGE4YTgwMDE3ZjgzYjlmMmJkNzUzYzdkNjdhNGEwNzNhZmM2NmVkNDAwZGRhMWQxYjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhYzRmZWFiYjMyZDEyNDA1NDBkNWMxNjc1NjU0OTMyZDRkMWI2ZGZlOTIyMmY3NDBmZWYzNzA2NDAzMTY3NTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_46c29a2e6daf458bb6aa570fa364ed40",
+      "statement": "Drizzle's string-mode numeric columns and SQL counts are converted to JSON numbers at the handler boundary: a local num()/serialize() for the five fare-config decimals and active_route_count, Number() for every /api/status count, and Number(direction_count) for the route list, with the active_route_count aggregate additionally cast to ::int in SQL.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/fare-configs.ts#L18-L48",
+          "version": "repo-lines-v1:sha256:68d77cff68abbc51ba48685b4a43b491eb6e0e9b21ffd93acab817d878ad1389:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjljMjAxZThkNWFiZGQ1MjFhYTY4OTg1MTg1MDk4MjdlMzY3ZDk3MjQ4MjdjYjIyYmQ5NWQ3NTI1ZmIxNmYyNjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkMTE0Yzg2YzZhNDQ5YTNkNmMxZWY4OTM5Zjg5MzcxMjUxMzMxNDFlZWUyMWYxODBjNGFjZTUyNzMwYzE1NmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZjMjRjNmU3MTA3NmIwZWQzOWMwMTk2Y2YyOTJlZGQ0OWU3NDZmNDkzM2M3Njg0MWVmNzI5ODY2OGRhYjIwMDAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/fare-configs.ts#L56-L79",
+          "version": "repo-lines-v1:sha256:0acb1fcdeac6707ba04c9f5484b08b2fdad4ab1269b6c73e50a670f793951475:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgyNTZjMjgyZmU2NWE2MWViYzgyZjI3ZDUyODc0NTQ3ZGM2YjA2NGNiYzU4MGU5YzliOGIxMjcwNjAzNDNmODAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjMwMDJmYWMzZjRhZDAyMzlkMjMwNjlhODYyYTIwODliMDY1YzAzOGI4ZTdmNzA2N2QwMDMwMDIxYWNjZWZlNmQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L37-L57",
+          "version": "repo-lines-v1:sha256:50e7ff525ad82095275b8e855b2c2c3ff09b187fac204149ff92531c8db74a26:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU3NzBiMzViMjFlMDU5ZGE3NTc5MzA5MTk5Y2MwOGQ0YjBjZDIyMWQ0YzI5ZThlZjQ0YWM1MmNkNjVlZDUwNGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc5OTkxN2E0YzBiZDY0NjViNDQ5MWJhM2Q3OTllOWJmYWVhMmFmNDUzMWNmOTVlNzk1OWRkY2NiMDM5ZjdjNjgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxMWIyYTA4YzJjZGE0ZjhmNmE2M2IxNTM5ZjUyNGVjZDNjZTkxZGMyMGQ5MGE4NWIyNzc3NmIxM2U1MDQ5ZmQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/status.ts#L39-L55",
+          "version": "repo-lines-v1:sha256:211a5ff1b936e43e6456e61426c6ce9976d1b810fa77d260d5698fba1a7d21f1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2NzdmZTFmMWNkMWJhMmNmY2M3MGE2NjFlZWIxYWI4YTljMmY0ZTJkMTJhOWVmMjRkNTE5ODY2NDJjMDE3OWEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImFkOWUxMjU0NjQyNTU3NmQzZGVhZThjOWI5ZGJmMTI4ZDVkNmRkYWY1ZDdmZTg1NzkzNDkyN2RlZmZhM2I5ZGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjUxYjg2YzExY2UwMTlmZDliNjBjN2ZjM2I1YjdlODZhZGM2OWU1MWEwYzE0NzY0NDJhOGM3YzNkZGMxMDU2MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImEwMWJmMmE1NjhkYmY2MmM0ZTQ4MGNiMTliOGZjM2QxNTNjMzIzMmRjYjc1ZWQ1ZDE5MWIwZGMxODE4YzY3MzIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b23b512f1d3f483ba57621a2ab3c8bf9",
+      "statement": "Request bodies are validated by per-route zod schemas from @komyuter/shared attached as { schema: { body } } and compiled by the @fastify/type-provider-zod validator and serializer compilers set on the Fastify instance, while path parameters and query strings are not schema-validated (handlers cast them and mapbox.ts parses its coordinates query by hand).",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/app.ts#L36-L39",
+          "version": "repo-lines-v1:sha256:9bb1b3549d0ea5a353362fa78c72554898e88bc5df54ee27de6ae2c77f449620:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiY2MwZjJmNmFiMTEyY2Y2MGNmMjk1ZmQ1YWFhMGM3ZjgxNTFmYjlmMGZkNDhmODgyMTczOTkwZjcwNDY2MmQyNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTBhNjhkYWRlYjBmZmE3YzVlMTE2ZGYyNWNiZmM2M2RmMjkxYzAwYjkxMmE0OWQ1MTk0NTFkYzM3NzJiODlmYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiM2ZmNTNkMTM5NGFiNTlkYjI3OGE0ZWE4OGFkYTZlNGEwMTJhNTI1MjVhODQ5ZjI0NWMzMDcxOTJkNjNkNTAxNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNWNjYzYzNzgyYjc2YTJkMTE0YTljY2ZlMjBkNzA0Mzk3ZGYwMjgzMTM3MDJlZjI1ZTdmOTA3NjJkNzBjNTMxOCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L92-L106",
+          "version": "repo-lines-v1:sha256:fef2da349a2bcfa876139c7c9166b1ba36916a2a3a51802b22eaf68a35f8bb22:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg0NWFlODY4MjZmOWM3MDNmNWVkZmE5YWM4MzYzZTVmN2Y1YjFjNTNhY2JhNjMyNzgyYWYzMzI0ZTE5ZjY5MGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkZWQ1NzU5OTc0ZDhlNGQwZjhjYTcwM2Q2YmRlNWIyYWU3MzFhNWYyZjk3NDNlZjhkY2Q2NGI3Y2E1YWEzNDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFmNmMzMmFiZmJiZGJmMTIyZWQxOWMxNWU4ZThhYjRkYzg2NGVjNGQ1NDkxNmYzZWFhNWQ1ZTRlMWExZjZlY2MifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/routes.ts#L60-L63",
+          "version": "repo-lines-v1:sha256:a34a409c50f91f2ff6ba2d81260f23c2f99ec568893ed581b832d75d4526bf41:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjdmMWNiM2UwNzU5MWJjZjhlYmI3ZGM5NTMzZDAxNTEyOTc4YTliMGZhMDJlZTI4MTU5YmFiMjlmMGViMjc5ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNWM5MmY5NDI2NTZiMzE1NDBjMGY0OTYxZGJmODU0MjlmYzM3OTExNWI2NTU3YzJlM2U0M2MyZGYxMmI1ZmI2ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiODczZjdhYTE0MDJiOTg3NTkzMDUxZDc4NDdkOTIzN2IzMjE4ZjI4ZTBhNmUzMzY2YmU2M2UzY2RmYmIzMzFmOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTg2Mjk4YWY1ZGI0ZmE3M2ZjYjViOWExYzc4Y2ZlZTQ3ZmNmZDI2MWFlYmMzZGNjYmNmMmE1Y2RmODliMzE4MiJ9"
+        },
+        {
+          "resource": "repo://packages/shared/src/schemas/domain.ts#L28-L151",
+          "version": "repo-lines-v1:sha256:e016f42513dd9500054bbd4d67dd74f9b35c4a8cf3cb44ebecda5d647628f64d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTI0LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwZmJmYTg2ZDM0Yzk2MDU0NmQ2ODRlMDZmODQ1YjAxZjJhNjBjMDAxNjFhNDkxMTJjMDI5YWJmMzlhZWQ2MDU3IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiJmNmY1YjQwYjE1ODQ1N2QxNzg2NGYyMTc5MDc4NmRkNWEyZWNkYjY0YjY2YTY1MWY3ODhkNGUyNWNkMzMwM2QyIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiIwOWE2OWVjMDEyMDljODg4MWY2ZGM2MDRmNjBkOGI0NDhkYmNmZWU1YTFjN2M1MDAyODllMjM1NzA1NGMwNzI2IiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MCwiZm9sbG93aW5nQ29udGV4dEhhc2giOiJlM2IwYzQ0Mjk4ZmMxYzE0OWFmYmY0Yzg5OTZmYjkyNDI3YWU0MWU0NjQ5YjkzNGNhNDk1OTkxYjc4NTJiODU1In0"
+        }
+      ]
+    },
+    {
+      "id": "claim_a3c29a8531e5452da7b0398eb5331c67",
+      "statement": "Beyond zod, handlers apply domain geometry guards that raise 422: a plotted payload needs at least two stops whose first and last locations sit within 100 m of the polyline endpoints, a detour needs entry and exit within 30 m of the base polyline, a loop that starts on entry and ends on exit and is not degenerate, plus a label unique within the direction, and restriction indices must be in range and ascending.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L108-L115",
+          "version": "repo-lines-v1:sha256:eebde3359674253f6bf967be4bfd45bb469cce91b073652fb83926d47da103d2:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZGRlZjNiZTljNWRiZjA4NTRmMjBkMmJkZDUxNzYwNjRkNWZhYjU3ZmMzMTQ3NzkwNjgzMDk2Yjg0OTZhMDFjNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDY5Y2Y0NzEwMWQ3NTNkMjAzNTE1ZjFmYTU1Y2E0Y2JjOGI3YzkyNGVkNzY0MmJlZDQyYjBhMjVjZjlhOTBiNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzJmNGI5YjM1ZTMxZWFjNGU4OTViNjg0M2YzNzhmN2Q1YmUyZDQzOWRmNWE1NjNlMzZjNDU0MWE2MTBmYTMwNSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzJkNjc0ODBmYzFmNzJjYmUwOTFkYmY5Njk4ZDBlYzJhM2NmY2E2NmIxZjVlNTUxZGY2OTkzMWY5ZDZkZDlmYiJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L204-L220",
+          "version": "repo-lines-v1:sha256:3305784c9613f579a1d6373dc5e6c2d9a740ef69093ad8b82934a4e526641266:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIyNTEyMzk2NGQ1MjczMTVhMDUyZTNmYjhkMjUwZTU3Y2IwZTZmOWNlZGZiMzI0ZWQ0MzljNjQ2MjkwZTljYTciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJkMGYyZDNhM2FhZGEyNzU4NjQ1NzhkMGE0MzkxNTYzOGQ1NDNmZWNhMmM5NDg1OGRiOTQxMjExZTg2Y2VmMmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllOWJjMTgxZTQwNGI4N2E5NGZjM2YwZDAzMzU3NGY2MjE2M2RiNTNhYTlhN2Y3OWY3Y2I3YzA5N2E2NzM4YTAifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/derive.ts#L8-L9",
+          "version": "repo-lines-v1:sha256:0c76aef82d3fefea51e9de14341006f60b21b05b8205cc45da0dc35df0902a5d:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOGRkMzNlYWQ3YWVhMTg5NmEwMGUwNDEwZTJjOWI0NDljZTY2NzBmZjBiYjM5YTMzMDYwNmRjY2NkYzVkMWU1MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZjJmMzYxODM4YzdiYjFhY2NmYWM1M2VkNzlhNWQ5YmUxOWY5ZDc5MWY2ZTAxNjgyZGQ0NGUwNmFlYTQxNGM2ZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGE2NmE0NmU5ZjUyMTYzYjA4NzI0Nzk5MmExOGZmNzU4NjAyNjkzMDZmOWMwYTk0MGU1OTkxMjQ5ODRhMjMzZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTk1YmY1YmVkODA0Yjk2MzhiMDY0OWY4NDE4ZmY3MWMxMWUwNmEzZmJlYWFkMjdhNmVhZmU4ZjIzYTQ5NDVmNCJ9"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L136-L157",
+          "version": "repo-lines-v1:sha256:433acb17ac3e4ceedb4cb7c7ed217d4e7a07270c8f9f9a1162ec2be6b32c6558:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI0MWNlYjBmZmUwOThjMDA4MjZjYmQ3NDkwM2VjOGViZTM5NTc1MGQyNTQ2NWMyNDliYzE4OWNlYmJhOGI5ZTUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZiNTgwZTk2NGY4M2E0NzNmNDNkNDQzODQ2Mjk0OWQ2OGI1NjAwZmRhNzg3ZjE2Mzc0NWQwMGRlODljYmYzNmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBhMTNjZWNjZDkxYWMzODc1NGRlNzA5ODhhZGI5MDYwOGVjZmQ4NzA2MGI2MTIwNGQ5YjMxNTU1ODhmMmM4ZTIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/validation.ts#L8-L76",
+          "version": "repo-lines-v1:sha256:c1b7fe87b8cf867a3c531bf3dd0c2b1258dd9468357fc120d728b19fc02d86f0:eyJzZWxlY3RlZExpbmVDb3VudCI6NjksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNlOWI0MmYzYjBhMWQ5OGEyNzM3YjU4YTc0YTVhOWEzNzBkZWQ3MzU5ZWQ0Yjc3MTFlZDFiMTVkNGQ3YjYwMzMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImY0NzQ3NWM3Nzc0ZDUzMzQxZTg0NjQyZmExZDM2N2M0MzgzMTM2MWZiYzRiMzA4NjJiYzg2NmI2NjE1NWMxYzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiMTc2YjZiN2Y3NjdkYWNhOTFkZjQ4M2JlMWExYmVlMDhmMmM2NzMxYzgzNWQzNDc0ZTMwMmYwYWUxODY0NjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a0af3309d2af43fb8a7a764107824d0b",
+      "statement": "POST /api/auth/login returns only the access token and a user profile (the refresh token is discarded server-side) and answers every denial with the identical 401 UNAUTHORIZED \"Invalid email or password\" after a minimum 250 ms delay, covering wrong credentials, non-admin users and the gated development credential; throttling is per normalized account and per source IP with five failures in five minutes blocking the key for fifteen.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/auth-login.ts#L17-L118",
+          "version": "repo-lines-v1:sha256:ae2b6ea8ac5bbc177732fc6694123bdde1a3aaf4da1e347caffcb24f397f5b0f:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAyLCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiIwMmJhMjUyMmI0OGJjYTI3MjhjMDQ0YWExZmIwMjMzZDUwY2MwNTZmNzk5MTIwOWQ2YzY4ODQ2Yzk3Mjc4OTFkIiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiI5NWVmMDFiYzA4ZGJjM2I2M2U0ZTc1ZWEzZDI2YTViOTQxODkxODc3ZTI3YWQ4OTEzMjljODQxMWQ3ZDhkYzRkIiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJhOTMyMGM1MTM5ODI4ZDc2ZDY0NGM3ZjM2OTMxNDUwMTU3YmQ1MWEyMzVmNGYxOWYxMDA4NWIxYzc0ODA3NGZlIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MywiZm9sbG93aW5nQ29udGV4dEhhc2giOiI5MWQ1NTMyNjhiNjI4ZTMxZGY3MjVmZmQzOTkwYWY3ZThhZDJjNTI4ZTU2Y2JjNDU2NjhlYjQyNmUyZTM0NTE3In0"
+        },
+        {
+          "resource": "repo://apps/server/src/api/throttle.ts#L1-L16",
+          "version": "repo-lines-v1:sha256:103586e6175668e88cf6696958a4a12d38eeb6f6ef40a3c3d597a9e3610df2bc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVhZjIyY2YwNzMyNTkyYzI0NzE0MWNiZTYxZWZhMTEwMTI2MTJmNWEzMTIyYjlhZjliYmFmNTJmNTcyNGQxOTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImEwZGFmMWE2ZmRjYmE4NTM1ZTVlNmZmNjVjMWEwMjUyNjNjNGViZGQ4YTc3ZTYzNjdmMmQ3OTM1Y2RlMmI1NjIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjllNjRkYjViNDc0M2M4MmE0ZGQwNWE1MWU2Nzg1ZThlNDkyNWIwODhiY2NhOTZhMTJhMTQ4MjBhOTE2NTNhODIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/throttle.ts#L46-L71",
+          "version": "repo-lines-v1:sha256:8c743a3cf210f18aed449c1d9f7d9e2e8dc4364be1f78829828f9c47eca45ef8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA5NWZhMGYxMTE3YjVlYTQwNDM0MTQwZGRlMWEzNDBjNzIwZGRiZjMyNjIxMmUxOTE4MzhkNGIxNTZkMzE2YmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFmMGNkYjk3MmE3YmZiN2VkMjQ2ZjlmZjY3MjM4NWU1NWY0OTY4ZmMxMTA0M2RjNWI2ODRkNTFkZmEzMWRiY2IiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk3ZDg2MzJlNTRlOTI5OGFiYjk1ODcyN2UyZDUxNDA4YWJhZjEzNjYwMzUzNzkxMDE0MGFiZjY1YjMwYWI2MTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE1ZTNkYTlmZGExMTRhNDNhOGFiZmIxMjRiOWUzYjBhMDI2ZDZhNmRmZGY5NDMyZDg1YTE3YWIwMzA4MDhlZjAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_58065aa86d3d4c1dab02eec0670ba0a6",
+      "statement": "GET /api/admin/mapbox/directions parses its coordinates query by hand (422 for a missing, malformed or sub-two-pair string), splits requests at Mapbox's 25-coordinate limit, and never surfaces an upstream failure: without a token or on an upstream error it returns straight-line geometry with snapped false and a warning of no_token or upstream_error.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/mapbox.ts#L6-L164",
+          "version": "repo-lines-v1:sha256:ba81fa48947cee3337fdcb154a39b4def4d29d9ee90c4789ae8d8b3394017464:eyJzZWxlY3RlZExpbmVDb3VudCI6MTU5LCJmaXJzdFNlbGVjdGVkTGluZUhhc2giOiJhNzc1MjI3NTI1ODliYmNlNmEzZTgwMTZiMjIwNTIxY2M1ODU2YTAyZjE3Yjc0NWI2ZWIxYWE1MGIwNTFmOTY5IiwibGFzdFNlbGVjdGVkTGluZUhhc2giOiIzYTNlNDZmOTQyNzZiNmY2ZjRlZDFmMDJhZjc4YmVmNmEyZWUxYzQzOWRkNTU4NGI5NzM5NDgzMTMyMTRkMmI3IiwicHJlY2VkaW5nQ29udGV4dExpbmVDb3VudCI6MywicHJlY2VkaW5nQ29udGV4dEhhc2giOiJlZGNlNDBlOTY0ZTU5ZjBiOTRkNDhmOWQxZjc3NDA0MTQzMzMyYzFhY2NmYmI4MzNjOThiMDY0Y2YzOGFmMzQzIiwiZm9sbG93aW5nQ29udGV4dExpbmVDb3VudCI6MSwiZm9sbG93aW5nQ29udGV4dEhhc2giOiI0MTJjYTM0NWNjZjc1YmY5YzA4MDZiY2U2OTViZThkZTgwOGI3OTk4NDI1MWE3YTU0ZDIwMmNmNjEwMWRkNDUxIn0"
+        }
+      ]
+    },
+    {
+      "id": "claim_186ffc7698fa4b1ab449c0f0c682e193",
+      "statement": "GET /api/status is public, requires no token, and returns { status: \"ok\", stats } with unfiltered row counts for the six tables plus dataset_updated_at computed as max(directions.updated_at).",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/status.ts#L18-L56",
+          "version": "repo-lines-v1:sha256:d2c42b240327dd18e0f41a53bf19499e56424a4538ab26725445fe8a5416cefc:eyJzZWxlY3RlZExpbmVDb3VudCI6MzksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJiZDJmM2NkN2FmYmIwOGExMDg0ZjJiZGUwN2ZkZjg1MWU4YTZmYmNjNWE2ODAyNDhhMjM4ZWVlMDJiZDQ5ZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNhM2U0NmY5NDI3NmI2ZjZmNGVkMWYwMmFmNzhiZWY2YTJlZTFjNDM5ZGQ1NTg0Yjk3Mzk0ODMxMzIxNGQyYjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_19c8bf0803984403ae10ddb470392e0d",
+      "statement": "Soft-deleted directions, stops, restrictions and fare configurations are not filtered out of reads or of the export dataset, because the entity loaders and the export row queries apply no is_active filter; only routes and directions carry is_active into the exported payload.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L104-L134",
+          "version": "repo-lines-v1:sha256:a47b65a0f80a8b920466fff1bc3c941e73098a45ba57802d27b633ab3ece1841:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgwYjQ2OWY1ZDY4MjgwYzNmNzk5ODNmZmExZjViZjM0NjMzM2ZmODAyMGQ1NjAwYjY2NzQyMzMyMzUxMWU3ZWYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBkMTE0Yzg2YzZhNDQ5YTNkNmMxZWY4OTM5Zjg5MzcxMjUxMzMxNDFlZWUyMWYxODBjNGFjZTUyNzMwYzE1NmQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc1NTFkMjcwYTQ3MzlmYTRjNGVjOTkwODA5NjAzMGZiOTIwMzI5NjVhZDAzNDAyOWJiZWFjZDg3ZmY4MDQ0MWIifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/entities.ts#L220-L245",
+          "version": "repo-lines-v1:sha256:f77b70f555c634a29db6b76b41cd77f650538c575ecaabad25ff728ee441d04e:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc0Y2M5MzBmZjc0MDJkNzc0ZTM4NTBiMGU2MzgxMTEwYjFhMThhZjI4MzY5OTI1NmQwOWQ1YzgzNzJkMzEzZTgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjczY2YyNmRmOGUwMjBhMGZhOGQyMmVlNGJiNDgyNWJmZmIzMTk3N2YwMzE3NjBjZDQ3Y2ViZjhiY2U3MGRkYmIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI2ZGRjY2FmYTdjZDEyOTcxNGQwNWM0YjM3YWY0YmE0ZmQzMjVhODU5OTZmYjc2MTU5M2U3ZmFiNTk5OTFmMTcifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/domain/export.ts#L190-L220",
+          "version": "repo-lines-v1:sha256:54fb873603e382a5d878f32ea938c6e387ee2774b07a6efb6f4f6e556b2de4c2:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI3ZTU3ODhkNWQ5ZDczZDI0YTgxZGJjMGE1YTc0YmZhODJjOWMzYjNhZjk5ZTUyYWY3OTZlOTBiNDY4YThhM2QiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlkOTgzNTQ5OWU1YmE5MWY4NzI2N2M5NTJiNzhlYWVkZDZjNDY2Zjk1YjY4ODFiMDdiNDZjY2FlYzBjZGYxNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjAxOTMyNGY0ZGE0ZmI0N2RjMDZmODQ4YWVmODVkYTUyMjk4MDM0MTJhMjY0ZWExMGE3ZWM1ZmQ3OTVlZDhmOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVlY2JiZGVhZGRjODhkM2QyMjVjZjA5NjkzNTNhMTRlOGZhNTNkMzg0OTMxODdjNzM4YzZmNTU2Njc5YjRiMDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_43892de8473c4c62aacbb0b24da3ecf6",
+      "statement": "The plotted create/replace path deletes the existing stop rows of every direction it rewrites and inserts fresh stop rows with new identifiers, then re-points origin_stop_id and destination_stop_id at the new terminals, so stop ids are not stable across a plotted save.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L149-L198",
+          "version": "repo-lines-v1:sha256:daa82ad9eece93c407dc085f595c20f08515c2d4fdaebb8bd123c93f63d9ce98:eyJzZWxlY3RlZExpbmVDb3VudCI6NTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM2MzgzYmZjZmQ2NWE4YjQ2ZjA1NTFlYTZjZjBmZDYwZTQ4ZTg3Njc2MjkyZWU2ZmVlYzcwMDg0ODUwMzM3ZWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJlMmIyMDllNDFjMzBiNzUxODE2YjVmY2MxNzk4MjU2MmQ4MjMyZjRiYmUyZTI3YWMyNmQxNWI3MjdhZDY1ZjciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBiZThiZjM4ZjFhZDkzODVmZjhhZTc3ZjU4ODAwYjViNmE5NTExZDVkMjY3NWFmNjE4ZTI3NTY2ZjAwZGFkMDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI1Y2RjOTk4MTRiZDZhNGIyOTBiYmMwMTNiNGJjYzkwYjBmMjBjZWUxNDA1NGQ3YzI5YmUxY2RkYzMyNGY5NWUifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/directions.ts#L82-L130",
+          "version": "repo-lines-v1:sha256:d7c355cfca1cf5186a580f9aadd1ddfc4276869f75704521e735061dd0433722:eyJzZWxlY3RlZExpbmVDb3VudCI6NDksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ3NjIwMTc5NjE5MGRjYjNlZDA2YmExMTdjMjdhNjg2ZjFkNjU2M2M4ZWI3MzMyN2MxMzE1MmQ4ODZmNDdiYjkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4Y2Q3OThlZDI2MjNmNTIyOTYzMDA1M2NjYzZjMzVmMmRmYTBiYWUwMmVjZjE0NjZjODUyNTgxM2MxZmFkMTciLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhMzZmMTU3NTRmNjM0MmNkMmVmM2JkNzAzZjRjYjA3ZDAwZmQwMzQ0MmY2OWZjMzMzOTIyOTk2MjM4OWFjNDkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdiN2QxZjIxZWZlN2Q3ODcxMzQxNDZiMGNmZTkyYTgxMTU4MDc3Yjg4MDIzZmRmMWRhMzBiYjFhYTM4NDZjY2QifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_28675760d680464a996778b1d79ff752",
+      "statement": "The surface exposes no single-item GET for stops, detours or restrictions (those entities are read through their parent direction), no PATCH method on any path, and no pagination, filtering or ordering parameters on any list endpoint.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/src/api/detours.ts#L82-L158",
+          "version": "repo-lines-v1:sha256:b5f09e38d6e017fa3bb5e63eb6f26bc329219931539f457a861b9739683f186c:eyJzZWxlY3RlZExpbmVDb3VudCI6NzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZDZhOTc5Mjc5YmNiMjJkM2Y4MjdhNDI4ZjliYjVkZTI4ZTllMGQyZjMwMDcxMzJmYjdlMjdlOTJlMTEzM2IiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg3MGY4NDk2MzMwZTFmZTY4NmUwNGU5NzRjMWY1YWYzYjI0NmYyMmI5NWViMWY2MTFhYWRmMTFhNjFlMGVhNGYifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/restrictions.ts#L29-L95",
+          "version": "repo-lines-v1:sha256:64b24b68282cb2d316b1d28ec38b5912380e63739e224c904469cb9d62267564:eyJzZWxlY3RlZExpbmVDb3VudCI6NjcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk4MDVjNzMzNjQ2YWM0ZmY3YWZlZDViMDhiZjkyNGFlM2JiZTBiOGU4ZmZmYjZiMDE1MzI5YjAzYTM1OTk0Y2EiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImVmZjg5NjhmOWI4YjkzMDg0NjNjNTJlNmEwMGViNGVjYzQ4NGU0NmUzNDQ0NjdlNjZkYWRkZTM0NDc4NDZkZTQifQ"
+        },
+        {
+          "resource": "repo://apps/server/src/api/stops.ts#L24-L99",
+          "version": "repo-lines-v1:sha256:b1b9a5a8432c11f87ba6e2f1d3f9a8556e7f619a76ac50e5b2b8f8133be662b2:eyJzZWxlY3RlZExpbmVDb3VudCI6NzYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2N2I0MjNlNGU0ZTdjYWYwZGUxNGYyMTdhMWRhYTNiNjY3MmQ1ZDA2YTk0NDkzZTBiMzc3M2UwY2U1NzU5MGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk1ZWYwMWJjMDhkYmMzYjYzZTRlNzVlYTNkMjZhNWI5NDE4OTE4NzdlMjdhZDg5MTMyOWM4NDExZDdkOGRjNGQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVhNTFiY2YzZmU5ZTQwNzAyYTljMzQyOWVhMTRiZGMwZjhhOGM5MTZjY2RjNjgwYTk4MjJhNGEwN2QyNjNhNjQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijg4OWY1NjQ3NmE3MjhiMjBlMjk1ZWE2YjlhMjA3ZWJlMjMyZjgwMzM4MDc1NTdjZTVkNjc4NzUxMTc3ZmZkOGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_69d2543a144d4f99a13b696661787c35",
+      "statement": "Two checked-in descriptions of this surface are behind the code: apps/server/README.md describes DELETE /api/admin/routes/:routeId as deactivating a route while the handler hard-deletes it, and docs/ADMIN.md lists detours under soft delete while DELETE /api/admin/detours/:detourId removes the row.",
+      "evidence": [
+        {
+          "resource": "repo://apps/server/README.md#L55-L70",
+          "version": "repo-lines-v1:sha256:4fc47da63c0aa7885dfa133442eae2da448da04a38af8547dc41dae03c326a25:eyJzZWxlY3RlZExpbmVDb3VudCI6MTYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZjMzUzMGY4YzVkNDJhZGE0ZmRjZDViMDcyNmQyMWQwYTM1OTBlZjljOTcwNmUzOGU1ZWY1ZmU5NDAxNDI5NGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4M2VjOWMzYjk3NDE1NjgyMTI5Mzc5ODA5NzkzYzYyOWJlMzBlNDY2ZjkxMzJhNWU3MzJiM2NjYWY4YWNhNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE1ZmU3MDE3NDVkYWE5NDQ5Yjk0NTNmNjExN2VhZjI1YmYzNzA0OTA1NThlYzRlYmQzNjZiMjQyNWMyYzkzMTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJkMWYzYjg1YTE2ZThlZWE4ZDZjODk2ZmQ1MDlmNTA3MzAzZmZmY2ZmMjgxMjNjMjAwMjdhY2NmNDZlNjA0OTgifQ"
+        },
+        {
+          "resource": "repo://docs/ADMIN.md#L82-L82",
+          "version": "repo-lines-v1:sha256:c258e04f13a4849470873553c628c580bad0c32e1ded99528cc04432d8c13a37:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzI1OGUwNGYxM2E0ODQ5NDcwODczNTUzYzYyOGM1ODBiYWQwYzMyZTFkZWQ5OTUyOGNjMDQ0MzJkOGMxM2EzNyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzI1OGUwNGYxM2E0ODQ5NDcwODczNTUzYzYyOGM1ODBiYWQwYzMyZTFkZWQ5OTUyOGNjMDQ0MzJkOGMxM2EzNyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZGEwN2YyNDdhMTYxZDBlYzNjNDBiYzg0NWVlNjEyOWZmODVhNmVlMWI3MDgyOThhMWQ2OTA1NjViOGJmODhmYSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2U3ODhmMjNiMmE2ZGY5NDg3ZjBjNGZhNjdkOTVkNWIzZmZmNzk3MDY2NjkzYmE3ZDE4ODcxNDQ5ZDI1Mzk5ZSJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.7.1",
+    "at": "2026-10-07T11:05:10.019Z"
+  }
+}
