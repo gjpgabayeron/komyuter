@@ -5,7 +5,12 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { Pool } from "pg";
 import { buildApp } from "../../src/api/app";
 import { createDb, type Db } from "../../src/config/db";
-import { loadEnv, type Env } from "../../src/config/env";
+import {
+  loadAdminCredentials,
+  loadEnv,
+  type AdminCredentials,
+  type Env,
+} from "../../src/config/env";
 import { createSupabaseAdmin } from "../../src/config/supabase";
 import { assertLocalDatabaseUrl } from "../helpers/local-db-guard";
 
@@ -15,8 +20,17 @@ if (existsSync(".env")) {
 
 const env = loadEnv();
 
-export function testEnv(): Env {
-  return env;
+// The suite signs in as the admin `supabase/seed.sql` seeds and mirrors that
+// identity into the test database, so IT needs the credential pair even though the
+// server does not (ADR-0022 §9). Required once, here: the call sites that expect
+// `testEnv().ADMIN_EMAIL` to be a string keep their type, and a missing value fails
+// loudly instead of surfacing as an unexplained wrong-password denial.
+const adminCredentials = loadAdminCredentials();
+
+const testEnvValue: Env & AdminCredentials = { ...env, ...adminCredentials };
+
+export function testEnv(): Env & AdminCredentials {
+  return testEnvValue;
 }
 
 /**
@@ -108,8 +122,8 @@ export async function createTestAdmin(
 export async function signInAdmin(): Promise<string> {
   const supabase = createTestSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: env.ADMIN_EMAIL,
-    password: env.ADMIN_PASSWORD,
+    email: testEnv().ADMIN_EMAIL,
+    password: testEnv().ADMIN_PASSWORD,
   });
   if (error) {
     throw error;

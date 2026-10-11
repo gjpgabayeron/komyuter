@@ -1,5 +1,5 @@
 import { Pool } from "pg";
-import { loadEnv } from "../config/env";
+import { loadAdminCredentials, loadEnv } from "../config/env";
 import { createSupabaseAdmin } from "../config/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -27,6 +27,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * Run with `pnpm --filter server bootstrap:owner` and ADMIN_EMAIL /
  * ADMIN_PASSWORD / SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY / DATABASE_URL set.
+ * The first two are required by THIS script (and the integration harness), not by
+ * the running server, which boots without them (ADR-0022 §9) — so they belong in
+ * the operator's shell, never in the deployed service's variables.
  */
 async function findUserIdByEmail(
   supabase: SupabaseClient,
@@ -56,16 +59,20 @@ async function findUserIdByEmail(
 
 async function main(): Promise<void> {
   const env = loadEnv();
+  // Read through the strict reader: this script cannot do its job without the
+  // owner credentials, while the server deliberately boots without them
+  // (ADR-0022 §9).
+  const { ADMIN_EMAIL: email, ADMIN_PASSWORD: password } =
+    loadAdminCredentials();
   const supabase = createSupabaseAdmin(
     env.SUPABASE_URL,
     env.SUPABASE_SERVICE_ROLE_KEY,
   );
 
-  const email = env.ADMIN_EMAIL;
   const { data: created, error: createError } =
     await supabase.auth.admin.createUser({
       email,
-      password: env.ADMIN_PASSWORD,
+      password,
       email_confirm: true,
       user_metadata: { full_name: "Owner" },
     });

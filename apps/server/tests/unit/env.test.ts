@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { loadEnv } from "../../src/config/env";
+import { loadAdminCredentials, loadEnv } from "../../src/config/env";
 
 const BASE_ENV: Record<string, string> = {
   DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
@@ -7,6 +7,13 @@ const BASE_ENV: Record<string, string> = {
   SUPABASE_SERVICE_ROLE_KEY: "test-service-role-key",
   ADMIN_EMAIL: "admin@komyuter.ph",
   ADMIN_PASSWORD: "komyuter-admin-dev",
+};
+
+/** A production-shaped source: everything the server runs on, and no owner credentials. */
+const SERVICE_ENV: Record<string, string> = {
+  DATABASE_URL: BASE_ENV.DATABASE_URL,
+  SUPABASE_URL: BASE_ENV.SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY: BASE_ENV.SUPABASE_SERVICE_ROLE_KEY,
 };
 
 describe("loadEnv", () => {
@@ -44,5 +51,65 @@ describe("loadEnv", () => {
     expect(() => loadEnv({ ...BASE_ENV, DATABASE_URL: "" })).toThrow(
       /Invalid environment/,
     );
+  });
+
+  // ADR-0022 §9: the deployed service must not carry the owner's password. Nothing
+  // in the running server reads it (login refuses a hardcoded DEV_CREDENTIAL), so a
+  // service-shaped environment has to load.
+  it("loads without the owner credentials the server never reads", () => {
+    const env = loadEnv(SERVICE_ENV);
+    expect(env.ADMIN_EMAIL).toBeUndefined();
+    expect(env.ADMIN_PASSWORD).toBeUndefined();
+    // Absent credentials must not disturb the rest of the contract.
+    expect(env.DATABASE_URL).toBe(BASE_ENV.DATABASE_URL);
+    expect(env.SUPABASE_URL).toBe(BASE_ENV.SUPABASE_URL);
+    expect(env.PORT).toBe(3000);
+    expect(env.ALLOW_DEV_CREDENTIAL).toBe(false);
+  });
+
+  // The relaxation above is exactly two fields. Each of the others must still be
+  // refused when missing, or the change has quietly weakened the boot contract.
+  it("still refuses a service-shaped env that is missing a variable the server does need", () => {
+    for (const key of [
+      "DATABASE_URL",
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_ROLE_KEY",
+    ]) {
+      expect(() => loadEnv({ ...SERVICE_ENV, [key]: "" })).toThrow(
+        /Invalid environment/,
+      );
+    }
+  });
+});
+
+describe("loadAdminCredentials", () => {
+  it("returns the pair for the contexts that actually consume it", () => {
+    expect(loadAdminCredentials(BASE_ENV)).toEqual({
+      ADMIN_EMAIL: "admin@komyuter.ph",
+      ADMIN_PASSWORD: "komyuter-admin-dev",
+    });
+  });
+
+  // The bootstrap script and the integration harness cannot operate without these,
+  // so the failure has to name the variable rather than surface as a wrong password.
+  it("names the missing variable when the email is absent", () => {
+    expect(() =>
+      loadAdminCredentials({ ADMIN_PASSWORD: BASE_ENV.ADMIN_PASSWORD }),
+    ).toThrow(/ADMIN_EMAIL/);
+  });
+
+  it("names the missing variable when the password is absent", () => {
+    expect(() =>
+      loadAdminCredentials({ ADMIN_EMAIL: BASE_ENV.ADMIN_EMAIL }),
+    ).toThrow(/ADMIN_PASSWORD/);
+  });
+
+  it("keeps the minimum length the schema had before it was relaxed", () => {
+    expect(() =>
+      loadAdminCredentials({
+        ADMIN_EMAIL: BASE_ENV.ADMIN_EMAIL,
+        ADMIN_PASSWORD: "short",
+      }),
+    ).toThrow(/ADMIN_PASSWORD/);
   });
 });
