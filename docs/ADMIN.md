@@ -81,7 +81,7 @@ komyuter/
 - Auth: `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout` (outside the admin guard) — see Appendix G.
 - Admin CRUD: routes (hard delete), directions/stops/detours/restrictions (soft delete via `is_active`), fare configs (soft deactivate + guards), dataset export, mapbox directions proxy.
 - Envelope + error codes everywhere; origin guard (`ADMIN_ORIGINS`), login throttle (account + source blocks), security-events audit trail.
-- Env vars (`apps/server/src/config/env.ts`): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `PORT` (default 3000), `MAPBOX_SECRET_TOKEN` (optional — directions proxy falls back to mock), `ALLOW_DEV_CREDENTIAL` (default false), `ADMIN_ORIGINS`.
+- Env vars (`apps/server/src/config/env.ts`): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT` (default 3000), `MAPBOX_SECRET_TOKEN` (optional — directions proxy falls back to mock), `ALLOW_DEV_CREDENTIAL` (default false), `ADMIN_ORIGINS`. `ADMIN_EMAIL`/`ADMIN_PASSWORD` are **optional** — the server neither requires nor reads them (ADR-0022 §9); the `bootstrap:owner` script and the integration harness require them via `loadAdminCredentials()`.
 
 **Admin env:** `VITE_API_URL` (axios base; the Vite build injects a CSP for this origin — specs/009).
 
