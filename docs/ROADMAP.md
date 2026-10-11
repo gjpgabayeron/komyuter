@@ -20,17 +20,17 @@ restating the milestone name.
 
 ## Milestone overview
 
-| ID       | Milestone                          | Delivers                                                                | Depends on |
-| -------- | ---------------------------------- | ----------------------------------------------------------------------- | ---------- |
-| **M1**   | Staging environment (thin deploy)  | One Railway service live on Supabase Cloud, owner Account bootstrapped  | —          |
-| **M2a**  | Authorization core                 | Roles, Permissions, Super Admin, grant-subset guard                     | M1         |
-| **M2b**  | User-management surfaces           | Account lifecycle, attribution, session revocation, read-only workspace | M2a        |
-| **M2c**  | Collaboration safety               | Version stamp, per-user drafts, three-way merge with a resolver         | M1         |
-| **M3**   | v1 — complete route modeling       | `R2` triggers, `R3` no-stop segments, `R5` shared fare rule             | M2a        |
-| **M4**   | Reliable CI and CD                 | Merge → staging, tag → production, migration gate, rollback runbook     | M3         |
-| **M5**   | v1.1 — plotting power and polish   | `R4`, `R6`, `R7`, `R8`, `FR-004`, power-editor features                 | M4         |
-| **M6**   | Sandbox playground                 | Algorithms in `@komyuter/shared` behind a real navigation endpoint      | M5         |
-| _mobile_ | Commuter app (outside this record) | —                                                                       | M6         |
+| ID       | Milestone                          | Delivers                                                                                 | Depends on |
+| -------- | ---------------------------------- | ---------------------------------------------------------------------------------------- | ---------- |
+| **M1**   | Staging environment (thin deploy)  | One Railway service live on Supabase Cloud, owner Account bootstrapped                   | —          |
+| **M2a**  | Authorization core                 | Roles, Permissions, Super Admin, grant-subset guard                                      | M1         |
+| **M2b**  | User-management surfaces           | Account lifecycle, attribution, session revocation, read-only workspace                  | M2a        |
+| **M2c**  | Collaboration safety               | Version stamp, per-user drafts, three-way merge with a resolver                          | M1         |
+| **M3**   | v1 — complete route modeling       | `R2` triggers, `R3` no-stop segments, `R5` shared fare rule                              | M2a        |
+| **M4**   | Reliable CI and CD                 | Merge to `dev` → staging, merge to `main` → production, migration gate, rollback runbook | M3         |
+| **M5**   | v1.1 — plotting power and polish   | `R4`, `R6`, `R7`, `R8`, `FR-004`, power-editor features                                  | M4         |
+| **M6**   | Sandbox playground                 | Algorithms in `@komyuter/shared` behind a real navigation endpoint                       | M5         |
+| _mobile_ | Commuter app (outside this record) | —                                                                                        | M6         |
 
 ## Dependencies
 
@@ -74,8 +74,11 @@ auth and configuration end to end — and to unblock everything after it.
 - `apps/admin/.env.production` committed with an intentionally empty `VITE_API_URL` — production is
   same-origin, and this stops a machine-local `apps/admin/.env` from baking `localhost:3000` into a
   release build.
-- A Supabase Cloud project as the production data plane: `supabase/migrations/*.sql` applied to it.
-  `supabase/seed.sql` is **not** applied — the documented dev credential must not exist in production.
+- A Supabase Cloud project as the **staging** data plane
+  (`docs/adr/0021-branching-and-environments.md`): `supabase/migrations/*.sql` applied to it. Production
+  gets its own project at M4.
+  `supabase/seed.sql` is **not** applied — the documented dev credential must not exist in either Cloud
+  environment.
 - A one-off owner-bootstrap script (service-role key) that creates the first **Account** and its auth
   identity, since no dashboard surface can exist before the first Account.
 - Railway service variables: `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
@@ -171,14 +174,16 @@ is applied to production through the M1 migration path; tag `v1.0.0` exists and 
 
 **Deliverables.**
 
-- Merge to `main` deploys staging.
-- A version tag deploys production behind a manual approval gate.
+- Merge to `dev` deploys staging.
+- Merge to `main` deploys production behind a manual approval gate; a version tag records the release
+  (`docs/adr/0021-branching-and-environments.md`).
 - Supabase migrations applied as an **explicit deploy step** before the new container goes live, never
   at container boot.
 - A written rollback runbook, exercised at least once.
 
-**Exit criterion.** A version tag produces a production deploy through the pipeline with no manual shell
-work, including the migration step; a deliberately broken migration is rolled back using the runbook.
+**Exit criterion.** A merge to `main` produces a production deploy through the pipeline with no manual
+shell work, including the migration step; a deliberately broken migration is rolled back using the
+runbook.
 
 ## M5 — v1.1: plotting power and polish
 
