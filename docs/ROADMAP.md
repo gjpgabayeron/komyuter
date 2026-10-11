@@ -20,17 +20,17 @@ restating the milestone name.
 
 ## Milestone overview
 
-| ID       | Milestone                          | Delivers                                                                                 | Depends on |
-| -------- | ---------------------------------- | ---------------------------------------------------------------------------------------- | ---------- |
-| **M1**   | Staging environment (thin deploy)  | One Railway service live on Supabase Cloud, owner Account bootstrapped                   | —          |
-| **M2a**  | Authorization core                 | Roles, Permissions, Super Admin, grant-subset guard                                      | M1         |
-| **M2b**  | User-management surfaces           | Account lifecycle, attribution, session revocation, read-only workspace                  | M2a        |
-| **M2c**  | Collaboration safety               | Version stamp, per-user drafts, three-way merge with a resolver                          | M1         |
-| **M3**   | v1 — complete route modeling       | `R2` triggers, `R3` no-stop segments, `R5` shared fare rule                              | M2a        |
-| **M4**   | Reliable CI and CD                 | Merge to `dev` → staging, merge to `main` → production, migration gate, rollback runbook | M3         |
-| **M5**   | v1.1 — plotting power and polish   | `R4`, `R6`, `R7`, `R8`, `FR-004`, power-editor features                                  | M4         |
-| **M6**   | Sandbox playground                 | Algorithms in `@komyuter/shared` behind a real navigation endpoint                       | M5         |
-| _mobile_ | Commuter app (outside this record) | —                                                                                        | M6         |
+| ID       | Milestone                          | Delivers                                                                                                      | Depends on |
+| -------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------- | ---------- |
+| **M1**   | Staging environment (thin deploy)  | One Railway service live on Supabase Cloud, owner Account bootstrapped                                        | —          |
+| **M2a**  | Authorization core                 | Roles, Permissions, Super Admin, grant-subset guard                                                           | M1         |
+| **M2b**  | User-management surfaces           | Account lifecycle, attribution, session revocation, read-only workspace                                       | M2a        |
+| **M2c**  | Collaboration safety               | Version stamp, per-user drafts, three-way merge with a resolver                                               | M1         |
+| **M3**   | v1 — complete route modeling       | `R2` triggers, `R3` no-stop segments, `R5` shared fare rule                                                   | M2a        |
+| **M4**   | Reliable CI and CD                 | Merge to `dev` → staging, merge to `main` → production behind approval, migration gate, IaC, rollback runbook | M3         |
+| **M5**   | v1.1 — plotting power and polish   | `R4`, `R6`, `R7`, `R8`, `FR-004`, power-editor features                                                       | M4         |
+| **M6**   | Sandbox playground                 | Algorithms in `@komyuter/shared` behind a real navigation endpoint                                            | M5         |
+| _mobile_ | Commuter app (outside this record) | —                                                                                                             | M6         |
 
 ## Dependencies
 
@@ -81,9 +81,15 @@ auth and configuration end to end — and to unblock everything after it.
   environment.
 - A one-off owner-bootstrap script (service-role key) that creates the first **Account** and its auth
   identity, since no dashboard surface can exist before the first Account.
+- The Railway service configured per `docs/adr/0022-railway-platform-utilization.md`: Dockerfile
+  builder, `dev` branch, watch patterns, health check on `GET /api/status`, and the
+  `asia-southeast1-eqsg3a` region.
 - Railway service variables: `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`,
-  `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_ORIGINS`, `ALLOW_DEV_CREDENTIAL=false`,
-  `MAPBOX_SECRET_TOKEN`.
+  `ADMIN_ORIGINS`, `ALLOW_DEV_CREDENTIAL=false`, `MAPBOX_SECRET_TOKEN` — and deliberately **not**
+  `ADMIN_EMAIL`/`ADMIN_PASSWORD`, which only the bootstrap script consumes (ADR-0022 §9).
+- `envSchema` no longer requires `ADMIN_EMAIL`/`ADMIN_PASSWORD`; `loadAdminCredentials()` requires them of
+  the two contexts that actually use them — the bootstrap script and the integration harness — so the
+  service boots on the variable set above (ADR-0022 §9.1).
 
 **Exit criterion.** A second person opens the deployed URL, signs in as the owner Account, and plots a
 route end to end; the shipped CSP contains no API origin; a foreign `Origin` is refused, and the
@@ -174,16 +180,23 @@ is applied to production through the M1 migration path; tag `v1.0.0` exists and 
 
 **Deliverables.**
 
-- Merge to `dev` deploys staging.
-- Merge to `main` deploys production behind a manual approval gate; a version tag records the release
-  (`docs/adr/0021-branching-and-environments.md`).
-- Supabase migrations applied as an **explicit deploy step** before the new container goes live, never
-  at container boot.
+- Merge to `dev` deploys staging; merge to `main` deploys production behind **Railway's native
+  deployment approval** (`docs/adr/0022-railway-platform-utilization.md` §4); a version tag records the
+  release (`docs/adr/0021-branching-and-environments.md`).
+- Supabase migrations run as the service's **pre-deploy step** (`deploy.preDeployCommand`), which is
+  ADR-0018 §5's "explicit deploy step before the new container goes live, never at container boot"
+  implemented natively (ADR-0022 §3). This supersedes M1's manual form of the same step.
+- Adoption of `.railway/railway.ts` IaC (ADR-0022 §2), gated on a spike confirming that one authoring
+  file can express a per-environment `source.branch` — with the fallback ADR-0022 §2.3 prepares for the
+  case where it cannot. `railway.json`/`railway.toml` are never created: the format stops being read on
+  2026-12-01.
+- A `railway config plan --detailed-exit-code` drift check, so configuration in source and
+  configuration on the platform cannot diverge silently.
 - A written rollback runbook, exercised at least once.
 
 **Exit criterion.** A merge to `main` produces a production deploy through the pipeline with no manual
-shell work, including the migration step; a deliberately broken migration is rolled back using the
-runbook.
+shell work, including the migration step; `railway config plan` reports no drift; a deliberately broken
+migration is rolled back using the runbook.
 
 ## M5 — v1.1: plotting power and polish
 
@@ -250,14 +263,18 @@ surface, table or endpoint is added for it. `R5` is where it could later become 
 
 An ephemeral deploy per pull request needs a per-PR database and environment. That cost is not
 justified at this scale, so M4 ships two long-lived environments (staging and production) and nothing
-else.
+else. `docs/adr/0022-railway-platform-utilization.md`'s non-goals record the other platform features
+refused for this project and why — CDN caching (actively unsafe here, because one origin serves the SPA
+and `/api/*`), buckets, volumes, WAF Under Attack Mode, static outbound IP and shared variables.
 
 ### The CI gap — "reliable CI" is only partly satisfied
 
 M4 does **not** close the server testing gap. `apps/server`'s integration suite keeps its status as a
 local pre-merge obligation, and CI continues to run format, lint, typecheck, the admin suite and build
 only — so a server-side regression can merge green. The local obligation in `AGENTS.md` is what stands
-in its place.
+in its place. M4 does enable the platform's "wait for CI" setting (ADR-0022 §5.4), so a commit with a
+red pipeline cannot deploy — but that refuses a failing pipeline rather than running the suite, so the
+gap is unchanged.
 
 Risk: this is the one place where the milestone name overpromises. Closing it means booting the local
 Supabase stack in the job (Docker on the runner, several minutes slower); it was considered and
