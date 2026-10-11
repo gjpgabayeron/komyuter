@@ -2,9 +2,10 @@
 
 This is the **manual** form of the deploy: milestone **M1** in `docs/ROADMAP.md`. M4 turns the same
 steps into a pipeline (merge to `dev` → staging, merge to `main` → production, migration gate, rollback
-runbook). The topology and its rationale are decided in `docs/adr/0018-deployment-topology.md`, and the
+runbook). The topology and its rationale are decided in `docs/adr/0018-deployment-topology.md`, the
 branch, environment and Supabase-project mapping in
-`docs/adr/0021-branching-and-environments.md`; this file is the procedure.
+`docs/adr/0021-branching-and-environments.md`, and which platform primitives implement it in
+`docs/adr/0022-railway-platform-utilization.md`; this file is the procedure.
 
 The shape of the deployment is **one service on one origin**: a single image runs the Fastify API,
 which also serves the built admin SPA from the same origin via `@fastify/static`. Nothing about the
@@ -32,9 +33,15 @@ Two long-lived environments, and promotion runs one way. The mapping and its rea
 
 ## Status
 
-The application side is in place and verified locally (see [Local rehearsal](#local-rehearsal)). What
-remains is provisioning: a Supabase Cloud project, a Railway service, and the first Account. M1's exit
-criterion is only met once a **second person** opens the deployed URL and plots a route end to end.
+The application side is in place and verified locally (see [Local rehearsal](#local-rehearsal)). The
+Railway project `komyuter` exists with both environments — `staging` and `production` — and **nothing in
+either one yet**: no service, volume, bucket, shared variable or staged change. What remains is
+provisioning: a Supabase Cloud project, a Railway service, and the first Account.
+
+The service can now boot without the owner's credentials (§3.3, ADR-0022 §9). Two items in §3 are still
+**not implemented yet** and are marked as such there: the pre-deploy migration step (§3.4) and the
+boot-time provenance line (§3.6). M1 owns both. M1's exit criterion is only met once a **second person**
+opens the deployed URL and plots a route end to end.
 
 ## What the image contains
 
@@ -48,6 +55,10 @@ The bundle exists for two reasons, both of which make the API unrunnable as emit
 `moduleResolution: Bundler` emits extensionless relative specifiers that Node's ESM resolver rejects,
 and `@komyuter/shared`'s entry is raw TypeScript, which Node cannot load. Bundling resolves both —
 which is what lets ADR-0018 §3's "`pnpm build`, then run `node`" hold.
+
+Once §3.4 lands, the runtime image also carries the Supabase CLI and the migrations directory, neither of
+which the serving process uses. That is a recorded cost (ADR-0022 §3.2), not an oversight — and it is the
+second exception to this project's "add no runtime dependencies" line, after `@fastify/static`.
 
 ## Local rehearsal
 
@@ -90,6 +101,19 @@ Then check, in order:
 8. With `ALLOW_DEV_CREDENTIAL=false`, `POST /api/auth/login` using the documented dev credential is
    refused with 401.
 
+Once §3.4 lands, rehearse **it** here too — run the migration command the platform will run, inside the
+image, against the local stack:
+
+```bash
+docker run --rm --add-host host.docker.internal:host-gateway \
+  --entrypoint supabase komyuter:local \
+  db push --db-url "postgresql://postgres:postgres@host.docker.internal:54322/postgres"
+```
+
+This is what keeps a broken migration out of a pre-deploy step, where its only possible outcome is a
+failed deploy. Whether `supabase db push` also wants `supabase/config.toml` beside the migrations
+directory is the question this rehearsal answers (ADR-0022, verification gap 3).
+
 ## 1. Supabase Cloud project (staging)
 
 **This first project is the staging data plane** (`docs/adr/0021-branching-and-environments.md`);
@@ -110,7 +134,8 @@ identity.
 
 3. Migrations are an **explicit step, applied before the new container goes live** — never at container
    boot, so a rolling deploy cannot race a schema change (ADR-0018 §5). M4 encodes this as a pipeline
-   gate; manually, it means "push migrations, then deploy".
+   gate; manually, it means "push migrations, then deploy". In §3.4 it becomes the platform's
+   pre-deploy step.
 
 ## 2. Bootstrap the owner Account
 
@@ -140,37 +165,143 @@ should not be baked into the image either.
 
 ## 3. Railway service
 
-- **Build from the `Dockerfile`.** This is a pnpm + turbo workspace, the case framework-detecting
-  builders get wrong; ADR-0018 §3 records the choice so it is not left to the platform.
-- **Variables:**
+The service is the container this repository builds. Which platform primitive implements each setting,
+and why, is `docs/adr/0022-railway-platform-utilization.md`; this is the checklist. Apply it **per
+environment** — `staging` and `production` each hold their own service instance, their own variables and
+their own branch.
 
-  | Variable                         | Value                                                                          |
-  | -------------------------------- | ------------------------------------------------------------------------------ |
-  | `DATABASE_URL`                   | Supabase Cloud connection string (Postgres/PostGIS).                           |
-  | `SUPABASE_URL`                   | The project URL.                                                               |
-  | `SUPABASE_SERVICE_ROLE_KEY`      | Service-role key (backend-proxied auth, ADR-0006).                             |
-  | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | The owner Account from step 2.                                                 |
-  | `ADMIN_ORIGINS`                  | The service's **own** origin — defence in depth, not a cross-origin necessity. |
-  | `ALLOW_DEV_CREDENTIAL`           | `false`. The documented dev credential must be refused.                        |
-  | `MAPBOX_SECRET_TOKEN`            | Server-side snapping/geocoding token (ADR-0016).                               |
+### 3.1 Source and build
 
-  `PORT` and `ADMIN_DIST_DIR` are set by the image; `ADMIN_DIST_DIR` in particular has no useful
-  fallback in a runtime image, because the walk-up that finds `apps/admin/dist` in a checkout finds no
-  workspace there. Unset, the server still starts and still answers `/api/*` — every page just 404s.
+| Setting         | Value                                 | Notes                                                             |
+| --------------- | ------------------------------------- | ----------------------------------------------------------------- |
+| Builder         | `Dockerfile` (`build.builder`)        | Never auto-detection (ADR-0018 §3).                               |
+| Dockerfile path | `Dockerfile` (`build.dockerfilePath`) | Repository root.                                                  |
+| Branch          | `dev` (staging), `main` (production)  | Per environment, not per service (ADR-0021 §2-3).                 |
+| Watch patterns  | see below                             | Without them, every push rebuilds the API.                        |
+| Wait for CI     | on (`source.checkSuites`)             | Refuses a **red** pipeline. It does **not** run the server suite. |
 
-- Point the health check at `GET /api/status`.
+`build.watchPatterns` must cover everything the image is built from: `Dockerfile`, `.dockerignore`, the
+root manifests (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc`, `turbo.json`),
+**all five** workspace manifests — `apps/mobile/package.json` included, because the Dockerfile's
+dependency layer COPYs it — `apps/server/**`, `apps/admin/**`, `packages/shared/**` and
+`packages/ui/**`, plus the migrations directory once §3.4 lands. `apps/mobile` source beyond its
+manifest, `navbench`, `docs`, `openwiki` and `.impeccable` stay out: `.dockerignore` keeps them out of
+the build context anyway.
+
+### 3.2 Deploy settings
+
+| Setting                     | Value                                | Notes                                                                    |
+| --------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
+| Health check                | `/api/status`                        | Exists, needs no auth, and proves the container reaches **Postgres**.    |
+| Restart policy              | `ON_FAILURE`, bounded retries        | A crash loop should be reported, not restarted forever.                  |
+| Replicas                    | 1                                    | The service is stateless, so this is a config change and not a code one. |
+| Region                      | `asia-southeast1-eqsg3a` (Singapore) | Nearest to Iloilo City; the same region in both environments.            |
+| App Sleeping (staging only) | on, where the plan offers it         | **Never in production**: M1's exit criterion is someone using the URL.   |
+| Approval (production only)  | required per deployment              | ADR-0021 §3, natively. Merging to `main` builds, then waits.             |
+
+### 3.3 Variables
+
+| Variable                    | Value                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------ |
+| `DATABASE_URL`              | Supabase Cloud connection string (Postgres/PostGIS).                           |
+| `SUPABASE_URL`              | The project URL.                                                               |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service-role key (backend-proxied auth, ADR-0006).                             |
+| `ADMIN_ORIGINS`             | The service's **own** origin — defence in depth, not a cross-origin necessity. |
+| `ALLOW_DEV_CREDENTIAL`      | `false`. The documented dev credential must be refused.                        |
+| `MAPBOX_SECRET_TOKEN`       | Server-side snapping/geocoding token (ADR-0016).                               |
+
+`PORT` and `ADMIN_DIST_DIR` are set by the image; `ADMIN_DIST_DIR` in particular has no useful fallback
+in a runtime image, because the walk-up that finds `apps/admin/dist` in a checkout finds no workspace
+there. Unset, the server still starts and still answers `/api/*` — every page just 404s.
+
+**`ADMIN_EMAIL` and `ADMIN_PASSWORD` are deliberately absent** (ADR-0022 §9, implemented). Nothing in the
+running server reads them: login refuses a hardcoded dev credential, and the script in §2 reads the
+owner's through `loadAdminCredentials()`, which requires them of _its_ caller. Setting them on the
+service would put the owner's real password into the serving container for no runtime reason, so they
+stay in the operator's shell at the moment §2 runs. The pair remains in `apps/server/.env.example` as the
+documented local mirror of `supabase/seed.sql`.
+
+### 3.4 Migrations before the live container
+
+ADR-0018 §5 wants migrations applied as an explicit step **before** the new container goes live and never
+at container boot. Railway's `deploy.preDeployCommand` is that step: it runs in a distinct lifecycle
+phase, it is not boot, and a failure fails the deployment instead of shipping a new container against an
+old schema (ADR-0022 §3).
+
+**Not implemented yet.** It needs the runtime image to carry the Supabase CLI and the migrations
+directory (ADR-0022 §3.2), which M1 owns. Until then, and for every deploy until then, push migrations by
+hand **before** triggering the deploy:
+
+```bash
+supabase db push --db-url "<this environment's DATABASE_URL>"
+```
+
+Rehearse the eventual in-image invocation first — see [Local rehearsal](#local-rehearsal). Discovering
+what `supabase db push` needs from a failed pre-deploy step is the expensive way to find out.
+
+### 3.5 Cost and notification
+
+- Set a workspace **soft** limit (email alert) and **hard** limit (spend cap) before the first deploy.
+  Two environments and two Supabase Cloud projects is the intended cost shape, and it should not be
+  discovered on an invoice (ADR-0022 §8.1).
+- Add a **project webhook** on deployment failure. Webhooks are project-scoped, so one covers both
+  environments; test the endpoint before creating it, because repeated failures pause a webhook for 24
+  hours (ADR-0022 §7.2).
+
+### 3.6 Provenance
+
+The container already receives `RAILWAY_GIT_COMMIT_SHA`, `RAILWAY_GIT_BRANCH`,
+`RAILWAY_ENVIRONMENT_NAME` and `RAILWAY_DEPLOYMENT_ID` at runtime. Log them **once at boot** (ADR-0022
+§7.3) so "which commit is on staging?" is answerable from `railway logs`. **Not implemented yet** — M1
+owns it.
+
+Do not expose the same values through `GET /api/status`: it is unauthenticated, and publishing the
+deployed revision to anonymous callers buys convenience the logs already provide.
+
+### 3.7 The same settings from the CLI
+
+Nothing is provisioned yet, so this is the shape rather than a transcript — resolve the real service ID
+per environment first (`railway service list --json`), then apply with explicit IDs rather than relying
+on a linked directory.
+
+```bash
+railway link --project komyuter
+
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  build.builder DOCKERFILE
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  source.branch dev
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  build.watchPatterns '["apps/server/**","apps/admin/**","packages/**","package.json","pnpm-lock.yaml","turbo.json","Dockerfile",".dockerignore"]'
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  deploy.healthcheckPath /api/status
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  deploy.multiRegionConfig '{"asia-southeast1-eqsg3a":{"numReplicas":1}}'
+```
+
+Repeat with `--environment production` and `source.branch main`, plus the approval requirement and the
+`deploy.preDeployCommand` from §3.4 once it exists. Railway's daemon scripts are ordinary
+`pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI later.
 
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
-A second person opens the deployed URL, signs in as the owner Account, and plots a route end to end;
-the shipped CSP contains no API origin; a foreign `Origin` is refused; and the documented dev
-credential is refused.
+A second person opens the deployed URL, signs in as the owner Account, and plots a route end to end; the
+shipped CSP contains no API origin; a foreign `Origin` is refused; and the documented dev credential is
+refused.
 
 ## Deliberately not here
 
-- **Rollback** and the **migration gate** are M4's, along with merge→staging and tag→production.
+- **Rollback** and **IaC adoption** are M4's, along with the pipeline form of merge→staging.
+  `docs/adr/0022-railway-platform-utilization.md` §2 decides _when_ configuration moves into source, and
+  refuses `railway.json`/`railway.toml` outright — the format cannot be adopted by a new service and
+  stops being read on 2026-12-01.
+- **CDN caching.** One origin serves the SPA and `/api/*`, so edge caching would cache API responses.
+  This is the one platform feature that is actively unsafe in this topology (ADR-0022, non-goals).
+- **Buckets, volumes, WAF Under Attack Mode, static outbound IP and shared variables** are each refused,
+  with reasons, in ADR-0022's non-goals.
 - **PR preview environments** are out of scope: an ephemeral environment per pull request needs a
   per-PR database, which is not justified at this scale.
 - **Server tests in CI.** CI runs format, lint, typecheck, the admin suite and build — the server's
   integration suite stays a local pre-merge obligation, so a server-side regression can still merge
-  green. `docs/ROADMAP.md` records this as a known risk rather than a covered one.
+  green. `docs/ROADMAP.md` records this as a known risk rather than a covered one. The platform's "wait
+  for CI" setting (§3.1) refuses a red pipeline but does not change this.
