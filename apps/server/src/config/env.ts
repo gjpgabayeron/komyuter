@@ -14,6 +14,13 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3000),
   /** Optional: enables real road-network snapping via the Mapbox Directions proxy. Absent → straight-line fallback. */
   MAPBOX_SECRET_TOKEN: z.string().optional(),
+  /**
+   * Optional: the built admin SPA that this API serves (ADR-0018 §1). The
+   * production image ships build artifacts only, so it sets this explicitly;
+   * unset, the workspace's `apps/admin/dist` is discovered by walking up from
+   * the server module. Absent entirely → the API runs without SPA hosting.
+   */
+  ADMIN_DIST_DIR: z.string().optional(),
   /** Development credential gate: when false (default), the documented dev credential is refused at login. */
   ALLOW_DEV_CREDENTIAL: z
     .enum(["true", "false"])

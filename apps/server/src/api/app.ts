@@ -17,6 +17,7 @@ import type { Env } from "../config/env";
 import { ApiError } from "./errors";
 import { registerAdminRoutes } from "./index";
 import { createOriginGuard } from "./origin-guard";
+import { registerSpa, resolveAdminDistDir } from "./spa";
 
 export interface AppDeps {
   db: Db;
@@ -86,6 +87,11 @@ export function buildApp(deps: AppDeps): AppInstance {
   });
 
   app.register(registerAdminRoutes, deps);
+
+  // ADR-0018 §1: this API also serves the built admin SPA, so production needs
+  // one origin and the shipped bundle carries no API hostname. Registered last
+  // because its history fallback owns the app-wide 404.
+  registerSpa(app, resolveAdminDistDir(deps.env.ADMIN_DIST_DIR));
 
   return app;
 }
