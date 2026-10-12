@@ -87,7 +87,13 @@ export function registerSpa(app: AppInstance, distDir: string | null): void {
       return reply.sendFile("index.html");
     }
 
+    // A static message, never the URL (L1). The body is client-visible, so echoing
+    // request data into it is the reflected-input pattern even though the content
+    // type (application/json) keeps it non-executable. Nothing is lost by dropping
+    // it: `buildApp`'s onResponse hook already logs method/url/statusCode for every
+    // request, which is where an unmatched path is genuinely useful.
+    //
     // No envelope is built here — the central error handler owns that shape.
-    throw notFound(`Route ${request.method}:${path} not found`);
+    throw notFound();
   });
 }

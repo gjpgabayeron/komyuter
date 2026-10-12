@@ -73,11 +73,10 @@ describe("SPA hosting and the /api-excluding history fallback (M1)", () => {
     expect(response.body).not.toContain(INDEX_MARKER);
     expect(response.json()).toEqual({
       success: false,
-      error: {
-        code: "NOT_FOUND",
-        message: "Route GET:/api/definitely-not-a-route not found",
-      },
+      error: { code: "NOT_FOUND", message: "Not found" },
     });
+    // L1: the unmatched path is logged, never echoed into a client-visible body.
+    expect(response.body).not.toContain("definitely-not-a-route");
   });
 
   it("does not rewrite non-navigation methods", async () => {
