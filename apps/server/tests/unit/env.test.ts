@@ -104,12 +104,22 @@ describe("loadAdminCredentials", () => {
     ).toThrow(/ADMIN_PASSWORD/);
   });
 
-  it("keeps the minimum length the schema had before it was relaxed", () => {
+  // 12, not the local stack's 6 (docs/DEPLOY.md §1): this pair protects the single
+  // highest-privilege Account, and the floor has to live here because a Cloud
+  // project's own minimum is a dashboard setting no code can read.
+  it("enforces a 12-character minimum for the owner password", () => {
     expect(() =>
       loadAdminCredentials({
         ADMIN_EMAIL: BASE_ENV.ADMIN_EMAIL,
-        ADMIN_PASSWORD: "short",
+        ADMIN_PASSWORD: "elevenchars",
       }),
     ).toThrow(/ADMIN_PASSWORD/);
+
+    expect(() =>
+      loadAdminCredentials({
+        ADMIN_EMAIL: BASE_ENV.ADMIN_EMAIL,
+        ADMIN_PASSWORD: "twelve-chars",
+      }),
+    ).not.toThrow();
   });
 });

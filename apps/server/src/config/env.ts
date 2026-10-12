@@ -18,7 +18,14 @@ if (!process.env.DATABASE_URL && existsSync(".env")) {
  * `supabase/seed.sql` seeds. They require it through `loadAdminCredentials`.
  */
 const adminEmail = z.string().min(1);
-const adminPassword = z.string().min(6);
+/**
+ * 12, not the 6 `supabase/config.toml` sets for the local stack: this pair protects
+ * the single highest-privilege Account, and the floor has to be enforced here because
+ * a Cloud project's own minimum is a dashboard setting no code can read (the M1
+ * operator checklist in `docs/DEPLOY.md` §1 raises it to match). The documented local
+ * seed credential is 17 characters, so development is unaffected.
+ */
+const adminPassword = z.string().min(12);
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
