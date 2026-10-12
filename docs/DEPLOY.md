@@ -137,6 +137,17 @@ identity.
    gate; manually, it means "push migrations, then deploy". In §3.4 it becomes the platform's
    pre-deploy step.
 
+4. **Set the project's auth policy in the dashboard — `supabase/config.toml` cannot do it.** That file
+   configures the _local_ stack only; none of it reaches a Cloud project, so every one of these is a
+   manual step that no test will catch:
+
+   | Setting                    | Value | Why                                                                                                                   |
+   | -------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
+   | Minimum password length    | 12    | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 6 is a convenience. |
+   | Confirm email              | on    | `signInWithPassword` refuses an unconfirmed identity, so an unconfirmed owner cannot sign in at all.                  |
+   | Allow new users to sign up | off   | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
+   | Leaked-password protection | on    | Cheap, and this project has exactly one credential that matters.                                                      |
+
 ## 2. Bootstrap the owner Account
 
 No dashboard surface can create the first Account: every admin route is behind the auth guard, which
@@ -282,6 +293,31 @@ railway environment edit --project <project-id> --environment staging --service-
 Repeat with `--environment production` and `source.branch main`, plus the approval requirement and the
 `deploy.preDeployCommand` from §3.4 once it exists. Railway's daemon scripts are ordinary
 `pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI later.
+
+### 3.8 Confirm the login throttle sees real clients
+
+The login throttle keys on `request.ip` (`apps/server/src/api/throttle.ts`), and that value is only the
+real client because the app is built with `trustProxy: 1` (`apps/server/src/api/app.ts`) — which assumes
+exactly **one** proxy hop in front of the container. Confirm it once per environment. It is silent when
+wrong, and the symptom is worse than the bug: a shared source key means five failed sign-ins from anyone
+lock out sign-in for everyone for the full 15-minute block.
+
+From one network, burn the per-source limit with a nonexistent account:
+
+```bash
+for i in 1 2 3 4 5; do
+  curl -s -o /dev/null -w '%{http_code}\n' -X POST "https://<origin>/api/auth/login" \
+    -H 'Content-Type: application/json' -H "Origin: https://<origin>" \
+    -d '{"email":"nobody@example.com","password":"wrong"}'
+done
+```
+
+Then, from a **different** network, sign in with the real owner credentials. It must return `200`. A
+`401` means both clients shared one source key — the throttle is still keyed on the proxy — so fix the
+hop count before the URL is handed to anyone.
+
+Status codes cannot distinguish the two denial reasons by design (every denial is the same 401 body), so
+this check deliberately uses a **successful** sign-in as its signal rather than the shape of a failure.
 
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
