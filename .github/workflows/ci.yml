@@ -20,6 +20,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Dependency audit against the committed lockfile (the hardening rule is to run
+      # the native audit before every release). Gated at `high` so a known
+      # critical/high in a reachable path fails the pipeline instead of being noticed
+      # after a deploy; low/moderate stay advisory, because forcing them can cross
+      # declared dependency ranges, which is worse than tracking them deliberately.
+      #
+      # Observability caveat, recorded rather than assumed: nobody has yet seen this
+      # step fail. Confirm it does by pointing it at a revision with a known advisory
+      # before treating it as a gate — a threshold nobody has watched trigger is not
+      # evidence that it triggers.
+      - name: Audit dependencies (high and critical)
+        run: pnpm audit --audit-level high
+
       - name: Format check
         run: pnpm format:check
 
