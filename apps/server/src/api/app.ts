@@ -16,6 +16,7 @@ import type { Db } from "../config/db";
 import type { Env } from "../config/env";
 import { ApiError } from "./errors";
 import { registerAdminRoutes } from "./index";
+import { createOriginGuard, parseOrigins } from "./origin-guard";
 import { securityHeaders } from "./security-headers";
 import { registerSpa, resolveAdminDistDir } from "./spa";
 
@@ -50,11 +51,19 @@ export function buildApp(deps: AppDeps): AppInstance {
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
-  app.register(cors, { origin: true });
+  // One parse drives both mechanisms: CORS decides which origins are offered
+  // headers at all, and the guard below refuses a foreign `Origin` outright. They
+  // used to disagree — CORS reflected any origin while the guard refused it — which
+  // becomes a hole the moment someone adds a legitimate cross-origin consumer and
+  // reasons from the CORS config alone. CORS stays rather than being dropped,
+  // because local dev is genuinely cross-origin: Vite serves the SPA on :5173 and
+  // the API listens on :3000.
+  app.register(cors, { origin: parseOrigins(deps.env.ADMIN_ORIGINS) });
 
   // US4: origin allowlist, registered right after CORS so preflight is handled
   // first (T026).
   app.addHook("onRequest", createOriginGuard(deps.env.ADMIN_ORIGINS));
+
   // Security headers on every response — the SPA's HTML, the API's JSON and error
   // replies alike — because a `<meta>` CSP cannot express `frame-ancestors` and
   // nothing else sets these at all. Deliberately `onSend` rather than `onRequest`:
