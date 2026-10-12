@@ -30,13 +30,13 @@ The review that produced this branch's security changes. Each row was found by r
 becomes publicly reachable for the first time — not by re-reading the auth flows above, which are
 unchanged.
 
-| Finding                                                                                                                                                                                                         | Status   | Resolution                                                                                                                                                                                                                    |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Login throttle keyed on the proxy.** Behind the platform's edge proxy `request.ip` is one constant for every client, so five failed sign-ins from anyone lock out sign-in for everybody for the block window. | Resolved | `trustProxy: 1` in `buildApp` (`api/app.ts`); the source key extracted to `normalizeSource` (`api/throttle.ts`) so the dependency is visible; hermetic and integration tests; per-environment check in `docs/DEPLOY.md` §3.8. |
-| **Missing header-only security headers.** This branch _is_ the hosting layer for the built SPA, and no response carried `frame-ancestors`, `nosniff`, `Referrer-Policy` or HSTS.                                | Resolved | `api/security-headers.ts`, applied by an `onSend` hook in `app.ts` so error and 404 replies get them too; HSTS production-only. S1's deferral above is discharged.                                                            |
-| **CORS reflected any origin.** `origin: true` contradicted the origin guard, and a same-origin deploy removes any need for a permissive policy.                                                                 | Resolved | One `parseOrigins` (`api/origin-guard.ts`) drives both mechanisms; CORS is kept only because local dev is genuinely cross-origin (:5173 → :3000).                                                                             |
-| **Reflected request data.** The SPA fallback echoed `request.url` into a client-visible 404 body.                                                                                                               | Resolved | Static message in `api/spa.ts`; the path is already logged for every request by the `onResponse` hook.                                                                                                                        |
-| **Owner credential floor.** The single highest-privilege Account accepted a 6-character password.                                                                                                               | Resolved | `loadAdminCredentials` enforces 12; the Cloud project's own minimum is a dashboard step (`docs/DEPLOY.md` §1) because no code can read it.                                                                                    |
+| Finding                                                                                                                                                                                                         | Status   | Resolution                                                                                                                                                                                                                                                                                                                                                                                          |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Login throttle keyed on the proxy.** Behind the platform's edge proxy `request.ip` is one constant for every client, so five failed sign-ins from anyone lock out sign-in for everybody for the block window. | Resolved | A `trustProxy` function that trusts only the socket peer in `buildApp` (`api/app.ts`) — see §2.6, it is deliberately **not** the literal `trustProxy: 1`, because fastify 5.12 fails closed on a numeric hop count; the source key extracted to `normalizeSource` (`api/throttle.ts`) so the dependency is visible; hermetic and integration tests; per-environment check in `docs/DEPLOY.md` §3.8. |
+| **Missing header-only security headers.** This branch _is_ the hosting layer for the built SPA, and no response carried `frame-ancestors`, `nosniff`, `Referrer-Policy` or HSTS.                                | Resolved | `api/security-headers.ts`, applied by an `onSend` hook in `app.ts` so error and 404 replies get them too; HSTS production-only. S1's deferral above is discharged.                                                                                                                                                                                                                                  |
+| **CORS reflected any origin.** `origin: true` contradicted the origin guard, and a same-origin deploy removes any need for a permissive policy.                                                                 | Resolved | One `parseOrigins` (`api/origin-guard.ts`) drives both mechanisms; CORS is kept only because local dev is genuinely cross-origin (:5173 → :3000).                                                                                                                                                                                                                                                   |
+| **Reflected request data.** The SPA fallback echoed `request.url` into a client-visible 404 body.                                                                                                               | Resolved | Static message in `api/spa.ts`; the path is already logged for every request by the `onResponse` hook.                                                                                                                                                                                                                                                                                              |
+| **Owner credential floor.** The single highest-privilege Account accepted a 6-character password.                                                                                                               | Resolved | `loadAdminCredentials` enforces 12; the Cloud project's own minimum is a dashboard step (`docs/DEPLOY.md` §1) because no code can read it.                                                                                                                                                                                                                                                          |
 
 Dependency surface: see §2.6. Image and supply chain: see §2.5.
 
@@ -119,20 +119,50 @@ Severity: **High** = actively exploitable or breaks the session contract; **Medi
 
 **Result: the closure the deployed image actually ships has no known advisories.**
 
-| Scope                                                       | Packages | Distinct advisories matched |
-| ----------------------------------------------------------- | -------- | --------------------------- |
-| Full `pnpm-lock.yaml` (lockfile v6, pnpm 8.15.6)            | 1559     | 108                         |
-| Non-dev entries only (`dev: true` excluded)                 | 1098     | 85                          |
-| **`apps/server` production closure — what the image ships** | **84**   | **0**                       |
+> **Corrected — this section originally claimed "0" and that was wrong.** The closure held three
+> vulnerable packages, and the CI gate added in the same change is what disproved it. The mistake and its
+> cause are recorded below rather than quietly overwritten, because the measurement looked reproducible
+> while silently clearing the only packages the deploy actually ships.
+
+| Scope                                                       | Packages | Vulnerabilities                       |
+| ----------------------------------------------------------- | -------- | ------------------------------------- |
+| Full `pnpm-lock.yaml` (lockfile v9, pnpm 12.11.2)           | 1555     | 16 (4 critical / 3 high / 9 moderate) |
+| Production entries only (`pnpm audit --prod`)               | 927      | 7 (1 critical / 2 high / 4 moderate)  |
+| **`apps/server` production closure — what the image ships** | **122**  | **0**                                 |
 
 The first two rows are large because this is a monorepo whose lockfile also resolves the Expo/React
 Native app and the Vite/Babel build toolchain. **Neither reaches the runtime image**: the `Dockerfile`
-installs with `pnpm --filter server deploy --prod`, so the deployed dependency surface is that 84-package
-closure. The workspace-wide debt is real, but it is tooling rather than attack surface — and an advisory
-count is not a finding until it is placed against something reachable, which is why this table has three
-rows instead of one.
+installs with `pnpm --filter server deploy --prod`, so the deployed dependency surface is that 122-package
+closure (105 dependencies + 17 optional). The workspace-wide debt is real, but it is tooling rather than
+attack surface — and an advisory count is not a finding until it is placed against something reachable,
+which is why `.github/workflows/ci.yml` now gates on this closure rather than on the lockfile.
 
-Reproduce the one that matters — no `pnpm audit` required:
+**What the first measurement missed.** Three packages _inside the closure_ were vulnerable:
+
+| Package       | Was          | Advisories                                                                                      | Patched          |
+| ------------- | ------------ | ----------------------------------------------------------------------------------------------- | ---------------- |
+| `fastify`     | 5.11.0       | 4 high — authentication bypass, request- and header-validation bypass, request-body replacement | >=5.12.2         |
+| `fast-uri`    | 3.1.5, 4.1.2 | high — authority injection, host confusion ×2, SSRF                                             | >=3.1.6, >=4.1.3 |
+| `drizzle-orm` | 0.36.4       | high — SQL injection via improperly escaped identifiers                                         | >=0.45.2         |
+
+The `fastify` bump is the one with a sting: 5.12 narrows `trustProxy` to exclude `number` and **fails
+closed** on it (`getTrustProxyFn` returns a function that trusts nothing), so the `trustProxy: 1`
+recorded as this milestone's fix for the proxy-keyed throttle would have silently re-broken it — every
+client collapsing back onto one `request.ip`. It is now `(_address, hop) => hop === 0` in `api/app.ts`,
+the same one-hop rule in a form the version still supports.
+
+Reproduce the one that matters — this is the CI step:
+
+```bash
+pnpm --filter server audit --prod --audit-level high   # 0 findings
+pnpm --filter server audit --prod --json               # counts, plus the scope it actually read
+```
+
+`pnpm --filter server ls --prod --depth Infinity --parseable` lists the closure itself as
+`node_modules/.pnpm/<name>@<version>/…` paths, which is where `name@version` is recoverable from. To
+audit the whole lockfile instead: `pnpm audit` (all 1555 entries) or `pnpm audit --prod` (927).
+
+**Why the original command reported 0.** It was:
 
 ```bash
 pnpm --filter server ls --prod --depth Infinity --json \
@@ -140,23 +170,31 @@ pnpm --filter server ls --prod --depth Infinity --json \
   | sed 's/.*: *"//; s/"$//' | paste - - | sort -u
 ```
 
-POST those name/version pairs to `https://api.osv.dev/v1/querybatch` in chunks of 300 — a single request
-of all 1559 lockfile entries exceeds `ARG_MAX`. To audit the whole lockfile instead, read the
-`/name@version:` entries under `packages:` in `pnpm-lock.yaml` and drop those whose entry carries
-`dev: true`.
+Nested dependency entries in `pnpm ls --json` carry only `"version"` — never `"name"` — so the stream
+reads `"name": "server"`, `"version": "0.0.0"`, `"version": "4.4.3"`, `"version": "link:…"`, … and
+`paste - -` pairs **version with version**. The name/version pairs POSTed to `api.osv.dev/v1/querybatch`
+were strings like `0.2.0` / `2.5.0`, so OSV matched nothing because it was asked about nothing. Rows 1–2
+came from reading the lockfile's `packages:` entries instead — a method that works — which is why only
+the row that mattered was wrong.
 
-**Why the native audit is not the evidence here.** `pnpm audit` could not produce a result from the
-development machine: its endpoint returned nothing across two attempts, including a bounded 45-second
-run, while the registry itself is reachable (`npm ping` → PONG in 333 ms). The OSV query above uses the
-same GHSA advisory data over a different transport, so the triage stands; what is _not_ established is
-whether pnpm's own client would report additional findings. The CI step added in this change
-(`.github/workflows/ci.yml`, "Audit dependencies (high and critical)") is the durable resolution and the
-first place genuine `pnpm audit` output will be observed.
+**Why `pnpm audit` looked broken.** The earlier note blamed a dead audit endpoint. The reproducible cause
+is a package-manager mismatch: this repo was pinned to `pnpm@8.15.6` (lockfile v6) while the development
+machine ran pnpm 12, which refuses that lockfile (`ERR_PNPM_BROKEN_LOCKFILE`) and rewrites `packageManager`
+and the lockfile on any invocation. The repo is now pinned to `pnpm@12.11.2` with a v9 lockfile, and the
+audit runs from CI and the development machine alike. The gate also no longer carries the "nobody has seen
+this fail" caveat it shipped with: run `38199813491` on `feat/deploy` failed on it — before Format check,
+Lint, Typecheck, the admin suite or Build could run, which is the second half of why it is scoped now.
 
 **Review date: before the production deploy (M4).** The dev/build-toolchain advisories (rows 1–2) are
 deliberately not upgraded inside a deploy-milestone PR — a forced transitive bump across the Expo and
 Vite graphs is exactly the kind of change that breaks a build for no runtime benefit. They are tracked
 here rather than silently ignored.
+
+**Scope boundary, recorded so it is a decision rather than an oversight.** The gate covers the server's
+production closure. The admin SPA's own bundled dependencies — `maplibre-gl` and `axios`, both
+`dependencies` of `apps/admin` — are _not_ among those 122 packages, so a browser-reachable advisory in
+them would not fail the pipeline even though the same image serves that bundle. Widening the gate to the
+SPA's runtime dependencies is an open choice, not a covered one.
 
 ---
 

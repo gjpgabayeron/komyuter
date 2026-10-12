@@ -11,7 +11,7 @@
 - The design docs for the target thesis system (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **not** a current file map, and the code contradicts them in places. Four were **archived on 2026-10-08** into `docs/archive/` (`OVERVIEW.md`, `SUMMARY.md`, `SCHEMA.md`, `TECHSTACK.md`) with provenance headers. `docs/BACKEND.md` deliberately stays put: it is the conceptual reference for the routing/AR/trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line number. For the backend, trust the code and `specs/001-local-supabase-backend/`.
 - Historically the docs contradicted each other and the config; resolved now:
   - Backend framework: **Fastify v5** (ADR-0004). `docs/archive/SUMMARY.md`'s Express references are superseded.
-  - pnpm: docs claim 9+/10.12+; root `package.json` pins `"packageManager": "pnpm@8.15.6"`. Trust package.json.
+  - pnpm: **12.11.2**. Root `package.json` pins `"packageManager": "pnpm@12.11.2"` and `pnpm-lock.yaml` is lockfileVersion 9. `docs/archive/{SUMMARY,TECHSTACK}.md` still name 8.15.6 and are superseded. Run pnpm through `corepack` (`corepack pnpm …`) so the pin is honoured rather than whatever is on `PATH` — a pnpm 12 against the old v6 lockfile rewrote `packageManager` and the lockfile on any invocation.
   - `docs/archive/SUMMARY.md` claims Husky/commitlint/lint-staged, CI workflows, docker-compose — lint-staged/commitlint/Husky ARE configured and CI exists (`.github/workflows/ci.yml`); docker-compose is not.
   - Deployments: nothing is hosted yet and no deployment automation exists. `docs/ROADMAP.md` **M1** is the staging deploy and **M4** the CI/CD milestone; `docs/adr/0018-deployment-topology.md` is the agreed topology.
 

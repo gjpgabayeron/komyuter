@@ -297,10 +297,11 @@ Repeat with `--environment production` and `source.branch main`, plus the approv
 ### 3.8 Confirm the login throttle sees real clients
 
 The login throttle keys on `request.ip` (`apps/server/src/api/throttle.ts`), and that value is only the
-real client because the app is built with `trustProxy: 1` (`apps/server/src/api/app.ts`) — which assumes
-exactly **one** proxy hop in front of the container. Confirm it once per environment. It is silent when
-wrong, and the symptom is worse than the bug: a shared source key means five failed sign-ins from anyone
-lock out sign-in for everyone for the full 15-minute block.
+real client because the app is built with a `trustProxy` that trusts the socket peer — a function, not
+the hop count `1` (`apps/server/src/api/app.ts`), because fastify 5.12 fails closed on a numeric hop
+count — which assumes exactly **one** proxy hop in front of the container. Confirm it once per
+environment. It is silent when wrong, and the symptom is worse than the bug: a shared source key means
+five failed sign-ins from anyone lock out sign-in for everyone for the full 15-minute block.
 
 From one network, burn the per-source limit with a nonexistent account:
 
