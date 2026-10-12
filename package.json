@@ -31,6 +31,6 @@
     "turbo": "^2.10.7",
     "typescript-eslint": "^8.65.0"
   },
-  "packageManager": "pnpm@8.15.6",
+  "packageManager": "pnpm@12.11.2",
   "name": "with-vite-react"
 }
