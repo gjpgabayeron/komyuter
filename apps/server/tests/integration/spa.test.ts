@@ -89,4 +89,36 @@ describe("SPA hosting and the /api-excluding history fallback (M1)", () => {
     expect(response.body).not.toContain(INDEX_MARKER);
     expect(response.json().success).toBe(false);
   });
+
+  // M1: a `<meta>` CSP cannot express `frame-ancestors`, and this service is the
+  // first thing that serves the SPA over a network — so the header-only directives
+  // are set here. Asserted across response *shapes*, because the ones produced by
+  // the error handler and the not-found handler are the easy ones to miss.
+  it("sets the header-only security headers on every response shape", async () => {
+    const shapes = [
+      { method: "GET" as const, url: "/" },
+      { method: "GET" as const, url: "/routes/route-1/directions/direction-1" },
+      { method: "GET" as const, url: "/api/definitely-not-a-route" },
+      { method: "GET" as const, url: "/api/admin/routes" },
+    ];
+
+    for (const shape of shapes) {
+      const response = await app.inject(shape);
+      expect(response.headers["x-content-type-options"], shape.url).toBe(
+        "nosniff",
+      );
+      expect(response.headers["content-security-policy"], shape.url).toBe(
+        "frame-ancestors 'none'",
+      );
+      expect(response.headers["x-frame-options"], shape.url).toBe("DENY");
+      expect(response.headers["referrer-policy"], shape.url).toBe(
+        "no-referrer",
+      );
+    }
+  });
+
+  it("does not send HSTS outside production", async () => {
+    const response = await app.inject({ method: "GET", url: "/" });
+    expect(response.headers["strict-transport-security"]).toBeUndefined();
+  });
 });

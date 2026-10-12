@@ -16,7 +16,7 @@ import type { Db } from "../config/db";
 import type { Env } from "../config/env";
 import { ApiError } from "./errors";
 import { registerAdminRoutes } from "./index";
-import { createOriginGuard } from "./origin-guard";
+import { securityHeaders } from "./security-headers";
 import { registerSpa, resolveAdminDistDir } from "./spa";
 
 export interface AppDeps {
@@ -55,6 +55,23 @@ export function buildApp(deps: AppDeps): AppInstance {
   // US4: origin allowlist, registered right after CORS so preflight is handled
   // first (T026).
   app.addHook("onRequest", createOriginGuard(deps.env.ADMIN_ORIGINS));
+  // Security headers on every response — the SPA's HTML, the API's JSON and error
+  // replies alike — because a `<meta>` CSP cannot express `frame-ancestors` and
+  // nothing else sets these at all. Deliberately `onSend` rather than `onRequest`:
+  // headers set in a request hook are absent from the replies the error handler and
+  // the not-found handler generate, which are exactly the ones worth hardening.
+  //
+  // `NODE_ENV` is read here rather than through `loadEnv` because it is Node's own
+  // convention, not application configuration; the image sets it to `production`,
+  // and it gates HSTS only (see `security-headers.ts`).
+  const responseSecurityHeaders = securityHeaders(
+    process.env.NODE_ENV === "production",
+  );
+  app.addHook("onSend", async (_request, reply) => {
+    for (const [name, value] of Object.entries(responseSecurityHeaders)) {
+      reply.header(name, value);
+    }
+  });
 
   app.addHook("onResponse", async (request, reply) => {
     const adminId = request.adminUserId;
