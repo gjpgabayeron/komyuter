@@ -205,7 +205,10 @@ several people.
 
 **Deliverables.**
 
-- `R4` — Mapbox geocoding proxy replacing client-side Nominatim.
+- `R4` — Mapbox geocoding proxy replacing client-side Nominatim. **It also unblocks a shipped feature**:
+  the POI pill is live in the workspace (`PoiSearchBar`), but the production CSP's `connect-src` does not
+  allow `nominatim.openstreetmap.org`, so it is dead in any deployed build until this lands — and
+  widening `connect-src` instead is refused (`specs/009-auth-quick-wins/contracts/csp-policy.md`).
 - `R6` — overview / network page: a read-only map of all routes plus stats.
 - `R7` — export UI wired to `GET /api/admin/export/dataset`.
 - `FR-004` — fare type on route rows.

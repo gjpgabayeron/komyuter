@@ -53,27 +53,27 @@ komyuter/
 
 ## 3. Technology stack
 
-| Layer             | Choice                                                                     | Notes                                                                        |
-| ----------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Framework         | React 18 + Vite 5 + TypeScript (strict)                                    | `apps/admin`, turbo-pipelined at root                                        |
-| Router            | react-router v7 (declarative mode)                                         | `app/router.tsx`                                                             |
-| Server state      | @tanstack/react-query v5                                                   | `useRoutesQuery`, `useRouteQuery`, `useDirectionQuery`, fare/network queries |
-| UI primitives     | @base-ui/react                                                             | Menus, dialogs, dropdowns — headless, Route-Sign styled                      |
-| Styling           | Tailwind CSS + `class-variance-authority` + `clsx`/`tailwind-merge` (`cn`) | tokens in `index.css` (oklch, Appendix E)                                    |
-| Icons             | lucide-react                                                               |                                                                              |
-| Map               | **maplibre-gl + react-map-gl v8** (ADR-0013)                               | one instance; vector styles from **OpenFreeMap** (OSM data, keyless)         |
-| Tiles             | `lib/tiles.ts` — OpenFreeMap `bright` / `positron` / `liberty` styles      | no Mapbox token for tiles                                                    |
-| Road snapping     | Mapbox Directions **via server proxy**                                     | `GET /api/admin/mapbox/directions`; duration stripped                        |
-| POI search        | **client-side Nominatim** (`lib/poiSearch.ts`)                             | Mapbox Geocoding proxy is a planned swap (§6 R4)                             |
-| Forms             | controlled React state + local validation                                  | fare + route/stop editors; no form library                                   |
-| Reorder           | native HTML5 drag-and-drop                                                 | stop reorder in the edit column; no dnd-kit                                  |
-| Keyboard          | react-hotkeys-hook                                                         | `mod+z` / `mod+shift+z`, `Esc`, `mod+s`                                      |
-| Toasts            | sonner                                                                     |                                                                              |
-| Client store      | zustand                                                                    | `plottingStore`, `uiStore` (sidebar mode)                                    |
-| HTTP              | axios                                                                      | envelope unwrap, token header, session expiry, connection banner             |
-| State persistence | localStorage                                                               | admin session token + route **drafts** (24 h TTL)                            |
-| Tests             | Vitest (node env, no jsdom)                                                | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
-| Build             | `tsc && vite build`                                                        |                                                                              |
+| Layer             | Choice                                                                            | Notes                                                                        |
+| ----------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Framework         | React 18 + Vite 5 + TypeScript (strict)                                           | `apps/admin`, turbo-pipelined at root                                        |
+| Router            | react-router v7 (declarative mode)                                                | `app/router.tsx`                                                             |
+| Server state      | @tanstack/react-query v5                                                          | `useRoutesQuery`, `useRouteQuery`, `useDirectionQuery`, fare/network queries |
+| UI primitives     | @base-ui/react                                                                    | Menus, dialogs, dropdowns — headless, Route-Sign styled                      |
+| Styling           | Tailwind CSS + `class-variance-authority` + `clsx`/`tailwind-merge` (`cn`)        | tokens in `index.css` (oklch, Appendix E)                                    |
+| Icons             | lucide-react                                                                      |                                                                              |
+| Map               | **maplibre-gl + react-map-gl v8** (ADR-0013)                                      | one instance; vector styles from **OpenFreeMap** (OSM data, keyless)         |
+| Tiles             | `lib/tiles.ts` — OpenFreeMap `bright` / `positron` / `liberty` styles             | no Mapbox token for tiles                                                    |
+| Road snapping     | Mapbox Directions **via server proxy**                                            | `GET /api/admin/mapbox/directions`; duration stripped                        |
+| POI search        | **client-side Nominatim** (`lib/poiSearch.ts`) — **blocked in production builds** | Mapbox Geocoding proxy is a planned swap (§6 R4)                             |
+| Forms             | controlled React state + local validation                                         | fare + route/stop editors; no form library                                   |
+| Reorder           | native HTML5 drag-and-drop                                                        | stop reorder in the edit column; no dnd-kit                                  |
+| Keyboard          | react-hotkeys-hook                                                                | `mod+z` / `mod+shift+z`, `Esc`, `mod+s`                                      |
+| Toasts            | sonner                                                                            |                                                                              |
+| Client store      | zustand                                                                           | `plottingStore`, `uiStore` (sidebar mode)                                    |
+| HTTP              | axios                                                                             | envelope unwrap, token header, session expiry, connection banner             |
+| State persistence | localStorage                                                                      | admin session token + route **drafts** (24 h TTL)                            |
+| Tests             | Vitest (node env, no jsdom)                                                       | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
+| Build             | `tsc && vite build`                                                               |                                                                              |
 
 **Server surface (what the dashboard talks to):**
 
