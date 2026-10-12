@@ -23,8 +23,9 @@ export function normalizeAccount(email: string): string {
  * The throttle's key for "which client is this" (ADR-0005).
  *
  * Deliberately reads the address Fastify resolved and nothing else, because that
- * value is only the real client when the app is built with `trustProxy: 1`
- * (`api/app.ts`): the deployment sits behind the platform's edge proxy, so without
+ * value is only the real client when the app is built with a `trustProxy` that
+ * trusts the socket peer (`api/app.ts`): the deployment sits behind the platform's
+ * edge proxy, so without
  * that setting this key collapses to one shared value for every caller and the
  * per-source limit becomes a global lockout instead of a per-attacker one. Keeping
  * the derivation named and separate is what makes that dependency visible — and

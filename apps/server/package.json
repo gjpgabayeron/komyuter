@@ -17,8 +17,8 @@
     "@fastify/type-provider-zod": "^1.0.0",
     "@komyuter/shared": "workspace:*",
     "@supabase/supabase-js": "^2.111.0",
-    "drizzle-orm": "^0.36.4",
-    "fastify": "^5.11.0",
+    "drizzle-orm": "^0.45.2",
+    "fastify": "^5.12.2",
     "pg": "^8.22.0",
     "zod": "^4.2.0"
   },

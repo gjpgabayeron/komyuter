@@ -35,7 +35,7 @@ export type AppInstance = FastifyInstance<
 >;
 
 export function buildApp(deps: AppDeps): AppInstance {
-  // `trustProxy: 1` — the deployment puts this process behind the platform's edge
+  // `trustProxy` — the deployment puts this process behind the platform's edge
   // proxy, which terminates TLS and forwards to the container, so the socket peer
   // is always the proxy. Without this, `request.ip` is one constant for every
   // client, and the login throttle keys on exactly that value
@@ -43,9 +43,17 @@ export function buildApp(deps: AppDeps): AppInstance {
   // sign-in for everyone for the full block window. Exactly one hop is trusted:
   // enough to accept the platform's `X-Forwarded-For`, not enough to trust a
   // chain a client could forge when the origin is reachable directly.
+  //
+  // Expressed as a function rather than the hop count `1` that said the same
+  // thing, because fastify 5.12 narrowed `trustProxy` to exclude `number` and
+  // now *fails closed* on it: `getTrustProxyFn` returns a function that trusts
+  // nothing, so the numeric form would both fail `tsc` and, were the type
+  // widened, silently restore the one-shared-`request.ip` bug above. `hop === 0`
+  // is the direct translation of "trust only the socket peer" — the old `1`
+  // compiled to `i < 1`.
   const app = Fastify({
     logger: true,
-    trustProxy: 1,
+    trustProxy: (_address, hop) => hop === 0,
   }).withTypeProvider<ZodTypeProvider>();
 
   app.setValidatorCompiler(validatorCompiler);
