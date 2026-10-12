@@ -26,3 +26,9 @@ navbench/*.log
 # OpenWiki transient run checkpoint. Left behind by an interrupted run; deleted
 # on successful finalization. The wiki itself is committed.
 openwiki/.run.json
+
+# Security-audit run artifacts (security-audit skill). Excluded in full: the
+# coverage ledger, findings records and reports are working documents, not source.
+# The whole directory must stay ignored — the skill permits an in-repo output root
+# only while version control ignores it entirely.
+.security-audit/
