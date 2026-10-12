@@ -34,7 +34,18 @@ export type AppInstance = FastifyInstance<
 >;
 
 export function buildApp(deps: AppDeps): AppInstance {
-  const app = Fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+  // `trustProxy: 1` — the deployment puts this process behind the platform's edge
+  // proxy, which terminates TLS and forwards to the container, so the socket peer
+  // is always the proxy. Without this, `request.ip` is one constant for every
+  // client, and the login throttle keys on exactly that value
+  // (`api/auth-login.ts`) — so five failed sign-ins from anyone would block
+  // sign-in for everyone for the full block window. Exactly one hop is trusted:
+  // enough to accept the platform's `X-Forwarded-For`, not enough to trust a
+  // chain a client could forge when the origin is reachable directly.
+  const app = Fastify({
+    logger: true,
+    trustProxy: 1,
+  }).withTypeProvider<ZodTypeProvider>();
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);

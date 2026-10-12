@@ -6,6 +6,7 @@ import {
   DENIAL_MIN_MS,
   createLoginThrottler,
   normalizeAccount,
+  normalizeSource,
 } from "./throttle";
 import { eventLog, type SecurityOutcome } from "./security-events";
 
@@ -47,7 +48,7 @@ export async function registerAuth(
     async (request) => {
       const { email, password } = request.body;
       const accountKey = normalizeAccount(email);
-      const sourceKey = request.ip;
+      const sourceKey = normalizeSource(request.ip);
 
       const deny = async (
         event: "security.sign_in_failure" | "security.sign_in_throttled",

@@ -19,6 +19,27 @@ export function normalizeAccount(email: string): string {
   return email.trim().toLowerCase();
 }
 
+/**
+ * The throttle's key for "which client is this" (ADR-0005).
+ *
+ * Deliberately reads the address Fastify resolved and nothing else, because that
+ * value is only the real client when the app is built with `trustProxy: 1`
+ * (`api/app.ts`): the deployment sits behind the platform's edge proxy, so without
+ * that setting this key collapses to one shared value for every caller and the
+ * per-source limit becomes a global lockout instead of a per-attacker one. Keeping
+ * the derivation named and separate is what makes that dependency visible — and
+ * testable without a socket.
+ *
+ * An absent or blank address maps to a single `"unknown"` bucket rather than being
+ * its own key, so "we could not identify the client" is an explicit shared state
+ * instead of an accidental one-key-per-request spray that would defeat the limit
+ * entirely.
+ */
+export function normalizeSource(ip: string | undefined): string {
+  const trimmed = (ip ?? "").trim().toLowerCase();
+  return trimmed === "" ? "unknown" : trimmed;
+}
+
 interface ThrottleEntry {
   failures: number[];
   blockedUntil: number;
