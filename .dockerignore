@@ -1,0 +1,32 @@
+# Keep the build context to source only: everything below is either recreated
+# inside the image or irrelevant to the two packages it builds.
+
+# Installed in the image from the lockfile.
+node_modules
+**/node_modules
+
+# Rebuilt by `turbo run build`; a stale one must never leak into the layer.
+**/dist
+.turbo
+**/.turbo
+
+# Version control and CI are not inputs to the build.
+.git
+.gitignore
+.github
+
+# Secrets and machine-local config. Note `.env` is matched by name, so
+# apps/admin/.env.production — which MUST reach the build, because it is what
+# pins VITE_API_URL empty — is deliberately not excluded.
+.env
+**/.env
+**/.env.local
+
+# Not built into this image, and large.
+navbench
+docs
+openwiki
+.impeccable
+
+*.log
+.DS_Store

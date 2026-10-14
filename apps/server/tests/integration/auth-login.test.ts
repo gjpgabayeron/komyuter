@@ -10,6 +10,7 @@ import {
   signInAdmin,
   testEnv,
 } from "./helpers";
+import { MAX_FAILURES } from "../../src/api/throttle";
 
 const UNIFIED_DENIAL = "Invalid email or password";
 const DEV_CREDENTIAL = {
@@ -77,6 +78,47 @@ describe("auth login + me (backend auth for the admin shell)", () => {
     });
 
     expectUnifiedDenial(response, startedAt);
+  });
+
+  // H1: behind the deployment's proxy the socket peer is the proxy, so an unset
+  // `trustProxy` collapses every caller onto one source key and five failures from
+  // anyone block sign-in for everyone. Asserted through the observable consequence
+  // — an innocent client can still sign in — rather than through `request.ip`,
+  // because every denial is deliberately the same 401 body. Its own app instance,
+  // because the throttler is per-app and this test needs a clean one.
+  it("does not let one client's failed attempts lock out a different client", async () => {
+    const isolated = buildTestApp();
+    await isolated.ready();
+    try {
+      for (let i = 0; i < MAX_FAILURES; i += 1) {
+        const burn = await isolated.inject({
+          method: "POST",
+          url: "/api/auth/login",
+          headers: { "x-forwarded-for": "203.0.113.7" },
+          payload: {
+            // A distinct account per attempt, so only the SOURCE key accrues
+            // failures and the account dimension cannot explain the result.
+            email: `attacker-${randomUUID()}@komyuter.test`,
+            password: "not-the-password",
+          },
+        });
+        expect(burn.statusCode).toBe(401);
+      }
+
+      const response = await isolated.inject({
+        method: "POST",
+        url: "/api/auth/login",
+        headers: { "x-forwarded-for": "198.51.100.9" },
+        payload: {
+          email: testEnv().ADMIN_EMAIL,
+          password: testEnv().ADMIN_PASSWORD,
+        },
+      });
+
+      expect(response.statusCode).toBe(200);
+    } finally {
+      await isolated.close();
+    }
   });
 
   it("rejects a signed-in but non-admin user identically to wrong credentials", async () => {

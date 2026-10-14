@@ -33,7 +33,18 @@ form-action 'self'
 
 ## Known limitations (recorded in `docs/SECURITY.md`)
 
-- `frame-ancestors` cannot be expressed in a `<meta>` CSP (header-only); deferred
-  to the future hosting layer that serves the built SPA — the repo has no
-  production server for it today (see research R6).
+- `frame-ancestors` cannot be expressed in a `<meta>` CSP (header-only). **Discharged
+  at M1**: the service that serves this build now sends it — plus
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and
+  `Referrer-Policy: no-referrer` — as real response headers
+  (`apps/server/src/api/security-headers.ts`). This file remains the authority for the
+  frontend-owned directives only; the header layer adds nothing else, so the browser
+  enforces the intersection of the two.
+- **`connect-src` is out of step with a shipped feature.** The POI search pill
+  (`apps/admin/src/features/routes/PoiSearchBar.tsx`) queries
+  `https://nominatim.openstreetmap.org` from the browser, which this policy does not
+  allow — so it is blocked in a production build. The fix is the planned Mapbox
+  geocoding proxy (roadmap `R4`, M5), **not** widening `connect-src`: that would ship
+  a third-party runtime dependency and send whatever the plotter types to a third
+  party with no agreement.
 - Dev mode is exempt; the policy is verified on `pnpm --filter admin build` output.

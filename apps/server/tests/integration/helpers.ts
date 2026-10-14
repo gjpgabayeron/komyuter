@@ -5,8 +5,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { Pool } from "pg";
 import { buildApp } from "../../src/api/app";
 import { createDb, type Db } from "../../src/config/db";
-import { loadEnv, type Env } from "../../src/config/env";
+import {
+  loadAdminCredentials,
+  loadEnv,
+  type AdminCredentials,
+  type Env,
+} from "../../src/config/env";
 import { createSupabaseAdmin } from "../../src/config/supabase";
+import { assertLocalDatabaseUrl } from "../helpers/local-db-guard";
 
 if (existsSync(".env")) {
   process.loadEnvFile(".env");
@@ -14,8 +20,17 @@ if (existsSync(".env")) {
 
 const env = loadEnv();
 
-export function testEnv(): Env {
-  return env;
+// The suite signs in as the admin `supabase/seed.sql` seeds and mirrors that
+// identity into the test database, so IT needs the credential pair even though the
+// server does not (ADR-0022 §9). Required once, here: the call sites that expect
+// `testEnv().ADMIN_EMAIL` to be a string keep their type, and a missing value fails
+// loudly instead of surfacing as an unexplained wrong-password denial.
+const adminCredentials = loadAdminCredentials();
+
+const testEnvValue: Env & AdminCredentials = { ...env, ...adminCredentials };
+
+export function testEnv(): Env & AdminCredentials {
+  return testEnvValue;
 }
 
 /**
@@ -25,6 +40,9 @@ export function testEnv(): Env {
  * suites never write to (or read from) the live dev database.
  */
 export function testDatabaseUrl(envValue: Env = env): string {
+  // Everything that drops, creates or migrates the test database derives its
+  // URL here, so the loopback guard belongs at this single point.
+  assertLocalDatabaseUrl(envValue.DATABASE_URL, "testDatabaseUrl");
   const url = new URL(envValue.DATABASE_URL);
   url.pathname = "/komyuter_test";
   return url.toString();
@@ -42,6 +60,9 @@ export function createTestPool(): Pool {
 /** The dev database's pool — only for entities the auth service owns (its
  *  users live in the MAIN database even though the CRUD data does not). */
 export function createDevPool(): Pool {
+  // sweepMainDatabaseStrays/restoreBaselineState DELETE rows (auth users) on
+  // this host, so it carries the same guard as the test database.
+  assertLocalDatabaseUrl(env.DATABASE_URL, "createDevPool");
   return new Pool({ connectionString: env.DATABASE_URL });
 }
 
@@ -101,8 +122,8 @@ export async function createTestAdmin(
 export async function signInAdmin(): Promise<string> {
   const supabase = createTestSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({
-    email: env.ADMIN_EMAIL,
-    password: env.ADMIN_PASSWORD,
+    email: testEnv().ADMIN_EMAIL,
+    password: testEnv().ADMIN_PASSWORD,
   });
   if (error) {
     throw error;

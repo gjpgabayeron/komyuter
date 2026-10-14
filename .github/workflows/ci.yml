@@ -20,6 +20,29 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Dependency audit scoped to the closure the image actually ships, not the
+      # workspace. The reasoning is docs/SECURITY.md §2.6: the lockfile also resolves
+      # the Expo app and the Vite/Babel build toolchain, and the `Dockerfile` installs
+      # with `pnpm --filter server deploy --prod`, so the reachable surface is the
+      # server's production dependencies alone. Gated at `high`; low/moderate stay
+      # advisory, because forcing them can cross declared dependency ranges, which is
+      # worse than tracking them deliberately.
+      #
+      # Scope, not threshold, was what this step had wrong. Unscoped, `pnpm audit
+      # --audit-level high` returned 139 advisories (7 critical / 70 high) and failed
+      # run 38199813491 on `feat/deploy` before Format check, Lint, Typecheck, the
+      # admin suite or Build could run — gating the deploy path on tooling the project
+      # had already triaged as out of scope, while the closure it does ship went
+      # unexamined. That run is also the evidence that disproved §2.6's "0 advisories"
+      # claim: the closure then held fastify 5.11.0, fast-uri 3.1.5/4.1.2 and
+      # drizzle-orm 0.36.4, all vulnerable. Post-fix it reports 0 over 122 packages.
+      #
+      # Confirmed not to pass vacuously — a threshold nobody has watched trigger is not
+      # evidence that it triggers: `pnpm --filter mobile audit --prod` against the same
+      # lockfile still fails, reporting 2 high / 2 moderate over 756 packages.
+      - name: Audit the shipped closure (high and critical)
+        run: pnpm --filter server audit --prod --audit-level high
+
       - name: Format check
         run: pnpm format:check
 
