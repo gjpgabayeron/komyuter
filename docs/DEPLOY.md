@@ -302,9 +302,18 @@ Note that a _local_ URL needs `?sslmode=disable` for either form; see
 ### 3.6 Provenance
 
 The container already receives `RAILWAY_GIT_COMMIT_SHA`, `RAILWAY_GIT_BRANCH`,
-`RAILWAY_ENVIRONMENT_NAME` and `RAILWAY_DEPLOYMENT_ID` at runtime. Log them **once at boot** (ADR-0022
-§7.3) so "which commit is on staging?" is answerable from `railway logs`. **Not implemented yet** — M1
-owns it.
+`RAILWAY_ENVIRONMENT_NAME` and `RAILWAY_DEPLOYMENT_ID` at runtime. **Implemented**: `deploymentProvenance`
+(`apps/server/src/config/provenance.ts`) reads them, and `src/index.ts` logs them **once at boot, before
+`listen`**, so "which commit is on staging?" is answerable from `railway logs`:
+
+```text
+{"level":30,"time":1791991087656,"pid":1,"hostname":"5e347303a065","commitSha":"7739640…","branch":"dev","environment":"staging","deploymentId":"…","msg":"deployment provenance"}
+```
+
+Before `listen` is the load-bearing part: the deploy whose revision matters most is the one that never
+becomes healthy, so the line has to precede the failure rather than follow it. Off the platform — local
+dev, tests, CI — none of the four variables is set and nothing is logged, so a local start does not carry
+an empty record.
 
 Do not expose the same values through `GET /api/status`: it is unauthenticated, and publishing the
 deployed revision to anonymous callers buys convenience the logs already provide.
