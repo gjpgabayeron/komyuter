@@ -112,6 +112,16 @@ Then check, in order:
 8. With `ALLOW_DEV_CREDENTIAL=false`, `POST /api/auth/login` using the documented dev credential is
    refused with 401.
 
+9. **Exercise the write path**, which checks 1–8 do not: they are all reads, and a service that can read
+   can still be unable to write. Sign in as the owner, then create a fare config, a route referencing it, a
+   direction carrying a `LineString` polyline, and two ordered stops with `Point` geometry; read them back to
+   confirm the geometry and the foreign keys survived the PostGIS round trip; delete them in reverse order;
+   and check `/api/status` returns to its previous counts. The payload shapes are the ones
+   `apps/server/tests/integration/crud.test.ts` already uses — and note that creating one direction also
+   creates its auto-derived return direction (ADR-0011), so the counts move by two, not one. Run this after
+   any migration that changes grants or RLS: it is the only check that proves `postgres` still reads _and
+   writes_ its own data under `0006`'s deny-all policies.
+
 Rehearse the migration step here too — run the command the platform will run, inside the image, against
 the local stack:
 
