@@ -38,27 +38,33 @@ Railway project `komyuter` exists with both environments — `staging` and `prod
 either one yet**: no service, volume, bucket, shared variable or staged change. What remains is
 provisioning: a Supabase Cloud project, a Railway service, and the first Account.
 
-The service can now boot without the owner's credentials (§3.3, ADR-0022 §9). Two items in §3 are still
-**not implemented yet** and are marked as such there: the pre-deploy migration step (§3.4) and the
-boot-time provenance line (§3.6). M1 owns both. M1's exit criterion is only met once a **second person**
-opens the deployed URL and plots a route end to end.
+The service can now boot without the owner's credentials (§3.3, ADR-0022 §9), and the two items §3 still
+owed are implemented in the image and rehearsed against it: the pre-deploy migration step (§3.4) and the
+boot-time provenance line (§3.6). Nothing is left on the application side — what remains is the
+provisioning in §1–§3, and M1's exit criterion is only met once a **second person** opens the deployed URL
+and plots a route end to end.
 
 ## What the image contains
 
-| Path                    | What it is                                                       |
-| ----------------------- | ---------------------------------------------------------------- |
-| `server/dist/server.js` | The API, bundled into one file so plain `node` can run it.       |
-| `apps/admin/dist`       | The SPA this same process serves; `ADMIN_DIST_DIR` points at it. |
-| `server/node_modules`   | The server's **production** dependencies only (~53 MB).          |
+| Path                    | What it is                                                               |
+| ----------------------- | ------------------------------------------------------------------------ |
+| `server/dist/server.js` | The API, bundled into one file so plain `node` can run it.               |
+| `apps/admin/dist`       | The SPA this same process serves; `ADMIN_DIST_DIR` points at it.         |
+| `server/node_modules`   | The server's **production** dependencies only (~53 MB).                  |
+| `supabase` (CLI)        | v2.111.0 on `PATH` — used only by the pre-deploy step, never by serving. |
+| `supabase/migrations`   | The chain that step applies; `seed.sql` is deliberately **absent**.      |
 
 The bundle exists for two reasons, both of which make the API unrunnable as emitted by `tsc`:
 `moduleResolution: Bundler` emits extensionless relative specifiers that Node's ESM resolver rejects,
 and `@komyuter/shared`'s entry is raw TypeScript, which Node cannot load. Bundling resolves both —
 which is what lets ADR-0018 §3's "`pnpm build`, then run `node`" hold.
 
-Once §3.4 lands, the runtime image also carries the Supabase CLI and the migrations directory, neither of
-which the serving process uses. That is a recorded cost (ADR-0022 §3.2), not an oversight — and it is the
-second exception to this project's "add no runtime dependencies" line, after `@fastify/static`.
+The CLI and the migrations directory are the only things in this image the serving process never touches.
+That is a recorded cost (ADR-0022 §3.2), not an oversight, and it is the second exception to this
+project's "add no runtime dependencies" line, after `@fastify/static`. It is not a small one: the CLI's
+installed tree is ~209 MB, and the image measures **697 MB** against **399 MB** without it — priced
+against a milestone whose whole purpose is proving a deploy works, and revisited only if image size
+becomes a real constraint (ADR-0022's alternatives record the migration that would follow).
 
 ## Local rehearsal
 
@@ -101,18 +107,28 @@ Then check, in order:
 8. With `ALLOW_DEV_CREDENTIAL=false`, `POST /api/auth/login` using the documented dev credential is
    refused with 401.
 
-Once §3.4 lands, rehearse **it** here too — run the migration command the platform will run, inside the
-image, against the local stack:
+Rehearse the migration step here too — run the command the platform will run, inside the image, against
+the local stack:
 
 ```bash
 docker run --rm --add-host host.docker.internal:host-gateway \
   --entrypoint supabase komyuter:local \
-  db push --db-url "postgresql://postgres:postgres@host.docker.internal:54322/postgres"
+  db push --dry-run \
+  --db-url "postgresql://postgres:postgres@host.docker.internal:54322/postgres?sslmode=disable"
 ```
 
 This is what keeps a broken migration out of a pre-deploy step, where its only possible outcome is a
-failed deploy. Whether `supabase db push` also wants `supabase/config.toml` beside the migrations
-directory is the question this rehearsal answers (ADR-0022, verification gap 3).
+failed deploy. `--dry-run` is deliberate here: it proves the invocation — the CLI is on `PATH`, it finds
+`/app/supabase/migrations` from the image's working directory, no `supabase/config.toml` is needed, and it
+can read the target's history — without writing to the stack you develop against. Expect
+`Remote database is up to date.` against a stack whose migrations are all applied;
+`supabase migration list --db-url "<url>"` shows why, listing local and remote side by side.
+
+**Do not drop `?sslmode=disable` for a local URL.** The CLI requires TLS by default and the local stack
+serves plaintext, so without it this fails as
+`tls error (The server does not support SSL connections)` — a rehearsal failure that looks like a broken
+image rather than a URL that needs one parameter. A Supabase Cloud URL has TLS and needs no such
+parameter.
 
 ## 1. Supabase Cloud project (staging)
 
@@ -194,10 +210,11 @@ their own branch.
 `build.watchPatterns` must cover everything the image is built from: `Dockerfile`, `.dockerignore`, the
 root manifests (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc`, `turbo.json`),
 **all five** workspace manifests — `apps/mobile/package.json` included, because the Dockerfile's
-dependency layer COPYs it — `apps/server/**`, `apps/admin/**`, `packages/shared/**` and
-`packages/ui/**`, plus the migrations directory once §3.4 lands. `apps/mobile` source beyond its
-manifest, `navbench`, `docs`, `openwiki` and `.impeccable` stay out: `.dockerignore` keeps them out of
-the build context anyway.
+dependency layer COPYs it — `apps/server/**`, `apps/admin/**`, `packages/shared/**`,
+`packages/ui/**`, and **`supabase/migrations/**`**, which §3.4 copies into the image and the pre-deploy
+step applies: a migration that lands without a rebuild would be applied by the previous image's copy of
+the chain. `apps/mobile` source beyond its manifest, `navbench`, `docs`, `openwiki` and `.impeccable` stay
+out: `.dockerignore` keeps them out of the build context anyway.
 
 ### 3.2 Deploy settings
 
@@ -239,16 +256,39 @@ at container boot. Railway's `deploy.preDeployCommand` is that step: it runs in 
 phase, it is not boot, and a failure fails the deployment instead of shipping a new container against an
 old schema (ADR-0022 §3).
 
-**Not implemented yet.** It needs the runtime image to carry the Supabase CLI and the migrations
-directory (ADR-0022 §3.2), which M1 owns. Until then, and for every deploy until then, push migrations by
-hand **before** triggering the deploy:
+**Implemented.** The runtime image carries the Supabase CLI (`supabase` on `PATH`, pinned by
+`ARG SUPABASE_CLI_VERSION` in the `Dockerfile`) and the chain at `/app/supabase/migrations`, which is
+where the CLI looks by default from the image's working directory — so the command needs no `--workdir`:
+
+| Setting                   | Value                                       |
+| ------------------------- | ------------------------------------------- |
+| `deploy.preDeployCommand` | `supabase db push --db-url "$DATABASE_URL"` |
+
+Three properties of that command, all rehearsed rather than assumed — see
+[Local rehearsal](#local-rehearsal):
+
+- **It needs no `supabase/config.toml`.** With only the migrations directory copied, `db push` finds the
+  chain and compares it against the target's history. That is the question ADR-0022 left open as
+  verification gap 3, and the answer is that a project file is not required for this path.
+- **`$DATABASE_URL` is a shell expansion this relies on**, resolved in the pre-deploy container from the
+  service's own variables — the same mechanism a start command uses for `$PORT`. The value stays in
+  Railway's variables and never enters a config value (ADR-0022 §2.4). If the platform does not expand it,
+  the step fails loudly with a literal `$DATABASE_URL` rather than migrating the wrong database.
+- **The connection should not be the transaction pooler.** This step holds an advisory lock and runs
+  multi-statement DDL, neither of which survives transaction-mode pooling, so `DATABASE_URL` should be the
+  direct or session-mode connection string. Untested here — it needs the Cloud project — and the failure
+  mode if it is wrong is a pre-deploy step that fails or half-applies, which is exactly what the rehearsal
+  above exists to keep out of the deploy path.
+
+For the first staging deploy, pushing by hand before triggering the deploy remains a valid fallback if the
+setting is easier to add once the service exists:
 
 ```bash
 supabase db push --db-url "<this environment's DATABASE_URL>"
 ```
 
-Rehearse the eventual in-image invocation first — see [Local rehearsal](#local-rehearsal). Discovering
-what `supabase db push` needs from a failed pre-deploy step is the expensive way to find out.
+Note that a _local_ URL needs `?sslmode=disable` for either form; see
+[Local rehearsal](#local-rehearsal).
 
 ### 3.5 Cost and notification
 
@@ -262,9 +302,18 @@ what `supabase db push` needs from a failed pre-deploy step is the expensive way
 ### 3.6 Provenance
 
 The container already receives `RAILWAY_GIT_COMMIT_SHA`, `RAILWAY_GIT_BRANCH`,
-`RAILWAY_ENVIRONMENT_NAME` and `RAILWAY_DEPLOYMENT_ID` at runtime. Log them **once at boot** (ADR-0022
-§7.3) so "which commit is on staging?" is answerable from `railway logs`. **Not implemented yet** — M1
-owns it.
+`RAILWAY_ENVIRONMENT_NAME` and `RAILWAY_DEPLOYMENT_ID` at runtime. **Implemented**: `deploymentProvenance`
+(`apps/server/src/config/provenance.ts`) reads them, and `src/index.ts` logs them **once at boot, before
+`listen`**, so "which commit is on staging?" is answerable from `railway logs`:
+
+```text
+{"level":30,"time":1791991087656,"pid":1,"hostname":"5e347303a065","commitSha":"7739640…","branch":"dev","environment":"staging","deploymentId":"…","msg":"deployment provenance"}
+```
+
+Before `listen` is the load-bearing part: the deploy whose revision matters most is the one that never
+becomes healthy, so the line has to precede the failure rather than follow it. Off the platform — local
+dev, tests, CI — none of the four variables is set and nothing is logged, so a local start does not carry
+an empty record.
 
 Do not expose the same values through `GET /api/status`: it is unauthenticated, and publishing the
 deployed revision to anonymous callers buys convenience the logs already provide.
@@ -283,16 +332,18 @@ railway environment edit --project <project-id> --environment staging --service-
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   source.branch dev
 railway environment edit --project <project-id> --environment staging --service-config <service> \
-  build.watchPatterns '["apps/server/**","apps/admin/**","packages/**","package.json","pnpm-lock.yaml","turbo.json","Dockerfile",".dockerignore"]'
+  build.watchPatterns '["apps/server/**","apps/admin/**","packages/**","package.json","pnpm-lock.yaml","turbo.json","Dockerfile",".dockerignore","supabase/migrations/**"]'
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   deploy.healthcheckPath /api/status
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  deploy.preDeployCommand 'supabase db push --db-url "$DATABASE_URL"'
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   deploy.multiRegionConfig '{"asia-southeast1-eqsg3a":{"numReplicas":1}}'
 ```
 
-Repeat with `--environment production` and `source.branch main`, plus the approval requirement and the
-`deploy.preDeployCommand` from §3.4 once it exists. Railway's daemon scripts are ordinary
-`pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI later.
+Repeat with `--environment production` and `source.branch main`, plus the approval requirement. Railway's
+daemon scripts are ordinary `pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI
+later.
 
 ### 3.8 Confirm the login throttle sees real clients
 
