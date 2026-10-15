@@ -21,10 +21,10 @@
 --   1. `postgres` has `rolbypassrls = true`. The running service therefore bypasses
 --      row level security outright, and 8 of the 9 public tables are owned by
 --      `postgres` as well, because this same role runs the DDL.
---   2. RLS is enabled WITHOUT `force`, which matters for a second reason: `force`
---      would apply it to the owner too. That failure would be quiet rather than
---      loud -- an empty dataset and a denied one are both "no rows" -- so it is
---      worth being explicit that the running service is meant to keep reading.
+--   2. RLS is enabled WITHOUT `force`. `force` would apply the policies to a table's
+--      owner, and that only matters for an owner lacking `bypassrls` -- which is not
+--      `postgres` here -- so this is noted for completeness rather than because the
+--      running service depends on it.
 --
 -- If the commuter app ever needs Data API access, that is a deliberate change: add
 -- the narrow GRANT and the RLS policies for it, rather than loosening this.
@@ -60,8 +60,10 @@ alter table "public"."fare_configs" enable row level security;
 -- exposed schema. It belongs to PostGIS and is owned by `supabase_admin`, so
 -- `postgres` cannot enable RLS on it -- measured, not assumed: SQLSTATE 42501,
 -- "must be owner of table spatial_ref_sys". It holds no project data (it is the
--- EPSG lookup), and the REVOKE above already removes the exposed roles' access to
--- it, so the Data API path is closed even though Supabase's advisor will keep
--- flagging its missing RLS. Moving the extension out of `public` would clear that
--- row at the cost of `search_path` consequences this schema has no reason to take.
+-- EPSG lookup), but PostGIS grants SELECT on it to PUBLIC, so it stays readable
+-- through the Data API by anyone holding the publishable key -- confirmed against
+-- staging, where GET /rest/v1/spatial_ref_sys returns 200 with real rows. The REVOKE
+-- above cannot change that: `postgres` is not its owner, and a schema-wide REVOKE
+-- skips objects it has no grant option on. That is the one row Supabase's advisor
+-- keeps flagging, and clearing it means moving the extension out of `public`.
 select 1;

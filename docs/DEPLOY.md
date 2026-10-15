@@ -38,16 +38,18 @@ staging data plane exists and is healthy: Supabase Cloud project `prmccdmsqtywpr
 **`ap-southeast-1` (Singapore)**, Postgres 17.11 — the region §3.2 pins Railway to, so the service and its
 database share one (ADR-0022 §6.1). An earlier project had been created in `ap-northeast-2` (Seoul) and was
 replaced before any migration was applied to it, so nothing was lost and the topology now matches the
-decision rather than contradicting it. The Railway project `komyuter` still holds both environments —
-`staging` and `production` — and **nothing in either one yet**: no service, volume, bucket, shared variable
-or staged change. What remains is provisioning: a Railway service, the four Cloud auth settings, and the
-first Account.
+decision rather than contradicting it. The staging **service** is live as well: the Railway project
+`komyuter` holds both environments, `staging` runs one service — the container built from this repository,
+with the domain, variables and health check §3.2–§3.3 describe — and `production` is still empty, because it
+belongs to M4. Migrations are applied through `0005` on staging; `0006` is written and locally verified but
+not yet pushed there. What remains for M1 is the Cloud auth settings (§1), pushing this branch, and the exit
+criterion.
 
-The service can now boot without the owner's credentials (§3.3, ADR-0022 §9), and the two items §3 still
-owed are implemented in the image and rehearsed against it: the pre-deploy migration step (§3.4) and the
-boot-time provenance line (§3.6). Nothing is left on the application side — what remains is the
-provisioning in §1–§3, and M1's exit criterion is only met once a **second person** opens the deployed URL
-and plots a route end to end.
+The service boots without the owner's credentials (§3.3, ADR-0022 §9), and the boot-time provenance line
+(§3.6) is implemented and live. The pre-deploy migration step is **not** in place on the platform: §3.4
+records that the command this project documented cannot run there, so it is deliberately left empty for M1
+and handed to M4. M1's exit criterion is only met once a **second person** opens the deployed URL and plots a
+route end to end.
 
 ## What the image contains
 
@@ -112,15 +114,18 @@ Then check, in order:
 8. With `ALLOW_DEV_CREDENTIAL=false`, `POST /api/auth/login` using the documented dev credential is
    refused with 401.
 
-9. **Exercise the write path**, which checks 1–8 do not: they are all reads, and a service that can read
-   can still be unable to write. Sign in as the owner, then create a fare config, a route referencing it, a
-   direction carrying a `LineString` polyline, and two ordered stops with `Point` geometry; read them back to
-   confirm the geometry and the foreign keys survived the PostGIS round trip; delete them in reverse order;
-   and check `/api/status` returns to its previous counts. The payload shapes are the ones
-   `apps/server/tests/integration/crud.test.ts` already uses — and note that creating one direction also
-   creates its auto-derived return direction (ADR-0011), so the counts move by two, not one. Run this after
-   any migration that changes grants or RLS: it is the only check that proves `postgres` still reads _and
-   writes_ its own data under `0006`'s deny-all policies.
+9. **Exercise the write path**, which checks 1–8 do not: they are all reads, and a service that can read can
+   still be unable to write. Sign in as the owner, then create a route, a direction carrying a `LineString`
+   polyline, and two ordered stops with `Point` geometry; read them back to confirm the geometry survived the
+   PostGIS round trip; delete the **route** — a hard delete that takes its directions and stops with it —
+   and confirm `/api/status` returns to its previous counts. The payload shapes are the ones
+   `apps/server/tests/integration/crud.test.ts` already uses. Three things bite here: creating one direction
+   also creates its auto-derived return direction (ADR-0011), and that direction carries its own stop rows,
+   so the counts move by two directions and four stops; deleting a stop on its own returns **409** while it is
+   a direction terminal, which is why the route goes first; and a fare config's `DELETE` is a _soft_ delete
+   (`is_active = false`), so if you add one to exercise that foreign key, `stats.fare_configs` stays one
+   higher for good. Run this after any migration that changes grants or RLS: it is the only check that proves
+   `postgres` still reads _and writes_ its own data under `0006`'s deny-all policies.
 
 Rehearse the migration step here too — run the command the platform will run, inside the image, against
 the local stack:
@@ -176,7 +181,7 @@ identity.
 
    | Setting                    | Value | Why                                                                                                                   |
    | -------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
-   | Minimum password length    | 12    | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 6 is a convenience. |
+   | Minimum password length    | 12    | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 8 is a convenience. |
    | Confirm email              | on    | `signInWithPassword` refuses an unconfirmed identity, so an unconfirmed owner cannot sign in at all.                  |
    | Allow new users to sign up | off   | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
    | Leaked-password protection | on    | Cheap, and this project has exactly one credential that matters.                                                      |
@@ -399,9 +404,18 @@ deployed revision to anonymous callers buys convenience the logs already provide
 
 ### 3.7 The same settings from the CLI
 
-Nothing is provisioned yet, so this is the shape rather than a transcript — resolve the real service ID
-per environment first (`railway service list --json`), then apply with explicit IDs rather than relying
-on a linked directory.
+Staging was provisioned through the dashboard and the platform API, so this is the shape for the next
+environment — or for reproducing staging — rather than a transcript of what was run. Resolve the real
+service ID per environment first (`railway service list --json`), then apply with explicit IDs rather than
+relying on a linked directory.
+
+**Two cautions, both measured, and neither is hypothetical.** This CLI's `railway environment edit` accepted
+the flags below and changed nothing in this project — a control case on a field that certainly exists behaved
+identically, with and without `railway link` — so go through the dashboard for anything the API tools do not
+expose and verify each field afterwards with `describe-service`. And `source.checkSuites` ("Wait for CI") is
+not among the flags below because nothing reachable here can set it: neither MCP tool exposes it, and the
+CLI's edit is a no-op, so §3.1's requirement is a dashboard setting. `deploy.preDeployCommand` is likewise
+absent, deliberately — §3.4 records why it stays empty.
 
 ```bash
 railway link --project komyuter
@@ -411,18 +425,19 @@ railway environment edit --project <project-id> --environment staging --service-
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   source.branch dev
 railway environment edit --project <project-id> --environment staging --service-config <service> \
-  build.watchPatterns '["apps/server/**","apps/admin/**","packages/**","package.json","pnpm-lock.yaml","turbo.json","Dockerfile",".dockerignore","supabase/migrations/**"]'
+  build.dockerfilePath Dockerfile
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  build.watchPatterns '["Dockerfile",".dockerignore","package.json","pnpm-lock.yaml","pnpm-workspace.yaml",".npmrc","turbo.json","apps/mobile/package.json","apps/server/**","apps/admin/**","packages/shared/**","packages/ui/**","supabase/migrations/**"]'
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   deploy.healthcheckPath /api/status
 railway environment edit --project <project-id> --environment staging --service-config <service> \
-  deploy.preDeployCommand 'supabase db push --db-url "$DATABASE_URL"'
-railway environment edit --project <project-id> --environment staging --service-config <service> \
   deploy.multiRegionConfig '{"asia-southeast1-eqsg3a":{"numReplicas":1}}'
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  deploy.sleepApplication true
 ```
 
 Repeat with `--environment production` and `source.branch main`, plus the approval requirement. Railway's
-daemon scripts are ordinary `pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI
-later.
+daemon scripts are ordinary `pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI later.
 
 ### 3.8 Confirm the login throttle sees real clients
 

@@ -237,13 +237,15 @@ because `select rolname, rolsuper, rolbypassrls from pg_roles` reports `rolbypas
 deny-all RLS cannot lock the service out of its own data. The server suite passes (22 files, 180 tests) with
 the migration in the chain.
 
-Two honest limits. **`public.spatial_ref_sys` keeps RLS off**, because PostGIS owns it through
-`supabase_admin` and `postgres` cannot alter it — measured, not assumed: `SQLSTATE 42501, must be owner of
-table spatial_ref_sys`. The `revoke all` still removes both exposed roles' access to it, so no Data API path
-remains, but the advisor will keep reporting one ERROR for it; clearing that means moving the extension out
-of `public`, which is the schema change already declined above. And **the exposure closes only where the
-chain is applied**: the staging project keeps serving the tables to the publishable key until
-`supabase db push` runs there, so this is a fix in the chain rather than a fix in effect until then.
+Two honest limits. **`public.spatial_ref_sys` keeps RLS off and stays readable.** PostGIS owns it through
+`supabase_admin`, so `postgres` cannot alter it — measured, not assumed: `SQLSTATE 42501, must be owner of
+table spatial_ref_sys` — and PostGIS grants `SELECT` on it to `PUBLIC`, which the schema-wide `revoke all`
+cannot reach either. Confirmed against the staging project: `GET /rest/v1/spatial_ref_sys?select=srid` with
+the publishable key returns `200` with real rows. What that exposes is the EPSG reference catalogue rather
+than project data, so the finding stands as informational; clearing the advisor's last ERROR means moving the
+extension out of `public`, which is the schema change already declined above. And **the exposure closes only
+where the chain is applied**: the staging project keeps serving the application tables to the publishable key
+until `supabase db push` runs there, so this is a fix in the chain rather than a fix in effect until then.
 
 **Why no local test could have caught this.** Locally the exposed roles hold no grants on new tables at all
 (`has_table_privilege('anon', …)` is already `f` before the migration), so the revokes are no-ops here and
