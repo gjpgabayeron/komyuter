@@ -49,10 +49,39 @@ FROM node:22-bookworm-slim AS runtime
 ENV NODE_ENV=production
 WORKDIR /app
 
+# The Supabase CLI, which only the pre-deploy migration step uses — the serving
+# process never calls it. Carrying it is a deliberately recorded cost
+# (ADR-0022 §3.2), the second exception to this project's "add no runtime
+# dependencies" line after @fastify/static (ADR-0018).
+#
+# Pinned, and pinned to the same version the operator's own CLI is, so the
+# local rehearsal in docs/DEPLOY.md exercises the exact binary the platform
+# will run.
+#
+# Installed from npm rather than from a GitHub release tarball on purpose: the
+# package's per-platform binaries are optionalDependencies, so npm selects the
+# right one for the build's architecture instead of hard-coding it, and the
+# base image already carries npm — where a tarball would need curl and an apt
+# layer that this slim image does not have.
+ARG SUPABASE_CLI_VERSION=2.111.0
+RUN npm install --global --no-fund --no-audit "supabase@${SUPABASE_CLI_VERSION}" \
+  && npm cache clean --force
+
 COPY --from=build /deploy/server ./server
 # The SPA that this same process serves — one origin, one image for staging and
 # production (ADR-0018 §2).
 COPY --from=build /app/apps/admin/dist ./apps/admin/dist
+
+# The migration chain, for `supabase db push` in Railway's pre-deploy step
+# (ADR-0022 §3): a distinct lifecycle phase, not container boot, so a failure
+# fails the deployment instead of shipping a new container against an old
+# schema (ADR-0018 §5).
+#
+# The migrations directory is copied by name and nothing else from supabase/:
+# seed.sql in particular must never enter this image, because it seeds the
+# documented dev credential and no deployed environment may contain it
+# (ADR-0022 §3.4).
+COPY supabase/migrations ./supabase/migrations
 
 # ADR-0018 §1: the API serves the SPA from its own origin, so the container has
 # to say where the build landed. Unset, the server still starts and still

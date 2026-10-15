@@ -262,5 +262,12 @@ None of them is a reason to revisit the decisions above; each has a prepared fal
    exact invocation, and whether it needs `supabase/config.toml` beside the migrations directory, must
    be rehearsed against the built image in `docs/DEPLOY.md`'s local rehearsal before the first staging
    deploy — not discovered in a pre-deploy step.
+   **Answered 2026-10-14** by that rehearsal, against the built image and the local stack: with only
+   `supabase/migrations` copied and the image's working directory `/app`,
+   `supabase db push --db-url "<url>"` discovers the chain, reads the target's history and reports
+   `Remote database is up to date.` — no `config.toml` and no `--workdir` are needed. The one parameter
+   the rehearsal did surface is TLS: the CLI requires it by default while the local stack serves
+   plaintext, so a local URL needs `?sslmode=disable` and a Cloud URL does not. The CLI is pinned to
+   **2.111.0** in the image, so this rehearsal exercises the binary the pre-deploy step will run.
 4. **Is App Sleeping offered for this project's plan?** If not, 8.2's staging saving is simply absent
    and the cost decision stands on 8.1 alone.
