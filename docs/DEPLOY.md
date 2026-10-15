@@ -234,6 +234,13 @@ out: `.dockerignore` keeps them out of the build context anyway.
 | App Sleeping (staging only) | on, where the plan offers it         | **Never in production**: M1's exit criterion is someone using the URL.   |
 | Approval (production only)  | required per deployment              | ADR-0021 §3, natively. Merging to `main` builds, then waits.             |
 
+**The service domain's target port must be the platform's `PORT`, not the image's default.** Railway
+injects `PORT` (observed: 8080) and the app honours it — `envSchema` reads `process.env.PORT` — so the
+container binds 8080 even though the `Dockerfile` sets `ENV PORT=3000`. A domain created with
+`targetPort: 3000` routes to a port nothing is listening on. The health check is unaffected either way,
+because Railway probes the port it injected; only the public URL breaks, and it breaks _after_ the deploy
+has started looking healthy.
+
 ### 3.3 Variables
 
 | Variable                    | Value                                                                          |
@@ -245,9 +252,27 @@ out: `.dockerignore` keeps them out of the build context anyway.
 | `ALLOW_DEV_CREDENTIAL`      | `false`. The documented dev credential must be refused.                        |
 | `MAPBOX_SECRET_TOKEN`       | Server-side snapping/geocoding token (ADR-0016).                               |
 
-`PORT` and `ADMIN_DIST_DIR` are set by the image; `ADMIN_DIST_DIR` in particular has no useful fallback
-in a runtime image, because the walk-up that finds `apps/admin/dist` in a checkout finds no workspace
-there. Unset, the server still starts and still answers `/api/*` — every page just 404s.
+`ADMIN_DIST_DIR` is set by the image and has no useful fallback in a runtime image, because the walk-up
+that finds `apps/admin/dist` in a checkout finds no workspace there. Unset, the server still starts and
+still answers `/api/*` — every page just 404s. **`PORT` is not ours on the platform:** the image sets
+`ENV PORT=3000` as a default for plain `docker run`, and Railway overrides it, so the container binds 8080.
+
+**`DATABASE_URL` must be one the container can actually reach, and Supabase's direct host is IPv6-only.**
+For a project created now, `db.<ref>.supabase.co` resolves to an `AAAA` record and **no** `A` record:
+
+```bash
+nslookup -type=A    db.<ref>.supabase.co   # NOERROR, no address
+nslookup -type=AAAA db.<ref>.supabase.co   # NOERROR, 2406:da18:…
+```
+
+The direct connection therefore works only where the container has outbound IPv6. Either enable IPv6 egress
+on the service (`deploy.ipv6EgressEnabled`) or point `DATABASE_URL` at the **Session pooler**
+(`aws-0-<region>.pooler.supabase.com`, port 5432, username `postgres.<ref>`), which is IPv4 and is
+Supabase's documented answer for IPv4-only environments. Getting this wrong produces no readable connection
+error: `/api/status` returns 500, the deploy logs show only drizzle's `Failed query: …` wrapper (the app
+logs that without `error.cause`, so the errno never appears), and the service's **network-flow** logs show
+no egress to port 5432 at all. That absence is also how credentials are excluded — a wrong password
+completes the TCP handshake first and fails at authentication, which would leave an egress flow behind.
 
 **`ADMIN_EMAIL` and `ADMIN_PASSWORD` are deliberately absent** (ADR-0022 §9, implemented). Nothing in the
 running server reads them: login refuses a hardcoded dev credential, and the script in §2 reads the
