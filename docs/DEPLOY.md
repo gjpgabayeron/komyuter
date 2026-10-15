@@ -34,9 +34,14 @@ Two long-lived environments, and promotion runs one way. The mapping and its rea
 ## Status
 
 The application side is in place and verified locally (see [Local rehearsal](#local-rehearsal)). The
-Railway project `komyuter` exists with both environments — `staging` and `production` — and **nothing in
-either one yet**: no service, volume, bucket, shared variable or staged change. What remains is
-provisioning: a Supabase Cloud project, a Railway service, and the first Account.
+staging data plane exists and is healthy: Supabase Cloud project `prmccdmsqtywprmfaluf` in
+**`ap-southeast-1` (Singapore)**, Postgres 17.11 — the region §3.2 pins Railway to, so the service and its
+database share one (ADR-0022 §6.1). An earlier project had been created in `ap-northeast-2` (Seoul) and was
+replaced before any migration was applied to it, so nothing was lost and the topology now matches the
+decision rather than contradicting it. The Railway project `komyuter` still holds both environments —
+`staging` and `production` — and **nothing in either one yet**: no service, volume, bucket, shared variable
+or staged change. What remains is provisioning: a Railway service, the four Cloud auth settings, and the
+first Account.
 
 The service can now boot without the owner's credentials (§3.3, ADR-0022 §9), and the two items §3 still
 owed are implemented in the image and rehearsed against it: the pre-deploy migration step (§3.4) and the
@@ -132,8 +137,10 @@ parameter.
 
 ## 1. Supabase Cloud project (staging)
 
-**This first project is the staging data plane** (`docs/adr/0021-branching-and-environments.md`);
-production gets a second project of its own at M4. Either way the Cloud project is also the auth provider:
+**This first project is the staging data plane** (`docs/adr/0021-branching-and-environments.md`) — created
+as `prmccdmsqtywprmfaluf` in **`ap-southeast-1` (Singapore)**, the same region §3.2 pins Railway to, so the
+service and its database stay together (ADR-0022 §6.1); production gets a second project of its own at M4.
+Either way the Cloud project is also the auth provider:
 because `admin_users.user_id` is a foreign key to `auth.users.id` (ADR-0018 §4), the application tables
 cannot live anywhere else without giving up the guarantee that no Account exists without an auth
 identity.
