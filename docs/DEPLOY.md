@@ -171,6 +171,27 @@ identity.
    | Allow new users to sign up | off   | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
    | Leaked-password protection | on    | Cheap, and this project has exactly one credential that matters.                                                      |
 
+**The dashboard is the only writer, but all four settings can still be checked from outside**, which
+matters because "no test will catch them" is true of the test suite and not of the platform:
+
+- **Email confirmation and signups** come from the public view:
+  `curl -s "$SUPABASE_URL/auth/v1/settings" -H "apikey: $ANON_KEY"` returns `mailer_autoconfirm` and
+  `disable_signup`.
+- **Minimum password length and leaked-password protection** have to be probed behaviourally: ask GoTrue to
+  create a user with a password the setting is meant to forbid, through the **admin** API
+  (`POST /auth/v1/admin/users` with `email_confirm: true`) so no mail is sent. A rejection names the
+  configured minimum — `Password should be at least N characters.` — and flags a breach as
+  `reasons: ["pwned"]`; an accepted password means the setting is off, and the account it creates has to be
+  deleted again. Prefer the admin path over `/auth/v1/signup`, which sends a confirmation email and is
+  capped by the project's own email rate limit (`429 over_email_send_rate_limit`) — which is how a first
+  attempt here failed.
+
+There is no API route to **set** these: GoTrue exposes no settings endpoint on the hosted platform, and both
+`GET` and `PUT` on `/auth/v1/admin/settings` return `404`. Measured on the staging project (2026-10-15):
+`mailer_autoconfirm: false` (email confirmation on ✓), `disable_signup: false` (signups permitted ✗),
+minimum length **6** per GoTrue's own error text ✗, and leaked-password protection **off** — a breached
+13-character password was accepted ✗.
+
 ## 2. Bootstrap the owner Account
 
 No dashboard surface can create the first Account: every admin route is behind the auth guard, which
