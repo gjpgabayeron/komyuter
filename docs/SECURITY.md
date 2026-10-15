@@ -190,6 +190,14 @@ deliberately not upgraded inside a deploy-milestone PR — a forced transitive b
 Vite graphs is exactly the kind of change that breaks a build for no runtime benefit. They are tracked
 here rather than silently ignored.
 
+**Scope boundary, recorded so it is a decision rather than an oversight.** The gate covers the server's
+production closure. The admin SPA's own bundled dependencies — `maplibre-gl` and `axios`, both
+`dependencies` of `apps/admin` — are _not_ among those 122 packages, so a browser-reachable advisory in
+them would not fail the pipeline even though the same image serves that bundle. Widening the gate to the
+SPA's runtime dependencies is an open choice, not a covered one.
+
+---
+
 ### 2.7 Data API exposure (M1)
 
 Every table the migration chain creates lives in the exposed `public` schema, and the staging project's
@@ -220,11 +228,28 @@ and the key becomes genuinely public the moment the commuter app ships. P2 and P
 fixed: they come from PostGIS's own installation, and moving the extension out of `public` is a schema
 change with `search_path` consequences this project has no reason to take on.
 
-**Scope boundary, recorded so it is a decision rather than an oversight.** The gate covers the server's
-production closure. The admin SPA's own bundled dependencies — `maplibre-gl` and `axios`, both
-`dependencies` of `apps/admin` — are _not_ among those 122 packages, so a browser-reachable advisory in
-them would not fail the pipeline even though the same image serves that bundle. Widening the gate to the
-SPA's runtime dependencies is an open choice, not a covered one.
+**Resolution 2026-10-15 — `supabase/migrations/0006_deny_data_api_access.sql`.** The migration is this
+recommendation, applied in the chain: default privileges revoked for both exposed roles, `revoke all` on
+every table and sequence in `public`, and RLS enabled with no policies on the eight application tables.
+Verified locally rather than assumed — the file applies, afterwards 8 of 9 `public` tables report RLS on
+and both roles report no `SELECT`, while `postgres` still reads the dev dataset (6 routes, 1 admin). It can,
+because `select rolname, rolsuper, rolbypassrls from pg_roles` reports `rolbypassrls = true` for `postgres`:
+deny-all RLS cannot lock the service out of its own data. The server suite passes (22 files, 180 tests) with
+the migration in the chain.
+
+Two honest limits. **`public.spatial_ref_sys` keeps RLS off**, because PostGIS owns it through
+`supabase_admin` and `postgres` cannot alter it — measured, not assumed: `SQLSTATE 42501, must be owner of
+table spatial_ref_sys`. The `revoke all` still removes both exposed roles' access to it, so no Data API path
+remains, but the advisor will keep reporting one ERROR for it; clearing that means moving the extension out
+of `public`, which is the schema change already declined above. And **the exposure closes only where the
+chain is applied**: the staging project keeps serving the tables to the publishable key until
+`supabase db push` runs there, so this is a fix in the chain rather than a fix in effect until then.
+
+**Why no local test could have caught this.** Locally the exposed roles hold no grants on new tables at all
+(`has_table_privilege('anon', …)` is already `f` before the migration), so the revokes are no-ops here and
+the local environment never reproduced the exposure — the Cloud project granted the exposed roles by
+default. That difference is why it took an advisor run and a live key check to find, and why the check
+belongs in the provisioning checklist rather than only in this document.
 
 ---
 
