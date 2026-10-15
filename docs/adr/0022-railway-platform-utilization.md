@@ -271,3 +271,7 @@ None of them is a reason to revisit the decisions above; each has a prepared fal
    **2.111.0** in the image, so this rehearsal exercises the binary the pre-deploy step will run.
 4. **Is App Sleeping offered for this project's plan?** If not, 8.2's staging saving is simply absent
    and the cost decision stands on 8.1 alone.
+   **Answered 2026-10-15**: yes. `deploy.sleepApplication` was accepted on the staging service (and is
+   visible as `"sleepApplication": true` in its config), so 8.2's staging saving applies as written. The
+   same check confirmed the region decision — the deployment record carries
+   `regions: asia-southeast1-eqsg3a`.

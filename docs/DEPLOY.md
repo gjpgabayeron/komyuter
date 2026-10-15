@@ -254,8 +254,16 @@ has started looking healthy.
 
 `ADMIN_DIST_DIR` is set by the image and has no useful fallback in a runtime image, because the walk-up
 that finds `apps/admin/dist` in a checkout finds no workspace there. Unset, the server still starts and
-still answers `/api/*` — every page just 404s. **`PORT` is not ours on the platform:** the image sets
-`ENV PORT=3000` as a default for plain `docker run`, and Railway overrides it, so the container binds 8080.
+still answers `/api/*` — every page just 404s.
+
+Two further variables are set on the service, and both are easy to mistake for noise:
+
+- **`PORT=8080`** pins the container port so it cannot drift from the domain's target port. The image's
+  `ENV PORT=3000` is only a default for plain `docker run`; Railway injects its own `PORT`, and the app
+  honours it, so pinning the value keeps the container port and the domain in step deliberately rather
+  than by coincidence.
+- **`NODE_ENV=production`** makes the production-only HSTS gate in `securityHeaders` explicit, instead of
+  depending on the image's `ENV` surviving untouched.
 
 **`DATABASE_URL` must be one the container can actually reach, and Supabase's direct host is IPv6-only.**
 For a project created now, `db.<ref>.supabase.co` resolves to an `AAAA` record and **no** `A` record:
@@ -288,38 +296,46 @@ at container boot. Railway's `deploy.preDeployCommand` is that step: it runs in 
 phase, it is not boot, and a failure fails the deployment instead of shipping a new container against an
 old schema (ADR-0022 §3).
 
-**Implemented.** The runtime image carries the Supabase CLI (`supabase` on `PATH`, pinned by
-`ARG SUPABASE_CLI_VERSION` in the `Dockerfile`) and the chain at `/app/supabase/migrations`, which is
-where the CLI looks by default from the image's working directory — so the command needs no `--workdir`:
+**Deferred to M4, with the mechanism now characterised.** The image side is in place: the runtime carries
+the Supabase CLI (`supabase` on `PATH`, pinned by `ARG SUPABASE_CLI_VERSION`) and the chain at
+`/app/supabase/migrations`, which is where the CLI looks by default from the image's working directory, so
+no `--workdir` is needed (ADR-0022 verification gap 3, answered).
 
-| Setting                   | Value                                       |
-| ------------------------- | ------------------------------------------- |
-| `deploy.preDeployCommand` | `supabase db push --db-url "$DATABASE_URL"` |
+What does **not** work is the command this section previously documented. Each row below was measured
+against the platform rather than assumed:
 
-Three properties of that command, all rehearsed rather than assumed — see
-[Local rehearsal](#local-rehearsal):
+| Attempt                                           | Result                                                                                                                                                              |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `… --db-url "$DATABASE_URL"` as one array element | **Fails.** The array is word-split into argv with **no shell**, so the CLI receives the literal `$DATABASE_URL`: `failed to parse connection string: $DATABASE_URL` |
+| `["sh", "-c", "…"]`                               | **Rejected** by the platform: `Invalid preDeployCommand`                                                                                                            |
+| `… --db-url ${{DATABASE_URL}}`                    | Accepted by validation; substitution unconfirmed                                                                                                                    |
+| `SUPABASE_DB_URL` instead of `--db-url`           | **Dead end** — the CLI ignores it (`Cannot find project ref. Have you run supabase link?`)                                                                          |
+
+So `deploy.preDeployCommand` is left **empty** for M1 and the chain is applied by hand, which is what §1
+already does. M4 owns this step in any case, and it should choose between confirming that
+`${{DATABASE_URL}}` is substituted by making one deployment and wrapping the command in a script shipped
+in the image (`sh /app/deploy/pre-deploy.sh`), whose shell semantics do not depend on platform
+interpolation. Leaving the step empty keeps the service deployable rather than failing every deployment at
+a step that cannot yet work.
+
+Two properties of the eventual step are settled, and are worth carrying forward:
 
 - **It needs no `supabase/config.toml`.** With only the migrations directory copied, `db push` finds the
-  chain and compares it against the target's history. That is the question ADR-0022 left open as
-  verification gap 3, and the answer is that a project file is not required for this path.
-- **`$DATABASE_URL` is a shell expansion this relies on**, resolved in the pre-deploy container from the
-  service's own variables — the same mechanism a start command uses for `$PORT`. The value stays in
-  Railway's variables and never enters a config value (ADR-0022 §2.4). If the platform does not expand it,
-  the step fails loudly with a literal `$DATABASE_URL` rather than migrating the wrong database.
+  chain and compares it against the target's history.
 - **The connection should not be the transaction pooler.** This step holds an advisory lock and runs
-  multi-statement DDL, neither of which survives transaction-mode pooling, so `DATABASE_URL` should be the
-  direct or session-mode connection string. Untested here — it needs the Cloud project — and the failure
-  mode if it is wrong is a pre-deploy step that fails or half-applies, which is exactly what the rehearsal
-  above exists to keep out of the deploy path.
+  multi-statement DDL, neither of which survives transaction-mode pooling.
 
-For the first staging deploy, pushing by hand before triggering the deploy remains a valid fallback if the
-setting is easier to add once the service exists:
+A failed pre-deploy does not take the site down — the previous healthy deployment keeps serving — which is
+why four failed deployments during this provisioning left the URL answering throughout.
+
+Applying the chain by hand is therefore the M1 procedure, and the documents say so rather than implying
+the platform does it:
 
 ```bash
 supabase db push --db-url "<this environment's DATABASE_URL>"
 ```
 
-Note that a _local_ URL needs `?sslmode=disable` for either form; see
+A _local_ URL needs `?sslmode=disable` while a Cloud URL needs TLS; see
 [Local rehearsal](#local-rehearsal).
 
 ### 3.5 Cost and notification
