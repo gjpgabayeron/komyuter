@@ -190,6 +190,36 @@ deliberately not upgraded inside a deploy-milestone PR — a forced transitive b
 Vite graphs is exactly the kind of change that breaks a build for no runtime benefit. They are tracked
 here rather than silently ignored.
 
+### 2.7 Data API exposure (M1)
+
+Every table the migration chain creates lives in the exposed `public` schema, and the staging project's
+PostgREST endpoint serves them to anyone holding the **publishable** key — a key that is public by design
+and is what the commuter app will eventually ship. Measured against the deployed project rather than
+inferred:
+
+| Check                                                                             | Result                                  |
+| --------------------------------------------------------------------------------- | --------------------------------------- |
+| `GET /rest/v1/` with no key                                                       | `401` — the endpoint does require a key |
+| `GET /rest/v1/{routes,stops,fare_configs,admin_users}?select=*` with the anon key | `200` on all four                       |
+
+`200` is the finding. The empty arrays are only the empty staging dataset; the status code is the exposure.
+Supabase's own advisor agrees, and rates it an error:
+
+| ID  | Severity            | Finding                                                                                                                                                                                                                                                                                                                                                                       | Evidence                                                                                                                                                                                                                  |
+| --- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | High (external)     | `rls_disabled_in_public` — row level security is off on all nine `public` tables and `anon`/`authenticated` hold grants on them, so the publishable key reads every row of the dataset, `admin_users` included, through the Data API. **Write access was not probed** — a probe that could write if the guess were wrong — so treat the grant surface as unknown, not narrow. | `get_advisors` on the staging project: level `ERROR`, count 9 (`admin_users`, `routes`, `directions`, `stops`, `detours`, `detour_stops`, `restrictions`, `fare_configs`, `spatial_ref_sys`); the two `curl` checks above |
+| P2  | Low (informational) | `extension_in_public` — `postgis` is installed in `public`. That is the extension's own install choice, not ours.                                                                                                                                                                                                                                                             | `get_advisors`: level `WARN`                                                                                                                                                                                              |
+| P3  | Low (informational) | `anon_security_definer_function_executable` — three `st_estimatedextent` overloads run `SECURITY DEFINER` and are callable via `/rest/v1/rpc/`. They return geometry extents, so what leaks is a bounding box rather than row data.                                                                                                                                           | `get_advisors`: level `WARN`, count 3                                                                                                                                                                                     |
+
+**Recommendation.** Enable RLS with no policies (deny-all) on the app tables and revoke the `anon` and
+`authenticated` grants, **in the migration chain** rather than by hand. It costs the running service
+nothing: the server reaches Postgres as `postgres` through `DATABASE_URL`, which bypasses RLS, and it never
+uses the Data API — the admin SPA talks to `apps/server`, not to PostgREST. Nothing here is urgent today,
+because the dataset is empty and no client ships the key yet; but the same chain builds production at M4,
+and the key becomes genuinely public the moment the commuter app ships. P2 and P3 are recorded rather than
+fixed: they come from PostGIS's own installation, and moving the extension out of `public` is a schema
+change with `search_path` consequences this project has no reason to take on.
+
 **Scope boundary, recorded so it is a decision rather than an oversight.** The gate covers the server's
 production closure. The admin SPA's own bundled dependencies — `maplibre-gl` and `axios`, both
 `dependencies` of `apps/admin` — are _not_ among those 122 packages, so a browser-reachable advisory in
