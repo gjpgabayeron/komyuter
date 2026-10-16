@@ -34,15 +34,24 @@ Two long-lived environments, and promotion runs one way. The mapping and its rea
 ## Status
 
 The application side is in place and verified locally (see [Local rehearsal](#local-rehearsal)). The
-Railway project `komyuter` exists with both environments — `staging` and `production` — and **nothing in
-either one yet**: no service, volume, bucket, shared variable or staged change. What remains is
-provisioning: a Supabase Cloud project, a Railway service, and the first Account.
+staging data plane exists and is healthy: Supabase Cloud project `prmccdmsqtywprmfaluf` in
+**`ap-southeast-1` (Singapore)**, Postgres 17.11 — the region §3.2 pins Railway to, so the service and its
+database share one (ADR-0022 §6.1). An earlier project had been created in `ap-northeast-2` (Seoul) and was
+replaced before any migration was applied to it, so nothing was lost and the topology now matches the
+decision rather than contradicting it. The staging **service** is live as well: the Railway project
+`komyuter` holds both environments, `staging` runs one service — the container built from this repository,
+with the domain, variables and health check §3.2–§3.3 describe — and `production` is still empty, because it
+belongs to M4. The migration chain is applied **through `0006`** on staging, and `0006` is in effect: the
+publishable key that read `admin_users` and `routes` is refused (`401`) now. §1's auth policy is set for
+everything the plan allows, and this branch is pushed and awaiting merge — so M1 is down to its exit
+criterion.
 
-The service can now boot without the owner's credentials (§3.3, ADR-0022 §9), and the two items §3 still
-owed are implemented in the image and rehearsed against it: the pre-deploy migration step (§3.4) and the
-boot-time provenance line (§3.6). Nothing is left on the application side — what remains is the
-provisioning in §1–§3, and M1's exit criterion is only met once a **second person** opens the deployed URL
-and plots a route end to end.
+The service boots without the owner's credentials (§3.3, ADR-0022 §9), and the boot-time provenance line
+(§3.6) is implemented and live. The pre-deploy migration step is **not** in place on the platform: §3.4
+records that the command this project documented cannot run there, so it is deliberately left empty for M1
+and handed to M4. M1's exit criterion is **met**: a second person signed in as the owner Account and plotted
+a route end to end, and the staging dataset holds the result — 1 route, 2 directions, 22 stops, none of
+which this project's own checks created.
 
 ## What the image contains
 
@@ -107,6 +116,19 @@ Then check, in order:
 8. With `ALLOW_DEV_CREDENTIAL=false`, `POST /api/auth/login` using the documented dev credential is
    refused with 401.
 
+9. **Exercise the write path**, which checks 1–8 do not: they are all reads, and a service that can read can
+   still be unable to write. Sign in as the owner, then create a route, a direction carrying a `LineString`
+   polyline, and two ordered stops with `Point` geometry; read them back to confirm the geometry survived the
+   PostGIS round trip; delete the **route** — a hard delete that takes its directions and stops with it —
+   and confirm `/api/status` returns to its previous counts. The payload shapes are the ones
+   `apps/server/tests/integration/crud.test.ts` already uses. Three things bite here: creating one direction
+   also creates its auto-derived return direction (ADR-0011), and that direction carries its own stop rows,
+   so the counts move by two directions and four stops; deleting a stop on its own returns **409** while it is
+   a direction terminal, which is why the route goes first; and a fare config's `DELETE` is a _soft_ delete
+   (`is_active = false`), so if you add one to exercise that foreign key, `stats.fare_configs` stays one
+   higher for good. Run this after any migration that changes grants or RLS: it is the only check that proves
+   `postgres` still reads _and writes_ its own data under `0006`'s deny-all policies.
+
 Rehearse the migration step here too — run the command the platform will run, inside the image, against
 the local stack:
 
@@ -132,8 +154,10 @@ parameter.
 
 ## 1. Supabase Cloud project (staging)
 
-**This first project is the staging data plane** (`docs/adr/0021-branching-and-environments.md`);
-production gets a second project of its own at M4. Either way the Cloud project is also the auth provider:
+**This first project is the staging data plane** (`docs/adr/0021-branching-and-environments.md`) — created
+as `prmccdmsqtywprmfaluf` in **`ap-southeast-1` (Singapore)**, the same region §3.2 pins Railway to, so the
+service and its database stay together (ADR-0022 §6.1); production gets a second project of its own at M4.
+Either way the Cloud project is also the auth provider:
 because `admin_users.user_id` is a foreign key to `auth.users.id` (ADR-0018 §4), the application tables
 cannot live anywhere else without giving up the guarantee that no Account exists without an auth
 identity.
@@ -157,12 +181,33 @@ identity.
    configures the _local_ stack only; none of it reaches a Cloud project, so every one of these is a
    manual step that no test will catch:
 
-   | Setting                    | Value | Why                                                                                                                   |
-   | -------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
-   | Minimum password length    | 12    | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 6 is a convenience. |
-   | Confirm email              | on    | `signInWithPassword` refuses an unconfirmed identity, so an unconfirmed owner cannot sign in at all.                  |
-   | Allow new users to sign up | off   | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
-   | Leaked-password protection | on    | Cheap, and this project has exactly one credential that matters.                                                      |
+   | Setting                    | Value        | Why                                                                                                                   |
+   | -------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+   | Minimum password length    | 12           | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 8 is a convenience. |
+   | Confirm email              | on           | `signInWithPassword` refuses an unconfirmed identity, so an unconfirmed owner cannot sign in at all.                  |
+   | Allow new users to sign up | off          | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
+   | Leaked-password protection | **deferred** | Needs a Pro plan, which this project is not on: out of scope for M1 rather than pending. Revisit if the plan changes. |
+
+**The dashboard is the only writer, but all four settings can still be checked from outside**, which
+matters because "no test will catch them" is true of the test suite and not of the platform:
+
+- **Email confirmation and signups** come from the public view:
+  `curl -s "$SUPABASE_URL/auth/v1/settings" -H "apikey: $ANON_KEY"` returns `mailer_autoconfirm` and
+  `disable_signup`.
+- **Minimum password length and leaked-password protection** have to be probed behaviourally: ask GoTrue to
+  create a user with a password the setting is meant to forbid, through the **admin** API
+  (`POST /auth/v1/admin/users` with `email_confirm: true`) so no mail is sent. A rejection names the
+  configured minimum — `Password should be at least N characters.` — and flags a breach as
+  `reasons: ["pwned"]`; an accepted password means the setting is off, and the account it creates has to be
+  deleted again. Prefer the admin path over `/auth/v1/signup`, which sends a confirmation email and is
+  capped by the project's own email rate limit (`429 over_email_send_rate_limit`) — which is how a first
+  attempt here failed.
+
+There is no API route to **set** these: GoTrue exposes no settings endpoint on the hosted platform, and both
+`GET` and `PUT` on `/auth/v1/admin/settings` return `404`. Measured on the staging project (2026-10-15):
+`mailer_autoconfirm: false` (email confirmation on ✓), `disable_signup: false` (signups permitted ✗),
+minimum length **6** per GoTrue's own error text ✗, and leaked-password protection **off** — a breached
+13-character password was accepted ✗.
 
 ## 2. Bootstrap the owner Account
 
@@ -227,6 +272,13 @@ out: `.dockerignore` keeps them out of the build context anyway.
 | App Sleeping (staging only) | on, where the plan offers it         | **Never in production**: M1's exit criterion is someone using the URL.   |
 | Approval (production only)  | required per deployment              | ADR-0021 §3, natively. Merging to `main` builds, then waits.             |
 
+**The service domain's target port must be the platform's `PORT`, not the image's default.** Railway
+injects `PORT` (observed: 8080) and the app honours it — `envSchema` reads `process.env.PORT` — so the
+container binds 8080 even though the `Dockerfile` sets `ENV PORT=3000`. A domain created with
+`targetPort: 3000` routes to a port nothing is listening on. The health check is unaffected either way,
+because Railway probes the port it injected; only the public URL breaks, and it breaks _after_ the deploy
+has started looking healthy.
+
 ### 3.3 Variables
 
 | Variable                    | Value                                                                          |
@@ -238,9 +290,35 @@ out: `.dockerignore` keeps them out of the build context anyway.
 | `ALLOW_DEV_CREDENTIAL`      | `false`. The documented dev credential must be refused.                        |
 | `MAPBOX_SECRET_TOKEN`       | Server-side snapping/geocoding token (ADR-0016).                               |
 
-`PORT` and `ADMIN_DIST_DIR` are set by the image; `ADMIN_DIST_DIR` in particular has no useful fallback
-in a runtime image, because the walk-up that finds `apps/admin/dist` in a checkout finds no workspace
-there. Unset, the server still starts and still answers `/api/*` — every page just 404s.
+`ADMIN_DIST_DIR` is set by the image and has no useful fallback in a runtime image, because the walk-up
+that finds `apps/admin/dist` in a checkout finds no workspace there. Unset, the server still starts and
+still answers `/api/*` — every page just 404s.
+
+Two further variables are set on the service, and both are easy to mistake for noise:
+
+- **`PORT=8080`** pins the container port so it cannot drift from the domain's target port. The image's
+  `ENV PORT=3000` is only a default for plain `docker run`; Railway injects its own `PORT`, and the app
+  honours it, so pinning the value keeps the container port and the domain in step deliberately rather
+  than by coincidence.
+- **`NODE_ENV=production`** makes the production-only HSTS gate in `securityHeaders` explicit, instead of
+  depending on the image's `ENV` surviving untouched.
+
+**`DATABASE_URL` must be one the container can actually reach, and Supabase's direct host is IPv6-only.**
+For a project created now, `db.<ref>.supabase.co` resolves to an `AAAA` record and **no** `A` record:
+
+```bash
+nslookup -type=A    db.<ref>.supabase.co   # NOERROR, no address
+nslookup -type=AAAA db.<ref>.supabase.co   # NOERROR, 2406:da18:…
+```
+
+The direct connection therefore works only where the container has outbound IPv6. Either enable IPv6 egress
+on the service (`deploy.ipv6EgressEnabled`) or point `DATABASE_URL` at the **Session pooler**
+(`aws-0-<region>.pooler.supabase.com`, port 5432, username `postgres.<ref>`), which is IPv4 and is
+Supabase's documented answer for IPv4-only environments. Getting this wrong produces no readable connection
+error: `/api/status` returns 500, the deploy logs show only drizzle's `Failed query: …` wrapper (the app
+logs that without `error.cause`, so the errno never appears), and the service's **network-flow** logs show
+no egress to port 5432 at all. That absence is also how credentials are excluded — a wrong password
+completes the TCP handshake first and fails at authentication, which would leave an egress flow behind.
 
 **`ADMIN_EMAIL` and `ADMIN_PASSWORD` are deliberately absent** (ADR-0022 §9, implemented). Nothing in the
 running server reads them: login refuses a hardcoded dev credential, and the script in §2 reads the
@@ -256,38 +334,46 @@ at container boot. Railway's `deploy.preDeployCommand` is that step: it runs in 
 phase, it is not boot, and a failure fails the deployment instead of shipping a new container against an
 old schema (ADR-0022 §3).
 
-**Implemented.** The runtime image carries the Supabase CLI (`supabase` on `PATH`, pinned by
-`ARG SUPABASE_CLI_VERSION` in the `Dockerfile`) and the chain at `/app/supabase/migrations`, which is
-where the CLI looks by default from the image's working directory — so the command needs no `--workdir`:
+**Deferred to M4, with the mechanism now characterised.** The image side is in place: the runtime carries
+the Supabase CLI (`supabase` on `PATH`, pinned by `ARG SUPABASE_CLI_VERSION`) and the chain at
+`/app/supabase/migrations`, which is where the CLI looks by default from the image's working directory, so
+no `--workdir` is needed (ADR-0022 verification gap 3, answered).
 
-| Setting                   | Value                                       |
-| ------------------------- | ------------------------------------------- |
-| `deploy.preDeployCommand` | `supabase db push --db-url "$DATABASE_URL"` |
+What does **not** work is the command this section previously documented. Each row below was measured
+against the platform rather than assumed:
 
-Three properties of that command, all rehearsed rather than assumed — see
-[Local rehearsal](#local-rehearsal):
+| Attempt                                           | Result                                                                                                                                                              |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `… --db-url "$DATABASE_URL"` as one array element | **Fails.** The array is word-split into argv with **no shell**, so the CLI receives the literal `$DATABASE_URL`: `failed to parse connection string: $DATABASE_URL` |
+| `["sh", "-c", "…"]`                               | **Rejected** by the platform: `Invalid preDeployCommand`                                                                                                            |
+| `… --db-url ${{DATABASE_URL}}`                    | Accepted by validation; substitution unconfirmed                                                                                                                    |
+| `SUPABASE_DB_URL` instead of `--db-url`           | **Dead end** — the CLI ignores it (`Cannot find project ref. Have you run supabase link?`)                                                                          |
+
+So `deploy.preDeployCommand` is left **empty** for M1 and the chain is applied by hand, which is what §1
+already does. M4 owns this step in any case, and it should choose between confirming that
+`${{DATABASE_URL}}` is substituted by making one deployment and wrapping the command in a script shipped
+in the image (`sh /app/deploy/pre-deploy.sh`), whose shell semantics do not depend on platform
+interpolation. Leaving the step empty keeps the service deployable rather than failing every deployment at
+a step that cannot yet work.
+
+Two properties of the eventual step are settled, and are worth carrying forward:
 
 - **It needs no `supabase/config.toml`.** With only the migrations directory copied, `db push` finds the
-  chain and compares it against the target's history. That is the question ADR-0022 left open as
-  verification gap 3, and the answer is that a project file is not required for this path.
-- **`$DATABASE_URL` is a shell expansion this relies on**, resolved in the pre-deploy container from the
-  service's own variables — the same mechanism a start command uses for `$PORT`. The value stays in
-  Railway's variables and never enters a config value (ADR-0022 §2.4). If the platform does not expand it,
-  the step fails loudly with a literal `$DATABASE_URL` rather than migrating the wrong database.
+  chain and compares it against the target's history.
 - **The connection should not be the transaction pooler.** This step holds an advisory lock and runs
-  multi-statement DDL, neither of which survives transaction-mode pooling, so `DATABASE_URL` should be the
-  direct or session-mode connection string. Untested here — it needs the Cloud project — and the failure
-  mode if it is wrong is a pre-deploy step that fails or half-applies, which is exactly what the rehearsal
-  above exists to keep out of the deploy path.
+  multi-statement DDL, neither of which survives transaction-mode pooling.
 
-For the first staging deploy, pushing by hand before triggering the deploy remains a valid fallback if the
-setting is easier to add once the service exists:
+A failed pre-deploy does not take the site down — the previous healthy deployment keeps serving — which is
+why four failed deployments during this provisioning left the URL answering throughout.
+
+Applying the chain by hand is therefore the M1 procedure, and the documents say so rather than implying
+the platform does it:
 
 ```bash
 supabase db push --db-url "<this environment's DATABASE_URL>"
 ```
 
-Note that a _local_ URL needs `?sslmode=disable` for either form; see
+A _local_ URL needs `?sslmode=disable` while a Cloud URL needs TLS; see
 [Local rehearsal](#local-rehearsal).
 
 ### 3.5 Cost and notification
@@ -320,9 +406,18 @@ deployed revision to anonymous callers buys convenience the logs already provide
 
 ### 3.7 The same settings from the CLI
 
-Nothing is provisioned yet, so this is the shape rather than a transcript — resolve the real service ID
-per environment first (`railway service list --json`), then apply with explicit IDs rather than relying
-on a linked directory.
+Staging was provisioned through the dashboard and the platform API, so this is the shape for the next
+environment — or for reproducing staging — rather than a transcript of what was run. Resolve the real
+service ID per environment first (`railway service list --json`), then apply with explicit IDs rather than
+relying on a linked directory.
+
+**Two cautions, both measured, and neither is hypothetical.** This CLI's `railway environment edit` accepted
+the flags below and changed nothing in this project — a control case on a field that certainly exists behaved
+identically, with and without `railway link` — so go through the dashboard for anything the API tools do not
+expose and verify each field afterwards with `describe-service`. And `source.checkSuites` ("Wait for CI") is
+not among the flags below because nothing reachable here can set it: neither MCP tool exposes it, and the
+CLI's edit is a no-op, so §3.1's requirement is a dashboard setting. `deploy.preDeployCommand` is likewise
+absent, deliberately — §3.4 records why it stays empty.
 
 ```bash
 railway link --project komyuter
@@ -332,18 +427,19 @@ railway environment edit --project <project-id> --environment staging --service-
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   source.branch dev
 railway environment edit --project <project-id> --environment staging --service-config <service> \
-  build.watchPatterns '["apps/server/**","apps/admin/**","packages/**","package.json","pnpm-lock.yaml","turbo.json","Dockerfile",".dockerignore","supabase/migrations/**"]'
+  build.dockerfilePath Dockerfile
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  build.watchPatterns '["Dockerfile",".dockerignore","package.json","pnpm-lock.yaml","pnpm-workspace.yaml",".npmrc","turbo.json","apps/mobile/package.json","apps/server/**","apps/admin/**","packages/shared/**","packages/ui/**","supabase/migrations/**"]'
 railway environment edit --project <project-id> --environment staging --service-config <service> \
   deploy.healthcheckPath /api/status
 railway environment edit --project <project-id> --environment staging --service-config <service> \
-  deploy.preDeployCommand 'supabase db push --db-url "$DATABASE_URL"'
-railway environment edit --project <project-id> --environment staging --service-config <service> \
   deploy.multiRegionConfig '{"asia-southeast1-eqsg3a":{"numReplicas":1}}'
+railway environment edit --project <project-id> --environment staging --service-config <service> \
+  deploy.sleepApplication true
 ```
 
 Repeat with `--environment production` and `source.branch main`, plus the approval requirement. Railway's
-daemon scripts are ordinary `pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI
-later.
+daemon scripts are ordinary `pnpm --filter` scripts, so a normal `RAILWAY_TOKEN` can run this from CI later.
 
 ### 3.8 Confirm the login throttle sees real clients
 

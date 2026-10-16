@@ -226,7 +226,11 @@ where the seed is.
 - **GitHub Environments as the production approval gate.** Rejected: approval belongs where the
   deployment is, and the platform records it on the deployment. Revisit only if approvals must be
   audited beside the merge in the repository.
-- **Keeping migrations manual through M1 and deciding at M4.** Rejected: `preDeployCommand` is the
+- **Keeping migrations manual through M1 and deciding at M4.**
+  **(Reversed in practice, 2026-10-15: M1 kept migrations manual anyway, because the command this ADR
+  specifies cannot run on the platform — the pre-deploy phase is argv with no shell, so `$DATABASE_URL`
+  arrives literally and `sh -c` is rejected outright. `docs/DEPLOY.md` §3.4 carries the measurements;
+  M4 owns the step.)** Rejected: `preDeployCommand` is the
   primitive ADR-0018 §5 was written to describe, and deferring it would mean changing the image after
   the environment is already live and in use.
 - **Shared variables for the environment-invariant values.** Rejected: they are environment-scoped, and
@@ -271,3 +275,7 @@ None of them is a reason to revisit the decisions above; each has a prepared fal
    **2.111.0** in the image, so this rehearsal exercises the binary the pre-deploy step will run.
 4. **Is App Sleeping offered for this project's plan?** If not, 8.2's staging saving is simply absent
    and the cost decision stands on 8.1 alone.
+   **Answered 2026-10-15**: yes. `deploy.sleepApplication` was accepted on the staging service (and is
+   visible as `"sleepApplication": true` in its config), so 8.2's staging saving applies as written. The
+   same check confirmed the region decision — the deployment record carries
+   `regions: asia-southeast1-eqsg3a`.

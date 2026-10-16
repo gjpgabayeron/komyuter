@@ -19,7 +19,7 @@ if (!process.env.DATABASE_URL && existsSync(".env")) {
  */
 const adminEmail = z.string().min(1);
 /**
- * 12, not the 6 `supabase/config.toml` sets for the local stack: this pair protects
+ * 12, not the 8 `supabase/config.toml` sets for the local stack: this pair protects
  * the single highest-privilege Account, and the floor has to be enforced here because
  * a Cloud project's own minimum is a dashboard setting no code can read (the M1
  * operator checklist in `docs/DEPLOY.md` §1 raises it to match). The documented local

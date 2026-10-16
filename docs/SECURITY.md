@@ -198,6 +198,68 @@ SPA's runtime dependencies is an open choice, not a covered one.
 
 ---
 
+### 2.7 Data API exposure (M1)
+
+Every table the migration chain creates lives in the exposed `public` schema, and the staging project's
+PostgREST endpoint serves them to anyone holding the **publishable** key — a key that is public by design
+and is what the commuter app will eventually ship. Measured against the deployed project rather than
+inferred:
+
+| Check                                                                             | Result                                  |
+| --------------------------------------------------------------------------------- | --------------------------------------- |
+| `GET /rest/v1/` with no key                                                       | `401` — the endpoint does require a key |
+| `GET /rest/v1/{routes,stops,fare_configs,admin_users}?select=*` with the anon key | `200` on all four                       |
+
+`200` is the finding. The empty arrays are only the empty staging dataset; the status code is the exposure.
+Supabase's own advisor agrees, and rates it an error:
+
+| ID  | Severity            | Finding                                                                                                                                                                                                                                                                                                                                                                       | Evidence                                                                                                                                                                                                                  |
+| --- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | High (external)     | `rls_disabled_in_public` — row level security is off on all nine `public` tables and `anon`/`authenticated` hold grants on them, so the publishable key reads every row of the dataset, `admin_users` included, through the Data API. **Write access was not probed** — a probe that could write if the guess were wrong — so treat the grant surface as unknown, not narrow. | `get_advisors` on the staging project: level `ERROR`, count 9 (`admin_users`, `routes`, `directions`, `stops`, `detours`, `detour_stops`, `restrictions`, `fare_configs`, `spatial_ref_sys`); the two `curl` checks above |
+| P2  | Low (informational) | `extension_in_public` — `postgis` is installed in `public`. That is the extension's own install choice, not ours.                                                                                                                                                                                                                                                             | `get_advisors`: level `WARN`                                                                                                                                                                                              |
+| P3  | Low (informational) | `anon_security_definer_function_executable` — three `st_estimatedextent` overloads run `SECURITY DEFINER` and are callable via `/rest/v1/rpc/`. They return geometry extents, so what leaks is a bounding box rather than row data.                                                                                                                                           | `get_advisors`: level `WARN`, count 3                                                                                                                                                                                     |
+
+**Recommendation.** Enable RLS with no policies (deny-all) on the app tables and revoke the `anon` and
+`authenticated` grants, **in the migration chain** rather than by hand. It costs the running service
+nothing: the server reaches Postgres as `postgres` through `DATABASE_URL`, which bypasses RLS, and it never
+uses the Data API — the admin SPA talks to `apps/server`, not to PostgREST. Nothing here is urgent today,
+because the dataset is empty and no client ships the key yet; but the same chain builds production at M4,
+and the key becomes genuinely public the moment the commuter app ships. P2 and P3 are recorded rather than
+fixed: they come from PostGIS's own installation, and moving the extension out of `public` is a schema
+change with `search_path` consequences this project has no reason to take on.
+
+**Resolution 2026-10-15 — `supabase/migrations/0006_deny_data_api_access.sql`.** The migration is this
+recommendation, applied in the chain: default privileges revoked for both exposed roles, `revoke all` on
+every table and sequence in `public`, and RLS enabled with no policies on the eight application tables.
+Verified locally rather than assumed — the file applies, afterwards 8 of 9 `public` tables report RLS on
+and both roles report no `SELECT`, while `postgres` still reads the dev dataset (6 routes, 1 admin). It can,
+because `select rolname, rolsuper, rolbypassrls from pg_roles` reports `rolbypassrls = true` for `postgres`:
+deny-all RLS cannot lock the service out of its own data. The server suite passes (22 files, 180 tests) with
+the migration in the chain.
+
+Two honest limits. **`public.spatial_ref_sys` keeps RLS off and stays readable.** PostGIS owns it through
+`supabase_admin`, so `postgres` cannot alter it — measured, not assumed: `SQLSTATE 42501, must be owner of
+table spatial_ref_sys` — and PostGIS grants `SELECT` on it to `PUBLIC`, which the schema-wide `revoke all`
+cannot reach either. Confirmed against the staging project: `GET /rest/v1/spatial_ref_sys?select=srid` with
+the publishable key returns `200` with real rows. What that exposes is the EPSG reference catalogue rather
+than project data, so the finding stands as informational; clearing the advisor's last ERROR means moving the
+extension out of `public`, which is the schema change already declined above. And **the exposure closes only
+where the chain is applied**: the staging project keeps serving the application tables to the publishable key
+until `supabase db push` runs there, so **Applied and verified 2026-10-16**, after the first staging deploy: `0006` is recorded in the staging
+project's migration history, `GET /rest/v1/admin_users` and `/rest/v1/routes` with the publishable key now
+answer `401` where they answered `200`, and a create/read/delete cycle through the deployed API — a route, a
+direction carrying a `LineString` and two `Point` stops — succeeded with deny-all RLS live. That last one is
+what confirms `postgres`'s `rolbypassrls` on the deployment itself rather than only in a catalog, and it is
+the check `DEPLOY.md`'s rehearsal step 9 exists for.
+
+**Why no local test could have caught this.** Locally the exposed roles hold no grants on new tables at all
+(`has_table_privilege('anon', …)` is already `f` before the migration), so the revokes are no-ops here and
+the local environment never reproduced the exposure — the Cloud project granted the exposed roles by
+default. That difference is why it took an advisor run and a live key check to find, and why the check
+belongs in the provisioning checklist rather than only in this document.
+
+---
+
 ## 3. What is done well (keep)
 
 - Supabase Auth instead of hand-rolled JWTs (ADR-0006) — correct call.
