@@ -5,7 +5,7 @@
 - **Supersedes/refines**: makes real the conflict machinery built in `specs/008-admin-route-workspace-refactor/`
   (the conflict plate and `LoadLatestDialog`), corrects the claim in `apps/admin/src/features/routes/routeCache.ts`
   that a save-time 409 guards write-write conflicts, and revises the single-slot **Draft** of
-  `docs/CONTEXT.md`. Depends on ADR-0019, which is what makes several plotters possible.
+  `CONTEXT.md`. Depends on ADR-0019, which is what makes several plotters possible.
 
 ## Context
 
