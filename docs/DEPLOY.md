@@ -41,15 +41,17 @@ replaced before any migration was applied to it, so nothing was lost and the top
 decision rather than contradicting it. The staging **service** is live as well: the Railway project
 `komyuter` holds both environments, `staging` runs one service — the container built from this repository,
 with the domain, variables and health check §3.2–§3.3 describe — and `production` is still empty, because it
-belongs to M4. Migrations are applied through `0005` on staging; `0006` is written and locally verified but
-not yet pushed there. What remains for M1 is the Cloud auth settings (§1), pushing this branch, and the exit
+belongs to M4. The migration chain is applied **through `0006`** on staging, and `0006` is in effect: the
+publishable key that read `admin_users` and `routes` is refused (`401`) now. §1's auth policy is set for
+everything the plan allows, and this branch is pushed and awaiting merge — so M1 is down to its exit
 criterion.
 
 The service boots without the owner's credentials (§3.3, ADR-0022 §9), and the boot-time provenance line
 (§3.6) is implemented and live. The pre-deploy migration step is **not** in place on the platform: §3.4
 records that the command this project documented cannot run there, so it is deliberately left empty for M1
-and handed to M4. M1's exit criterion is only met once a **second person** opens the deployed URL and plots a
-route end to end.
+and handed to M4. M1's exit criterion is **met**: a second person signed in as the owner Account and plotted
+a route end to end, and the staging dataset holds the result — 1 route, 2 directions, 22 stops, none of
+which this project's own checks created.
 
 ## What the image contains
 
