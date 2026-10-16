@@ -61,8 +61,12 @@ keep the durable decisions, drop the mechanism — applies unchanged to OpenWiki
 3. **`openwiki/` is retired in full.** The wiki, its `.claims/` sidecars, the `openwiki` MCP server entry
    in `opencode.jsonc`, the installed skill under `.opencode/`, the inert
    `.github/workflows/openwiki-update.yml`, the ignore rules in `.gitignore`, `.prettierignore` and
-   `.dockerignore`, and `.openwikiignore` are all removed. The global `openwiki` CLI is left installed on
-   the development machine; nothing in the repository invokes it.
+   `.dockerignore`, and `.openwikiignore` are all removed. No repository configuration invokes the
+   `openwiki` CLI any more; whether it stays installed on a given machine is outside the repository's
+   control. Removing `.openwikiignore` removed a **secrets guard**, not just a preference: the CLI
+   discovers files from the filesystem rather than from Git, so it read `.env` (gitignored but present on
+   disk) as model input unless a path was named there. Uninstall the CLI, or restore `.openwikiignore`,
+   before running it against this repository again.
 
 4. **"How does the system work today?" is answered by the code and its tests.** No replacement artifact is
    created. `AGENTS.md` carries the rules and `docs/adr/` the decisions; the runtime behaviour is read from
