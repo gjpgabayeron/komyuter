@@ -7,7 +7,8 @@
   - `apps/server` — Fastify v5 admin API (`@komyuter/server`), TDD'd against the local Supabase stack
   - `apps/mobile` — Expo app (from a later starter import)
   - `packages/ui` (`@repo/ui`), `packages/typescript-config` (`@repo/typescript-config`), `packages/shared` (`@komyuter/shared`)
-- **Which document to trust.** Design decisions live in `docs/adr/0001-…md`, and **the ADR wins wherever any other document disagrees**. The glossary is `docs/CONTEXT.md`; the milestone plan (order, deliverables, exit criteria) is `docs/ROADMAP.md`; the admin surface as built is `docs/ADMIN.md`; `openwiki/` describes how the system works today; `specs/` holds per-feature specifications.
+- **Which document to trust.** Design decisions live in `docs/adr/0001-…md`, and **the ADR wins wherever any other document disagrees**. The glossary is `docs/CONTEXT.md`; the canonical project principles are `docs/PRINCIPLES.md`; the milestone plan (order, deliverables, exit criteria) is `docs/ROADMAP.md` (reference milestone ids such as `M2a` rather than restating them); the admin surface as built is `docs/ADMIN.md`; `openwiki/` describes how the system works today.
+- `specs/` holds the **completed** per-feature specifications, frozen as design and history documents — read them for the reasoning behind shipped work, but do not add new ones (new work starts as a GitHub issue; see **Agent skills** below). The most recent is `specs/012-alternative-route-plotting/plan.md`.
 - The design docs for the target thesis system (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **not** a current file map, and the code contradicts them in places. Four were **archived on 2026-10-08** into `docs/archive/` (`OVERVIEW.md`, `SUMMARY.md`, `SCHEMA.md`, `TECHSTACK.md`) with provenance headers. `docs/BACKEND.md` deliberately stays put: it is the conceptual reference for the routing/AR/trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line number. For the backend, trust the code and `specs/001-local-supabase-backend/`.
 - Historically the docs contradicted each other and the config; resolved now:
   - Backend framework: **Fastify v5** (ADR-0004). `docs/archive/SUMMARY.md`'s Express references are superseded.
@@ -27,6 +28,18 @@
 - CI (`.github/workflows/ci.yml`) runs `format:check`, `lint`, `typecheck`, the **admin test suite**, and `build`, in that order. Server tests are a local pre-merge obligation, so a server-side regression can merge green — see `docs/ROADMAP.md` (M4) where that gap is recorded as a known risk.
 - Hooks: `.husky/pre-commit` runs lint-staged (`eslint` + `prettier --check` on staged files, no auto-fix) and a warn-only branch-name check; `.husky/commit-msg` enforces conventional commits via commitlint (`commitlint.config.cjs`, scopes are warn-level).
 - Install with pnpm (workspace deps use `workspace:*`); `.npmrc` sets `auto-install-peers = true`.
+
+## Agent skills
+
+The engineering workflow is driven by skills. Installed here: `grilling`, `domain-modeling`, `codebase-design`, `code-review`, `improve-codebase-architecture`, `handoff`. The issue-workflow skills (`to-spec`, `to-tickets`, `triage`) are not installed yet; install them before relying on an issue-driven flow. Their per-repo configuration lives in `docs/agents/` and is already in place.
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues, driven by the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: the glossary is `docs/CONTEXT.md` (not a root `GLOSSARY.md`), decisions are `docs/adr/`, principles are `docs/PRINCIPLES.md`. See `docs/agents/domain.md`.
 
 ## Conventions that matter
 
@@ -53,14 +66,6 @@
 - **PRODUCT.md** (repo root) and **DESIGN.md** (repo root) hold the product's strategic and visual systems. Load both before any UI work; DESIGN.md wins on visual decisions, PRODUCT.md wins on strategic/voice decisions.
 - Register: **product**. Commuter app + admin dashboard share one world: **The Route Sign** (flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4px corners, no shadows).
 - Surface briefs live in `.impeccable/surfaces/` per app; the first surface (commuter app) brief is at `apps/mobile/.impeccable/surfaces/apps-mobile.md`.
-
-<!-- SPECKIT START -->
-
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the milestone plan
-at C:\ProgrammingFiles\Projects\School Activities\Thesis\komyuter\docs\ROADMAP.md
-(the most recent per-feature plan is specs/012-alternative-route-plotting/plan.md)
-<!-- SPECKIT END -->
 
 <!-- OPENWIKI:START -->
 
