@@ -179,12 +179,12 @@ identity.
    configures the _local_ stack only; none of it reaches a Cloud project, so every one of these is a
    manual step that no test will catch:
 
-   | Setting                    | Value | Why                                                                                                                   |
-   | -------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------- |
-   | Minimum password length    | 12    | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 8 is a convenience. |
-   | Confirm email              | on    | `signInWithPassword` refuses an unconfirmed identity, so an unconfirmed owner cannot sign in at all.                  |
-   | Allow new users to sign up | off   | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
-   | Leaked-password protection | on    | Cheap, and this project has exactly one credential that matters.                                                      |
+   | Setting                    | Value        | Why                                                                                                                   |
+   | -------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------- |
+   | Minimum password length    | 12           | Matches the floor `loadAdminCredentials` enforces for the owner Account (§3.3); the local stack's 8 is a convenience. |
+   | Confirm email              | on           | `signInWithPassword` refuses an unconfirmed identity, so an unconfirmed owner cannot sign in at all.                  |
+   | Allow new users to sign up | off          | No self-service signup exists: an Account exists because an admin created it (ADR-0019, invite-only).                 |
+   | Leaked-password protection | **deferred** | Needs a Pro plan, which this project is not on: out of scope for M1 rather than pending. Revisit if the plan changes. |
 
 **The dashboard is the only writer, but all four settings can still be checked from outside**, which
 matters because "no test will catch them" is true of the test suite and not of the platform:
