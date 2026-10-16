@@ -44,8 +44,10 @@ conflicts. Then:
 
 - **`docs/adr/`** — the design decisions and their rationale. **Authoritative**: where
   any other document disagrees, the ADR wins.
-- **`docs/`** — `CONTEXT.md` (glossary), `SECURITY.md`, `CRITIQUE.md` and `DEVIATIONS.md`
-  (thesis process records), and `thesis/` (chapters and references).
+- **`CONTEXT.md`** (repo root) — the glossary and ubiquitous language: the canonical terms, and
+  the synonyms each one avoids.
+- **`docs/`** — `SECURITY.md`, `CRITIQUE.md` and `DEVIATIONS.md` (thesis process records), and
+  `thesis/` (chapters and references).
 - **`PRODUCT.md`**, **`DESIGN.md`** (repo root) — the product's strategic and visual
   systems. Load both before UI work.
 - **`specs/`** — per-feature specifications, plans and contracts.

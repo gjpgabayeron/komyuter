@@ -27,7 +27,7 @@ plausibility, number breaks that trust faster than any other defect.
 
 Significant architecture, domain, and routing decisions MUST be recorded in `docs/adr/` as ADRs before
 they are relied upon. **Where any design doc contradicts a decision, the ADR wins.** Specs, plans,
-contracts, and code MUST be reconciled with the ADRs and with `docs/CONTEXT.md`.
+contracts, and code MUST be reconciled with the ADRs and with `CONTEXT.md`.
 
 _Rationale:_ the root design docs historically contradicted each other and the configuration; ADRs are
 the single authoritative decision record and the tiebreaker.
@@ -44,7 +44,7 @@ dashboard, and the server; divergence between copies is a bug.
 
 ### IV. Canonical Language
 
-Specs, plans, contracts, and code MUST use the canonical terms defined in `docs/CONTEXT.md` and MUST
+Specs, plans, contracts, and code MUST use the canonical terms defined in `CONTEXT.md` and MUST
 NOT use their listed synonyms (for example "Line" for Route, "Hail-and-ride point" for Boarding
 Point, "user" for Commuter or Account). New concepts MUST be added to the glossary before use.
 
@@ -66,7 +66,7 @@ validated.
   principles and the ADRs win.
 - Responsibilities that the retired constitution assigned to itself are split as follows: `AGENTS.md`
   carries the runtime development conventions and the spatial/domain constraints; `docs/adr/` carries
-  the decisions; `docs/CONTEXT.md` is the authoritative glossary, and terms MUST be added there before
+  the decisions; `CONTEXT.md` is the authoritative glossary, and terms MUST be added there before
   use (Principle IV).
 - **UI work MUST load `PRODUCT.md` and `DESIGN.md` first.** DESIGN wins on visual decisions, PRODUCT
   wins on strategic/voice decisions. The visual grammar is "The Route Sign" — flat enamel sign-plate
