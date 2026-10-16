@@ -44,8 +44,6 @@ conflicts. Then:
 
 - **`docs/adr/`** — the design decisions and their rationale. **Authoritative**: where
   any other document disagrees, the ADR wins.
-- **`openwiki/`** — a generated wiki describing how the system works _today_. Entry point
-  is `openwiki/quickstart.md`; refresh it with `openwiki --update`.
 - **`docs/`** — `CONTEXT.md` (glossary), `SECURITY.md`, `CRITIQUE.md` and `DEVIATIONS.md`
   (thesis process records), and `thesis/` (chapters and references).
 - **`PRODUCT.md`**, **`DESIGN.md`** (repo root) — the product's strategic and visual
@@ -56,4 +54,4 @@ conflicts. Then:
 > describe a _target_ system, not the current one, and now live in `docs/archive/` for
 > provenance. `docs/BACKEND.md` stays where it is — it is the conceptual reference for the
 > routing, AR and trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line
-> number. Trust the code, the ADRs and the wiki over any of them.
+> number. Trust the code and the ADRs over any of them.

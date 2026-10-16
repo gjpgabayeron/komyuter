@@ -25,7 +25,6 @@ node_modules
 # Not built into this image, and large.
 navbench
 docs
-openwiki
 .impeccable
 
 *.log

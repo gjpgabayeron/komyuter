@@ -258,7 +258,7 @@ root manifests (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc
 dependency layer COPYs it — `apps/server/**`, `apps/admin/**`, `packages/shared/**`,
 `packages/ui/**`, and **`supabase/migrations/**`**, which §3.4 copies into the image and the pre-deploy
 step applies: a migration that lands without a rebuild would be applied by the previous image's copy of
-the chain. `apps/mobile` source beyond its manifest, `navbench`, `docs`, `openwiki` and `.impeccable` stay
+the chain. `apps/mobile` source beyond its manifest, `navbench`, `docs` and `.impeccable` stay
 out: `.dockerignore` keeps them out of the build context anyway.
 
 ### 3.2 Deploy settings

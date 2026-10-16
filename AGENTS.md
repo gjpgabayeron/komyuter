@@ -7,7 +7,7 @@
   - `apps/server` — Fastify v5 admin API (`@komyuter/server`), TDD'd against the local Supabase stack
   - `apps/mobile` — Expo app (from a later starter import)
   - `packages/ui` (`@repo/ui`), `packages/typescript-config` (`@repo/typescript-config`), `packages/shared` (`@komyuter/shared`)
-- **Which document to trust.** Design decisions live in `docs/adr/0001-…md`, and **the ADR wins wherever any other document disagrees**. The glossary is `docs/CONTEXT.md`; the canonical project principles are `docs/PRINCIPLES.md`; the milestone plan (order, deliverables, exit criteria) is `docs/ROADMAP.md` (reference milestone ids such as `M2a` rather than restating them); the admin surface as built is `docs/ADMIN.md`; `openwiki/` describes how the system works today.
+- **Which document to trust.** Design decisions live in `docs/adr/0001-…md`, and **the ADR wins wherever any other document disagrees**. The glossary is `docs/CONTEXT.md`; the canonical project principles are `docs/PRINCIPLES.md`; the milestone plan (order, deliverables, exit criteria) is `docs/ROADMAP.md` (reference milestone ids such as `M2a` rather than restating them); the admin surface as built is `docs/ADMIN.md`.
 - `specs/` holds the **completed** per-feature specifications, frozen as design and history documents — read them for the reasoning behind shipped work, but do not add new ones (new work starts as a GitHub issue; see **Agent skills** below). The most recent is `specs/012-alternative-route-plotting/plan.md`.
 - The design docs for the target thesis system (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **not** a current file map, and the code contradicts them in places. Four were **archived on 2026-10-08** into `docs/archive/` (`OVERVIEW.md`, `SUMMARY.md`, `SCHEMA.md`, `TECHSTACK.md`) with provenance headers. `docs/BACKEND.md` deliberately stays put: it is the conceptual reference for the routing/AR/trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line number. For the backend, trust the code and `specs/001-local-supabase-backend/`.
 - Historically the docs contradicted each other and the config; resolved now:
@@ -41,6 +41,16 @@ Issues live in this repo's GitHub Issues, driven by the `gh` CLI. See `docs/agen
 
 Single-context: the glossary is `docs/CONTEXT.md` (not a root `GLOSSARY.md`), decisions are `docs/adr/`, principles are `docs/PRINCIPLES.md`. See `docs/agents/domain.md`.
 
+## Documentation scope
+
+Documentation here carries **intent, not implementation**. The recorded decision is `docs/adr/0023-documentation-scope.md`.
+
+- **Write why, not how.** Record decisions and rationale (`docs/adr/`), rules and conventions (this file), glossary terms (`docs/CONTEXT.md`), principles (`docs/PRINCIPLES.md`), plans and exit criteria (`docs/ROADMAP.md`), and setup and operation (`docs/DEPLOY.md`). Do not restate what the source, the schemas or the tests already say: a prose copy of a type or a call graph is a second source of truth that drifts silently and is authoritative for nothing.
+- **Answer "how does this work today?" by reading the code and its tests.** There is no wiki and no implementation-described-in-prose surface; creating one is the failure mode this rule exists to prevent.
+- **Authority ladder** (decreasing): `docs/adr/` → this file → the code and its tests → prose documents. A new prose document is justified only when it carries something the ladder above it does not.
+- **Records and citations are exempt from pruning.** `docs/archive/`, `docs/thesis/` and `specs/` are dated records, and the documents cited **by line number** from elsewhere (`docs/BACKEND.md`, `docs/SECURITY.md`, `docs/DEVIATIONS.md`) are citable material — editing above a cited line breaks the citation. Leave them as written.
+- **Prefer a Mermaid diagram** where a runtime flow or a data model is clearer to see than to read.
+
 ## Conventions that matter
 
 - TS is strict via shared `@repo/typescript-config` (`strict: true`). Extend it; don't redefine tsconfigs from scratch.
@@ -66,20 +76,3 @@ Single-context: the glossary is `docs/CONTEXT.md` (not a root `GLOSSARY.md`), de
 - **PRODUCT.md** (repo root) and **DESIGN.md** (repo root) hold the product's strategic and visual systems. Load both before any UI work; DESIGN.md wins on visual decisions, PRODUCT.md wins on strategic/voice decisions.
 - Register: **product**. Commuter app + admin dashboard share one world: **The Route Sign** (flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4px corners, no shadows).
 - Surface briefs live in `.impeccable/surfaces/` per app; the first surface (commuter app) brief is at `apps/mobile/.impeccable/surfaces/apps-mobile.md`.
-
-<!-- OPENWIKI:START -->
-
-## OpenWiki
-
-This repository has a generated `openwiki/` evidence index. It is optional just-in-time context, not required startup reading.
-
-- Do not enumerate, preload, or search wikis at task start. Use retrieval when the user asks for it, when unfamiliar architecture or dependency behavior materially affects the task, or when source inspection leaves an important uncertainty. Stop once the question is grounded.
-- When those conditions apply and OpenWiki retrieval tools are available, use `openwiki_search` for just-in-time context and `openwiki_read` for the relevant complete sections. If search returns `workspace_required`, ask which listed workspace to use and retry with its ID.
-- Use `openwiki_list_workspaces` or `openwiki_list_wikis` when workspace membership itself needs to be discovered.
-- If the retrieval tools are unavailable, read `openwiki/quickstart.md` and follow its links to the relevant pages.
-- Treat source code and tests as authoritative. A brief's unknowns and review items are verification gaps, not automatic requirements.
-- Prefer the narrowest quiet validation that proves the changed behavior. Preserve complete failure output.
-
-The scheduled OpenWiki GitHub Actions workflow refreshes the repository wiki. Do not hand-edit generated OpenWiki pages unless explicitly asked; prefer updating source code/docs and letting OpenWiki regenerate.
-
-<!-- OPENWIKI:END -->
