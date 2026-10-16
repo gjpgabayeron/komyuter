@@ -467,6 +467,23 @@ hop count before the URL is handed to anyone.
 Status codes cannot distinguish the two denial reasons by design (every denial is the same 401 body), so
 this check deliberately uses a **successful** sign-in as its signal rather than the shape of a failure.
 
+**Run against staging on 2026-10-16, which found two gaps in the check above.** What it confirmed: the
+throttle does see real clients — a client-forged `X-Forwarded-For` was ignored (`source` in the deploy logs
+stayed the caller's real address) — and it is not the shared-key global lockout this section warns about: one
+account's five failures were denied as `security.sign_in_throttled` while a different account on the same
+address got an ordinary failure.
+
+- **A `200` on its own proves nothing.** It is also what you see when the per-source limit never engaged. The
+  disambiguating artefact is the event name, which appears only in the deploy logs: confirm
+  `railway logs -d --lines 500 | grep security` shows `security.sign_in_throttled` for the burned account
+  before reading a `200` as isolation.
+- **A client's address is not necessarily a stable identity.** One client here presented six addresses in a
+  single session (an ISP rotating within `152.233.15.0/24` and `152.233.68.0/24`), so five failures spread
+  across keys and the per-source limit never fired; the per-account key is what held. Mobile, CGNAT and
+  rotating-address clients therefore escape the per-source dimension largely intact, while a targeted account
+  is still limited to five attempts per window. Whether to key on a prefix, lengthen the window, or move the
+  state to a shared store is ADR-0005's decision, not this document's.
+
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
 A second person opens the deployed URL, signs in as the owner Account, and plots a route end to end; the
