@@ -56,7 +56,7 @@ These were conflicts **inside the codebase's own docs**, not with the thesis. Th
 
 - **Resolved — Leaflet/Mapbox-GL-Draw admin references replaced with MapLibre GL JS**:
   - `docs/archive/OVERVIEW.md`, `docs/archive/SCHEMA.md`, `docs/archive/SUMMARY.md`, `docs/archive/TECHSTACK.md`, `docs/BACKEND.md` — every Leaflet / `@mapbox/mapbox-gl-draw` admin reference, the `[lat,lng]` exception text, and the conversion-boundary language replaced with **MapLibre GL JS + `[lng,lat]`, no conversion layer (ADR-0013)**. (`base_dist_km`→`base_distance_km` in `TECHSTACK.md` handled under A2.)
-- **Already correct** (no action): `docs/ADMIN.md:45,601` (MapLibre, ADR-0013) and `AGENTS.md` (MapLibre, ADR-0013).
+- **Already correct** (no action): `docs/ADMIN.md` §2 rule 1 and Appendix F (MapLibre, ADR-0013) and `AGENTS.md` (MapLibre, ADR-0013).
 
 ---
 

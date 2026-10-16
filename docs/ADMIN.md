@@ -78,7 +78,7 @@ komyuter/
 **Server surface (what the dashboard talks to):**
 
 - Fastify v5 + `@fastify/type-provider-zod`, drizzle-orm on Postgres/PostGIS, Supabase Auth for the admin account.
-- Auth: `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout` (outside the admin guard) — see Appendix G.
+- Auth: `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout` (outside the admin guard) — the route modules are in `apps/server/src/api/`.
 - Admin CRUD: routes (hard delete), directions/stops/detours/restrictions (soft delete via `is_active`), fare configs (soft deactivate + guards), dataset export, mapbox directions proxy.
 - Envelope + error codes everywhere; origin guard (`ADMIN_ORIGINS`), login throttle (account + source blocks), security-events audit trail.
 - Env vars (`apps/server/src/config/env.ts`): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT` (default 3000), `MAPBOX_SECRET_TOKEN` (optional — directions proxy falls back to mock), `ALLOW_DEV_CREDENTIAL` (default false), `ADMIN_ORIGINS`. `ADMIN_EMAIL`/`ADMIN_PASSWORD` are **optional** — the server neither requires nor reads them (ADR-0022 §9); the `bootstrap:owner` script and the integration harness require them via `loadAdminCredentials()`.
@@ -297,67 +297,6 @@ Status: ✅ implemented · 🟡 partial · 🚧 planned · ⛔ superseded. "Plan
 - **Geocoding:** none server-side today; POI search is client-side Nominatim (R4 to replace with a Mapbox proxy).
 - **Coordinate order:** `[lng, lat]` only — no conversion layer.
 
-## 10. Architecture (current file map)
-
-```
-apps/admin/src/
-├─ app/                  # app composition: AppShell, NavRail, Header, router, providers
-│  ├─ app.tsx            # AuthProvider → QueryClientProvider → BrowserRouter → Toaster
-│  ├─ router.tsx         # /login, / (Overview), /routes, /routes/:routeId, /fares, /export, 404
-│  ├─ AppShell.tsx       # skip link, ConnectionBanner, NavRail, Header, Outlet
-│  ├─ NavRail.tsx        # sections (Overview/Routes/Fares/Export), collapsed/hover modes
-│  └─ Header.tsx         # section title, user menu, sign-out
-├─ pages/
-│  ├─ RouteWorkspace.tsx # the core surface — four-state machine (empty/overview/focus/edit)
-│  ├─ Fares.tsx          # fares section (table + form + delete dialog)
-│  ├─ Login.tsx          # auth form
-│  ├─ Overview.tsx       # placeholder (R6)
-│  ├─ Export.tsx         # placeholder (R7)
-│  └─ NotFound.tsx
-├─ features/
-│  ├─ auth/              # AuthForm, RequireAuth, AuthProvider (context), api (login/me), session, sessionExpired, redirect, restore, BackendUnreachable
-│  ├─ routes/            # THE workspace:
-│  │  ├─ RouteWorkspace.tsx            # state derivation + orchestration
-│  │  ├─ workspace/                     # WorkspaceColumns, RouteWorkspaceProvider, geometry, NarrowWindowGate
-│  │  ├─ RouteList.tsx / RouteRow.tsx   # left column (overview + edit variants)
-│  │  ├─ PropertiesPanel.tsx            # right column (FocusPlate / RouteGroup / StopGroup / StopEditor)
-│  │  ├─ properties/                    # FocusPlate, RouteGroup, StopGroup, StopEditor, ConnectionSelect
-│  │  ├─ StatusBar.tsx                  # save lifecycle + one contextual notice
-│  │  ├─ PoiSearchBar.tsx               # Nominatim pill (debounced)
-│  │  ├─ PlotActionBar.tsx              # ToolToggle, Undo/Redo, LayerToggles
-│  │  ├─ EmptyState.tsx                 # veil: Create new route + Import JSON placeholder
-│  │  ├─ stopLabels.ts                  # STOP_TYPE_LABELS (terminal / major stop / waiting area)
-│  │  ├─ RouteMap.tsx + map/            # one MapLibre instance, RouteOverviewLayer, RouteLines, BasemapController, PerspectiveController, RouteFitter, SelectionPanner, constants
-│  │  └─ routesApi.ts                   # admin → server calls (list/overview/create/get/patch/delete, directions, stops, snap)
-│  ├─ fares/             # FareConfigTable, FareConfigForm, DeleteFareConfigDialog, api, queries, format, validation
-│  └─ network/           # (planned for R6 — networkApi/NetworkMap not yet implemented)
-├─ lib/
-│  ├─ plottingStore.ts   # zustand: tool, stops, connections, polyline, snap state, layers, selection
-│  ├─ connections.ts     # chain building, rewire, loop closure
-│  ├─ plottingHistory.ts # undo/redo (5 kinds, coalescing)
-│  ├─ draft.ts           # localStorage drafts (24 h TTL, 500 ms debounce)
-│  ├─ coords.ts          # [lng, lat] math, segment helpers
-│  ├─ stopShapes.ts      # type → shape/label mapping (selection never color-only)
-│  ├─ overlap.ts         # draft-vs-saved stop matching
-│  ├─ routeColors.ts     # palette + text-color contrast
-│  ├─ tiles.ts           # OpenFreeMap styles
-│  ├─ poiSearch.ts       # Nominatim URL builder + parser
-│  ├─ uiStore.ts         # sidebar mode (expanded/collapsed/hover)
-│  ├─ sections.ts        # nav sections registry
-│  ├─ queryKeys.ts       # react-query keys
-│  ├─ api.ts             # axios envelope client, token, connection banner, session expiry
-│  ├─ toast.ts           # sonner helper
-│  └─ utils.ts           # cn()
-├─ tests/                # 21 Vitest suites (pure logic, node env)
-└─ main.tsx, index.css   # entry; oklch tokens (Appendix E)
-```
-
-**Key flows:**
-
-- _Boot:_ `App → RequireAuth → me() → AppShell → router → section`.
-- _Edit route:_ `RouteList (open) → focus state (FocusPlate) → Edit → edit state → Add tool places stops → connections chain → debounced snap → drafts persist → Save = atomic PUT (stops + polyline + derived return) → conflict? LoadLatest`.
-- _All API calls:_ `lib/api.ts` unwraps `{ success, data }`, maps error codes, sets the token header, detects `401` (session expiry) and network failure (ConnectionBanner).
-
 ## 11. Known limitations & gotchas
 
 1. **`[lng, lat]` everywhere** — a swapped pair puts stops in the ocean; there is no converter (ADR-0013).
@@ -374,23 +313,6 @@ apps/admin/src/
 12. **`/routes/overview` is a reserved slug** — the overview endpoint coexists with `/routes/:routeId`; keep the guard.
 13. **Fare configs: exactly one default** — enforced server-side; the form pre-validates `validateDefaultUnset`.
 14. **Prettier** — this file is formatted by Prettier (`pnpm format:check`); keep tables/pipes Prettier-clean.
-
-## 12. Roadmap task plan
-
-The milestones these items are grouped into, with the exit criterion for each, are in `docs/ROADMAP.md`.
-
-Current workspace (ADR-0014/0015) is **done**. Remaining, in order:
-
-1. **R1** Detour + restriction editing UI (workspace actions, nested editor, snapping, visual style) — FR-010/016/018, SC-009/010/012.
-2. **R2** Detour conditional triggers: shared schemas + `api/detours.ts` + active-detour resolution — FR-027/029, SC-018 (ADR-0012).
-3. **R3** No-stop segments UI on top of R1 — FR-028, SC-010.
-4. **R4** Mapbox geocoding proxy replacing Nominatim.
-5. **R5** Extract `fareCalculator` into `@komyuter/shared`; rewire admin + mobile.
-6. **R6** Overview/network page (replace placeholder).
-7. **R7** Export UI (endpoint ready).
-8. **R8** Dataset import (replace placeholder).
-
-Each roadmap item must land with its Vitest coverage + docs updated here (status flip from 🚧 to ✅).
 
 ## 13. Reference index
 
@@ -425,149 +347,6 @@ Open `http://localhost:5173`, sign in with the admin credential. Without `MAPBOX
 Quality gates before commit: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, `pnpm --filter server typecheck`, `pnpm --filter server test` (integration suite needs the local stack up). Tests are written first per `specs/001-local-supabase-backend/tasks.md` (TDD: red before implementation).
 
 ---
-
-## Appendix A — Domain types (`packages/shared/src/types/domain.ts`)
-
-```ts
-// Route/Stop/etc. as defined in packages/shared/src/types/domain.ts
-
-export const STOP_TYPE_VALUES = [
-  "terminal",
-  "major_stop",
-  "waiting_area",
-] as const;
-export type StopType = (typeof STOP_TYPE_VALUES)[number];
-
-export const RESTRICTION_REASON_VALUES = [
-  "no_stopping_zone",
-  "contraflow",
-  "pedestrian_hostile",
-] as const;
-export type RestrictionReason = (typeof RESTRICTION_REASON_VALUES)[number];
-
-export const RESTRICTION_AFFECTS_VALUES = [
-  "boarding",
-  "alighting",
-  "both",
-] as const;
-export type RestrictionAffects = (typeof RESTRICTION_AFFECTS_VALUES)[number];
-
-export interface Route {
-  route_id: string;
-  name: string;
-  short_name: string;
-  color: string | null;
-  is_active: boolean;
-  fare_config_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Direction {
-  direction_id: string;
-  route_id: string;
-  label: string;
-  base_polyline: GeoLineString;
-  origin_stop_id: string | null;
-  destination_stop_id: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Stop {
-  stop_id: string;
-  direction_id: string;
-  name: string;
-  stop_order: number;
-  type: StopType;
-  location: GeoPoint;
-  is_guaranteed_service: boolean;
-  ar_marker_enabled: boolean;
-  landmark_hint: string | null;
-  notes: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface NotableStop {
-  stop_id: string;
-  name: string;
-  is_detour_only: boolean;
-}
-
-export interface Detour {
-  detour_id: string;
-  direction_id: string;
-  label: string;
-  entry: GeoPoint;
-  exit: GeoPoint;
-  detour_polyline: GeoLineString;
-  additional_distance_meters: number | null;
-  commuter_instruction: string;
-  driver_instruction: string | null;
-  notable_stops: NotableStop[];
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-  // ADR-0012 additions (planned, R2 — NOT in the schema today):
-  // active_timeframes: ActiveTimeframe[];  condition: Condition | null;
-}
-
-export interface Restriction {
-  restriction_id: string;
-  direction_id: string;
-  from_coord_index: number;
-  to_coord_index: number;
-  reason: RestrictionReason;
-  affects: RestrictionAffects;
-  note: string | null;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface FareConfiguration {
-  fare_config_id: string;
-  label: string;
-  base_fare: number;
-  base_distance_km: number;
-  rate_per_km: number;
-  student_discount_pct: number;
-  senior_discount_pct: number;
-  is_default: boolean;
-  created_at: string;
-  updated_at: string;
-}
-```
-
-## Appendix B — Geometry types (`packages/shared/src/types/geometry.ts`)
-
-```ts
-/** [lng, lat] — the only coordinate order in the system (ADR-0013). */
-export type CoordinatePair = [number, number];
-
-export interface GeoPoint {
-  type: "Point";
-  coordinates: CoordinatePair;
-}
-
-export interface GeoLineString {
-  type: "LineString";
-  coordinates: CoordinatePair[];
-}
-```
-
-## Appendix C — Zod schemas (`packages/shared/src/schemas/`)
-
-- `domain.ts`: `routeIdSchema` (lowercase slug), `createRouteSchema`, `updateRouteSchema`, `createDirectionSchema` (label + base polyline + origin/destination stop ids + stops), `updateDirectionSchema`, `createStopSchema`, `updateStopSchema`, `overviewStopSchema`, `overviewRouteSchema`, `overviewRoutesSchema`, `notableStopSchema`, `createDetourSchema` (entry/exit points + detour polyline + instructions + notable stops), `updateDetourSchema`, `createRestrictionSchema` (`from_coord_index`/`to_coord_index` + `reason` + `affects` + note), `updateRestrictionSchema`, `createFareConfigSchema`, `updateFareConfigSchema`, plus enums `stopTypeSchema` (`terminal`/`major_stop`/`waiting_area`), `restrictionReasonSchema`, `restrictionAffectsSchema`.
-- `geometry.ts`: `coordinatePairSchema`, `geoPointSchema`, `geoLineStringSchema` — validate `[lng, lat]` and bounded coordinates.
-- `envelope.ts`: `successResponseSchema`, `errorResponseSchema` — the `{ success, data | error }` wire contract.
-- `export-dataset.ts`: `exportDatasetSchema` — the dataset export shape.
-- `mapbox.ts`: `snapCoordinatesSchema`, `mapboxDirectionsResponseSchema` (wire), plus the `SnappedPath`/`SnapCoordinates` types in `types/mapbox.ts`.
-
-**Planned (R2, ADR-0012):** `activeTimeframeSchema`, `conditionSchema` + their inclusion in `createDetourSchema`/`updateDetourSchema`.
 
 ## Appendix D — Fare rule (ADR-0001)
 
@@ -616,37 +395,6 @@ discounted = fare × (1 - discount_rate)
 | 0018 | Deployment topology and production data plane                                    | decided — implemented in milestone M1               |
 | 0019 | Authorization model — Roles as data, Super Admin as ownership                    | decided — implemented in milestones M2a and M2b     |
 | 0020 | Concurrent-plotting safety — version stamp and client-side merge                 | decided — implemented in milestone M2c              |
-
-## Appendix G — API surface (`apps/server/src/api/`)
-
-All responses use the `{ success, data | error }` envelope; error codes in `api/errors.ts` (`VALIDATION_ERROR`, `NOT_FOUND`, `CONFLICT`, `UNAUTHORIZED`, `FORBIDDEN`, `RATE_LIMITED`, `INTERNAL`, `UPSTREAM_ERROR`, `BACKEND_UNREACHABLE`). Admin routes sit under `/api/admin` behind the Supabase auth guard.
-
-**No guard:**
-
-| Method | Path               | Notes                                                                               |
-| ------ | ------------------ | ----------------------------------------------------------------------------------- |
-| POST   | `/api/auth/login`  | `{ email, password }` → `{ access_token, user }`; unified denial, ~250 ms, throttle |
-| GET    | `/api/auth/me`     | token → `user`                                                                      |
-| POST   | `/api/auth/logout` | 204; global revocation                                                              |
-| GET    | `/api/status`      | health/status                                                                       |
-
-**Admin guard — routes:** `GET /api/admin/routes` (summary list) · `POST /api/admin/routes` · `GET /api/admin/routes/overview` (one-shot overview with polylines) · `GET /api/admin/routes/:routeId` · `PUT /api/admin/routes/:routeId` · `DELETE /api/admin/routes/:routeId` (hard cascade).
-
-**Directions:** `GET /api/admin/routes/:routeId/directions` · `POST /api/admin/routes/:routeId/directions` (`plotted` or `legacy` mode) · `GET /api/admin/directions/:directionId` · `PUT /api/admin/directions/:directionId` (atomic save: stops + polyline + derived return) · `DELETE /api/admin/directions/:directionId` (soft).
-
-**Stops:** `GET /api/admin/directions/:directionId/stops` · `POST /api/admin/directions/:directionId/stops` · `PUT /api/admin/stops/:stopId` · `DELETE /api/admin/stops/:stopId` (soft; terminal guard 409).
-
-**Detours (UI = R1):** `GET/POST /api/admin/directions/:directionId/detours` · `PUT/DELETE /api/admin/detours/:detourId` (soft). Payload: label, entry/exit points, detour polyline, instructions, notable stops (ADR-0008).
-
-**Restrictions (UI = R1):** `GET/POST /api/admin/directions/:directionId/restrictions` · `PUT/DELETE /api/admin/restrictions/:restrictionId` (soft). Payload: `from_coord_index`/`to_coord_index` range + `reason` + `affects` (incl. `both` = no-stop segment).
-
-**Fare configs:** `GET /api/admin/fare-configs` · `GET /api/admin/fare-configs/:id` · `POST` · `PUT` · `DELETE` (soft deactivate with exactly-one-default and in-use guards).
-
-**Export:** `GET /api/admin/export/dataset` (assembler in `domain/export.ts`; UI = R7).
-
-**Mapbox:** `GET /api/admin/mapbox/directions` (snap proxy; `MAPBOX_SECRET_TOKEN`; duration stripped; mock fallback). **Geocode: planned (R4).**
-
-**Cross-cutting:** login throttle (`throttle.ts`: account-block after 5 failures, source-block) · origin guard (`origin-guard.ts`: `ADMIN_ORIGINS`) · `security-events.ts` audit log.
 
 ## Appendix H — Glossary
 
