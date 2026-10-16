@@ -132,7 +132,7 @@ description: "Task list for Auth Quick Wins feature implementation"
 
 **Purpose**: Glossary (Constitution Principle IV), SECURITY.md status, and full validation.
 
-- [x] T029 [P] Add glossary entries "Sign-in Attempt" and "Security Event" to `docs/CONTEXT.md` (Principle IV requires the terms to exist in the glossary before use in code)
+- [x] T029 [P] Add glossary entries "Sign-in Attempt" and "Security Event" to `CONTEXT.md` (Principle IV requires the terms to exist in the glossary before use in code)
 - [x] T030 [P] Update `docs/SECURITY.md` — mark findings E3 (dev credential), S1 (no CSP), S3 (origin check — CORS allowlist) as resolved by this feature, plus L1 (session expiry UX), L2 (server-side logout revocation), L3 (unreachable classification), R1 (single authz rule), R2 (uniform denial); note that R3 (RLS) is NOT touched and E4 (throttling) is partial (in-memory, app-level); record the `frame-ancestors` limitation (a `<meta>` CSP cannot express it; deferred to the future hosting layer, R6)
 - [x] T031 Run the validation scenarios in `specs/009-auth-quick-wins/quickstart.md` end-to-end against the local Supabase stack (SC-001…SC-008)
 - [x] T032 Full quality gates: `pnpm --filter server typecheck`, `pnpm --filter server test`, `pnpm --filter admin test`, `pnpm lint`, `pnpm format:check`

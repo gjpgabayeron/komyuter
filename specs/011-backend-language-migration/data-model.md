@@ -6,7 +6,7 @@ Phase 1 output. Derived from `spec.md` §Key Entities and `research.md` R1–R4.
 
 - Everything is deterministic and versioned: fixtures carry a seed and a content hash so runs are reproducible (R1).
 - The three runtimes (Node/Rust/Go) exchange identical JSON for inputs and outputs so results aggregate into one comparison matrix (R4, FR-003).
-- Canonical terms from `docs/CONTEXT.md`; new harness terms (below) are added to the glossary before use (Principle IV).
+- Canonical terms from `CONTEXT.md`; new harness terms (below) are added to the glossary before use (Principle IV).
 
 ## Entities
 

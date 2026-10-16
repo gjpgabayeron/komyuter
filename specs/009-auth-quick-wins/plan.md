@@ -65,14 +65,14 @@ deployment; local thesis scale.
 _GATE: Passed before Phase 0 research; re-checked after Phase 1 design — still
 passes._
 
-| Principle                                                                                                                                                                                              | Status                                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
-| I — Shared-first, never reimplement: throttle/security-event logic is server-internal; the only cross-package contract is the HTTP envelope, reused as-is                                              | ✅ no violation                             |
-| II — Documentation as contract: spec.md, research.md, data-model.md, contracts/, quickstart.md all live in `specs/009-auth-quick-wins/`                                                                | ✅ no violation                             |
-| III — Everything documented is canonical: config.toml values, constants, env vars, and CSP policy each have exactly one home                                                                           | ✅ no violation                             |
-| IV — Canonical naming in docs & code: new concepts "Sign-in Attempt" and "Security Event" get `docs/CONTEXT.md` glossary entries as part of implementation (Principle IV requires addition before use) | ✅ compliant — glossary task included below |
-| V — Measurable acceptance: every requirement carries SC-001…SC-008; quickstart.md maps scenarios → SCs                                                                                                 | ✅ no violation                             |
-| VI — Test strategy: Vitest per amendment; server tests TDD-first; no new test infra                                                                                                                    | ✅ no violation                             |
+| Principle                                                                                                                                                                                         | Status                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| I — Shared-first, never reimplement: throttle/security-event logic is server-internal; the only cross-package contract is the HTTP envelope, reused as-is                                         | ✅ no violation                             |
+| II — Documentation as contract: spec.md, research.md, data-model.md, contracts/, quickstart.md all live in `specs/009-auth-quick-wins/`                                                           | ✅ no violation                             |
+| III — Everything documented is canonical: config.toml values, constants, env vars, and CSP policy each have exactly one home                                                                      | ✅ no violation                             |
+| IV — Canonical naming in docs & code: new concepts "Sign-in Attempt" and "Security Event" get `CONTEXT.md` glossary entries as part of implementation (Principle IV requires addition before use) | ✅ compliant — glossary task included below |
+| V — Measurable acceptance: every requirement carries SC-001…SC-008; quickstart.md maps scenarios → SCs                                                                                            | ✅ no violation                             |
+| VI — Test strategy: Vitest per amendment; server tests TDD-first; no new test infra                                                                                                               | ✅ no violation                             |
 
 No violations → **Complexity Tracking** below remains empty.
 
