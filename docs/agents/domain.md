@@ -6,8 +6,8 @@ How the engineering skills should consume this repo's domain documentation when 
 
 ## Before exploring, read these
 
-- **`docs/CONTEXT.md`** — this repo's glossary and ubiquitous language. It is the `GLOSSARY.md` for this repo; the file is simply named and located differently.
-- **`docs/adr/`** — the authoritative decision record (`0001`–`0022`). Read the ADRs that touch the area you're about to work in. **Where any document disagrees with an ADR, the ADR wins.**
+- **`CONTEXT.md`** (repo root) — this repo's glossary and ubiquitous language. It plays the role of Section C's `GLOSSARY.md`; the file is simply named differently.
+- **`docs/adr/`** — the authoritative decision record. Read the ADRs that touch the area you're about to work in. **Where any document disagrees with an ADR, the ADR wins.**
 - **`docs/PRINCIPLES.md`** — the project principles that shape engineering choices here.
 - **`docs/ROADMAP.md`** — milestone authority: the order of work (`M1`–`M6`) and the exit criterion that closes each milestone. Reference milestone ids; don't restate them.
 
@@ -20,11 +20,11 @@ If a document above is missing, **proceed silently**. Don't flag its absence and
 ```
 /
 ├── AGENTS.md                     ← runtime conventions for agents
+├── CONTEXT.md                    ← the glossary (this repo's GLOSSARY.md)
 ├── docs/
-│   ├── CONTEXT.md                ← the glossary (this repo's GLOSSARY.md)
 │   ├── PRINCIPLES.md             ← project principles
 │   ├── ROADMAP.md                ← milestone authority
-│   ├── adr/                      ← 0001–0022, the decision record
+│   ├── adr/                      ← the decision record
 │   └── agents/                   ← this directory: skill configuration
 ├── specs/                        ← completed per-feature specs (history)
 └── apps/ + packages/
@@ -32,7 +32,7 @@ If a document above is missing, **proceed silently**. Don't flag its absence and
 
 ## Use the glossary's vocabulary
 
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `docs/CONTEXT.md`. Don't drift to the synonyms it explicitly avoids — "Line" for Route, "Hail-and-ride point" for Boarding Point, "user" for Commuter or Account.
+When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in `CONTEXT.md`. Don't drift to the synonyms it explicitly avoids — "Line" for Route, "Hail-and-ride point" for Boarding Point, "user" for Commuter or Account.
 
 If the concept you need isn't in the glossary yet, that's a signal: either you're inventing language the project doesn't use (reconsider), or there's a real gap (note it for `/domain-modeling`).
 
