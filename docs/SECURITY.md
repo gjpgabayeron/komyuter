@@ -245,7 +245,12 @@ the publishable key returns `200` with real rows. What that exposes is the EPSG 
 than project data, so the finding stands as informational; clearing the advisor's last ERROR means moving the
 extension out of `public`, which is the schema change already declined above. And **the exposure closes only
 where the chain is applied**: the staging project keeps serving the application tables to the publishable key
-until `supabase db push` runs there, so this is a fix in the chain rather than a fix in effect until then.
+until `supabase db push` runs there, so **Applied and verified 2026-10-16**, after the first staging deploy: `0006` is recorded in the staging
+project's migration history, `GET /rest/v1/admin_users` and `/rest/v1/routes` with the publishable key now
+answer `401` where they answered `200`, and a create/read/delete cycle through the deployed API — a route, a
+direction carrying a `LineString` and two `Point` stops — succeeded with deny-all RLS live. That last one is
+what confirms `postgres`'s `rolbypassrls` on the deployment itself rather than only in a catalog, and it is
+the check `DEPLOY.md`'s rehearsal step 9 exists for.
 
 **Why no local test could have caught this.** Locally the exposed roles hold no grants on new tables at all
 (`has_table_privilege('anon', …)` is already `f` before the migration), so the revokes are no-ops here and
