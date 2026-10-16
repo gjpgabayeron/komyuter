@@ -1,9 +1,0 @@
-{
-  "mcp": {
-    "openwiki": {
-      "type": "local",
-      "command": ["openwiki", "mcp", "--host", "opencode"],
-      "enabled": true
-    }
-  }
-}

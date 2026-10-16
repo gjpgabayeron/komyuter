@@ -8,7 +8,7 @@
 
 **Input**: User description: "Let's implement a feature where admin is able to plot an alternative route from the main route."
 
-> **Canonical language note (Principle IV)**: The requested "alternative route from the main route" is the canonical **Detour** (`docs/CONTEXT.md`): _a demand-triggered, direction-specific loop that departs from and returns to a route's base polyline_. Detours belong to a **Direction** of a **Route**, never to the Route as a whole (ADR-0008).
+> **Canonical language note (Principle IV)**: The requested "alternative route from the main route" is the canonical **Detour** (`CONTEXT.md`): _a demand-triggered, direction-specific loop that departs from and returns to a route's base polyline_. Detours belong to a **Direction** of a **Route**, never to the Route as a whole (ADR-0008).
 
 > **Revisions since Draft (2026-08-27)**: The shipped model is the **branching-node** flow: the Administrator drops two free-form **split/merge nodes** anywhere along the main route, then clicks to add **detour stops** (real stops, full base-stop parity, scoped to the detour) along the alternative path between them. Entry point: a dedicated **Alternative routes sidebar** at the bottom-left (the action-bar Detour _tool_ was removed). Notable stops were **removed entirely** (no consumer; see Clarifications). Detour lines use the **complement** of the main route's color, dashed, with per-piece **visibility toggles** under Map Layers → Markers; **inactive** detours fade and hide their nodes. **Activation** moved into the detour's properties (the list switch was removed). Deleting a detour is **permanent** (soft-delete removed). The integration test suite runs on a **dedicated test database** destroyed after each run.
 

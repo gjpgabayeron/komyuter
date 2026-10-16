@@ -7,7 +7,7 @@ Phase 1 output. Entities derived from `spec.md` §Key Entities and Requirements.
 - IDs: server-generated, stable slugs (e.g., `calaparan-calumpang-iloilo-city`) for routes; generated IDs for directions/stops/detours/restrictions/fare configs. Unique across the whole dataset.
 - States: every entity uses **active / inactive** (soft state). No hard deletes of referenced data.
 - Envelope on all API responses: `{ success: true, data }` or `{ success: false, error: { code, message } }`.
-- Canonical terms from `docs/CONTEXT.md`: Route, Direction, Stop, Detour, Restriction, Fare Configuration, Boarding Point (derived), Admin.
+- Canonical terms from `CONTEXT.md`: Route, Direction, Stop, Detour, Restriction, Fare Configuration, Boarding Point (derived), Admin.
 
 ## Entities
 

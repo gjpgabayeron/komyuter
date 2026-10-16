@@ -36,7 +36,7 @@ description: "Task list for backend language migration feasibility study"
   - `navbench/shared/` — shared workload definitions + I/O TS types
   - `navbench/scripts/` — run/validation scripts
 - Decision ADR: `docs/adr/0017-runtime-for-backend-navigation.md`
-- Docs: `docs/CONTEXT.md` (glossary), `docs/archive/TECHSTACK.md` / `docs/archive/OVERVIEW.md` (superseded design docs, archived for provenance)
+- Docs: `CONTEXT.md` (glossary), `docs/archive/TECHSTACK.md` / `docs/archive/OVERVIEW.md` (superseded design docs, archived for provenance)
 
 ---
 

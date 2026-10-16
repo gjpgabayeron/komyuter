@@ -1,6 +1,6 @@
 # Research: Alternative Route (Detour) Plotting — Phase 0
 
-All findings below resolve the unknowns flagged while filling the Technical Context of [plan.md](./plan.md). Every decision was grounded in the real codebase (surveyed with file:line citations) and the clarified spec (Q1 = existing Stops only, Q2 = minimal server validation). Design decisions are consistent with `docs/adr/` (ADR-0008, 0012, 0013, 0014, 0015, 0016) and `docs/CONTEXT.md`.
+All findings below resolve the unknowns flagged while filling the Technical Context of [plan.md](./plan.md). Every decision was grounded in the real codebase (surveyed with file:line citations) and the clarified spec (Q1 = existing Stops only, Q2 = minimal server validation). Design decisions are consistent with `docs/adr/` (ADR-0008, 0012, 0013, 0014, 0015, 0016) and `CONTEXT.md`.
 
 ---
 
