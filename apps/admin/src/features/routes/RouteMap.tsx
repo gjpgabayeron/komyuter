@@ -16,6 +16,7 @@ import {
 import {
   BasemapController,
   PerspectiveController,
+  PoiFocuser,
   RouteFitter,
   RouteLines,
   SelectionPanner,
@@ -216,6 +217,7 @@ export function RouteMap({ className, children }: RouteMapProps) {
       >
         <RouteFitter />
         <SelectionPanner />
+        <PoiFocuser />
         <BasemapController />
         <PerspectiveController />
         <RouteLines

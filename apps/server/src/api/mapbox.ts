@@ -1,7 +1,9 @@
+import { randomUUID } from "node:crypto";
 import type {
   CoordinatePair,
   GeoLineString,
   GeocodeResult,
+  GeocodeSuggestion,
   GeocodeWarning,
 } from "@komyuter/shared";
 import type { AppInstance } from "./app";
@@ -12,17 +14,18 @@ import { validationError } from "./errors";
 export const MAPBOX_CHUNK_SIZE = 25;
 
 /**
- * Approximate Iloilo service-region bounds as Mapbox wants them:
- * `minLng,minLat,maxLng,maxLat` (ADR-0010 — one region, one dataset).
- * This used to live in the admin client (`lib/poiSearch.ts`); the browser no
- * longer decides where the geocoder looks.
+ * Iloilo City centre, handed to the Search Box API as `proximity` so hits rank
+ * near the service region (ADR-0010 — one region, one dataset). Proximity only
+ * *biases* ranking, unlike the classic geocoding `bbox` this replaced: that was
+ * a hard filter, and it dropped every real POI in the city — a search for
+ * "SM City Iloilo" came back as a road in Leganes (issue #16 follow-up).
  */
-export const ILOILO_BBOX = "121.9,10.3,123.2,11.0";
+export const ILOILO_PROXIMITY = "122.5656,10.7202";
 
-/** Shortest query worth a billed geocoding request, matching the pill's floor. */
+/** Shortest query worth a billed search request, matching the pill's floor. */
 export const GEOCODE_MIN_QUERY_LENGTH = 3;
 
-/** Result-count bounds; Mapbox accepts 1–10 for the places endpoint. */
+/** Result-count bounds; Search Box `suggest` accepts 1–10. */
 export const GEOCODE_DEFAULT_LIMIT = 6;
 export const GEOCODE_MAX_LIMIT = 10;
 
@@ -102,26 +105,50 @@ export function buildDirectionsUrl(
   return `https://api.mapbox.com/directions/v5/mapbox/driving/${waypoints}?${params}`;
 }
 
+/** Restricts a billing session id to a safe shape; junk falls back to `fallback`. */
+export function normaliseSession(raw: unknown, fallback: string): string {
+  return typeof raw === "string" && /^[A-Za-z0-9-]{8,64}$/.test(raw)
+    ? raw
+    : fallback;
+}
+
 /**
- * Builds the Mapbox Geocoding URL for one query. `q` is path-encoded and the
- * region bias is applied server-side, so the browser never chooses the origin
- * or the search box (that is what made issue #16 a CSP problem).
+ * Builds the Search Box `suggest` URL. The token, the region bias and the
+ * billing session stay server-side, so the browser never learns where search
+ * went — that is what made issue #16 a CSP problem in the first place.
  */
-export function buildGeocodeUrl(
+export function buildSuggestUrl(
   query: string,
   token: string,
+  session: string,
   limit: number = GEOCODE_DEFAULT_LIMIT,
 ): string {
   const params = new URLSearchParams({
+    q: query,
     country: "ph",
+    language: "en",
     limit: String(clampGeocodeLimit(limit)),
+    session_token: session,
     access_token: token,
   });
-  // `bbox` is appended raw so its commas stay unescaped (safe: digits, dots,
-  // commas only) — URLSearchParams would percent-encode the separators.
-  return `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-    query,
-  )}.json?${params.toString()}&bbox=${ILOILO_BBOX}`;
+  // `proximity` is appended raw so its comma stays unescaped (digits, dots,
+  // commas only) — URLSearchParams would percent-encode the separator.
+  return `https://api.mapbox.com/search/searchbox/v1/suggest?${params.toString()}&proximity=${ILOILO_PROXIMITY}`;
+}
+
+/** Builds the Search Box `retrieve` URL that turns a suggestion id into a point. */
+export function buildRetrieveUrl(
+  id: string,
+  token: string,
+  session: string,
+): string {
+  const params = new URLSearchParams({
+    session_token: session,
+    access_token: token,
+  });
+  return `https://api.mapbox.com/search/searchbox/v1/retrieve/${encodeURIComponent(
+    id,
+  )}?${params.toString()}`;
 }
 
 /** Clamps a requested result count into Mapbox's accepted 1–10 range. */
@@ -138,52 +165,59 @@ export function parseGeocodeLimit(raw: unknown): number {
 }
 
 /**
- * Maps a Mapbox Geocoding feature collection onto `GeocodeResult[]`.
+ * Maps a Search Box `suggest` body onto `GeocodeSuggestion[]`.
  *
- * Defensive in the same way the old client parser was: anything without a
- * usable `center` or display text is dropped rather than rendered as a blank
- * row. `name` is Mapbox's `text` (the place itself) and `description` is the
- * rest of `place_name` (city, province, …), which is what the pill shows.
+ * `suggest` answers with names and ids but no coordinates, which is what the
+ * dropdown needs: the id is resolved by `retrieve` only when the plotter picks
+ * a row. Anything without an id and a name is dropped rather than rendered as
+ * a blank row.
  */
-export function toGeocodeResults(json: unknown): GeocodeResult[] {
+export function toSuggestions(json: unknown): GeocodeSuggestion[] {
   if (!json || typeof json !== "object") return [];
-  const features = (json as { features?: unknown }).features;
-  if (!Array.isArray(features)) return [];
+  const suggestions = (json as { suggestions?: unknown }).suggestions;
+  if (!Array.isArray(suggestions)) return [];
 
-  const results: GeocodeResult[] = [];
-  for (const feature of features) {
-    if (!feature || typeof feature !== "object") continue;
-    const record = feature as {
-      id?: unknown;
-      text?: unknown;
-      place_name?: unknown;
-      center?: unknown;
+  const results: GeocodeSuggestion[] = [];
+  for (const suggestion of suggestions) {
+    if (!suggestion || typeof suggestion !== "object") continue;
+    const record = suggestion as {
+      mapbox_id?: unknown;
+      name?: unknown;
+      place_formatted?: unknown;
+      full_address?: unknown;
     };
-    const center = record.center;
-    if (!Array.isArray(center) || center.length < 2) continue;
-    const lng = Number(center[0]);
-    const lat = Number(center[1]);
-    if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
-
-    const display =
-      typeof record.place_name === "string" ? record.place_name.trim() : "";
-    const parts = display.split(",").map((part) => part.trim());
-    const name =
-      typeof record.text === "string" && record.text.trim() !== ""
-        ? record.text.trim()
-        : parts[0];
-    if (!name) continue;
-
-    // Drop the leading segment only when it is the same place `name` carries.
-    const rest = parts.filter((part) => part !== "" && part !== name);
-    results.push({
-      id: String(record.id ?? `${lng},${lat}`),
-      name,
-      description: rest.join(", "),
-      location: [lng, lat],
-    });
+    const id = typeof record.mapbox_id === "string" ? record.mapbox_id : "";
+    const name = typeof record.name === "string" ? record.name.trim() : "";
+    if (!id || !name) continue;
+    const secondary =
+      typeof record.place_formatted === "string"
+        ? record.place_formatted
+        : typeof record.full_address === "string"
+          ? record.full_address
+          : "";
+    results.push({ id, name, description: secondary.trim() });
   }
   return results;
+}
+
+/**
+ * Maps a Search Box `retrieve` body onto the resolved coordinate, `[lng, lat]`,
+ * or null when the feature carries no usable geometry.
+ */
+export function toGeocodeResult(json: unknown): GeocodeResult | null {
+  if (!json || typeof json !== "object") return null;
+  const features = (json as { features?: unknown }).features;
+  if (!Array.isArray(features) || features.length === 0) return null;
+  const first = features[0];
+  if (!first || typeof first !== "object") return null;
+  const geometry = (first as { geometry?: unknown }).geometry;
+  if (!geometry || typeof geometry !== "object") return null;
+  const coordinates = (geometry as { coordinates?: unknown }).coordinates;
+  if (!Array.isArray(coordinates) || coordinates.length < 2) return null;
+  const lng = Number(coordinates[0]);
+  const lat = Number(coordinates[1]);
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+  return { location: [lng, lat] };
 }
 
 /**
@@ -268,18 +302,24 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
   });
 
   /**
-   * Place search (issue #16). Same degradation contract as directions: an
-   * absent token or a failing upstream is a 200 with an empty result set and a
-   * `warning` the pill can explain, never an error the UI has to guess at.
+   * Place search (issue #16). Search Box `suggest` answers with names and ids;
+   * `/mapbox/geocode/resolve` turns the id the plotter picked into a point.
    *
-   * Same-origin from the browser by construction (`/api/admin/...`), which is
-   * why this fixes the CSP block without widening `connect-src`.
+   * The classic geocoding endpoint this replaced could not find POIs in Iloilo:
+   * measured against live data, "SM City Iloilo" came back as a road in Leganes
+   * and `types=poi` returned nothing at all. Search Box ranks places by name.
+   *
+   * Same degradation contract as directions: an absent token or a failing
+   * upstream is a 200 with an empty answer and a `warning` the pill explains,
+   * never an error the UI has to guess at. Same-origin from the browser by
+   * construction (`/api/admin/...`), which is why the CSP needed no directive.
    */
   app.get("/mapbox/geocode", async (request) => {
-    const { q: rawQuery, limit: rawLimit } = request.query as {
-      q?: string;
-      limit?: string;
-    };
+    const {
+      q: rawQuery,
+      limit: rawLimit,
+      session: rawSession,
+    } = request.query as { q?: string; limit?: string; session?: string };
     const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
     if (query.length < GEOCODE_MIN_QUERY_LENGTH) {
       throw validationError(
@@ -287,13 +327,14 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
       );
     }
     const limit = parseGeocodeLimit(rawLimit);
+    const session = normaliseSession(rawSession, randomUUID());
 
     const env = loadEnv(process.env);
     const token = env.MAPBOX_SECRET_TOKEN;
 
     const degraded = (warning: GeocodeWarning) => ({
       success: true,
-      data: { results: [] as GeocodeResult[], warning },
+      data: { suggestions: [] as GeocodeSuggestion[], warning },
     });
 
     if (!token) {
@@ -301,19 +342,67 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
     }
 
     try {
-      const res = await fetch(buildGeocodeUrl(query, token, limit));
+      const res = await fetch(buildSuggestUrl(query, token, session, limit));
       if (!res.ok) {
-        throw new Error(`Mapbox geocoding responded with status ${res.status}`);
+        throw new Error(`Mapbox suggest responded with status ${res.status}`);
       }
       const json = (await res.json()) as unknown;
       return {
         success: true,
-        data: { results: toGeocodeResults(json), warning: null },
+        data: { suggestions: toSuggestions(json), warning: null },
       };
     } catch (error) {
       app.log.warn(
         { error },
-        "Mapbox geocode proxy failed; returning empty results",
+        "Mapbox suggest proxy failed; returning no suggestions",
+      );
+      return degraded("upstream_error");
+    }
+  });
+
+  /**
+   * Resolves one suggestion id into a coordinate. Separate from `suggest` on
+   * purpose: coordinates are only worth a second billed call once the plotter
+   * has actually chosen a row.
+   */
+  app.get("/mapbox/geocode/resolve", async (request) => {
+    const { id: rawId, session: rawSession } = request.query as {
+      id?: string;
+      session?: string;
+    };
+    const id = typeof rawId === "string" ? rawId.trim() : "";
+    if (!id) {
+      throw validationError("Missing required query parameter: id");
+    }
+    const session = normaliseSession(rawSession, randomUUID());
+
+    const env = loadEnv(process.env);
+    const token = env.MAPBOX_SECRET_TOKEN;
+
+    const degraded = (warning: GeocodeWarning) => ({
+      success: true,
+      data: { location: null, warning },
+    });
+
+    if (!token) {
+      return degraded("no_token");
+    }
+
+    try {
+      const res = await fetch(buildRetrieveUrl(id, token, session));
+      if (!res.ok) {
+        throw new Error(`Mapbox retrieve responded with status ${res.status}`);
+      }
+      const json = (await res.json()) as unknown;
+      const resolved: GeocodeResult | null = toGeocodeResult(json);
+      return {
+        success: true,
+        data: { location: resolved?.location ?? null, warning: null },
+      };
+    } catch (error) {
+      app.log.warn(
+        { error },
+        "Mapbox retrieve proxy failed; returning no location",
       );
       return degraded("upstream_error");
     }

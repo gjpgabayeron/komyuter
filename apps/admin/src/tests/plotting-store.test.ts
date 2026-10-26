@@ -178,6 +178,20 @@ describe("plottingStore", () => {
     expect(usePlottingStore.getState().poi).toBeNull();
   });
 
+  it("requestPoiFocus asks once per pick and clearPoiFocus empties it", () => {
+    expect(usePlottingStore.getState().poiFocus).toBeNull();
+    usePlottingStore.getState().requestPoiFocus([122.56, 10.72]);
+    const first = usePlottingStore.getState().poiFocus;
+    expect(first?.location).toEqual([122.56, 10.72]);
+    // The same coordinate picked twice is still two distinct requests, or the
+    // map would not fly again.
+    usePlottingStore.getState().requestPoiFocus([122.56, 10.72]);
+    const second = usePlottingStore.getState().poiFocus;
+    expect(second?.nonce).toBeGreaterThan(first?.nonce ?? 0);
+    usePlottingStore.getState().clearPoiFocus();
+    expect(usePlottingStore.getState().poiFocus).toBeNull();
+  });
+
   it("placing a stop, selecting a stop, or opening a route clears the POI marker", () => {
     const { addStop, setPoi } = usePlottingStore.getState();
     setPoi([122.5645, 10.6922]);

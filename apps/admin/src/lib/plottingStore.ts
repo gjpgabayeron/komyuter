@@ -266,6 +266,13 @@ export interface PlottingState {
   tool: EditTool;
   /** Temporary POI search marker; cleared on any other map interaction. */
   poi: CoordinatePair | null;
+  /**
+   * One-shot request to centre the map on a searched place. The search pill
+   * renders in the chrome slot *outside* `<Map>`, where `useMap()` resolves to
+   * nothing, so it cannot fly the map itself; it asks, and a controller inside
+   * the map consumes this and clears it.
+   */
+  poiFocus: { location: CoordinatePair; nonce: number } | null;
   /** Route metadata draft; null until a route's detail loads. */
   routeMeta: RouteMetaDraft | null;
   /** Consecutive-pair chain between stops (drives the from/to dropdowns). */
@@ -307,6 +314,10 @@ export interface PlottingState {
   setTool: (tool: EditTool) => void;
   /** Places/clears the temporary POI search marker ([lng, lat]). */
   setPoi: (location: CoordinatePair | null) => void;
+  /** Asks the map (which owns the instance) to centre on a searched place. */
+  requestPoiFocus: (location: CoordinatePair) => void;
+  /** Clears a consumed focus request so it never replays on re-render. */
+  clearPoiFocus: () => void;
   /** Merges a patch into the route metadata draft. */
   setRouteMeta: (patch: Partial<RouteMetaDraft>) => void;
   /** Inserts a stop directly after another stop (sequence auto-reorders). */
@@ -564,6 +575,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     directionId: null,
     tool: "select",
     poi: null,
+    poiFocus: null,
     routeMeta: null,
     connections: [],
     draftDirty: false,
@@ -590,6 +602,13 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     setDirectionId: (directionId) => set({ directionId }),
     setTool: (tool) => set({ tool }),
     setPoi: (poi) => set({ poi }),
+    requestPoiFocus: (location) =>
+      set((state) => ({
+        // `nonce` makes two picks of the same place two distinct requests, so
+        // the map flies again instead of ignoring an unchanged object.
+        poiFocus: { location, nonce: (state.poiFocus?.nonce ?? 0) + 1 },
+      })),
+    clearPoiFocus: () => set({ poiFocus: null }),
     setRouteMeta: (patch) =>
       // Initialize-or-merge: the first patch after opening a route creates the
       // draft from the loaded route; later patches update it in place.
