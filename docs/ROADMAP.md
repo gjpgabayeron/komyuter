@@ -215,8 +215,14 @@ several people.
 **`R4` left this milestone.** The Mapbox geocoding proxy shipped ahead of M5 as the fix for #16: the POI
 pill was live in the workspace (`PoiSearchBar`), but the production CSP's `connect-src` refused
 `nominatim.openstreetmap.org`, so search was dead in every deployed build — and widening `connect-src`
-instead is refused (`specs/009-auth-quick-wins/contracts/csp-policy.md`). `GET /api/admin/mapbox/geocode`
-is same-origin, so no CSP directive changed.
+instead is refused (`specs/009-auth-quick-wins/contracts/csp-policy.md`). The proxy is same-origin, so no
+CSP directive changed.
+
+What it serves now is Mapbox **Search Box**: `suggest` lists places by name, `resolve` turns the chosen
+row into coordinates. The classic geocoding endpoint was dropped on measured data, not taste — with a
+hard `bbox`, "SM City Iloilo" returned a road in Leganes and `types=poi` returned nothing. Selection also
+has to move the map, and the pill renders outside `<Map>`, where `useMap()` resolves to nothing; that
+request now travels through the store to `PoiFocuser`, which lives inside the map.
 
 **Exit criterion.** A second person exports a dataset from staging, imports it into a fresh environment,
 and gets the same routes; a direction can be plotted from a GPX trace without hand-placing every stop;
