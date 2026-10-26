@@ -28,7 +28,7 @@ restating the milestone name.
 | **M2c**  | Collaboration safety               | Version stamp, per-user drafts, three-way merge with a resolver                                               | M1         |
 | **M3**   | v1 — complete route modeling       | `R2` triggers, `R3` no-stop segments, `R5` shared fare rule                                                   | M2a        |
 | **M4**   | Reliable CI and CD                 | Merge to `dev` → staging, merge to `main` → production behind approval, migration gate, IaC, rollback runbook | M3         |
-| **M5**   | v1.1 — plotting power and polish   | `R4`, `R6`, `R7`, `R8`, `FR-004`, power-editor features                                                       | M4         |
+| **M5**   | v1.1 — plotting power and polish   | `R6`, `R7`, `R8`, `FR-004`, power-editor features                                                             | M4         |
 | **M6**   | Sandbox playground                 | Algorithms in `@komyuter/shared` behind a real navigation endpoint                                            | M5         |
 | _mobile_ | Commuter app (outside this record) | —                                                                                                             | M6         |
 
@@ -205,16 +205,24 @@ several people.
 
 **Deliverables.**
 
-- `R4` — Mapbox geocoding proxy replacing client-side Nominatim. **It also unblocks a shipped feature**:
-  the POI pill is live in the workspace (`PoiSearchBar`), but the production CSP's `connect-src` does not
-  allow `nominatim.openstreetmap.org`, so it is dead in any deployed build until this lands — and
-  widening `connect-src` instead is refused (`specs/009-auth-quick-wins/contracts/csp-policy.md`).
 - `R6` — overview / network page: a read-only map of all routes plus stats.
 - `R7` — export UI wired to `GET /api/admin/export/dataset`.
 - `FR-004` — fare type on route rows.
 - `R8` — dataset import replacing the disabled placeholder; this is also the seed-data import path.
 - Power-editor features: bulk import from GPX or JSON, vertex-level polyline editing, direction
   duplication with offset geometry, and batch stop operations.
+
+**`R4` left this milestone.** The Mapbox geocoding proxy shipped ahead of M5 as the fix for #16: the POI
+pill was live in the workspace (`PoiSearchBar`), but the production CSP's `connect-src` refused
+`nominatim.openstreetmap.org`, so search was dead in every deployed build — and widening `connect-src`
+instead is refused (`specs/009-auth-quick-wins/contracts/csp-policy.md`). The proxy is same-origin, so no
+CSP directive changed.
+
+What it serves now is Mapbox **Search Box**: `suggest` lists places by name, `resolve` turns the chosen
+row into coordinates. The classic geocoding endpoint was dropped on measured data, not taste — with a
+hard `bbox`, "SM City Iloilo" returned a road in Leganes and `types=poi` returned nothing. Selection also
+has to move the map, and the pill renders outside `<Map>`, where `useMap()` resolves to nothing; that
+request now travels through the store to `PoiFocuser`, which lives inside the map.
 
 **Exit criterion.** A second person exports a dataset from staging, imports it into a fresh environment,
 and gets the same routes; a direction can be plotted from a GPX trace without hand-placing every stop;

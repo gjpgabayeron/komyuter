@@ -17,7 +17,7 @@
 - **Safety net:** drafts (24 h local storage), undo/redo (5 history kinds), styled confirm dialogs, connection-banner + session-expiry handling, atomic save with conflict recovery.
 - **Auth:** single admin account, email + password over `POST /api/auth/login`; token kept in `localStorage`; `GET /api/auth/me` re-validates on boot; global revocation on logout.
 - **Design language:** The Route Sign — flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4 px corners, no shadows (see `DESIGN.md`, Appendix E).
-- **Not yet built (roadmap):** detour + restriction **editing UI**, detour **conditional triggers** (server work, ADR-0012), no-stop segments, Mapbox geocoding proxy, shared fare calculator, Overview + Export pages (currently placeholders), dataset import. Each is marked `Planned` in the FR/SC tables and expanded in §6.
+- **Not yet built (roadmap):** detour + restriction **editing UI**, detour **conditional triggers** (server work, ADR-0012), no-stop segments, shared fare calculator, Overview + Export pages (currently placeholders), dataset import. Each is marked `Planned` in the FR/SC tables and expanded in §6.
 
 ## 2. Repo layout & how the admin fits
 
@@ -53,33 +53,33 @@ komyuter/
 
 ## 3. Technology stack
 
-| Layer             | Choice                                                                            | Notes                                                                        |
-| ----------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Framework         | React 18 + Vite 5 + TypeScript (strict)                                           | `apps/admin`, turbo-pipelined at root                                        |
-| Router            | react-router v7 (declarative mode)                                                | `app/router.tsx`                                                             |
-| Server state      | @tanstack/react-query v5                                                          | `useRoutesQuery`, `useRouteQuery`, `useDirectionQuery`, fare/network queries |
-| UI primitives     | @base-ui/react                                                                    | Menus, dialogs, dropdowns — headless, Route-Sign styled                      |
-| Styling           | Tailwind CSS + `class-variance-authority` + `clsx`/`tailwind-merge` (`cn`)        | tokens in `index.css` (oklch, Appendix E)                                    |
-| Icons             | lucide-react                                                                      |                                                                              |
-| Map               | **maplibre-gl + react-map-gl v8** (ADR-0013)                                      | one instance; vector styles from **OpenFreeMap** (OSM data, keyless)         |
-| Tiles             | `lib/tiles.ts` — OpenFreeMap `bright` / `positron` / `liberty` styles             | no Mapbox token for tiles                                                    |
-| Road snapping     | Mapbox Directions **via server proxy**                                            | `GET /api/admin/mapbox/directions`; duration stripped                        |
-| POI search        | **client-side Nominatim** (`lib/poiSearch.ts`) — **blocked in production builds** | Mapbox Geocoding proxy is a planned swap (§6 R4)                             |
-| Forms             | controlled React state + local validation                                         | fare + route/stop editors; no form library                                   |
-| Reorder           | native HTML5 drag-and-drop                                                        | stop reorder in the edit column; no dnd-kit                                  |
-| Keyboard          | react-hotkeys-hook                                                                | `mod+z` / `mod+shift+z`, `Esc`, `mod+s`                                      |
-| Toasts            | sonner                                                                            |                                                                              |
-| Client store      | zustand                                                                           | `plottingStore`, `uiStore` (sidebar mode)                                    |
-| HTTP              | axios                                                                             | envelope unwrap, token header, session expiry, connection banner             |
-| State persistence | localStorage                                                                      | admin session token + route **drafts** (24 h TTL)                            |
-| Tests             | Vitest (node env, no jsdom)                                                       | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
-| Build             | `tsc && vite build`                                                               |                                                                              |
+| Layer             | Choice                                                                     | Notes                                                                        |
+| ----------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Framework         | React 18 + Vite 5 + TypeScript (strict)                                    | `apps/admin`, turbo-pipelined at root                                        |
+| Router            | react-router v7 (declarative mode)                                         | `app/router.tsx`                                                             |
+| Server state      | @tanstack/react-query v5                                                   | `useRoutesQuery`, `useRouteQuery`, `useDirectionQuery`, fare/network queries |
+| UI primitives     | @base-ui/react                                                             | Menus, dialogs, dropdowns — headless, Route-Sign styled                      |
+| Styling           | Tailwind CSS + `class-variance-authority` + `clsx`/`tailwind-merge` (`cn`) | tokens in `index.css` (oklch, Appendix E)                                    |
+| Icons             | lucide-react                                                               |                                                                              |
+| Map               | **maplibre-gl + react-map-gl v8** (ADR-0013)                               | one instance; vector styles from **OpenFreeMap** (OSM data, keyless)         |
+| Tiles             | `lib/tiles.ts` — OpenFreeMap `bright` / `positron` / `liberty` styles      | no Mapbox token for tiles                                                    |
+| Road snapping     | Mapbox Directions **via server proxy**                                     | `GET /api/admin/mapbox/directions`; duration stripped                        |
+| POI search        | Mapbox Geocoding **via server proxy** (`features/routes/geocodeApi.ts`)    | `GET /api/admin/mapbox/geocode`; same-origin, so the CSP needs no exception  |
+| Forms             | controlled React state + local validation                                  | fare + route/stop editors; no form library                                   |
+| Reorder           | native HTML5 drag-and-drop                                                 | stop reorder in the edit column; no dnd-kit                                  |
+| Keyboard          | react-hotkeys-hook                                                         | `mod+z` / `mod+shift+z`, `Esc`, `mod+s`                                      |
+| Toasts            | sonner                                                                     |                                                                              |
+| Client store      | zustand                                                                    | `plottingStore`, `uiStore` (sidebar mode)                                    |
+| HTTP              | axios                                                                      | envelope unwrap, token header, session expiry, connection banner             |
+| State persistence | localStorage                                                               | admin session token + route **drafts** (24 h TTL)                            |
+| Tests             | Vitest (node env, no jsdom)                                                | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
+| Build             | `tsc && vite build`                                                        |                                                                              |
 
 **Server surface (what the dashboard talks to):**
 
 - Fastify v5 + `@fastify/type-provider-zod`, drizzle-orm on Postgres/PostGIS, Supabase Auth for the admin account.
 - Auth: `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout` (outside the admin guard) — the route modules are in `apps/server/src/api/`.
-- Admin CRUD: routes (hard delete), directions/stops/detours/restrictions (soft delete via `is_active`), fare configs (soft deactivate + guards), dataset export, mapbox directions proxy.
+- Admin CRUD: routes (hard delete), directions/stops/detours/restrictions (soft delete via `is_active`), fare configs (soft deactivate + guards), dataset export, mapbox directions proxy, mapbox geocode proxy.
 - Envelope + error codes everywhere; origin guard (`ADMIN_ORIGINS`), login throttle (account + source blocks), security-events audit trail.
 - Env vars (`apps/server/src/config/env.ts`): `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `PORT` (default 3000), `MAPBOX_SECRET_TOKEN` (optional — directions proxy falls back to mock), `ALLOW_DEV_CREDENTIAL` (default false), `ADMIN_ORIGINS`. `ADMIN_EMAIL`/`ADMIN_PASSWORD` are **optional** — the server neither requires nor reads them (ADR-0022 §9); the `bootstrap:owner` script and the integration harness require them via `loadAdminCredentials()`.
 
@@ -168,7 +168,7 @@ The workspace is a **four-state machine** derived from (selection, draft):
 ### 5.6 Status bar, POI search, action bar, layers, empty state
 
 - **`StatusBar`** (floating plate, bottom-center over the map): save lifecycle ("Saved just now" transient / "Saving…" / "Unsaved changes") **plus one contextual notice at a time** — priority: conflict > draft restore > draft restored.
-- **`PoiSearchBar`** (floating pill, top-center): **client-side Nominatim** (`lib/poiSearch.ts`, 350 ms debounce, ≥ 3 chars, `buildNominatimUrl`/`parseNominatimResults`), result dropdown, "fly to + place stop at POI" (in Add tool). No Mapbox geocode today — R4.
+- **`PoiSearchBar`** (floating pill, top-center): **Mapbox Search Box via the server proxy** (`features/routes/geocodeApi.ts` — `suggest` for the list, `resolve` on selection, 350 ms debounce, ≥ 3 chars, superseded requests aborted), dropdown rows by name with distinct copy for `no_token` / `upstream_error` / nothing-found, "fly to + place stop at POI" (in Add tool). The map is flown by `PoiFocuser` inside `<Map>`: the pill sits in the workspace chrome, where `useMap()` resolves to nothing, so selection requests the focus through the store. Same-origin by construction, so the production CSP needs no exception (issue #16).
 - **`PlotActionBar`** (floating, left edge): ToolToggle ("Select stops" / "Add stops"), Undo/Redo, **LayerToggles**:
   - Basemap style radio (**Default** / **Minimalist** / **3D** → OpenFreeMap `bright` / `positron` / `liberty`) + opacity slider;
   - per-stop-type **marker checkboxes** (terminal, major stop, waiting area) + "Stop names" label toggle;
@@ -208,14 +208,14 @@ Pure logic lives in `lib/` and is unit-tested: `coords`, `connections`, `draft`,
 
 Milestone grouping, order and exit criteria live in `docs/ROADMAP.md`, which is the milestone authority. The table below stays here because the admin-surface item list and its FR/SC references are not duplicated anywhere else.
 
-Everything below is **not yet implemented**. It is the documented intent so the team has a roadmap.
+Everything below is **not yet implemented**, except `R4`, which shipped ahead of its milestone as the fix for #16. It is the documented intent so the team has a roadmap.
 
 | ID     | Item                                                                                                                                                                                                                                                                                                                                                                                               | Status / dependency                            |
 | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | **R1** | **Detour & restriction editing UI** in the workspace — "Add alternative route" and "Add restriction" actions (FR-010), detour editor with entry/exit points + instructions + notable stops (ADR-0008), restriction editor marking a polyline index range with reason + affects, auto-snapped detour geometry, distinct detour visual style (FR-016/FR-018). Data layer + server CRUD are **ready** | blocked on admin UI work only                  |
 | **R2** | **Detour conditional triggers** — `active_timeframes` + `condition` on `Detour` (ADR-0012), added to shared types/schemas and `api/detours.ts`, plus **server-side active-detour resolution** at request time; triggers affect the path only (FR-027/FR-029)                                                                                                                                       | server + shared work                           |
 | **R3** | **No-stop loading/unloading segments** — surface `Restriction.affects = both` (+ `reason = no_stopping_zone`) in the UI: select a polyline index range of a direction and mark it no-stop for boarding/alighting/both (FR-028)                                                                                                                                                                     | builds on R1; data/API ready                   |
-| **R4** | **Mapbox Geocoding proxy** — replace client-side Nominatim with `/api/admin/mapbox/geocode` behind the same token/strip pattern as directions; keep the debounced pill UX                                                                                                                                                                                                                          | server + admin                                 |
+| **R4** | **Mapbox Geocoding proxy** — ✅ **shipped ahead of M5** to close #16: `/api/admin/mapbox/geocode` behind the same token/degradation pattern as directions, same debounced pill UX                                                                                                                                                                                                                  | ✅ shipped ahead of M5 (closes #16)            |
 | **R5** | **Shared fare calculator** — extract the LTFRB fare rule into `@komyuter/shared` (`fareCalculator`, ADR-0001) and consume it from the admin fare validators + the mobile app; today the rule exists only in admin `features/fares/format.ts`/`validation.ts` and the mobile side (Appendix D)                                                                                                      | refactor                                       |
 | **R6** | **Overview / network page** — replace `pages/Overview.tsx` placeholder with a read-only network map (all routes) + stats                                                                                                                                                                                                                                                                           | new UI; `/routes/overview` data already exists |
 | **R7** | **Export UI** — wire `pages/Export.tsx` to `GET /api/admin/export/dataset` (download + maybe copy-to-clipboard JSON)                                                                                                                                                                                                                                                                               | endpoint ready                                 |
@@ -294,7 +294,7 @@ Status: ✅ implemented · 🟡 partial · 🚧 planned · ⛔ superseded. "Plan
 - **Renderer:** MapLibre GL via react-map-gl v8. **One persistent instance** for the app lifetime (created once in `MapProvider`).
 - **Tiles:** OpenFreeMap vector styles (`bright`, `positron`, `liberty`) — OSM data, **no key** (`lib/tiles.ts`). The old "Mapbox vector vs OSM raster" split is obsolete.
 - **Directions proxy:** `GET /api/admin/mapbox/directions` (server, `api/mapbox.ts`) — takes ordered `[lng, lat]` coordinates, returns `SnappedPath` (`polyline`, `distanceMeters`, `snapped`, `warning`). **Duration is stripped** (ADR-0009). Requires `MAPBOX_SECRET_TOKEN`; without it the server returns a mock path so the UI degrades gracefully (warning banner, straight-line never committed).
-- **Geocoding:** none server-side today; POI search is client-side Nominatim (R4 to replace with a Mapbox proxy).
+- **Geocoding:** Mapbox **Search Box**, two steps — `GET /api/admin/mapbox/geocode?q=` lists places by name (`suggest`, biased with `proximity` on Iloilo City, never a hard bbox), and `GET /api/admin/mapbox/geocode/resolve?id=` turns the row the plotter picked into `[lng, lat]` (`retrieve`), so coordinates are only paid for on selection. Both answer `warning: "no_token" | "upstream_error" | null` so the pill can say _why_ it is empty, and both are same-origin, so `connect-src` still names no third-party geocoder (issue #16). The classic `/geocoding/v5` endpoint was dropped: it has no POI coverage here, so a mall search came back as the road it stands on.
 - **Coordinate order:** `[lng, lat]` only — no conversion layer.
 
 ## 11. Known limitations & gotchas
