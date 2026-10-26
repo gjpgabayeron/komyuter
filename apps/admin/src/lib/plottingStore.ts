@@ -263,10 +263,51 @@ export type PoiCameraTarget =
   | { kind: "point"; location: CoordinatePair }
   | { kind: "bounds"; locations: CoordinatePair[] };
 
+/** Visible map rectangle in `[lng, lat]` terms. */
+export interface ViewportBounds {
+  west: number;
+  south: number;
+  east: number;
+  north: number;
+}
+
+/** Why the current search returned no rows, if it returned none. */
+export type PoiSearchStatus =
+  "no_token" | "upstream_error" | "request_failed" | "out_of_area" | null;
+
+/** The camera as the store sees it: centre, zoom and what is on screen. */
+export interface MapViewport {
+  longitude: number;
+  latitude: number;
+  zoom: number;
+  bounds: ViewportBounds;
+}
+
 /** A camera request plus its identity — consumed once by the map. */
 export type PoiFocusRequest =
   | { kind: "point"; location: CoordinatePair; nonce: number }
   | { kind: "bounds"; locations: CoordinatePair[]; nonce: number };
+
+/**
+ * What a stop-side change — a map click, a stop selection, a stop placement — may
+ * clear on the search surface.
+ *
+ * During a search session the picked marker, its label and the candidate pins all
+ * survive: such a click only closes the popup card, because the searched place is
+ * still the answer. With no session running they are cleared, as they always were.
+ */
+function poiDismissalFor(searchActive: boolean) {
+  return searchActive
+    ? { poiSelection: null }
+    : {
+        poi: null,
+        poiLabel: null,
+        poiSelection: null,
+        poiHit: null,
+        poiCandidates: [] as GeocodeHit[],
+        poiHoverId: null as string | null,
+      };
+}
 
 export interface PlottingState {
   /** Route being plotted (null = no route open). */
@@ -277,6 +318,30 @@ export interface PlottingState {
   tool: EditTool;
   /** Temporary POI search marker; cleared on any other map interaction. */
   poi: CoordinatePair | null;
+  /** The name shown on the picked marker (falls back to "Place"). */
+  poiLabel: string | null;
+  /** Candidate whose popup is open (a searched place, not yet a stop). */
+  poiSelection: GeocodeHit | null;
+  /**
+   * The place the search resolved to, kept while its popup is closed.
+   *
+   * `poiSelection` is "the card is open"; this is "this is the place". Keeping
+   * them apart is what lets the marker stay on the map after a click outside and
+   * still be clicked again to reopen its card.
+   */
+  poiHit: GeocodeHit | null;
+  /**
+   * True while the search pill holds focus or a query.
+   *
+   * Transient UI mode, deliberately NOT a fifth `WorkspaceUiState`: the shell
+   * reads it to hide properties and show the results plate, while
+   * `deriveUiState` keeps its documented four states untouched.
+   */
+  searchActive: boolean;
+  /** The query the current candidates answer (shown in the results plate). */
+  poiQuery: string;
+  /** Why that search has no rows, when it has none. */
+  poiStatus: PoiSearchStatus;
   /**
    * One-shot camera request from the search pill: frame one place, or frame the
    * whole candidate set. The pill renders in the chrome slot *outside* `<Map>`,
@@ -288,6 +353,14 @@ export interface PlottingState {
   poiCandidates: GeocodeHit[];
   /** Candidate the pointer (or keyboard) is on, if any. */
   poiHoverId: string | null;
+  /**
+   * Where the camera currently is, published by `RouteMap` on move-end.
+   *
+   * The pill renders in the chrome, outside `<Map>`, so it cannot read the map
+   * itself — yet search has to follow the camera (proximity) and stay inside
+   * what the plotter can see (scope). Null until the map has reported once.
+   */
+  mapViewport: MapViewport | null;
   /** Route metadata draft; null until a route's detail loads. */
   routeMeta: RouteMetaDraft | null;
   /** Consecutive-pair chain between stops (drives the from/to dropdowns). */
@@ -328,7 +401,22 @@ export interface PlottingState {
   setDirectionId: (directionId: string | null) => void;
   setTool: (tool: EditTool) => void;
   /** Places/clears the temporary POI search marker ([lng, lat]). */
-  setPoi: (location: CoordinatePair | null) => void;
+  setPoi: (location: CoordinatePair | null, label?: string) => void;
+  /** Opens (hit) or closes (null) the popup for a searched place. */
+  setPoiSelection: (hit: GeocodeHit | null) => void;
+  /** Closes the popup **and** its marker, without touching the results. */
+  dismissPoiSelection: () => void;
+  /** Enters/leaves the transient search mode. */
+  setSearchActive: (active: boolean) => void;
+  /** Publishes the query and the reason a search came back empty. */
+  setPoiSearch: (query: string, status: PoiSearchStatus) => void;
+  /** Ends the session and everything it published — the panel's Esc. */
+  clearSearchSession: () => void;
+  /**
+   * Turns the selected POI into a stop: after the current selection when there
+   * is one, otherwise appended. Ends the search session and frames the result.
+   */
+  addPoiAsStop: (type: StopType) => void;
   /** Asks the map (which owns the instance) to frame a place or a candidate set. */
   requestPoiFocus: (target: PoiCameraTarget) => void;
   /** Clears a consumed focus request so it never replays on re-render. */
@@ -337,6 +425,8 @@ export interface PlottingState {
   setPoiCandidates: (candidates: GeocodeHit[]) => void;
   /** Highlights one candidate on the map, mirroring list hover. */
   setPoiHoverId: (id: string | null) => void;
+  /** Records where the camera is, so search can follow it. */
+  setMapViewport: (viewport: MapViewport) => void;
   /** Merges a patch into the route metadata draft. */
   setRouteMeta: (patch: Partial<RouteMetaDraft>) => void;
   /** Inserts a stop directly after another stop (sequence auto-reorders). */
@@ -344,6 +434,7 @@ export interface PlottingState {
     anchorStopId: string,
     location: CoordinatePair,
     name?: string,
+    type?: StopType,
   ) => void;
   /** Forces the stop's chain neighbours via the property dropdowns. */
   setStopLinks: (
@@ -594,9 +685,16 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     directionId: null,
     tool: "select",
     poi: null,
+    poiLabel: null,
+    poiSelection: null,
+    poiHit: null,
+    searchActive: false,
+    poiQuery: "",
+    poiStatus: null,
     poiFocus: null,
     poiCandidates: [],
     poiHoverId: null,
+    mapViewport: null,
     routeMeta: null,
     connections: [],
     draftDirty: false,
@@ -622,16 +720,84 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     setRouteId: (routeId) => set({ routeId }),
     setDirectionId: (directionId) => set({ directionId }),
     setTool: (tool) => set({ tool }),
-    setPoi: (poi) =>
+    setPoi: (poi, label) =>
       // Clearing the marker also drops the candidate dots: the search that
       // produced them is over.
       set(
         poi === null
-          ? { poi: null, poiCandidates: [], poiHoverId: null }
-          : { poi },
+          ? {
+              poi: null,
+              poiLabel: null,
+              poiCandidates: [],
+              poiHoverId: null,
+              poiSelection: null,
+              poiHit: null,
+            }
+          : // The label is what the marker shows instead of a generic "Place".
+            { poi, poiLabel: (label ?? "").trim() || null },
       ),
     setPoiCandidates: (poiCandidates) => set({ poiCandidates }),
     setPoiHoverId: (poiHoverId) => set({ poiHoverId }),
+    // Remember the place even when only the card closes: the marker stays
+    // clickable, and clicking it reopens this exact hit.
+    setPoiSelection: (poiSelection) =>
+      set(
+        poiSelection
+          ? { poiSelection, poiHit: poiSelection }
+          : { poiSelection },
+      ),
+    dismissPoiSelection: () =>
+      // The card and its marker are one thing: closing the popup has to take the
+      // marker with it, or an orphan pin stays on the map. The candidate pins and
+      // the results list are untouched — the session is still open.
+      set({ poiSelection: null, poiHit: null, poi: null, poiLabel: null }),
+    setSearchActive: (searchActive) => set({ searchActive }),
+    setPoiSearch: (poiQuery, poiStatus) => set({ poiQuery, poiStatus }),
+    clearSearchSession: () =>
+      set({
+        poiCandidates: [],
+        poiHoverId: null,
+        poiSelection: null,
+        poiHit: null,
+        poiQuery: "",
+        poiStatus: null,
+        searchActive: false,
+      }),
+    addPoiAsStop: (type) => {
+      const { poiSelection, selection, stops } = get();
+      if (!poiSelection) return;
+      const anchorStopId =
+        selection.type === "stop" &&
+        stops.some((stop) => stop.id === selection.stopId)
+          ? selection.stopId
+          : null;
+      const existing = new Set(stops.map((stop) => stop.id));
+      // Insertion keeps the chain order the plotter already built; appending is
+      // the honest fallback when nothing is selected.
+      if (anchorStopId !== null) {
+        get().insertStopBetween(
+          anchorStopId,
+          poiSelection.location,
+          poiSelection.name,
+          type,
+        );
+      } else {
+        get().addStop(poiSelection.location, poiSelection.name, type);
+      }
+      const placed = poiSelection.location;
+      const placedStop = get().stops.find((stop) => !existing.has(stop.id));
+      if (placedStop) {
+        // `addStop` appends without selecting, so the selection is set here:
+        // whichever path ran, the plotter lands on the stop just created.
+        get().setSelection({ type: "stop", stopId: placedStop.id });
+      }
+      // The search is over the moment the place becomes route furniture: the
+      // plotter is now editing the new stop, not browsing places.
+      get().clearSearchSession();
+      get().setPoi(null);
+      get().requestPoiFocus({ kind: "point", location: placed });
+    },
+    setMapViewport: (mapViewport) => set({ mapViewport }),
     requestPoiFocus: (target) =>
       set((state) => {
         // `nonce` makes two picks of the same place two distinct requests, so
@@ -677,6 +843,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         poi: null,
         poiCandidates: [],
         poiHoverId: null,
+        poiSelection: null,
         routeMeta: null,
         connections: [],
         draftDirty: false,
@@ -774,7 +941,12 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     // Insert a stop directly after an existing one (e.g. between two stops of
     // the route). The stop sequence auto-reorders, the chain is re-linked, and
     // the new stop becomes the selection so it can be dragged into place.
-    insertStopBetween: (anchorStopId, location, name) => {
+    insertStopBetween: (
+      anchorStopId,
+      location,
+      name,
+      type = "waiting_area",
+    ) => {
       const { stops } = get();
       const index = stops.findIndex((s) => s.id === anchorStopId);
       if (index === -1) return;
@@ -784,7 +956,9 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         name:
           (name?.trim() || `Stop ${stops.length + 1}`) ??
           `Stop ${stops.length + 1}`,
-        type: "waiting_area",
+        // Defaults to the map-click type, so existing callers are unchanged; a
+        // search result passes the type chosen in its popup.
+        type,
         location,
       };
       const nextStops = [
@@ -800,9 +974,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         connections: nextConnections,
         polyline: get().polyline ?? derived.polyline,
         selection: { type: "stop", stopId },
-        poi: null,
-        poiCandidates: [],
-        poiHoverId: null,
+        ...poiDismissalFor(get().searchActive),
         draftDirty: true,
         // An inserted stop is a placement — undoable (FR-013).
         history: pushHistory(state.history, {
@@ -918,9 +1090,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         return {
           stops: nextStops,
           connections,
-          poi: null, // placing a route point dismisses the temporary POI marker
-          poiCandidates: [],
-          poiHoverId: null,
+          ...poiDismissalFor(get().searchActive),
           draftDirty: true,
           // Undoable edit (FR-013): stop_placed (undo restores the exact
           // pre-append chain).
@@ -1099,9 +1269,11 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
       })),
     setPolyline: (polyline) => set({ polyline }),
     setSnap: (snap) => set((state) => ({ snap: { ...state.snap, ...snap } })),
-    // Selecting a stop dismisses the POI marker and the candidate dots with it.
+    // A map click closes the popup card. During a search session it leaves the
+    // picked marker, its label and the pins alone (`poiDismissalFor`): clicking
+    // outside the input is not "stop searching", and not "forget the place".
     setSelection: (selection) =>
-      set({ selection, poi: null, poiCandidates: [], poiHoverId: null }),
+      set({ selection, ...poiDismissalFor(get().searchActive) }),
     setLayers: (layers) =>
       set((state) => ({ layers: { ...state.layers, ...layers } })),
 
@@ -1309,6 +1481,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         poi: null,
         poiCandidates: [],
         poiHoverId: null,
+        poiSelection: null,
         snap: {
           status: "idle",
           polyline: null,
@@ -1336,6 +1509,14 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         poi: null,
         poiCandidates: [],
         poiHoverId: null,
+        poiSelection: null,
+        poiHit: null,
+        // Leaving the search session behind would strand the shell in a search
+        // state with no query and no results.
+        poiLabel: null,
+        poiQuery: "",
+        poiStatus: null,
+        searchActive: false,
         routeMeta: null,
         connections: [],
         draftDirty: false,

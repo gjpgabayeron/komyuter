@@ -6,7 +6,8 @@ interface WorkspaceColumnsProps {
   mode: WorkspaceUiState;
   /** Left plate — route list / stops (overview, focus, edit). */
   left: ReactNode;
-  /** Right plate — FocusPlate (focus) or properties (edit). */
+  /** Right plate — FocusPlate (focus), properties (edit), or the search
+   *  results while a search session is active. `null` collapses the track. */
   right: ReactNode;
   /** When true the left track fills the cell height (pins a bottom card);
    *  otherwise it stays content-adaptive (ADR-0015 short plates). */
@@ -54,7 +55,12 @@ export function WorkspaceColumns({
   leftPinned = false,
 }: WorkspaceColumnsProps) {
   const showLeft = mode !== "empty";
-  const showRight = mode === "focus" || mode === "edit";
+  // The plate decides, as well as the state: a search session can hold the
+  // right track open with results, or hold it empty while a confident hit is
+  // being shown on the map alone. Collapsing the track (rather than rendering
+  // an empty plate) keeps the map full-bleed and the grid columns honest.
+  const showRight =
+    (mode === "focus" || mode === "edit") && right !== null && right !== false;
   const { leftCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
 
   const gridTemplateColumns =

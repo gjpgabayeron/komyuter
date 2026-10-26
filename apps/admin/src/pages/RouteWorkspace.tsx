@@ -14,6 +14,8 @@ import { useDetourStore } from "@/features/detours/detourStore";
 import { DetourSidebar } from "@/features/detours/DetourSidebar";
 import { DetourLayer } from "@/features/detours/DetourLayer";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
+import { SearchResultsPanel } from "@/features/routes/search/SearchResultsPanel";
+import { rightPlateFor } from "@/features/routes/search/rightPlate";
 import { StatusBar } from "@/features/routes/StatusBar";
 import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
 import {
@@ -74,6 +76,19 @@ function RouteWorkspaceInner() {
 
   const directionOpen = usePlottingStore((s) => s.directionId !== null);
   const detourOpen = useDetourStore((s) => s.open);
+  // A search session owns the right column while it lasts: results when the
+  // answer is ambiguous, nothing when a single hit is being shown on the map.
+  const searchActive = usePlottingStore((s) => s.searchActive);
+  const poiCandidates = usePlottingStore((s) => s.poiCandidates);
+  const poiStatus = usePlottingStore((s) => s.poiStatus);
+  // Which plate the right column shows is a rule, not a condition buried in
+  // JSX: properties while editing, results while a search has something to say,
+  // nothing while a confident hit is being shown on the map alone.
+  const rightPlate = rightPlateFor({
+    searchActive,
+    candidateCount: poiCandidates.length,
+    hasStatus: poiStatus !== null,
+  });
 
   useHotkeys("mod+s", () => void saveAll(), {
     // The detour editor owns SAVE while it is open (its panel has the
@@ -176,7 +191,13 @@ function RouteWorkspaceInner() {
                 {directionOpen && <DetourSidebar />}
               </div>
             }
-            right={<PropertiesPanel />}
+            right={
+              rightPlate === "search" ? (
+                <SearchResultsPanel />
+              ) : rightPlate === "properties" ? (
+                <PropertiesPanel />
+              ) : null
+            }
             empty={<EmptyState onCreateRoute={openNewRoute} />}
             chrome={
               hasRoute ? (

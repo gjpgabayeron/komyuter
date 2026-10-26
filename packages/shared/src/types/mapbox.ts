@@ -29,6 +29,14 @@ export interface GeocodeHit {
   description: string;
   /** `[lng, lat]`, like every other coordinate in this codebase (ADR-0013). */
   location: CoordinatePair;
+  /** Most specific Mapbox POI category, e.g. `"shopping mall"`. */
+  category?: string | null;
+  /** Metres from the search centre (the camera), when Mapbox reports it. */
+  distanceMeters?: number | null;
+  /** Display-ready hours for today, e.g. `"Open 24 hours"` or `"10:00 – 22:00"`. */
+  openHours?: string | null;
+  phone?: string | null;
+  website?: string | null;
 }
 
 /**

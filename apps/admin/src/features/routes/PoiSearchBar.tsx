@@ -1,25 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Search, X } from "lucide-react";
-import type { GeocodeHit } from "@komyuter/shared";
+import { MapPinned, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { usePlottingStore } from "@/lib/plottingStore";
+import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
 import { searchPlaces } from "./geocodeApi";
 import { isConfident } from "./poiConfidence";
+import {
+  scopeHits,
+  scopeToNearestCluster,
+  shouldOfferAreaSearch,
+} from "./poiScope";
 
 const SEARCH_DEBOUNCE_MS = 350;
-/** Hover preview waits a beat, so sweeping the list does not thrash the camera. */
-const HOVER_PREVIEW_MS = 90;
 const MIN_QUERY_LENGTH = 3;
-
-/** Why the dropdown is empty — the proxy's warning codes plus transport failure. */
-type EmptyReason = "no_token" | "upstream_error" | "request_failed" | null;
-
-const EMPTY_COPY: Record<Exclude<EmptyReason, null>, string> = {
-  no_token:
-    "Place search is off — no Mapbox token is configured on the server.",
-  upstream_error: "Search is unavailable right now. Try again.",
-  request_failed: "Search is unavailable right now. Try again.",
-};
 
 /** A superseded keystroke aborts its request; that is not a user-facing failure. */
 function isAbort(error: unknown): boolean {
@@ -27,56 +19,91 @@ function isAbort(error: unknown): boolean {
   return problem?.code === "ERR_CANCELED" || problem?.name === "CanceledError";
 }
 
-/** One billing session per mounted pill, as Mapbox's Search Box expects. */
-function createSessionId(): string {
-  const maybeCrypto = globalThis.crypto as Crypto | undefined;
-  if (maybeCrypto && typeof maybeCrypto.randomUUID === "function") {
-    return maybeCrypto.randomUUID();
-  }
-  return `s-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
+/** The camera centre in Mapbox's `lng,lat` form, or undefined when unknown. */
+function proximityOf(
+  viewport: { longitude: number; latitude: number } | null,
+): string | undefined {
+  return viewport ? `${viewport.longitude},${viewport.latitude}` : undefined;
 }
 
 /**
- * Floating POI search bar on the top of the map, adjacent to the left panel.
+ * Map search input — the entry point to the search session.
  *
- * One call to the admin Mapbox proxy returns located candidates, so search stays
- * cheap while typing: nothing is requested under three characters, a keystroke
- * waits 350 ms before it is sent, and the previous request is aborted rather
- * than allowed to race its successor.
+ * The pill owns the query and the request; the *results* are the right-hand
+ * plate's job (`SearchResultsPanel`), so nothing here opens a dropdown. What the
+ * pill does decide is the shape of the answer: a confident hit marks the place
+ * and flies, an ambiguous one publishes candidates for the plate and the map
+ * pins, an empty one publishes why.
  *
- * The map itself is moved by `PoiFocuser`, which lives inside `<Map>`: this
- * component renders in the workspace chrome, where `useMap()` resolves to
- * nothing, so it requests the camera through the store instead.
+ * Search follows the camera: the centre rides along as `proximity` (Mapbox ranks
+ * near it) and the answer is filtered to the visible area on our side, because
+ * Mapbox ignores `radius` and `bbox` on `/forward` — measured. A hit whose name
+ * *is* the query is exempt, so a stop across town stays findable.
+ *
+ * Focusing the input starts the session (`searchActive`), which is what hides
+ * the properties plate; `Esc` ends it. The camera is read through the store and
+ * moved by `PoiFocuser`, because this component sits in the workspace chrome,
+ * outside `<Map>`.
  */
 export function PoiSearchBar() {
   const setPoi = usePlottingStore((s) => s.setPoi);
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
   const setPoiCandidates = usePlottingStore((s) => s.setPoiCandidates);
+  const setPoiSelection = usePlottingStore((s) => s.setPoiSelection);
   const setPoiHoverId = usePlottingStore((s) => s.setPoiHoverId);
-  const poiHoverId = usePlottingStore((s) => s.poiHoverId);
+  const setPoiSearch = usePlottingStore((s) => s.setPoiSearch);
+  const setSearchActive = usePlottingStore((s) => s.setSearchActive);
+  const clearSearchSession = usePlottingStore((s) => s.clearSearchSession);
+  const searchActive = usePlottingStore((s) => s.searchActive);
+  const mapViewport = usePlottingStore((s) => s.mapViewport);
+  const candidates = usePlottingStore((s) => s.poiCandidates);
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GeocodeHit[]>([]);
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [emptyReason, setEmptyReason] = useState<EmptyReason>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const sessionRef = useRef<string>(createSessionId());
-  const hoverTimerRef = useRef<number | null>(null);
-  // Picking a row writes its name into the input; that must not re-run a search
-  // and re-open the list the pick just closed.
-  const suppressNextSearchRef = useRef(false);
+  // Centre the current answer was produced at — the reference for the area plate.
+  const lastSearchRef = useRef<{
+    query: string;
+    longitude: number;
+    latitude: number;
+  } | null>(null);
+
+  /**
+   * One search: camera bias in, area-scoped hits out.
+   *
+   * The camera is read at call time rather than through the effect's closure: it
+   * changes far more often than the query, and depending on it would re-run
+   * (and bill) a search on every pan.
+   */
+  const runQuery = async (
+    q: string,
+    signal: AbortSignal,
+    firstQuery: boolean,
+  ) => {
+    const viewport = usePlottingStore.getState().mapViewport;
+    const { results: hits, warning } = await searchPlaces(
+      q,
+      proximityOf(viewport),
+      signal,
+    );
+    // First query of a session: keep the cluster nearest the camera, because the
+    // opening camera is a city view and a viewport filter would hide the place
+    // being typed. Later queries narrow what is already on screen.
+    const scoped = firstQuery
+      ? scopeToNearestCluster(q, hits, viewport)
+      : scopeHits(q, hits, viewport);
+    // Mapbox answered with hits, but none of them survived the scope.
+    const status: PoiSearchStatus =
+      warning ??
+      (scoped.length === 0 && hits.length > 0 ? "out_of_area" : null);
+    return { hits: scoped, status, viewport };
+  };
 
   useEffect(() => {
     const q = query.trim();
-    if (suppressNextSearchRef.current) {
-      suppressNextSearchRef.current = false;
-      return;
-    }
     if (q.length < MIN_QUERY_LENGTH) {
-      setResults([]);
-      setOpen(false);
-      setEmptyReason(null);
+      setPoiCandidates([]);
+      setPoiHoverId(null);
       return;
     }
     let cancelled = false;
@@ -85,40 +112,45 @@ export function PoiSearchBar() {
     const controller = new AbortController();
     const timer = setTimeout(async () => {
       setLoading(true);
-      setEmptyReason(null);
       try {
-        const { results: hits, warning } = await searchPlaces(
+        const { hits, status, viewport } = await runQuery(
           q,
-          sessionRef.current,
           controller.signal,
+          lastSearchRef.current === null,
         );
         if (cancelled) return;
-        setResults(hits);
-        setEmptyReason(warning);
+        lastSearchRef.current = viewport
+          ? {
+              query: q,
+              longitude: viewport.longitude,
+              latitude: viewport.latitude,
+            }
+          : null;
+        setPoiSearch(q, status);
         if (isConfident(q, hits)) {
-          // One unambiguous answer — mark it and move, without asking. The list
-          // stays shut, so the plotter sees the place, not a menu of one.
+          // One unambiguous answer — mark it and move, without asking. No
+          // candidates, so the results plate stays shut, and the popup opens on
+          // the place itself: a one-shot search should land ready to add, not
+          // needing a second click on the marker it just flew to.
           setPoiCandidates([]);
           setPoiHoverId(null);
-          setPoi(hits[0].location);
+          setPoi(hits[0].location, hits[0].name);
+          setPoiSelection(hits[0]);
           requestPoiFocus({ kind: "point", location: hits[0].location });
-          setOpen(false);
         } else {
-          // A real choice: put every candidate on the map, frame them all, and
-          // let hovering narrow it down.
+          // A real choice: pins for the map, rows for the plate, framed together.
           setPoiCandidates(hits);
           setPoiHoverId(null);
           requestPoiFocus({
             kind: "bounds",
             locations: hits.map((hit) => hit.location),
           });
-          setOpen(true);
         }
       } catch (error) {
         if (cancelled || isAbort(error)) return;
-        setResults([]);
-        setEmptyReason("request_failed");
-        setOpen(true);
+        setPoiCandidates([]);
+        setPoiHoverId(null);
+        setPoiSearch(q, "request_failed");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -130,111 +162,89 @@ export function PoiSearchBar() {
     };
   }, [query]);
 
-  // A pending hover preview must not fire after the pill unmounts.
-  useEffect(
-    () => () => {
-      if (hoverTimerRef.current !== null) {
-        window.clearTimeout(hoverTimerRef.current);
-      }
-    },
-    [],
-  );
+  // The panel's Esc ends the session from outside this component; the text
+  // follows, so the input never shows a query that is no longer live.
+  useEffect(() => {
+    if (!searchActive) setQuery("");
+  }, [searchActive]);
 
-  const select = (hit: GeocodeHit) => {
-    if (hoverTimerRef.current !== null) {
-      window.clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
+  /** Re-runs the last query at the camera's new centre, without moving the map. */
+  const runAreaSearch = async () => {
+    const last = lastSearchRef.current;
+    if (!last) return;
+    setLoading(true);
+    const controller = new AbortController();
+    try {
+      const { hits, status, viewport } = await runQuery(
+        last.query,
+        controller.signal,
+        // "Search this area" is an explicit viewport request, never a cluster.
+        false,
+      );
+      lastSearchRef.current = viewport
+        ? {
+            query: last.query,
+            longitude: viewport.longitude,
+            latitude: viewport.latitude,
+          }
+        : null;
+      setPoiSearch(last.query, status);
+      setPoiCandidates(hits);
+      setPoiHoverId(null);
+      // Deliberately no camera request: the plotter is already looking where
+      // they want to look, so only the result set moves.
+    } catch (error) {
+      if (isAbort(error)) return;
+      setPoiCandidates([]);
+      setPoiSearch(last.query, "request_failed");
+    } finally {
+      setLoading(false);
     }
-    // Picking ends the search: one marker and a flight, no candidate dots, no
-    // highlight. Placing an actual stop stays a deliberate map click.
-    setPoiCandidates([]);
-    setPoiHoverId(null);
-    setPoi(hit.location);
-    requestPoiFocus({ kind: "point", location: hit.location });
-    suppressNextSearchRef.current = true;
-    setQuery(hit.name);
-    setOpen(false);
+  };
+
+  /** Ends the session: no query, no pins, no popup — properties come back. */
+  const exitSearch = () => {
+    lastSearchRef.current = null;
+    setQuery("");
+    // One store action, so the panel's Esc and this Esc end the same way.
+    clearSearchSession();
     inputRef.current?.blur();
   };
 
-  /** Highlights a row and, after a beat, flies the map to its candidate. */
-  const previewOn = (hit: GeocodeHit) => {
-    setPoiHoverId(hit.id);
-    if (hoverTimerRef.current !== null) {
-      window.clearTimeout(hoverTimerRef.current);
-    }
-    hoverTimerRef.current = window.setTimeout(() => {
-      requestPoiFocus({ kind: "point", location: hit.location });
-    }, HOVER_PREVIEW_MS);
-  };
-
-  /** Leaving the list drops the highlight and re-frames the whole candidate set. */
-  const previewOff = () => {
-    if (hoverTimerRef.current !== null) {
-      window.clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
-    setPoiHoverId(null);
-    if (results.length > 0) {
-      requestPoiFocus({
-        kind: "bounds",
-        locations: results.map((hit) => hit.location),
-      });
-    }
-  };
-
-  const clear = () => {
+  /**
+   * Clearing the input is what ends a session — nothing else.
+   *
+   * Focus stays in the field, so typing again simply starts a new session; the
+   * difference from `exitSearch` is only that the caret stays put.
+   */
+  const clearQuery = () => {
+    lastSearchRef.current = null;
     setQuery("");
-    setResults([]);
-    setOpen(false);
-    setEmptyReason(null);
-    setPoi(null);
+    clearSearchSession();
     inputRef.current?.focus();
   };
 
-  const firstResult = results[0];
-  const currentIndex = results.findIndex((hit) => hit.id === poiHoverId);
-
-  /** Arrow keys walk the list, wrapping at both ends; hover preview follows. */
-  const stepHighlight = (delta: number) => {
-    if (results.length === 0) return;
-    const next =
-      currentIndex === -1
-        ? delta > 0
-          ? 0
-          : results.length - 1
-        : (currentIndex + delta + results.length) % results.length;
-    previewOn(results[next]);
-  };
+  const showAreaSearch =
+    candidates.length > 0 &&
+    !loading &&
+    shouldOfferAreaSearch(mapViewport, lastSearchRef.current);
 
   return (
-    <div className="pointer-events-auto z-30 w-72">
-      <div className="bg-background relative">
+    <div className="pointer-events-auto z-30 flex items-start gap-2">
+      <div className="bg-background relative w-72">
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
         <Input
           ref={inputRef}
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onFocus={() => {
-            if (results.length > 0 || emptyReason) setOpen(true);
+          onChange={(event) => {
+            setSearchActive(true);
+            setQuery(event.target.value);
           }}
+          onFocus={() => setSearchActive(true)}
           onKeyDown={(event) => {
-            if (event.key === "ArrowDown") {
+            if (event.key === "Escape") {
               event.preventDefault();
-              stepHighlight(1);
-            } else if (event.key === "ArrowUp") {
-              event.preventDefault();
-              stepHighlight(-1);
-            } else if (event.key === "Enter") {
-              const hit = results[currentIndex] ?? firstResult;
-              if (hit) {
-                event.preventDefault();
-                select(hit);
-              }
-            } else if (event.key === "Escape") {
-              setOpen(false);
-              setPoiHoverId(null);
-              inputRef.current?.blur();
+              exitSearch();
             }
           }}
           placeholder="Search for a place…"
@@ -245,7 +255,7 @@ export function PoiSearchBar() {
           <button
             type="button"
             aria-label="Clear search"
-            onClick={clear}
+            onClick={clearQuery}
             className="text-muted-foreground hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2"
           >
             <X className="size-3.5" />
@@ -253,53 +263,15 @@ export function PoiSearchBar() {
         )}
       </div>
 
-      {open && (
-        <ul
-          onMouseLeave={previewOff}
-          className="overlay-scrollbar mt-1 max-h-80 overflow-y-auto rounded-lg border bg-white"
+      {showAreaSearch && (
+        <button
+          type="button"
+          onClick={() => void runAreaSearch()}
+          className="border-border bg-background hover:bg-muted flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium whitespace-nowrap shadow-sm"
         >
-          {loading && (
-            <li className="text-muted-foreground flex items-center gap-2 px-3 py-2 text-xs">
-              <Loader2 className="size-3 animate-spin" />
-              Searching…
-            </li>
-          )}
-          {!loading && emptyReason !== null && (
-            <li className="text-muted-foreground px-3 py-2 text-xs">
-              {EMPTY_COPY[emptyReason]}
-            </li>
-          )}
-          {!loading && emptyReason === null && results.length === 0 && (
-            <li className="text-muted-foreground px-3 py-2 text-xs">
-              No places found.
-            </li>
-          )}
-          {!loading &&
-            results.map((result) => (
-              <li key={result.id}>
-                <button
-                  type="button"
-                  onClick={() => select(result)}
-                  onMouseEnter={() => previewOn(result)}
-                  onFocus={() => previewOn(result)}
-                  className={
-                    poiHoverId === result.id
-                      ? "bg-muted flex w-full items-center gap-2 px-3 py-2 text-left"
-                      : "hover:bg-muted focus:bg-muted flex w-full items-center gap-2 px-3 py-2 text-left"
-                  }
-                >
-                  <span className="min-w-0">
-                    <span className="text-foreground block truncate text-sm font-medium">
-                      {result.name}
-                    </span>
-                    <span className="text-muted-foreground block truncate text-xs">
-                      {result.description}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-        </ul>
+          <MapPinned className="size-3.5" />
+          Search this area
+        </button>
       )}
     </div>
   );

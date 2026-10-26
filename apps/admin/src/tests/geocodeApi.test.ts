@@ -52,7 +52,7 @@ describe("searchPlaces", () => {
     localStorage.clear();
   });
 
-  it("calls the same-origin forward route once, with q, limit and session", async () => {
+  it("calls the same-origin forward route once, with q and limit only", async () => {
     const calls = respondWith({
       success: true,
       data: {
@@ -70,19 +70,20 @@ describe("searchPlaces", () => {
 
     const response = await searchPlaces(
       "SM City Iloilo",
-      "session-1",
+      "122.5656,10.7202",
       undefined,
       4,
     );
 
     // One call, same origin: nothing here may point at a third-party geocoder
-    // (the CSP would refuse it) and there is no per-row resolve any more.
+    // (the CSP would refuse it), no session id is sent — `/forward` rejects
+    // `session_token` — and the camera centre rides along as `proximity`.
     expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe("/api/admin/mapbox/geocode");
     expect(calls[0].params).toEqual({
       q: "SM City Iloilo",
       limit: 4,
-      session: "session-1",
+      proximity: "122.5656,10.7202",
     });
     expect(response.warning).toBeNull();
     expect(response.results).toEqual([
@@ -102,9 +103,20 @@ describe("searchPlaces", () => {
     });
     const controller = new AbortController();
 
-    await searchPlaces("Iloilo", "session-1", controller.signal);
+    await searchPlaces("Iloilo", undefined, controller.signal);
 
     expect(calls[0].signal).toBe(controller.signal);
+  });
+
+  it("omits proximity when the camera has not reported yet", async () => {
+    const calls = respondWith({
+      success: true,
+      data: { results: [], warning: null },
+    });
+
+    await searchPlaces("Iloilo");
+
+    expect(calls[0].params).toEqual({ q: "Iloilo", limit: 6 });
   });
 
   it("surfaces no_token as a successful answer with no rows", async () => {
@@ -112,7 +124,7 @@ describe("searchPlaces", () => {
       success: true,
       data: { results: [], warning: "no_token" },
     });
-    await expect(searchPlaces("Iloilo", "session-1")).resolves.toEqual({
+    await expect(searchPlaces("Iloilo")).resolves.toEqual({
       results: [],
       warning: "no_token",
     });
@@ -126,8 +138,6 @@ describe("searchPlaces", () => {
       },
       422,
     );
-    await expect(searchPlaces("il", "session-1")).rejects.toBeInstanceOf(
-      ApiError,
-    );
+    await expect(searchPlaces("il")).rejects.toBeInstanceOf(ApiError);
   });
 });
