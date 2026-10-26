@@ -1,23 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Search, X } from "lucide-react";
-import type { GeocodeSuggestion } from "@komyuter/shared";
+import type { GeocodeHit } from "@komyuter/shared";
 import { Input } from "@/components/ui/input";
 import { usePlottingStore } from "@/lib/plottingStore";
-import { resolvePlace, suggestPlaces } from "./geocodeApi";
+import { searchPlaces } from "./geocodeApi";
+import { isConfident } from "./poiConfidence";
 
 const SEARCH_DEBOUNCE_MS = 350;
+/** Hover preview waits a beat, so sweeping the list does not thrash the camera. */
+const HOVER_PREVIEW_MS = 90;
 const MIN_QUERY_LENGTH = 3;
 
 /** Why the dropdown is empty — the proxy's warning codes plus transport failure. */
-type EmptyReason =
-  "no_token" | "upstream_error" | "request_failed" | "unresolved" | null;
+type EmptyReason = "no_token" | "upstream_error" | "request_failed" | null;
 
 const EMPTY_COPY: Record<Exclude<EmptyReason, null>, string> = {
   no_token:
     "Place search is off — no Mapbox token is configured on the server.",
   upstream_error: "Search is unavailable right now. Try again.",
   request_failed: "Search is unavailable right now. Try again.",
-  unresolved: "Could not place that result. Try another search.",
 };
 
 /** A superseded keystroke aborts its request; that is not a user-facing failure. */
@@ -38,31 +39,40 @@ function createSessionId(): string {
 /**
  * Floating POI search bar on the top of the map, adjacent to the left panel.
  *
- * Search goes through the admin Mapbox proxy (`./geocodeApi`): `suggest` lists
- * places by name, and the row the plotter picks is resolved into coordinates
- * only then. That two-step split is what makes POI search work at all here —
- * the classic geocoding endpoint this replaced could not find a mall in Iloilo
- * (issue #16 follow-up).
+ * One call to the admin Mapbox proxy returns located candidates, so search stays
+ * cheap while typing: nothing is requested under three characters, a keystroke
+ * waits 350 ms before it is sent, and the previous request is aborted rather
+ * than allowed to race its successor.
  *
- * The map itself is flown by `PoiFocuser`, which lives inside `<Map>`: this
+ * The map itself is moved by `PoiFocuser`, which lives inside `<Map>`: this
  * component renders in the workspace chrome, where `useMap()` resolves to
- * nothing, so it requests the focus through the store instead.
+ * nothing, so it requests the camera through the store instead.
  */
 export function PoiSearchBar() {
   const setPoi = usePlottingStore((s) => s.setPoi);
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
+  const setPoiCandidates = usePlottingStore((s) => s.setPoiCandidates);
+  const setPoiHoverId = usePlottingStore((s) => s.setPoiHoverId);
+  const poiHoverId = usePlottingStore((s) => s.poiHoverId);
 
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<GeocodeSuggestion[]>([]);
+  const [results, setResults] = useState<GeocodeHit[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [resolving, setResolving] = useState(false);
   const [emptyReason, setEmptyReason] = useState<EmptyReason>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const sessionRef = useRef<string>(createSessionId());
+  const hoverTimerRef = useRef<number | null>(null);
+  // Picking a row writes its name into the input; that must not re-run a search
+  // and re-open the list the pick just closed.
+  const suppressNextSearchRef = useRef(false);
 
   useEffect(() => {
     const q = query.trim();
+    if (suppressNextSearchRef.current) {
+      suppressNextSearchRef.current = false;
+      return;
+    }
     if (q.length < MIN_QUERY_LENGTH) {
       setResults([]);
       setOpen(false);
@@ -77,15 +87,33 @@ export function PoiSearchBar() {
       setLoading(true);
       setEmptyReason(null);
       try {
-        const { suggestions, warning } = await suggestPlaces(
+        const { results: hits, warning } = await searchPlaces(
           q,
           sessionRef.current,
           controller.signal,
         );
         if (cancelled) return;
-        setResults(suggestions);
+        setResults(hits);
         setEmptyReason(warning);
-        setOpen(true);
+        if (isConfident(q, hits)) {
+          // One unambiguous answer — mark it and move, without asking. The list
+          // stays shut, so the plotter sees the place, not a menu of one.
+          setPoiCandidates([]);
+          setPoiHoverId(null);
+          setPoi(hits[0].location);
+          requestPoiFocus({ kind: "point", location: hits[0].location });
+          setOpen(false);
+        } else {
+          // A real choice: put every candidate on the map, frame them all, and
+          // let hovering narrow it down.
+          setPoiCandidates(hits);
+          setPoiHoverId(null);
+          requestPoiFocus({
+            kind: "bounds",
+            locations: hits.map((hit) => hit.location),
+          });
+          setOpen(true);
+        }
       } catch (error) {
         if (cancelled || isAbort(error)) return;
         setResults([]);
@@ -102,28 +130,56 @@ export function PoiSearchBar() {
     };
   }, [query]);
 
-  const select = async (suggestion: GeocodeSuggestion) => {
-    setResolving(true);
-    try {
-      const { location, warning } = await resolvePlace(
-        suggestion.id,
-        sessionRef.current,
-      );
-      if (!location) {
-        setEmptyReason(warning === "no_token" ? "no_token" : "unresolved");
-        setOpen(true);
-        return;
+  // A pending hover preview must not fire after the pill unmounts.
+  useEffect(
+    () => () => {
+      if (hoverTimerRef.current !== null) {
+        window.clearTimeout(hoverTimerRef.current);
       }
-      setPoi(location);
-      requestPoiFocus(location);
-      setQuery(suggestion.name);
-      setOpen(false);
-      inputRef.current?.blur();
-    } catch {
-      setEmptyReason("request_failed");
-      setOpen(true);
-    } finally {
-      setResolving(false);
+    },
+    [],
+  );
+
+  const select = (hit: GeocodeHit) => {
+    if (hoverTimerRef.current !== null) {
+      window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    // Picking ends the search: one marker and a flight, no candidate dots, no
+    // highlight. Placing an actual stop stays a deliberate map click.
+    setPoiCandidates([]);
+    setPoiHoverId(null);
+    setPoi(hit.location);
+    requestPoiFocus({ kind: "point", location: hit.location });
+    suppressNextSearchRef.current = true;
+    setQuery(hit.name);
+    setOpen(false);
+    inputRef.current?.blur();
+  };
+
+  /** Highlights a row and, after a beat, flies the map to its candidate. */
+  const previewOn = (hit: GeocodeHit) => {
+    setPoiHoverId(hit.id);
+    if (hoverTimerRef.current !== null) {
+      window.clearTimeout(hoverTimerRef.current);
+    }
+    hoverTimerRef.current = window.setTimeout(() => {
+      requestPoiFocus({ kind: "point", location: hit.location });
+    }, HOVER_PREVIEW_MS);
+  };
+
+  /** Leaving the list drops the highlight and re-frames the whole candidate set. */
+  const previewOff = () => {
+    if (hoverTimerRef.current !== null) {
+      window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+    setPoiHoverId(null);
+    if (results.length > 0) {
+      requestPoiFocus({
+        kind: "bounds",
+        locations: results.map((hit) => hit.location),
+      });
     }
   };
 
@@ -137,6 +193,19 @@ export function PoiSearchBar() {
   };
 
   const firstResult = results[0];
+  const currentIndex = results.findIndex((hit) => hit.id === poiHoverId);
+
+  /** Arrow keys walk the list, wrapping at both ends; hover preview follows. */
+  const stepHighlight = (delta: number) => {
+    if (results.length === 0) return;
+    const next =
+      currentIndex === -1
+        ? delta > 0
+          ? 0
+          : results.length - 1
+        : (currentIndex + delta + results.length) % results.length;
+    previewOn(results[next]);
+  };
 
   return (
     <div className="pointer-events-auto z-30 w-72">
@@ -150,11 +219,21 @@ export function PoiSearchBar() {
             if (results.length > 0 || emptyReason) setOpen(true);
           }}
           onKeyDown={(event) => {
-            if (event.key === "Enter" && firstResult) {
+            if (event.key === "ArrowDown") {
               event.preventDefault();
-              void select(firstResult);
+              stepHighlight(1);
+            } else if (event.key === "ArrowUp") {
+              event.preventDefault();
+              stepHighlight(-1);
+            } else if (event.key === "Enter") {
+              const hit = results[currentIndex] ?? firstResult;
+              if (hit) {
+                event.preventDefault();
+                select(hit);
+              }
             } else if (event.key === "Escape") {
               setOpen(false);
+              setPoiHoverId(null);
               inputRef.current?.blur();
             }
           }}
@@ -175,34 +254,39 @@ export function PoiSearchBar() {
       </div>
 
       {open && (
-        <ul className="overlay-scrollbar mt-1 max-h-80 overflow-y-auto rounded-lg border bg-white">
-          {(loading || resolving) && (
+        <ul
+          onMouseLeave={previewOff}
+          className="overlay-scrollbar mt-1 max-h-80 overflow-y-auto rounded-lg border bg-white"
+        >
+          {loading && (
             <li className="text-muted-foreground flex items-center gap-2 px-3 py-2 text-xs">
               <Loader2 className="size-3 animate-spin" />
-              {resolving ? "Locating…" : "Searching…"}
+              Searching…
             </li>
           )}
-          {!loading && !resolving && emptyReason !== null && (
+          {!loading && emptyReason !== null && (
             <li className="text-muted-foreground px-3 py-2 text-xs">
               {EMPTY_COPY[emptyReason]}
             </li>
           )}
+          {!loading && emptyReason === null && results.length === 0 && (
+            <li className="text-muted-foreground px-3 py-2 text-xs">
+              No places found.
+            </li>
+          )}
           {!loading &&
-            !resolving &&
-            emptyReason === null &&
-            results.length === 0 && (
-              <li className="text-muted-foreground px-3 py-2 text-xs">
-                No places found.
-              </li>
-            )}
-          {!loading &&
-            !resolving &&
             results.map((result) => (
               <li key={result.id}>
                 <button
                   type="button"
-                  onClick={() => void select(result)}
-                  className="hover:bg-muted focus:bg-muted flex w-full items-center gap-2 px-3 py-2 text-left"
+                  onClick={() => select(result)}
+                  onMouseEnter={() => previewOn(result)}
+                  onFocus={() => previewOn(result)}
+                  className={
+                    poiHoverId === result.id
+                      ? "bg-muted flex w-full items-center gap-2 px-3 py-2 text-left"
+                      : "hover:bg-muted focus:bg-muted flex w-full items-center gap-2 px-3 py-2 text-left"
+                  }
                 >
                   <span className="min-w-0">
                     <span className="text-foreground block truncate text-sm font-medium">

@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import Fastify from "fastify";
 import {
-  buildRetrieveUrl,
-  buildSuggestUrl,
+  buildForwardUrl,
   clampGeocodeLimit,
   GEOCODE_DEFAULT_LIMIT,
   GEOCODE_MAX_LIMIT,
@@ -10,8 +9,7 @@ import {
   normaliseSession,
   parseGeocodeLimit,
   registerMapbox,
-  toGeocodeResult,
-  toSuggestions,
+  toGeocodeHits,
 } from "../../src/api/mapbox";
 
 async function bareApp() {
@@ -28,39 +26,56 @@ function jsonResponse(body: unknown, status = 200) {
   });
 }
 
-describe("buildSuggestUrl", () => {
-  it("targets the Search Box suggest endpoint with the region bias", () => {
-    const url = buildSuggestUrl("SM City Iloilo", "secret-token", "session-1");
+function feature(
+  overrides: {
+    id?: string;
+    name?: string;
+    place?: string;
+    coordinates?: unknown;
+  } = {},
+) {
+  // `in` rather than `??`, so a deliberate `null` coordinate reaches the mapper
+  // instead of being replaced by the default point.
+  const coordinates =
+    "coordinates" in overrides ? overrides.coordinates : [122.5511, 10.7144];
+  return {
+    type: "Feature",
+    geometry: { type: "Point", coordinates },
+    properties: {
+      mapbox_id: overrides.id ?? "dXJuOm1ieHBvaTox",
+      name: overrides.name ?? "SM City Iloilo",
+      place_formatted: overrides.place ?? "Iloilo City, 5000, Philippines",
+    },
+  };
+}
+
+describe("buildForwardUrl", () => {
+  it("targets the Search Box forward endpoint with the region bias", () => {
+    const url = buildForwardUrl("SM City Iloilo", "secret-token", "session-1");
     expect(url).toContain(
-      "https://api.mapbox.com/search/searchbox/v1/suggest?",
+      "https://api.mapbox.com/search/searchbox/v1/forward?",
     );
     expect(url).toContain("q=SM+City+Iloilo");
     expect(url).toContain("country=ph");
+    expect(url).toContain("language=en");
     expect(url).toContain(`proximity=${ILOILO_PROXIMITY}`);
     expect(url).toContain(`limit=${GEOCODE_DEFAULT_LIMIT}`);
     expect(url).toContain("session_token=session-1");
+    expect(url).toContain("auto_complete=true");
     expect(url).toContain("access_token=secret-token");
-    // The classic geocoding endpoint is what lost the POIs; it must not return.
+    // The endpoint that lost the POIs, the per-row retrieve and the hard bbox
+    // filter must all stay gone (issue #16 follow-up).
     expect(url).not.toContain("/geocoding/v5/");
+    expect(url).not.toContain("/retrieve/");
     expect(url).not.toContain("bbox=");
     expect(url).not.toContain("nominatim");
   });
 
   it("clamps the requested limit", () => {
-    expect(buildSuggestUrl("q", "t", "s", 99)).toContain(
+    expect(buildForwardUrl("q", "t", "s", 99)).toContain(
       `limit=${GEOCODE_MAX_LIMIT}`,
     );
-    expect(buildSuggestUrl("q", "t", "s", 0)).toContain("limit=1");
-  });
-});
-
-describe("buildRetrieveUrl", () => {
-  it("escapes the suggestion id and carries the same billing session", () => {
-    const url = buildRetrieveUrl("dXJuOm1ieHBvaTox/a+b", "t", "session-1");
-    expect(url).toContain("/search/searchbox/v1/retrieve/");
-    expect(url).toContain("dXJuOm1ieHBvaTox%2Fa%2Bb");
-    expect(url).toContain("session_token=session-1");
-    expect(url).toContain("access_token=t");
+    expect(buildForwardUrl("q", "t", "s", 0)).toContain("limit=1");
   });
 });
 
@@ -92,79 +107,66 @@ describe("clampGeocodeLimit / parseGeocodeLimit", () => {
   });
 });
 
-describe("toSuggestions", () => {
-  it("maps Search Box suggestions onto id/name/description", () => {
-    const results = toSuggestions({
-      suggestions: [
-        {
-          mapbox_id: "dXJuOm1ieHBvaTox",
-          name: "SM City Iloilo",
-          place_formatted: "Iloilo City, 5000, Philippines",
-        },
-        {
-          mapbox_id: "dXJuOm1ieHBvaToy",
-          name: "Jaro Plaza",
-          full_address: "Jaro Plaza, Iloilo City, Philippines",
-        },
-      ],
-    });
-    expect(results).toEqual([
+describe("toGeocodeHits", () => {
+  it("maps features into located hits with name and description", () => {
+    expect(toGeocodeHits({ features: [feature()] })).toEqual([
       {
         id: "dXJuOm1ieHBvaTox",
         name: "SM City Iloilo",
         description: "Iloilo City, 5000, Philippines",
-      },
-      {
-        id: "dXJuOm1ieHBvaToy",
-        name: "Jaro Plaza",
-        description: "Jaro Plaza, Iloilo City, Philippines",
+        location: [122.5511, 10.7144],
       },
     ]);
   });
 
-  it("drops rows without an id or a name", () => {
-    const results = toSuggestions({
-      suggestions: [
-        { mapbox_id: "ok", name: "Good" },
-        { name: "No id" },
-        { mapbox_id: "no-name", name: "   " },
+  it("falls back to full_address and to the feature id", () => {
+    const hits = toGeocodeHits({
+      features: [
+        {
+          type: "Feature",
+          id: "feature-1",
+          geometry: { coordinates: [122.5562, 10.7248] },
+          properties: {
+            name: "Jaro Plaza",
+            full_address: "Jaro Plaza, Iloilo City, Philippines",
+          },
+        },
+      ],
+    });
+    expect(hits).toEqual([
+      {
+        id: "feature-1",
+        name: "Jaro Plaza",
+        description: "Jaro Plaza, Iloilo City, Philippines",
+        location: [122.5562, 10.7248],
+      },
+    ]);
+  });
+
+  it("drops features without a usable point, id or name", () => {
+    const hits = toGeocodeHits({
+      features: [
+        feature({ id: "keep" }),
+        feature({ id: "no-point", coordinates: null }),
+        feature({ id: "bad-lng", coordinates: ["x", 10.7] }),
+        feature({ id: "short", coordinates: [122.5] }),
+        feature({ id: "", name: "No id" }),
+        feature({ id: "no-name", name: "   " }),
         "not an object",
         null,
       ],
     });
-    expect(results.map((r) => r.id)).toEqual(["ok"]);
+    expect(hits.map((hit) => hit.id)).toEqual(["keep"]);
   });
 
-  it("returns [] for bodies that are not suggestion collections", () => {
-    expect(toSuggestions({ message: "Not Found" })).toEqual([]);
-    expect(toSuggestions({ suggestions: "nope" })).toEqual([]);
-    expect(toSuggestions(null)).toEqual([]);
-  });
-});
-
-describe("toGeocodeResult", () => {
-  it("reads the coordinate in [lng, lat] order", () => {
-    expect(
-      toGeocodeResult({
-        features: [{ geometry: { coordinates: [122.5511369, 10.7144566] } }],
-      }),
-    ).toEqual({ location: [122.5511369, 10.7144566] });
-  });
-
-  it("returns null when the feature carries no usable geometry", () => {
-    expect(toGeocodeResult({ features: [] })).toBeNull();
-    expect(toGeocodeResult({ features: [{}] })).toBeNull();
-    expect(
-      toGeocodeResult({ features: [{ geometry: { coordinates: ["x", 2] } }] }),
-    ).toBeNull();
-    expect(
-      toGeocodeResult({ features: [{ geometry: { coordinates: [1] } }] }),
-    ).toBeNull();
-    expect(toGeocodeResult(null)).toBeNull();
+  it("returns [] for bodies that are not feature collections", () => {
+    expect(toGeocodeHits({ message: "Not Found" })).toEqual([]);
+    expect(toGeocodeHits({ features: "nope" })).toEqual([]);
+    expect(toGeocodeHits(null)).toEqual([]);
   });
 });
 
-describe("GET /api/admin/mapbox/geocode (suggest route)", () => {
+describe("GET /api/admin/mapbox/geocode (forward route)", () => {
   afterEach(() => {
     delete process.env.MAPBOX_SECRET_TOKEN;
     vi.unstubAllGlobals();
@@ -180,21 +182,13 @@ describe("GET /api/admin/mapbox/geocode (suggest route)", () => {
       url: "/mapbox/geocode?q=Iloilo",
     });
     expect(res.statusCode).toBe(200);
-    expect(res.json().data).toEqual({ suggestions: [], warning: "no_token" });
+    expect(res.json().data).toEqual({ results: [], warning: "no_token" });
   });
 
-  it("returns suggestions and no warning on success", async () => {
+  it("returns located results and no warning on success", async () => {
     process.env.MAPBOX_SECRET_TOKEN = "test-token";
     const fetchMock = vi.fn(async () =>
-      jsonResponse({
-        suggestions: [
-          {
-            mapbox_id: "dXJuOm1ieHBvaTox",
-            name: "SM City Iloilo",
-            place_formatted: "Iloilo City, 5000, Philippines",
-          },
-        ],
-      }),
+      jsonResponse({ type: "FeatureCollection", features: [feature()] }),
     );
     vi.stubGlobal("fetch", fetchMock);
     const app = await bareApp();
@@ -204,24 +198,27 @@ describe("GET /api/admin/mapbox/geocode (suggest route)", () => {
     });
     expect(res.statusCode).toBe(200);
     expect(res.json().data).toEqual({
-      suggestions: [
+      results: [
         {
           id: "dXJuOm1ieHBvaTox",
           name: "SM City Iloilo",
           description: "Iloilo City, 5000, Philippines",
+          location: [122.5511, 10.7144],
         },
       ],
       warning: null,
     });
     const requested = String((fetchMock.mock.calls[0] as unknown[])[0]);
-    expect(requested).toContain("/search/searchbox/v1/suggest?");
+    expect(requested).toContain("/search/searchbox/v1/forward?");
     expect(requested).toContain(`proximity=${ILOILO_PROXIMITY}`);
     expect(requested).toContain("session_token=session-1");
   });
 
   it("forwards a client-supplied limit", async () => {
     process.env.MAPBOX_SECRET_TOKEN = "test-token";
-    const fetchMock = vi.fn(async () => jsonResponse({ suggestions: [] }));
+    const fetchMock = vi.fn(async () =>
+      jsonResponse({ features: [feature()] }),
+    );
     vi.stubGlobal("fetch", fetchMock);
     const app = await bareApp();
     await app.inject({
@@ -245,10 +242,7 @@ describe("GET /api/admin/mapbox/geocode (suggest route)", () => {
       url: "/mapbox/geocode?q=Iloilo",
     });
     expect(res.statusCode).toBe(200);
-    expect(res.json().data).toEqual({
-      suggestions: [],
-      warning: "upstream_error",
-    });
+    expect(res.json().data).toEqual({ results: [], warning: "upstream_error" });
   });
 
   it("answers upstream_error when the fetch itself rejects", async () => {
@@ -279,72 +273,14 @@ describe("GET /api/admin/mapbox/geocode (suggest route)", () => {
       expect(body.error?.code ?? body.code).toBe("VALIDATION_ERROR");
     }
   });
-});
 
-describe("GET /api/admin/mapbox/geocode/resolve (retrieve route)", () => {
-  afterEach(() => {
-    delete process.env.MAPBOX_SECRET_TOKEN;
-    vi.unstubAllGlobals();
-  });
-
-  it("rejects a missing id with 422", async () => {
+  it("no longer serves the per-row resolve route", async () => {
     process.env.MAPBOX_SECRET_TOKEN = "test-token";
-    const app = await bareApp();
-    const res = await app.inject({
-      method: "GET",
-      url: "/mapbox/geocode/resolve",
-    });
-    expect(res.statusCode).toBe(422);
-  });
-
-  it("answers no_token when MAPBOX_SECRET_TOKEN is absent", async () => {
-    delete process.env.MAPBOX_SECRET_TOKEN;
     const app = await bareApp();
     const res = await app.inject({
       method: "GET",
       url: "/mapbox/geocode/resolve?id=abc",
     });
-    expect(res.json().data).toEqual({ location: null, warning: "no_token" });
-  });
-
-  it("resolves the id into a [lng, lat] location", async () => {
-    process.env.MAPBOX_SECRET_TOKEN = "test-token";
-    const fetchMock = vi.fn(async () =>
-      jsonResponse({
-        features: [{ geometry: { coordinates: [122.5511369, 10.7144566] } }],
-      }),
-    );
-    vi.stubGlobal("fetch", fetchMock);
-    const app = await bareApp();
-    const res = await app.inject({
-      method: "GET",
-      url: "/mapbox/geocode/resolve?id=dXJuOm1ieHBvaTox&session=session-1",
-    });
-    expect(res.statusCode).toBe(200);
-    expect(res.json().data).toEqual({
-      location: [122.5511369, 10.7144566],
-      warning: null,
-    });
-    expect(String((fetchMock.mock.calls[0] as unknown[])[0])).toContain(
-      "/search/searchbox/v1/retrieve/dXJuOm1ieHBvaTox",
-    );
-  });
-
-  it("answers upstream_error when the retrieve call fails", async () => {
-    process.env.MAPBOX_SECRET_TOKEN = "test-token";
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => new Response("boom", { status: 500 })),
-    );
-    const app = await bareApp();
-    const res = await app.inject({
-      method: "GET",
-      url: "/mapbox/geocode/resolve?id=abc",
-    });
-    expect(res.statusCode).toBe(200);
-    expect(res.json().data).toEqual({
-      location: null,
-      warning: "upstream_error",
-    });
+    expect(res.statusCode).toBe(404);
   });
 });

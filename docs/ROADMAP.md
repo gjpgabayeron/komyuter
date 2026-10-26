@@ -218,11 +218,13 @@ pill was live in the workspace (`PoiSearchBar`), but the production CSP's `conne
 instead is refused (`specs/009-auth-quick-wins/contracts/csp-policy.md`). The proxy is same-origin, so no
 CSP directive changed.
 
-What it serves now is Mapbox **Search Box**: `suggest` lists places by name, `resolve` turns the chosen
-row into coordinates. The classic geocoding endpoint was dropped on measured data, not taste — with a
-hard `bbox`, "SM City Iloilo" returned a road in Leganes and `types=poi` returned nothing. Selection also
-has to move the map, and the pill renders outside `<Map>`, where `useMap()` resolves to nothing; that
-request now travels through the store to `PoiFocuser`, which lives inside the map.
+What it serves now is Mapbox **Search Box `/forward`**: one call returns located candidates, so the map
+can dot every hit and preview one on hover. The classic geocoding endpoint was dropped on measured data,
+not taste — with a hard `bbox`, "SM City Iloilo" returned a road in Leganes and `types=poi` returned
+nothing. Two behaviours follow from the answer: a confident one (a single hit, or a top hit whose name
+_is_ the query) marks the place and flies, while an ambiguous one lists, dots and frames the candidates.
+The pill renders outside `<Map>`, where `useMap()` resolves to nothing, so both camera requests travel
+through the store to `PoiFocuser`, which lives inside the map.
 
 **Exit criterion.** A second person exports a dataset from staging, imports it into a fresh environment,
 and gets the same routes; a direction can be plotted from a GPX trace without hand-placing every stop;

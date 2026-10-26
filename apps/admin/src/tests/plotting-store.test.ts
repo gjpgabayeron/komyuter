@@ -178,18 +178,61 @@ describe("plottingStore", () => {
     expect(usePlottingStore.getState().poi).toBeNull();
   });
 
-  it("requestPoiFocus asks once per pick and clearPoiFocus empties it", () => {
+  it("requestPoiFocus asks once per pick, for a point or a bounds", () => {
     expect(usePlottingStore.getState().poiFocus).toBeNull();
-    usePlottingStore.getState().requestPoiFocus([122.56, 10.72]);
+
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "point",
+      location: [122.56, 10.72],
+    });
     const first = usePlottingStore.getState().poiFocus;
-    expect(first?.location).toEqual([122.56, 10.72]);
-    // The same coordinate picked twice is still two distinct requests, or the
-    // map would not fly again.
-    usePlottingStore.getState().requestPoiFocus([122.56, 10.72]);
+    expect(first).toMatchObject({ kind: "point", location: [122.56, 10.72] });
+
+    // The same place picked twice is still two distinct requests, or the map
+    // would not move again.
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "point",
+      location: [122.56, 10.72],
+    });
     const second = usePlottingStore.getState().poiFocus;
     expect(second?.nonce).toBeGreaterThan(first?.nonce ?? 0);
+
+    // A candidate set asks the map to frame all of them, not one.
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "bounds",
+      locations: [
+        [122.55, 10.71],
+        [122.57, 10.73],
+      ],
+    });
+    expect(usePlottingStore.getState().poiFocus).toMatchObject({
+      kind: "bounds",
+      locations: [
+        [122.55, 10.71],
+        [122.57, 10.73],
+      ],
+    });
+
     usePlottingStore.getState().clearPoiFocus();
     expect(usePlottingStore.getState().poiFocus).toBeNull();
+  });
+
+  it("keeps candidates and the hovered id until the marker is dismissed", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    usePlottingStore.getState().setPoiCandidates([hit]);
+    usePlottingStore.getState().setPoiHoverId("a");
+    expect(usePlottingStore.getState().poiCandidates).toHaveLength(1);
+    expect(usePlottingStore.getState().poiHoverId).toBe("a");
+
+    // Selecting a stop ends the search, so the dots go with the marker.
+    usePlottingStore.getState().setSelection({ type: "stop", stopId: "s1" });
+    expect(usePlottingStore.getState().poiCandidates).toEqual([]);
+    expect(usePlottingStore.getState().poiHoverId).toBeNull();
   });
 
   it("placing a stop, selecting a stop, or opening a route clears the POI marker", () => {

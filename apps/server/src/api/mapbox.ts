@@ -2,8 +2,7 @@ import { randomUUID } from "node:crypto";
 import type {
   CoordinatePair,
   GeoLineString,
-  GeocodeResult,
-  GeocodeSuggestion,
+  GeocodeHit,
   GeocodeWarning,
 } from "@komyuter/shared";
 import type { AppInstance } from "./app";
@@ -113,11 +112,18 @@ export function normaliseSession(raw: unknown, fallback: string): string {
 }
 
 /**
- * Builds the Search Box `suggest` URL. The token, the region bias and the
- * billing session stay server-side, so the browser never learns where search
- * went — that is what made issue #16 a CSP problem in the first place.
+ * Builds the Search Box `forward` URL.
+ *
+ * One call, up to ten results, each carrying its own `geometry` — that is what
+ * lets the map draw every candidate and preview one on hover without a second
+ * round trip per row. `auto_complete=true` keeps the as-you-type feel of the
+ * `suggest` endpoint this replaced, and `proximity` biases ranking without
+ * hard-filtering hits out of the region.
+ *
+ * The token, the bias and the billing session stay server-side, so the browser
+ * never learns where search went — that is what made issue #16 a CSP problem.
  */
-export function buildSuggestUrl(
+export function buildForwardUrl(
   query: string,
   token: string,
   session: string,
@@ -129,26 +135,12 @@ export function buildSuggestUrl(
     language: "en",
     limit: String(clampGeocodeLimit(limit)),
     session_token: session,
+    auto_complete: "true",
     access_token: token,
   });
   // `proximity` is appended raw so its comma stays unescaped (digits, dots,
   // commas only) — URLSearchParams would percent-encode the separator.
-  return `https://api.mapbox.com/search/searchbox/v1/suggest?${params.toString()}&proximity=${ILOILO_PROXIMITY}`;
-}
-
-/** Builds the Search Box `retrieve` URL that turns a suggestion id into a point. */
-export function buildRetrieveUrl(
-  id: string,
-  token: string,
-  session: string,
-): string {
-  const params = new URLSearchParams({
-    session_token: session,
-    access_token: token,
-  });
-  return `https://api.mapbox.com/search/searchbox/v1/retrieve/${encodeURIComponent(
-    id,
-  )}?${params.toString()}`;
+  return `https://api.mapbox.com/search/searchbox/v1/forward?${params.toString()}&proximity=${ILOILO_PROXIMITY}`;
 }
 
 /** Clamps a requested result count into Mapbox's accepted 1–10 range. */
@@ -165,59 +157,66 @@ export function parseGeocodeLimit(raw: unknown): number {
 }
 
 /**
- * Maps a Search Box `suggest` body onto `GeocodeSuggestion[]`.
+ * Maps a Search Box `forward` body onto `GeocodeHit[]`.
  *
- * `suggest` answers with names and ids but no coordinates, which is what the
- * dropdown needs: the id is resolved by `retrieve` only when the plotter picks
- * a row. Anything without an id and a name is dropped rather than rendered as
- * a blank row.
+ * Every feature carries its own `geometry`, which is the whole reason this
+ * replaced `suggest` + `retrieve`: the dropdown rows and the candidate dots
+ * come from one response. Properties are read defensively — the id from
+ * `properties.mapbox_id` (or the feature's own id), `name` from
+ * `properties.name`, and the row's second line from `place_formatted`, falling
+ * back to `full_address`. Anything without a usable point or name is dropped
+ * rather than rendered as a blank row.
  */
-export function toSuggestions(json: unknown): GeocodeSuggestion[] {
+export function toGeocodeHits(json: unknown): GeocodeHit[] {
   if (!json || typeof json !== "object") return [];
-  const suggestions = (json as { suggestions?: unknown }).suggestions;
-  if (!Array.isArray(suggestions)) return [];
+  const features = (json as { features?: unknown }).features;
+  if (!Array.isArray(features)) return [];
 
-  const results: GeocodeSuggestion[] = [];
-  for (const suggestion of suggestions) {
-    if (!suggestion || typeof suggestion !== "object") continue;
-    const record = suggestion as {
+  const results: GeocodeHit[] = [];
+  for (const feature of features) {
+    if (!feature || typeof feature !== "object") continue;
+    const record = feature as {
+      id?: unknown;
+      properties?: unknown;
+      geometry?: unknown;
+    };
+    const geometry = record.geometry;
+    if (!geometry || typeof geometry !== "object") continue;
+    const coordinates = (geometry as { coordinates?: unknown }).coordinates;
+    if (!Array.isArray(coordinates) || coordinates.length < 2) continue;
+    const lng = Number(coordinates[0]);
+    const lat = Number(coordinates[1]);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) continue;
+
+    const properties = (record.properties ?? {}) as {
       mapbox_id?: unknown;
       name?: unknown;
       place_formatted?: unknown;
       full_address?: unknown;
     };
-    const id = typeof record.mapbox_id === "string" ? record.mapbox_id : "";
-    const name = typeof record.name === "string" ? record.name.trim() : "";
+    const id =
+      typeof properties.mapbox_id === "string"
+        ? properties.mapbox_id
+        : typeof record.id === "string"
+          ? record.id
+          : "";
+    const name =
+      typeof properties.name === "string" ? properties.name.trim() : "";
     if (!id || !name) continue;
     const secondary =
-      typeof record.place_formatted === "string"
-        ? record.place_formatted
-        : typeof record.full_address === "string"
-          ? record.full_address
+      typeof properties.place_formatted === "string"
+        ? properties.place_formatted
+        : typeof properties.full_address === "string"
+          ? properties.full_address
           : "";
-    results.push({ id, name, description: secondary.trim() });
+    results.push({
+      id,
+      name,
+      description: secondary.trim(),
+      location: [lng, lat],
+    });
   }
   return results;
-}
-
-/**
- * Maps a Search Box `retrieve` body onto the resolved coordinate, `[lng, lat]`,
- * or null when the feature carries no usable geometry.
- */
-export function toGeocodeResult(json: unknown): GeocodeResult | null {
-  if (!json || typeof json !== "object") return null;
-  const features = (json as { features?: unknown }).features;
-  if (!Array.isArray(features) || features.length === 0) return null;
-  const first = features[0];
-  if (!first || typeof first !== "object") return null;
-  const geometry = (first as { geometry?: unknown }).geometry;
-  if (!geometry || typeof geometry !== "object") return null;
-  const coordinates = (geometry as { coordinates?: unknown }).coordinates;
-  if (!Array.isArray(coordinates) || coordinates.length < 2) return null;
-  const lng = Number(coordinates[0]);
-  const lat = Number(coordinates[1]);
-  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
-  return { location: [lng, lat] };
 }
 
 /**
@@ -302,8 +301,9 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
   });
 
   /**
-   * Place search (issue #16). Search Box `suggest` answers with names and ids;
-   * `/mapbox/geocode/resolve` turns the id the plotter picked into a point.
+   * Place search (issue #16). One Search Box `forward` call answers with up to
+   * ten located candidates, so the pill can list them and the map can draw
+   * every one of them without a second request.
    *
    * The classic geocoding endpoint this replaced could not find POIs in Iloilo:
    * measured against live data, "SM City Iloilo" came back as a road in Leganes
@@ -334,7 +334,7 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
 
     const degraded = (warning: GeocodeWarning) => ({
       success: true,
-      data: { suggestions: [] as GeocodeSuggestion[], warning },
+      data: { results: [] as GeocodeHit[], warning },
     });
 
     if (!token) {
@@ -342,67 +342,19 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
     }
 
     try {
-      const res = await fetch(buildSuggestUrl(query, token, session, limit));
+      const res = await fetch(buildForwardUrl(query, token, session, limit));
       if (!res.ok) {
-        throw new Error(`Mapbox suggest responded with status ${res.status}`);
+        throw new Error(`Mapbox forward responded with status ${res.status}`);
       }
       const json = (await res.json()) as unknown;
       return {
         success: true,
-        data: { suggestions: toSuggestions(json), warning: null },
+        data: { results: toGeocodeHits(json), warning: null },
       };
     } catch (error) {
       app.log.warn(
         { error },
-        "Mapbox suggest proxy failed; returning no suggestions",
-      );
-      return degraded("upstream_error");
-    }
-  });
-
-  /**
-   * Resolves one suggestion id into a coordinate. Separate from `suggest` on
-   * purpose: coordinates are only worth a second billed call once the plotter
-   * has actually chosen a row.
-   */
-  app.get("/mapbox/geocode/resolve", async (request) => {
-    const { id: rawId, session: rawSession } = request.query as {
-      id?: string;
-      session?: string;
-    };
-    const id = typeof rawId === "string" ? rawId.trim() : "";
-    if (!id) {
-      throw validationError("Missing required query parameter: id");
-    }
-    const session = normaliseSession(rawSession, randomUUID());
-
-    const env = loadEnv(process.env);
-    const token = env.MAPBOX_SECRET_TOKEN;
-
-    const degraded = (warning: GeocodeWarning) => ({
-      success: true,
-      data: { location: null, warning },
-    });
-
-    if (!token) {
-      return degraded("no_token");
-    }
-
-    try {
-      const res = await fetch(buildRetrieveUrl(id, token, session));
-      if (!res.ok) {
-        throw new Error(`Mapbox retrieve responded with status ${res.status}`);
-      }
-      const json = (await res.json()) as unknown;
-      const resolved: GeocodeResult | null = toGeocodeResult(json);
-      return {
-        success: true,
-        data: { location: resolved?.location ?? null, warning: null },
-      };
-    } catch (error) {
-      app.log.warn(
-        { error },
-        "Mapbox retrieve proxy failed; returning no location",
+        "Mapbox forward proxy failed; returning no candidates",
       );
       return degraded("upstream_error");
     }

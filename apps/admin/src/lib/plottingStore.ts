@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import type {
   CoordinatePair,
+  GeocodeHit,
   GeoLineString,
   SnappedPath,
   StopType,
@@ -257,6 +258,16 @@ export function cancelPendingSnap(): void {
   }
 }
 
+/** What the map should frame after a search: one place, or every candidate. */
+export type PoiCameraTarget =
+  | { kind: "point"; location: CoordinatePair }
+  | { kind: "bounds"; locations: CoordinatePair[] };
+
+/** A camera request plus its identity — consumed once by the map. */
+export type PoiFocusRequest =
+  | { kind: "point"; location: CoordinatePair; nonce: number }
+  | { kind: "bounds"; locations: CoordinatePair[]; nonce: number };
+
 export interface PlottingState {
   /** Route being plotted (null = no route open). */
   routeId: string | null;
@@ -267,12 +278,16 @@ export interface PlottingState {
   /** Temporary POI search marker; cleared on any other map interaction. */
   poi: CoordinatePair | null;
   /**
-   * One-shot request to centre the map on a searched place. The search pill
-   * renders in the chrome slot *outside* `<Map>`, where `useMap()` resolves to
-   * nothing, so it cannot fly the map itself; it asks, and a controller inside
-   * the map consumes this and clears it.
+   * One-shot camera request from the search pill: frame one place, or frame the
+   * whole candidate set. The pill renders in the chrome slot *outside* `<Map>`,
+   * where `useMap()` resolves to nothing, so it cannot move the camera itself;
+   * it asks, and a controller inside the map consumes this and clears it.
    */
-  poiFocus: { location: CoordinatePair; nonce: number } | null;
+  poiFocus: PoiFocusRequest | null;
+  /** Candidate hits behind the dropdown, mirrored as dots on the map. */
+  poiCandidates: GeocodeHit[];
+  /** Candidate the pointer (or keyboard) is on, if any. */
+  poiHoverId: string | null;
   /** Route metadata draft; null until a route's detail loads. */
   routeMeta: RouteMetaDraft | null;
   /** Consecutive-pair chain between stops (drives the from/to dropdowns). */
@@ -314,10 +329,14 @@ export interface PlottingState {
   setTool: (tool: EditTool) => void;
   /** Places/clears the temporary POI search marker ([lng, lat]). */
   setPoi: (location: CoordinatePair | null) => void;
-  /** Asks the map (which owns the instance) to centre on a searched place. */
-  requestPoiFocus: (location: CoordinatePair) => void;
+  /** Asks the map (which owns the instance) to frame a place or a candidate set. */
+  requestPoiFocus: (target: PoiCameraTarget) => void;
   /** Clears a consumed focus request so it never replays on re-render. */
   clearPoiFocus: () => void;
+  /** Publishes the current candidate set; an empty array clears the map dots. */
+  setPoiCandidates: (candidates: GeocodeHit[]) => void;
+  /** Highlights one candidate on the map, mirroring list hover. */
+  setPoiHoverId: (id: string | null) => void;
   /** Merges a patch into the route metadata draft. */
   setRouteMeta: (patch: Partial<RouteMetaDraft>) => void;
   /** Inserts a stop directly after another stop (sequence auto-reorders). */
@@ -576,6 +595,8 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     tool: "select",
     poi: null,
     poiFocus: null,
+    poiCandidates: [],
+    poiHoverId: null,
     routeMeta: null,
     connections: [],
     draftDirty: false,
@@ -601,13 +622,28 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     setRouteId: (routeId) => set({ routeId }),
     setDirectionId: (directionId) => set({ directionId }),
     setTool: (tool) => set({ tool }),
-    setPoi: (poi) => set({ poi }),
-    requestPoiFocus: (location) =>
-      set((state) => ({
+    setPoi: (poi) =>
+      // Clearing the marker also drops the candidate dots: the search that
+      // produced them is over.
+      set(
+        poi === null
+          ? { poi: null, poiCandidates: [], poiHoverId: null }
+          : { poi },
+      ),
+    setPoiCandidates: (poiCandidates) => set({ poiCandidates }),
+    setPoiHoverId: (poiHoverId) => set({ poiHoverId }),
+    requestPoiFocus: (target) =>
+      set((state) => {
         // `nonce` makes two picks of the same place two distinct requests, so
-        // the map flies again instead of ignoring an unchanged object.
-        poiFocus: { location, nonce: (state.poiFocus?.nonce ?? 0) + 1 },
-      })),
+        // the map moves again instead of ignoring an unchanged object.
+        const nonce = (state.poiFocus?.nonce ?? 0) + 1;
+        return {
+          poiFocus:
+            target.kind === "point"
+              ? { kind: "point", location: target.location, nonce }
+              : { kind: "bounds", locations: target.locations, nonce },
+        };
+      }),
     clearPoiFocus: () => set({ poiFocus: null }),
     setRouteMeta: (patch) =>
       // Initialize-or-merge: the first patch after opening a route creates the
@@ -639,6 +675,8 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         selection: clearSelection,
         tool: "select",
         poi: null,
+        poiCandidates: [],
+        poiHoverId: null,
         routeMeta: null,
         connections: [],
         draftDirty: false,
@@ -763,6 +801,8 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         polyline: get().polyline ?? derived.polyline,
         selection: { type: "stop", stopId },
         poi: null,
+        poiCandidates: [],
+        poiHoverId: null,
         draftDirty: true,
         // An inserted stop is a placement — undoable (FR-013).
         history: pushHistory(state.history, {
@@ -879,6 +919,8 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
           stops: nextStops,
           connections,
           poi: null, // placing a route point dismisses the temporary POI marker
+          poiCandidates: [],
+          poiHoverId: null,
           draftDirty: true,
           // Undoable edit (FR-013): stop_placed (undo restores the exact
           // pre-append chain).
@@ -1057,7 +1099,9 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
       })),
     setPolyline: (polyline) => set({ polyline }),
     setSnap: (snap) => set((state) => ({ snap: { ...state.snap, ...snap } })),
-    setSelection: (selection) => set({ selection, poi: null }), // selecting a stop dismisses the POI marker
+    // Selecting a stop dismisses the POI marker and the candidate dots with it.
+    setSelection: (selection) =>
+      set({ selection, poi: null, poiCandidates: [], poiHoverId: null }),
     setLayers: (layers) =>
       set((state) => ({ layers: { ...state.layers, ...layers } })),
 
@@ -1263,6 +1307,8 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         savedBaseline: null,
         selection: clearSelection,
         poi: null,
+        poiCandidates: [],
+        poiHoverId: null,
         snap: {
           status: "idle",
           polyline: null,
@@ -1288,6 +1334,8 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         directionId: null,
         tool: "select",
         poi: null,
+        poiCandidates: [],
+        poiHoverId: null,
         routeMeta: null,
         connections: [],
         draftDirty: false,
