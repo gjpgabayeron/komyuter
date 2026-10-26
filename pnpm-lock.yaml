@@ -294,8 +294,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       zod:
-        specifier: ^4.4.3
-        version: 4.6.5
+        specifier: ^4.6.6
+        version: 4.6.7
       zustand:
         specifier: ^5.0.14
         version: 5.0.15(@types/react@18.3.31)(react@18.3.1)(use-sync-external-store@1.7.0(react@18.3.1))
@@ -519,7 +519,7 @@ importers:
         version: 10.1.6
       '@fastify/type-provider-zod':
         specifier: ^1.0.0
-        version: 1.0.0(@fastify/swagger@9.9.2(supports-color@8.1.1))(fastify@5.12.5)(openapi-types@12.1.3)(zod@4.6.5)
+        version: 1.0.0(@fastify/swagger@9.9.2(supports-color@8.1.1))(fastify@5.12.5)(openapi-types@12.1.3)(zod@4.6.7)
       '@komyuter/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -536,8 +536,8 @@ importers:
         specifier: ^8.22.0
         version: 8.23.1
       zod:
-        specifier: ^4.2.0
-        version: 4.6.5
+        specifier: ^4.6.6
+        version: 4.6.7
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -573,8 +573,8 @@ importers:
   packages/shared:
     dependencies:
       zod:
-        specifier: ^4.4.3
-        version: 4.6.5
+        specifier: ^4.6.6
+        version: 4.6.7
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:*
@@ -8245,8 +8245,8 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
-  zod@4.6.5:
-    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
 
   zustand@5.0.15:
     resolution: {integrity: sha512-MpSEjRiBkA9crSYeOUH32rJC7SVqAbm0Fqcqge/bUi2PPoLcBWKOsG+C8mevmpr8TwXHBVkChbbJiyvkE+i/3A==}
@@ -9743,13 +9743,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fastify/type-provider-zod@1.0.0(@fastify/swagger@9.9.2(supports-color@8.1.1))(fastify@5.12.5)(openapi-types@12.1.3)(zod@4.6.5)':
+  '@fastify/type-provider-zod@1.0.0(@fastify/swagger@9.9.2(supports-color@8.1.1))(fastify@5.12.5)(openapi-types@12.1.3)(zod@4.6.7)':
     dependencies:
       '@fastify/error': 4.2.1
       '@fastify/swagger': 9.9.2(supports-color@8.1.1)
       fastify: 5.12.5
       openapi-types: 12.1.3
-      zod: 4.6.5
+      zod: 4.6.7
 
   '@floating-ui/core@1.8.0':
     dependencies:
@@ -12781,8 +12781,8 @@ snapshots:
       '@babel/parser': 7.29.9
       eslint: 9.39.5(jiti@2.7.0)(supports-color@8.1.1)
       hermes-parser: 0.25.1
-      zod: 4.6.5
-      zod-validation-error: 4.0.2(zod@4.6.5)
+      zod: 4.6.7
+      zod-validation-error: 4.0.2(zod@4.6.7)
     transitivePeerDependencies:
       - supports-color
 
@@ -16673,13 +16673,13 @@ snapshots:
     dependencies:
       zod: 3.25.76
 
-  zod-validation-error@4.0.2(zod@4.6.5):
+  zod-validation-error@4.0.2(zod@4.6.7):
     dependencies:
-      zod: 4.6.5
+      zod: 4.6.7
 
   zod@3.25.76: {}
 
-  zod@4.6.5: {}
+  zod@4.6.7: {}
 
   zustand@5.0.15(@types/react@18.3.31)(react@18.3.1)(use-sync-external-store@1.7.0(react@18.3.1)):
     optionalDependencies:
