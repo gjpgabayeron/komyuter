@@ -35,8 +35,10 @@ interface WorkspaceColumnsProps {
  *   edit     → 240 16 map 16 336      (properties)
  *
  * The grid is identity-stable: the same five items render in the same order
- * in every state, so the map (a sibling backdrop) is never touched by state
- * changes — it never resizes or remounts (SC-002).
+ * in every state, each pinned to its own track by an explicit `gridColumn`,
+ * so the map (a sibling backdrop) is never touched by state changes — it
+ * never resizes or remounts (SC-002) — and hiding a track can never renumber
+ * the ones after it (GH #14).
  *
  * The single row is `minmax(0, 1fr)` — the full cell height acts as the cap
  * for each plate's `max-h-full`, so a long plate list can never stretch the
@@ -77,9 +79,16 @@ export function WorkspaceColumns({
       role="region"
       aria-label={`Route workspace — ${mode} mode`}
     >
+      {/* Each cell names its track explicitly. Hiding a cell with
+          `display: none` removes it from auto-placement, which would slide
+          the centre cell into column 1 — a 0 px track in empty mode — and
+          squeeze the empty plate against the left edge (GH #14). */}
       <div
         className="pointer-events-none min-h-0 min-w-0 p-3"
-        style={{ display: showLeft ? undefined : "none" }}
+        style={{
+          gridColumn: 1,
+          display: showLeft ? undefined : "none",
+        }}
       >
         {/* Content-adaptive: the wrapper is a capped flex column (max-h-full),
             so short content renders a short plate with the map visible around
@@ -98,9 +107,15 @@ export function WorkspaceColumns({
       <div
         aria-hidden="true"
         className="pointer-events-none"
-        style={{ display: showLeft ? undefined : "none" }}
+        style={{
+          gridColumn: 2,
+          display: showLeft ? undefined : "none",
+        }}
       />
-      <div className="pointer-events-none relative min-h-0 min-w-0">
+      <div
+        className="pointer-events-none relative min-h-0 min-w-0"
+        style={{ gridColumn: 3 }}
+      >
         {chrome}
         {mode === "empty" && (
           <div className="absolute inset-0 z-10">{empty}</div>
@@ -109,11 +124,17 @@ export function WorkspaceColumns({
       <div
         aria-hidden="true"
         className="pointer-events-none"
-        style={{ display: showRight ? undefined : "none" }}
+        style={{
+          gridColumn: 4,
+          display: showRight ? undefined : "none",
+        }}
       />
       <div
         className="pointer-events-none min-h-0 min-w-0 p-3"
-        style={{ display: showRight ? undefined : "none" }}
+        style={{
+          gridColumn: 5,
+          display: showRight ? undefined : "none",
+        }}
       >
         {/* Content-adaptive: same capped-flex-column contract as the left track. */}
         <div
