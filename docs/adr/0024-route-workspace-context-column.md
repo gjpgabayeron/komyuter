@@ -19,8 +19,13 @@ after the current selection, not at a free position.
 
 ## Decision
 
-1. **Four tracks, one of them revealable**: `256 | 320 (context) | minmax(0,1fr) | 336 (edit only)`, gutter 0, a 12 px
-   inset per column. The map stays `absolute inset-0` behind all tracks, exactly as ADR-0015 §1 describes.
+1. **A context column beside the stops list, revealed for a session**: 320 px, with the same 12 px inset as
+   every other column, mounting over the free region's left edge. It is an **overlay panel, not a fourth grid
+   track** — refined 2026-10-29 while implementing #24: a real track reflows the transparent centre, which
+   would shift the floating chrome (the search pill) sideways the instant results appear, moving the input
+   under the caret. The grid therefore keeps its five tracks (`256 | 0 | centre | 0 | 336`) and the context
+   plate paints above the map and below the stops column. The map stays `absolute inset-0` behind everything,
+   exactly as ADR-0015 §1 describes.
 2. **The reveal is an overlay transform, never a track resize.** The context plate slides over the map's left edge;
    the GL canvas keeps its size, its camera and its pixel centre. This is what keeps §1's claim ("the GL canvas never
    resizes at all") and SC-002's smoke check true — see the rejected push reveal below.
@@ -62,7 +67,8 @@ after the current selection, not at a free position.
 
 - The gate arithmetic keeps its shape: at the 1024 window (976 workspace) the search state lands on `976 − 576 = 400`,
   exactly the floor, so the gate stays closed there; edit stays at 384 and still gates, as today.
-- `rightPlateFor` grows into a two-slot rule — context slot (results ⇄ hidden) and right slot (properties ⇄ hidden).
+- `plateSlotsFor` (workspace) is the two-slot rule — context slot (results ⇄ hidden), right slot (properties ⇄
+  hidden) — replacing the old single-slot `rightPlateFor`.
 - Fits stop carrying local padding, so "fit the route" can no longer frame a route underneath a plate.
 - The insert-after rule becomes visible UI (the anchor line) rather than a rule hidden inside `addPoiAsStop`.
 - Still open, not decided here: the plate radius conflict between DESIGN.md (≤4 px) and

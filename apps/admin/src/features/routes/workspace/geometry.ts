@@ -16,6 +16,9 @@
  */
 export const WORKSPACE_GEOMETRY = {
   leftCol: 256,
+  /** The context column — revealed over the free region's left edge while a
+   *  search session has something to show (ADR-0024). */
+  contextCol: 320,
   rightCol: 336,
   // No gutter track: the visual spacing between the floating plates and the
   // map comes from the 12 px `p-3` inset padding on each column cell — an
@@ -34,6 +37,9 @@ export interface WorkspaceLayoutInput {
   /** Whether the right column has a plate to show. A declined plate collapses
    *  its track, so the map gets the width back (the confident-hit case). */
   rightPlate: boolean;
+  /** Whether the context column is revealed. Only the edit state can reveal it:
+   *  a place found with no draft open has nowhere to go (ADR-0024). */
+  contextPlate?: boolean;
 }
 
 export interface WorkspaceTracks {
@@ -44,13 +50,23 @@ export interface WorkspaceTracks {
   right: number;
 }
 
+/** The context column's place in the layout: visible or collapsed. */
+export interface WorkspaceContext {
+  visible: boolean;
+  width: number;
+}
+
 export interface WorkspaceLayout {
   /** The configuration this workspace is in — named, so callers can switch on it. */
-  variant: WorkspaceState;
+  variant: WorkspaceLayoutVariant;
   tracks: WorkspaceTracks;
   /** Horizontal space the plates occlude, per side. */
   insets: { left: number; right: number };
+  context: WorkspaceContext;
 }
+
+/** Four workspace states, plus the one plate configuration that is not a state. */
+export type WorkspaceLayoutVariant = WorkspaceState | "edit+search";
 
 /**
  * The workspace's plate configuration, as data (ADR-0024).
@@ -63,19 +79,29 @@ export interface WorkspaceLayout {
 export function deriveWorkspaceLayout(
   input: WorkspaceLayoutInput,
 ): WorkspaceLayout {
-  const { leftCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
+  const { leftCol, contextCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
   const showLeft = input.state !== "empty";
   const showRight =
     (input.state === "focus" || input.state === "edit") && input.rightPlate;
+  // Only edit can reveal the context column, and it never coexists with the
+  // right plate (plateSlotsFor): the session inset is stops + context.
+  const showContext = input.state === "edit" && input.contextPlate === true;
   const left = showLeft ? leftCol : 0;
   const right = showRight ? rightCol : 0;
+  const variant: WorkspaceLayoutVariant = showContext
+    ? "edit+search"
+    : input.state;
+  // The context plate OVERLAYS the free region's left edge; it adds no track.
+  // Why: a track would shift the floating chrome — the search pill — sideways
+  // the instant results appear, moving the input under the caret.
   const template = `${left}px ${showLeft ? gutter : 0}px minmax(0, 1fr) ${
     showRight ? gutter : 0
   }px ${right}px`;
   return {
-    variant: input.state,
+    variant,
     tracks: { template, left, right },
-    insets: { left, right },
+    insets: { left: left + (showContext ? contextCol : 0), right },
+    context: { visible: showContext, width: showContext ? contextCol : 0 },
   };
 }
 

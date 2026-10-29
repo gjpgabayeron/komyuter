@@ -15,7 +15,7 @@ import { DetourSidebar } from "@/features/detours/DetourSidebar";
 import { DetourLayer } from "@/features/detours/DetourLayer";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
 import { SearchResultsPanel } from "@/features/routes/search/SearchResultsPanel";
-import { rightPlateFor } from "@/features/routes/search/rightPlate";
+import { plateSlotsFor } from "@/features/routes/workspace/plateSlots";
 import { StatusBar } from "@/features/routes/StatusBar";
 import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
 import {
@@ -81,10 +81,10 @@ function RouteWorkspaceInner() {
   const searchActive = usePlottingStore((s) => s.searchActive);
   const poiCandidates = usePlottingStore((s) => s.poiCandidates);
   const poiStatus = usePlottingStore((s) => s.poiStatus);
-  // Which plate the right column shows is a rule, not a condition buried in
-  // JSX: properties while editing, results while a search has something to say,
-  // nothing while a confident hit is being shown on the map alone.
-  const rightPlate = rightPlateFor({
+  // Which plate lives where is a rule, not a condition buried in JSX: results
+  // take the context column while a search has something to say, properties
+  // yield for the session, and a confident hit opens neither (ADR-0024).
+  const slots = plateSlotsFor({
     searchActive,
     candidateCount: poiCandidates.length,
     hasStatus: poiStatus !== null,
@@ -142,6 +142,13 @@ function RouteWorkspaceInner() {
         useDetourStore.getState().close();
         return;
       }
+      // A live search session closes before the workspace steps back: the
+      // results plate is the surface the admin is looking at (ADR-0024). The
+      // pill's own Esc handles the case where the field still has focus.
+      if (usePlottingStore.getState().searchActive) {
+        usePlottingStore.getState().clearSearchSession();
+        return;
+      }
       if (hasRoute) {
         requestCloseEdit();
       } else if (focusedRouteId !== null) {
@@ -191,13 +198,9 @@ function RouteWorkspaceInner() {
                 {directionOpen && <DetourSidebar />}
               </div>
             }
-            right={
-              rightPlate === "search" ? (
-                <SearchResultsPanel />
-              ) : rightPlate === "properties" ? (
-                <PropertiesPanel />
-              ) : null
-            }
+            right={slots.right === "properties" ? <PropertiesPanel /> : null}
+            context={searchActive ? <SearchResultsPanel /> : null}
+            contextOpen={slots.context === "search"}
             empty={<EmptyState onCreateRoute={openNewRoute} />}
             chrome={
               hasRoute ? (

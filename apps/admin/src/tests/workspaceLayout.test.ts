@@ -86,3 +86,65 @@ describe("computeMapWidth (gate measure) delegates to the same derivation", () =
     expect(computeMapWidth(1024, 48, "edit")).toBe(384);
   });
 });
+
+describe("deriveWorkspaceLayout — the revealed context column (#24)", () => {
+  it("edit + search: the context column occludes the map's left edge", () => {
+    const layout = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: false,
+      contextPlate: true,
+    });
+    expect(layout.variant).toBe("edit+search");
+    expect(layout.context).toEqual({
+      visible: true,
+      width: WORKSPACE_GEOMETRY.contextCol,
+    });
+    expect(layout.insets.left).toBe(
+      WORKSPACE_GEOMETRY.leftCol + WORKSPACE_GEOMETRY.contextCol,
+    );
+    expect(visibleMapWidth(layout, VIEWPORT)).toBe(912);
+  });
+
+  it("leaves the grid template alone — the plate overlays, it adds no track", () => {
+    // Why: a real track would shift the floating chrome (the search pill)
+    // sideways the moment results appear. The pill must not move under the
+    // caret, so the plate is anchored to the free region's left edge instead.
+    const plain = deriveWorkspaceLayout({ state: "edit", rightPlate: true });
+    const searching = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: true,
+      contextPlate: true,
+    });
+    expect(searching.tracks.template).toBe(plain.tracks.template);
+  });
+
+  it("only the edit state can hold a context column", () => {
+    for (const state of ["empty", "overview", "focus"] as const) {
+      const layout = deriveWorkspaceLayout({
+        state,
+        rightPlate: state === "focus",
+        contextPlate: true,
+      });
+      expect(layout.context.visible).toBe(false);
+      expect(layout.variant).toBe(state);
+    }
+  });
+
+  it("the session inset is stops + context, never stops + context + properties", () => {
+    const layout = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: false,
+      contextPlate: true,
+    });
+    expect(layout.insets).toEqual({
+      left: WORKSPACE_GEOMETRY.leftCol + WORKSPACE_GEOMETRY.contextCol,
+      right: 0,
+    });
+  });
+
+  it("defaults to no context column, so existing callers are unaffected", () => {
+    const layout = deriveWorkspaceLayout({ state: "edit", rightPlate: true });
+    expect(layout.context).toEqual({ visible: false, width: 0 });
+    expect(layout.variant).toBe("edit");
+  });
+});

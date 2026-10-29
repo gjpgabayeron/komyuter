@@ -39,6 +39,13 @@ column carries a **12px inset** (`p-3`) so plates read as floating, per ADR-0015
 | 256 stops | 320 context (revealable) | minmax(0,1fr) map | 336 properties (edit only) |
 ```
 
+Refined at implementation (#24): the context column is an **overlay panel** anchored to the free
+region's left edge, not a fourth grid track. A track would reflow the transparent centre and shift
+the floating chrome — the search pill — sideways the instant results appear, moving the input under
+the caret. The grid therefore keeps its five tracks (`256 | 0 | centre | 0 | 336`), the plate paints
+above the map and below the stops column, and `deriveWorkspaceLayout` reports the 320 px as an inset
+(so the free region is 912 px during a session) without changing the template.
+
 | State             | Tracks present      | Unoccluded map @1488       |
 | ----------------- | ------------------- | -------------------------- |
 | empty             | map only            | 1488                       |
