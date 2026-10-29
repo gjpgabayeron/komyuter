@@ -27,11 +27,11 @@ export function FocusPlate({ routeId }: { routeId: string }) {
   return (
     <aside
       aria-label={`Focused route — ${route?.name ?? "route"}`}
-      className="flex min-h-0 w-full flex-col overflow-hidden"
+      className="flex h-full min-h-0 w-full flex-col overflow-hidden"
     >
       <Plate
         padded="md"
-        className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+        className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-y-0 border-r-0"
       >
         <header className="flex shrink-0 items-center justify-between gap-2">
           <SectionLabel as="span">Route</SectionLabel>

@@ -13,6 +13,8 @@ export interface PlateSlots {
 export interface PlateSlotInput {
   /** True while the search pill holds a session (focus or a live query). */
   searchActive: boolean;
+  /** True while the query is in flight — the plate's loading state. */
+  loading: boolean;
   /** Rows the current answer produced. */
   candidateCount: number;
   /** True when the search ended without rows and says why. */
@@ -24,21 +26,21 @@ export interface PlateSlotInput {
  *
  * Two slots, and each one is a different user intent:
  * - no session → properties on the right, no context column;
- * - a session with rows, or with a reason there are none → results in the
- *   context column and properties yielded, so the two never share the screen
- *   and the search state's map width is unambiguous;
+ * - a session that is loading, has rows, or has a reason there are none →
+ *   results in the context column and properties yielded, so the two never
+ *   share the screen and the search state's map width is unambiguous;
  * - a session with a confident single hit → neither plate: the map marks the
  *   place and its popup is the answer.
  *
- * A field that is merely focused has no rows and no status, so it opens
- * nothing — the reveal follows an answer, never a caret.
+ * A field that is merely focused has no query in flight, no rows and no
+ * status, so it opens nothing — the reveal follows a query, never a caret.
  *
  * Kept out of the JSX so the rule is testable and the workspace page stays a
  * thin assembly.
  */
 export function plateSlotsFor(input: PlateSlotInput): PlateSlots {
   if (!input.searchActive) return { context: "none", right: "properties" };
-  if (input.candidateCount > 0 || input.hasStatus) {
+  if (input.loading || input.candidateCount > 0 || input.hasStatus) {
     return { context: "search", right: "none" };
   }
   return { context: "none", right: "none" };

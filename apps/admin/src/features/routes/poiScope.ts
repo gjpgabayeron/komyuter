@@ -1,5 +1,6 @@
 import type { CoordinatePair, GeocodeHit } from "@komyuter/shared";
 import type { MapViewport, ViewportBounds } from "@/lib/plottingStore";
+import type { CameraPadding } from "@/features/routes/workspace/geometry";
 import { normalisePlaceName } from "./poiConfidence";
 
 /**
@@ -33,9 +34,46 @@ export function expandBounds(
 }
 
 /**
- * Keeps the hits that are near what the plotter is looking at.
+ * The part of the reported viewport the plates leave uncovered.
  *
- * Two rules, both deliberate:
+ * The map's bounds describe the whole full-bleed canvas; the visible region is
+ * that box minus the pixel insets the layout reserves on each side. Pixel
+ * fractions are linear in Web Mercator at a given zoom, which is all this
+ * scope needs. A degenerate measurement (gutter wider than the canvas) returns
+ * the full box rather than hiding every hit.
+ */
+export function visibleBounds(
+  viewport: MapViewport,
+  padding: CameraPadding,
+): ViewportBounds {
+  const { bounds, width, height } = viewport;
+  if (!(width > 0) || !(height > 0)) return bounds;
+  const lngSpan = bounds.east - bounds.west;
+  const latSpan = bounds.north - bounds.south;
+  const west = bounds.west + (lngSpan * padding.left) / width;
+  const east = bounds.east - (lngSpan * padding.right) / width;
+  const south = bounds.south + (latSpan * padding.bottom) / height;
+  const north = bounds.north - (latSpan * padding.top) / height;
+  if (west >= east || south >= north) return bounds;
+  return { west, east, south, north };
+}
+
+/** Centre of a bounds box, as the store's coordinate form. */
+export function boundsCentre(bounds: ViewportBounds): {
+  longitude: number;
+  latitude: number;
+} {
+  return {
+    longitude: (bounds.west + bounds.east) / 2,
+    latitude: (bounds.south + bounds.north) / 2,
+  };
+}
+
+/**
+ * Keeps the hits that are near what the plotter can actually see.
+ *
+ * `region` is the visible map region — the viewport minus the plates — not the
+ * full canvas. Two rules, both deliberate:
  * - a hit whose name *is* the query always survives, so "plot a stop across
  *   town" still works while the camera is somewhere else;
  * - with no camera reported yet, nothing is hidden rather than everything.
@@ -43,10 +81,10 @@ export function expandBounds(
 export function scopeHits(
   query: string,
   hits: GeocodeHit[],
-  viewport: MapViewport | null,
+  region: ViewportBounds | null,
 ): GeocodeHit[] {
-  if (!viewport) return hits;
-  const box = expandBounds(viewport.bounds);
+  if (!region) return hits;
+  const box = expandBounds(region);
   const wanted = normalisePlaceName(query);
   return hits.filter((hit) => {
     if (wanted !== "" && normalisePlaceName(hit.name) === wanted) return true;

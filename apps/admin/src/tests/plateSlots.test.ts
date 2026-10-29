@@ -10,23 +10,37 @@ import {
  * Two slots now: the context column (revealed over the free region's left edge)
  * and the right column. Results and Properties are mutually exclusive — the
  * search state's map width depends on it — and a confident single hit opens
- * neither, because the map and its popup are the answer.
+ * neither, because the map and its popup are the answer. A query in flight is
+ * already a session, so the loading plate opens too.
  */
 describe("plateSlotsFor (which plate lives where)", () => {
   it("no session: properties on the right, no context column", () => {
     expect(
       plateSlotsFor({
         searchActive: false,
+        loading: false,
         candidateCount: 0,
         hasStatus: false,
       }),
     ).toEqual({ context: "none", right: "properties" });
   });
 
+  it("query in flight: the loading plate takes the context column", () => {
+    expect(
+      plateSlotsFor({
+        searchActive: true,
+        loading: true,
+        candidateCount: 0,
+        hasStatus: false,
+      }),
+    ).toEqual({ context: "search", right: "none" });
+  });
+
   it("session with rows: results take the context column, properties yield", () => {
     expect(
       plateSlotsFor({
         searchActive: true,
+        loading: false,
         candidateCount: 3,
         hasStatus: false,
       }),
@@ -37,6 +51,7 @@ describe("plateSlotsFor (which plate lives where)", () => {
     expect(
       plateSlotsFor({
         searchActive: true,
+        loading: false,
         candidateCount: 0,
         hasStatus: true,
       }),
@@ -47,6 +62,7 @@ describe("plateSlotsFor (which plate lives where)", () => {
     expect(
       plateSlotsFor({
         searchActive: true,
+        loading: false,
         candidateCount: 0,
         hasStatus: false,
       }),
@@ -55,9 +71,30 @@ describe("plateSlotsFor (which plate lives where)", () => {
 
   it("never puts results and properties on screen together", () => {
     const sessions: PlateSlotInput[] = [
-      { searchActive: true, candidateCount: 3, hasStatus: false },
-      { searchActive: true, candidateCount: 0, hasStatus: true },
-      { searchActive: true, candidateCount: 0, hasStatus: false },
+      {
+        searchActive: true,
+        loading: true,
+        candidateCount: 0,
+        hasStatus: false,
+      },
+      {
+        searchActive: true,
+        loading: false,
+        candidateCount: 3,
+        hasStatus: false,
+      },
+      {
+        searchActive: true,
+        loading: false,
+        candidateCount: 0,
+        hasStatus: true,
+      },
+      {
+        searchActive: true,
+        loading: false,
+        candidateCount: 0,
+        hasStatus: false,
+      },
     ];
     for (const session of sessions) {
       const slots = plateSlotsFor(session);
@@ -67,10 +104,11 @@ describe("plateSlotsFor (which plate lives where)", () => {
     }
   });
 
-  it("focus alone reveals nothing: an unfired field is not an answer", () => {
+  it("focus alone reveals nothing: an unfired field is not a session", () => {
     expect(
       plateSlotsFor({
         searchActive: true,
+        loading: false,
         candidateCount: 0,
         hasStatus: false,
       }).context,

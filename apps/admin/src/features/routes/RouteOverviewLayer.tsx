@@ -32,6 +32,7 @@ import {
   fitToOverview,
   type OverviewRoute,
 } from "./overview/helpers";
+import type { CameraPadding } from "./workspace/geometry";
 
 const SHAPE_CLASS: Record<StopShape, string> = {
   square: "rounded-[4px]",
@@ -60,7 +61,12 @@ interface OverviewFeature {
  * derived return is drawn only where it leaves the base corridor, so shared
  * stretches are never doubled up.
  */
-export function RouteOverviewLayer() {
+export function RouteOverviewLayer({
+  padding,
+}: {
+  /** The focus layout's visible region — the state a click moves into. */
+  padding: CameraPadding;
+}) {
   const map = useMap().current?.getMap();
 
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
@@ -468,7 +474,7 @@ export function RouteOverviewLayer() {
       const overview = overviewRoutesRef.current.find(
         (route) => route.routeId === routeId,
       );
-      if (overview) fitToOverview(map, overview);
+      if (overview) fitToOverview(map, overview, padding);
     };
     const onMapClick = (event: MapMouseEvent) => {
       const hits = map.queryRenderedFeatures(event.point, {
@@ -487,7 +493,7 @@ export function RouteOverviewLayer() {
       map.off("click", onMapClick);
       clearHover();
     };
-  }, [map, setFocusedRouteId]);
+  }, [map, padding, setFocusedRouteId]);
 
   // Apply hover/focus emphasis: the active route at full opacity, every other
   // route dimmed via a numeric `dim` feature-state — 0.5 while hovering,

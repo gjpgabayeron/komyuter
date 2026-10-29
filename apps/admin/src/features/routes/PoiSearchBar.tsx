@@ -1,13 +1,18 @@
 import { useEffect, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { MapPinned, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
+import type { CameraPadding } from "@/features/routes/workspace/geometry";
+import { WORKSPACE_GEOMETRY } from "@/features/routes/workspace/geometry";
 import { searchPlaces } from "./geocodeApi";
 import { isConfident } from "./poiConfidence";
 import {
+  boundsCentre,
   scopeHits,
   scopeToNearestCluster,
   shouldOfferAreaSearch,
+  visibleBounds,
 } from "./poiScope";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -45,7 +50,16 @@ function proximityOf(
  * moved by `PoiFocuser`, because this component sits in the workspace chrome,
  * outside `<Map>`.
  */
-export function PoiSearchBar() {
+export function PoiSearchBar({
+  scopePadding,
+  shortcutEnabled,
+}: {
+  /** The edit+search layout's visible-region padding. Answers are scoped to
+   *  the area this leaves uncovered, not to the whole canvas. */
+  scopePadding: CameraPadding;
+  /** False while a dialog owns the keyboard, so `mod+k` stays inert. */
+  shortcutEnabled: boolean;
+}) {
   const setPoi = usePlottingStore((s) => s.setPoi);
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
   const setPoiCandidates = usePlottingStore((s) => s.setPoiCandidates);
@@ -57,9 +71,10 @@ export function PoiSearchBar() {
   const searchActive = usePlottingStore((s) => s.searchActive);
   const mapViewport = usePlottingStore((s) => s.mapViewport);
   const candidates = usePlottingStore((s) => s.poiCandidates);
+  const poiLoading = usePlottingStore((s) => s.poiLoading);
+  const setPoiLoading = usePlottingStore((s) => s.setPoiLoading);
 
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   // Centre the current answer was produced at — the reference for the area plate.
   const lastSearchRef = useRef<{
@@ -67,6 +82,32 @@ export function PoiSearchBar() {
     longitude: number;
     latitude: number;
   } | null>(null);
+  /** Set when this component ends a session without meaning to clear the text
+   *  (deleting back below the minimum query). The `searchActive` effect would
+   *  otherwise wipe the characters still under the caret. */
+  const preserveQueryRef = useRef(false);
+
+  // ⌘K / Ctrl+K focuses the field while the workspace owns the keyboard.
+  // Child dialogs (route/stop delete) are detected in the DOM, the same guard
+  // the workspace's Escape uses, so a dialog always keeps the shortcut inert.
+  useHotkeys(
+    "mod+k",
+    () => {
+      if (
+        document.querySelector(
+          '[role="dialog"], [role="alertdialog"], [role="menu"]',
+        )
+      ) {
+        return;
+      }
+      inputRef.current?.focus();
+    },
+    {
+      enabled: shortcutEnabled,
+      preventDefault: true,
+      enableOnFormTags: ["input", "textarea", "select"],
+    },
+  );
 
   /**
    * One search: camera bias in, area-scoped hits out.
@@ -86,12 +127,16 @@ export function PoiSearchBar() {
       proximityOf(viewport),
       signal,
     );
-    // First query of a session: keep the cluster nearest the camera, because the
-    // opening camera is a city view and a viewport filter would hide the place
-    // being typed. Later queries narrow what is already on screen.
+    // Scope to the part of the canvas the plates leave uncovered: a row must
+    // never name a place hidden behind the results plate or the stops list.
+    const region = viewport ? visibleBounds(viewport, scopePadding) : null;
+    // First query of a session: keep the cluster nearest the visible centre,
+    // because the opening camera is a city view and a viewport filter would
+    // hide the place being typed. Later queries narrow what is already on
+    // screen.
     const scoped = firstQuery
-      ? scopeToNearestCluster(q, hits, viewport)
-      : scopeHits(q, hits, viewport);
+      ? scopeToNearestCluster(q, hits, region ? boundsCentre(region) : null)
+      : scopeHits(q, hits, region);
     // Mapbox answered with hits, but none of them survived the scope.
     const status: PoiSearchStatus =
       warning ??
@@ -104,6 +149,13 @@ export function PoiSearchBar() {
     if (q.length < MIN_QUERY_LENGTH) {
       setPoiCandidates([]);
       setPoiHoverId(null);
+      setPoiLoading(false);
+      if (usePlottingStore.getState().searchActive) {
+        // Deleting back below the trigger ends the session, but the characters
+        // still under the caret stay: only the answer is cleared.
+        preserveQueryRef.current = true;
+        clearSearchSession();
+      }
       return;
     }
     let cancelled = false;
@@ -111,7 +163,15 @@ export function PoiSearchBar() {
     // the plotter types again, so a slow answer cannot overwrite a newer one.
     const controller = new AbortController();
     const timer = setTimeout(async () => {
-      setLoading(true);
+      // The session starts when the query fires, never on focus: focusing or
+      // typing a partial query must not rearrange the workspace.
+      setSearchActive(true);
+      // A new query replaces the old answer entirely: old rows and any old
+      // status go, and the plate shows its loading state until the new answer.
+      setPoiCandidates([]);
+      setPoiHoverId(null);
+      setPoiSearch(q, null);
+      setPoiLoading(true);
       try {
         const { hits, status, viewport } = await runQuery(
           q,
@@ -152,7 +212,7 @@ export function PoiSearchBar() {
         setPoiHoverId(null);
         setPoiSearch(q, "request_failed");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setPoiLoading(false);
       }
     }, SEARCH_DEBOUNCE_MS);
     return () => {
@@ -160,19 +220,33 @@ export function PoiSearchBar() {
       controller.abort();
       clearTimeout(timer);
     };
+    // Keyed to the query only: the store actions are stable, and `runQuery`
+    // reads the camera at call time, so including their identities would
+    // re-run (and re-bill) the search on unrelated renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  // The panel's Esc ends the session from outside this component; the text
-  // follows, so the input never shows a query that is no longer live.
+  // A session ended from outside this component (the panel's Esc, a route
+  // switch, a place added as a stop) clears the text with it, so the input
+  // never shows a query that is no longer live. When this component ended the
+  // session itself to preserve typing, the characters stay.
   useEffect(() => {
-    if (!searchActive) setQuery("");
+    if (searchActive) return;
+    lastSearchRef.current = null;
+    if (!preserveQueryRef.current) setQuery("");
+    preserveQueryRef.current = false;
   }, [searchActive]);
 
   /** Re-runs the last query at the camera's new centre, without moving the map. */
   const runAreaSearch = async () => {
     const last = lastSearchRef.current;
     if (!last) return;
-    setLoading(true);
+    // A re-search is still a query in flight: clear the old answer and show the
+    // plate's loading state until the new one lands.
+    setPoiCandidates([]);
+    setPoiHoverId(null);
+    setPoiSearch(last.query, null);
+    setPoiLoading(true);
     const controller = new AbortController();
     try {
       const { hits, status, viewport } = await runQuery(
@@ -198,7 +272,7 @@ export function PoiSearchBar() {
       setPoiCandidates([]);
       setPoiSearch(last.query, "request_failed");
     } finally {
-      setLoading(false);
+      setPoiLoading(false);
     }
   };
 
@@ -226,21 +300,23 @@ export function PoiSearchBar() {
 
   const showAreaSearch =
     candidates.length > 0 &&
-    !loading &&
+    !poiLoading &&
     shouldOfferAreaSearch(mapViewport, lastSearchRef.current);
 
   return (
-    <div className="pointer-events-auto z-30 flex items-start gap-2">
-      <div className="bg-background relative w-72">
+    <div className="pointer-events-auto z-30 ml-2 flex items-start gap-4">
+      {/* Field width = context plate width minus its 8 px insets, so when the
+          results plate reveals behind it the two edges line up and the field
+          reads as the plate's own header row. */}
+      <div
+        className="bg-background relative"
+        style={{ width: WORKSPACE_GEOMETRY.contextCol - 16 }}
+      >
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
         <Input
           ref={inputRef}
           value={query}
-          onChange={(event) => {
-            setSearchActive(true);
-            setQuery(event.target.value);
-          }}
-          onFocus={() => setSearchActive(true)}
+          onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Escape") {
               event.preventDefault();
@@ -249,7 +325,10 @@ export function PoiSearchBar() {
           }}
           placeholder="Search for a place…"
           aria-label="Search for a place"
-          className="h-9 pr-8 pl-8"
+          aria-keyshortcuts="Meta+K Control+K"
+          title="Search for a place (⌘K)"
+          data-poi-search-input
+          className="h-9 rounded-sm pr-8 pl-8"
         />
         {query.length > 0 && (
           <button
@@ -267,7 +346,7 @@ export function PoiSearchBar() {
         <button
           type="button"
           onClick={() => void runAreaSearch()}
-          className="border-border bg-background hover:bg-muted flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium whitespace-nowrap shadow-sm"
+          className="border-border bg-background hover:bg-muted flex h-9 items-center gap-1.5 rounded-sm border px-3 text-xs font-medium whitespace-nowrap"
         >
           <MapPinned className="size-3.5" />
           Search this area

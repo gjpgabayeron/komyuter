@@ -5,6 +5,7 @@ import {
   mapIsUsable,
   overviewOpacityAt,
 } from "@/lib/overviewFade";
+import type { CameraPadding } from "@/features/routes/workspace/geometry";
 
 /** All overview line + arrow layers — casing included so hit targets stay wide. */
 export const OVERVIEW_LAYERS = [
@@ -104,7 +105,12 @@ export interface OverviewRoute {
   stops: OverviewRouteEntity["stops"];
 }
 
-export function fitToOverview(map: MapLibreMap, overview: OverviewRoute) {
+/** Frames a clicked route in the region the focus layout leaves visible. */
+export function fitToOverview(
+  map: MapLibreMap,
+  overview: OverviewRoute,
+  padding: CameraPadding,
+) {
   const points: [number, number][] = [
     ...(overview.polyline?.coordinates ?? []),
     ...overview.stops.map((stop) => stop.location.coordinates),
@@ -123,5 +129,8 @@ export function fitToOverview(map: MapLibreMap, overview: OverviewRoute) {
       [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY],
     ] as [[number, number], [number, number]],
   );
-  map.fitBounds(bounds, { padding: 90, maxZoom: 14.5, duration: 500 });
+  // The route is being focused, so frame it against the focus layout's
+  // visible region, not the overview layout that is still on screen.
+  map.setPadding(padding);
+  map.fitBounds(bounds, { maxZoom: 14.5, duration: 500 });
 }

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SaveIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,30 @@ import { DetourLayer } from "@/features/detours/DetourLayer";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
 import { SearchResultsPanel } from "@/features/routes/search/SearchResultsPanel";
 import { plateSlotsFor } from "@/features/routes/workspace/plateSlots";
+import { deriveWorkspaceLayout } from "@/features/routes/workspace/geometry";
 import { StatusBar } from "@/features/routes/StatusBar";
 import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
+import {
+  REVEAL_DURATION_MS,
+  REVEAL_EASING_CSS,
+} from "@/features/routes/workspace/motion";
 import {
   RouteWorkspaceProvider,
   useRouteWorkspace,
 } from "@/features/routes/workspace/RouteWorkspaceProvider";
+
+/** The focus layout a clicked route is framed into (overview → focus). */
+const FOCUS_LAYOUT = deriveWorkspaceLayout({
+  state: "focus",
+  rightPlate: true,
+});
+
+/** The edit+search layout every answer is scoped and framed against. */
+const SEARCH_LAYOUT = deriveWorkspaceLayout({
+  state: "edit",
+  rightPlate: false,
+  contextPlate: true,
+});
 
 const SNAP_WARNING_COPY: Record<string, string> = {
   no_token:
@@ -81,14 +100,28 @@ function RouteWorkspaceInner() {
   const searchActive = usePlottingStore((s) => s.searchActive);
   const poiCandidates = usePlottingStore((s) => s.poiCandidates);
   const poiStatus = usePlottingStore((s) => s.poiStatus);
+  const poiLoading = usePlottingStore((s) => s.poiLoading);
   // Which plate lives where is a rule, not a condition buried in JSX: results
   // take the context column while a search has something to say, properties
   // yield for the session, and a confident hit opens neither (ADR-0024).
   const slots = plateSlotsFor({
     searchActive,
+    loading: poiLoading,
     candidateCount: poiCandidates.length,
     hasStatus: poiStatus !== null,
   });
+
+  // One derivation feeds the grid, the camera padding and the search scope
+  // (ADR-0024). The page owns it so the three consumers cannot disagree.
+  const layout = useMemo(
+    () =>
+      deriveWorkspaceLayout({
+        state: uiState,
+        rightPlate: slots.right === "properties",
+        contextPlate: slots.context === "search",
+      }),
+    [uiState, slots.right, slots.context],
+  );
 
   useHotkeys("mod+s", () => void saveAll(), {
     // The detour editor owns SAVE while it is open (its panel has the
@@ -161,14 +194,14 @@ function RouteWorkspaceInner() {
   return (
     <MapProvider>
       <div className="relative h-full w-full overflow-hidden">
-        <NarrowWindowGate mode={uiState === "empty" ? "overview" : uiState}>
+        <NarrowWindowGate layout={layout}>
           {/* The map is the full-bleed backdrop behind the grid (ADR-0015):
               it spans the whole workspace and never resizes or remounts, so
               the plates float over a consistent, seamless canvas. */}
           <main aria-label="Route map" className="absolute inset-0">
-            <RouteMap className="h-full w-full">
+            <RouteMap className="h-full w-full" padding={layout.padding}>
               {(uiState === "overview" || uiState === "focus") && (
-                <RouteOverviewLayer />
+                <RouteOverviewLayer padding={FOCUS_LAYOUT.padding} />
               )}
               <DetourLayer />
             </RouteMap>
@@ -178,17 +211,9 @@ function RouteWorkspaceInner() {
               tracks + a transparent center track hosting the chrome. */}
           <WorkspaceColumns
             mode={uiState}
-            leftPinned={directionOpen}
+            layout={layout}
             left={
-              <div
-                className={
-                  directionOpen
-                    ? // The track is definite when pinned (h-full there), so
-                      // this column can fill it and pin the card to the bottom.
-                      "flex h-full w-full flex-col"
-                    : "flex w-full flex-col"
-                }
-              >
+              <div className="flex h-full w-full flex-col">
                 <div className="min-h-0 flex-1 overflow-hidden">
                   <RouteList
                     onCreateRoute={openNewRoute}
@@ -199,14 +224,16 @@ function RouteWorkspaceInner() {
               </div>
             }
             right={slots.right === "properties" ? <PropertiesPanel /> : null}
-            context={searchActive ? <SearchResultsPanel /> : null}
-            contextOpen={slots.context === "search"}
+            context={uiState === "edit" ? <SearchResultsPanel /> : null}
             empty={<EmptyState onCreateRoute={openNewRoute} />}
             chrome={
               hasRoute ? (
                 <div className="flex h-full flex-col justify-between py-3">
-                  <div className="flex w-full justify-between">
-                    <PoiSearchBar />
+                  <div className="flex w-full justify-between pr-3">
+                    <PoiSearchBar
+                      scopePadding={SEARCH_LAYOUT.padding}
+                      shortcutEnabled={!anyDialogOpen}
+                    />
                     <StatusBar
                       dirty={showSave}
                       saving={saving}
@@ -224,7 +251,18 @@ function RouteWorkspaceInner() {
                       onDismissConflict={onDismissConflict}
                     />
                   </div>
-                  <div className="pointer-events-auto z-30 flex items-center justify-center gap-2">
+                  {/* The toolbar stays centred in the map the admin can see.
+                      While results are docked on the left, that centre moves
+                      right by half the plate's width; the toolbar travels with
+                      the same 180 ms snap, so the reveal reads as one motion. */}
+                  <div
+                    className="pointer-events-auto z-30 flex items-center justify-center gap-2 transition-transform motion-reduce:transition-none"
+                    style={{
+                      transform: `translateX(${layout.chromeOffset}px)`,
+                      transitionDuration: `${REVEAL_DURATION_MS}ms`,
+                      transitionTimingFunction: REVEAL_EASING_CSS,
+                    }}
+                  >
                     <PlotActionBar
                       onUndo={() => usePlottingStore.getState().undo()}
                       onRedo={() => usePlottingStore.getState().redo()}

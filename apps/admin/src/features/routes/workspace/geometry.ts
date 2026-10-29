@@ -8,23 +8,36 @@
  * `p-3` inset padding on each column cell, so the free region is simply
  * viewport − plate widths.
  *
- * Reference figures (rail collapsed): overview @ 1024 = 768; focus/edit
- * @ 1024 = 432, @ 1440 = 848, @ 1920 = 1328 — **workspace-width**
- * math (the strip right of the 48 px collapsed rail); at a literal 1024 px
- * window the workspace is 976 px, so the focus region is 384 and the gate
- * correctly guards (FR-004).
+ * Reference figures (rail collapsed): overview @ 1024 = 744; focus/edit
+ * @ 1024 = 464, @ 1440 = 880, @ 1920 = 1360 — **workspace-width** math (the
+ * strip right of the 48 px collapsed rail); at a literal 1024 px window the
+ * workspace is 976 px, so the focus region is 416 and the gate correctly
+ * guards (FR-004, 420 px floor).
  */
 export const WORKSPACE_GEOMETRY = {
-  leftCol: 256,
-  /** The context column — revealed over the free region's left edge while a
-   *  search session has something to show (ADR-0024). */
-  contextCol: 320,
-  rightCol: 336,
+  /** The stops dock. Equal to every other column, so the editor reads as a
+   *  three-strip grid with one shared column width. */
+  leftCol: 280,
+  /** The context column — docked immediately beside the stops column while a
+   *  search session has something to show (Figma "Route Page Search State
+   *  Layout", node 120:2). It overlays the map's left edge, so revealing it
+   *  never resizes the GL canvas or moves the search field. Because it is the
+   *  same width as the right column it replaces, the visible map width does
+   *  not change when a search opens. */
+  contextCol: 280,
+  /** The properties / focus dock, full height by default. */
+  rightCol: 280,
   // No gutter track: the visual spacing between the floating plates and the
   // map comes from the 12 px `p-3` inset padding on each column cell — an
   // extra gutter would double-space the layout (see WorkspaceColumns).
   gutter: 0,
-  minMapWidth: 400,
+  /** The `p-3` breathing room each column cell carries. The visible-region
+   *  padding adds it to the occluded width, so a fit never kisses a plate. */
+  columnInset: 12,
+  /** Free map width below which the workspace gates. Raised from 400 to 420
+   *  with the 280 px columns: at the documented 1024 px window the map is
+   *  416 px, so the gate still fires exactly where the docs say it should. */
+  minMapWidth: 420,
 } as const;
 
 export type WorkspaceMode = "overview" | "focus" | "edit";
@@ -56,6 +69,14 @@ export interface WorkspaceContext {
   width: number;
 }
 
+/** Pixel padding that frames camera moves inside the unoccluded map region. */
+export interface CameraPadding {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+}
+
 export interface WorkspaceLayout {
   /** The configuration this workspace is in — named, so callers can switch on it. */
   variant: WorkspaceLayoutVariant;
@@ -63,6 +84,20 @@ export interface WorkspaceLayout {
   /** Horizontal space the plates occlude, per side. */
   insets: { left: number; right: number };
   context: WorkspaceContext;
+  /**
+   * How far the floating bottom toolbar must move right so it stays centred in
+   * the map the admin can actually see. The results plate covers the free
+   * region's left edge, so its centre moves by half the plate's width. The
+   * toolbar and the plate share one transition, so they move as one gesture.
+   */
+  chromeOffset: number;
+  /**
+   * The one visible-region measure (ADR-0024): the occluded width plus the
+   * 12 px column inset on each side. Camera fits apply it as the map's
+   * padding, and search scopes its answers to it, so neither can frame or name
+   * a place underneath a plate.
+   */
+  padding: CameraPadding;
 }
 
 /** Four workspace states, plus the one plate configuration that is not a state. */
@@ -97,12 +132,48 @@ export function deriveWorkspaceLayout(
   const template = `${left}px ${showLeft ? gutter : 0}px minmax(0, 1fr) ${
     showRight ? gutter : 0
   }px ${right}px`;
+  const inset = WORKSPACE_GEOMETRY.columnInset;
   return {
     variant,
     tracks: { template, left, right },
     insets: { left: left + (showContext ? contextCol : 0), right },
     context: { visible: showContext, width: showContext ? contextCol : 0 },
+    chromeOffset: showContext ? contextCol / 2 : 0,
+    padding: {
+      left: left + (showContext ? contextCol : 0) + inset,
+      right: right + inset,
+      top: inset,
+      bottom: inset,
+    },
   };
+}
+
+/**
+ * Horizontal pixels the camera pans when the padding changes from `from` to
+ * `to`, keeping the centre of the visible region fixed.
+ *
+ * Padding moves the visible region's centre by half the difference between
+ * its left and right insets; a positive value means the camera must travel
+ * west so the content appears to move east. Opening the search plate on the
+ * edit layout (properties yields, context reveals) is 280 px: (572 − 12 −
+ * (292 − 292)) / 2. This is the number the reveal's single padded `easeTo`
+ * moves by, not a hand-tuned constant.
+ */
+export function revealPanPixels(
+  from: CameraPadding,
+  to: CameraPadding,
+): number {
+  return (to.left - to.right - (from.left - from.right)) / 2;
+}
+
+/** True when two paddings describe the same visible region. */
+export function paddingEquals(a: CameraPadding, b: CameraPadding): boolean {
+  return (
+    a.left === b.left &&
+    a.top === b.top &&
+    a.right === b.right &&
+    a.bottom === b.bottom
+  );
 }
 
 /** Width of the map the plates leave visible, clamped at zero. */
@@ -135,7 +206,7 @@ export function computeMapWidth(
   return visibleMapWidth(layout, viewport - railW);
 }
 
-/** True when the free map region would fall below the 400 px floor. */
+/** True when the free map region would fall below the 420 px floor. */
 export function isMapGateActive(mapWidth: number): boolean {
   return mapWidth < WORKSPACE_GEOMETRY.minMapWidth;
 }

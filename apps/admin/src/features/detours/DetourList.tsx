@@ -75,8 +75,11 @@ export function DetourList({ directionId }: { directionId: string }) {
   };
 
   return (
-    <section aria-label="Alternative routes">
-      <div className="flex items-center justify-between gap-2">
+    <section
+      aria-label="Alternative routes"
+      className="flex min-h-0 flex-1 flex-col"
+    >
+      <div className="flex shrink-0 items-center justify-between gap-2">
         <SectionLabel>Alternative routes</SectionLabel>
         {detours.length > 0 && (
           <span className="text-muted-foreground text-[11px] tabular-nums">
@@ -85,7 +88,9 @@ export function DetourList({ directionId }: { directionId: string }) {
         )}
       </div>
 
-      <div className="mt-2 space-y-1.5">
+      {/* Only the rows scroll: the header and the Add action stay pinned so a
+          long detour list never hides the way to add another one. */}
+      <div className="overlay-scrollbar mt-2 min-h-0 flex-1 space-y-2 overflow-y-auto">
         {detoursQuery.isLoading && (
           <p className="text-muted-foreground text-xs">Loading detours…</p>
         )}
@@ -118,7 +123,7 @@ export function DetourList({ directionId }: { directionId: string }) {
           return (
             <div
               key={detour.detour_id}
-              className={`flex items-center gap-2 rounded-md border px-2 py-1.5 ${
+              className={`flex items-center gap-2 rounded-sm border px-2 py-2 ${
                 detour.is_active
                   ? "border-border"
                   : "border-border/50 bg-muted/40"
@@ -162,18 +167,18 @@ export function DetourList({ directionId }: { directionId: string }) {
             </div>
           );
         })}
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="h-7 w-full justify-center gap-1 text-xs"
-          onClick={openNew}
-          disabled={!direction || detoursQuery.isLoading}
-        >
-          <Plus className="size-3" /> Add alternative route
-        </Button>
       </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-2 h-8 w-full shrink-0 justify-center gap-1 text-xs"
+        onClick={openNew}
+        disabled={!direction || detoursQuery.isLoading}
+      >
+        <Plus className="size-3" /> Add alternative route
+      </Button>
     </section>
   );
 }

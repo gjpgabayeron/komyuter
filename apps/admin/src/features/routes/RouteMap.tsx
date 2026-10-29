@@ -15,6 +15,7 @@ import {
 } from "@/lib/plottingStore";
 import {
   BasemapController,
+  CameraPaddingController,
   PerspectiveController,
   PoiCandidatesLayer,
   PoiFocuser,
@@ -24,6 +25,7 @@ import {
   RouteLines,
   SelectionPanner,
 } from "./map";
+import type { CameraPadding } from "./workspace/geometry";
 import {
   DRAFT_LINE,
   PICKED_RED,
@@ -51,6 +53,8 @@ interface RouteMapProps {
   className?: string;
   /** Overlay layers (path/stops) rendered above the map, added in US1+. */
   children?: React.ReactNode;
+  /** The layout's visible-region padding — every camera move frames inside it. */
+  padding: CameraPadding;
 }
 
 /**
@@ -58,7 +62,7 @@ interface RouteMapProps {
  * Owns its viewport; later phases lift the viewport into the plotting store
  * when the map needs to react to external actions (e.g. "zoom to route").
  */
-export function RouteMap({ className, children }: RouteMapProps) {
+export function RouteMap({ className, children, padding }: RouteMapProps) {
   const routeColor = usePlottingStore((s) => s.routeMeta?.color ?? null);
   const [viewport, setViewport] = useState<Viewport>({
     longitude: ILOILO_CITY[0],
@@ -235,8 +239,10 @@ export function RouteMap({ className, children }: RouteMapProps) {
           // Search follows the camera, so the camera has to be somewhere the
           // pill can read it: this component renders inside `<Map>`, the pill
           // does not. Published on move-end, not on move, to keep the store
-          // quiet while a drag is in flight.
+          // quiet while a drag is in flight. The canvas size is published
+          // alongside the bounds so the search scope can subtract the plates.
           const bounds = event.target.getBounds();
+          const container = event.target.getContainer();
           setMapViewport({
             longitude: event.viewState.longitude,
             latitude: event.viewState.latitude,
@@ -247,14 +253,17 @@ export function RouteMap({ className, children }: RouteMapProps) {
               east: bounds.getEast(),
               north: bounds.getNorth(),
             },
+            width: container.clientWidth,
+            height: container.clientHeight,
           });
         }}
         mapStyle={mapStyle}
         style={{ width: "100%", height: "100%" }}
       >
-        <RouteFitter />
+        <CameraPaddingController padding={padding} />
+        <RouteFitter padding={padding} />
         <SelectionPanner />
-        <PoiFocuser />
+        <PoiFocuser padding={padding} />
         <PoiCandidatesLayer />
         <PoiPopup />
         <BasemapController />
