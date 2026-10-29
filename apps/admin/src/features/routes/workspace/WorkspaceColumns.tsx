@@ -138,7 +138,8 @@ export function WorkspaceColumns({
             a transform — the GL canvas behind it is never resized. It starts
             below the chrome's top row so the search pill keeps its place. The
             stops column paints above it (z-10), so a closed plate slides away
-            behind that plate instead of across it. */}
+            behind that plate instead of across it. It sits BEFORE the chrome in
+            the DOM, so the tab order is stops → result rows → map chrome. */}
         {context !== null && (
           <div
             ref={contextRef}

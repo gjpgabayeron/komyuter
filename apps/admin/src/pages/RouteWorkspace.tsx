@@ -233,7 +233,10 @@ function RouteWorkspaceInner() {
               hasRoute ? (
                 <div className="flex h-full flex-col justify-between py-3">
                   <div className="flex w-full justify-between">
-                    <PoiSearchBar scopePadding={SEARCH_LAYOUT.padding} />
+                    <PoiSearchBar
+                      scopePadding={SEARCH_LAYOUT.padding}
+                      shortcutEnabled={!anyDialogOpen}
+                    />
                     <StatusBar
                       dirty={showSave}
                       saving={saving}

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { MapPinned, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
@@ -50,10 +51,13 @@ function proximityOf(
  */
 export function PoiSearchBar({
   scopePadding,
+  shortcutEnabled,
 }: {
   /** The edit+search layout's visible-region padding. Answers are scoped to
    *  the area this leaves uncovered, not to the whole canvas. */
   scopePadding: CameraPadding;
+  /** False while a dialog owns the keyboard, so `mod+k` stays inert. */
+  shortcutEnabled: boolean;
 }) {
   const setPoi = usePlottingStore((s) => s.setPoi);
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
@@ -76,6 +80,32 @@ export function PoiSearchBar({
     longitude: number;
     latitude: number;
   } | null>(null);
+  /** Set when this component ends a session without meaning to clear the text
+   *  (deleting back below the minimum query). The `searchActive` effect would
+   *  otherwise wipe the characters still under the caret. */
+  const preserveQueryRef = useRef(false);
+
+  // ⌘K / Ctrl+K focuses the field while the workspace owns the keyboard.
+  // Child dialogs (route/stop delete) are detected in the DOM, the same guard
+  // the workspace's Escape uses, so a dialog always keeps the shortcut inert.
+  useHotkeys(
+    "mod+k",
+    () => {
+      if (
+        document.querySelector(
+          '[role="dialog"], [role="alertdialog"], [role="menu"]',
+        )
+      ) {
+        return;
+      }
+      inputRef.current?.focus();
+    },
+    {
+      enabled: shortcutEnabled,
+      preventDefault: true,
+      enableOnFormTags: ["input", "textarea", "select"],
+    },
+  );
 
   /**
    * One search: camera bias in, area-scoped hits out.
@@ -117,6 +147,13 @@ export function PoiSearchBar({
     if (q.length < MIN_QUERY_LENGTH) {
       setPoiCandidates([]);
       setPoiHoverId(null);
+      setLoading(false);
+      if (usePlottingStore.getState().searchActive) {
+        // Deleting back below the trigger ends the session, but the characters
+        // still under the caret stay: only the answer is cleared.
+        preserveQueryRef.current = true;
+        clearSearchSession();
+      }
       return;
     }
     let cancelled = false;
@@ -124,6 +161,9 @@ export function PoiSearchBar({
     // the plotter types again, so a slow answer cannot overwrite a newer one.
     const controller = new AbortController();
     const timer = setTimeout(async () => {
+      // The session starts when the query fires, never on focus: focusing or
+      // typing a partial query must not rearrange the workspace.
+      setSearchActive(true);
       setLoading(true);
       try {
         const { hits, status, viewport } = await runQuery(
@@ -175,10 +215,15 @@ export function PoiSearchBar({
     };
   }, [query]);
 
-  // The panel's Esc ends the session from outside this component; the text
-  // follows, so the input never shows a query that is no longer live.
+  // A session ended from outside this component (the panel's Esc, a route
+  // switch, a place added as a stop) clears the text with it, so the input
+  // never shows a query that is no longer live. When this component ended the
+  // session itself to preserve typing, the characters stay.
   useEffect(() => {
-    if (!searchActive) setQuery("");
+    if (searchActive) return;
+    lastSearchRef.current = null;
+    if (!preserveQueryRef.current) setQuery("");
+    preserveQueryRef.current = false;
   }, [searchActive]);
 
   /** Re-runs the last query at the camera's new centre, without moving the map. */
@@ -219,6 +264,7 @@ export function PoiSearchBar({
   const exitSearch = () => {
     lastSearchRef.current = null;
     setQuery("");
+    setLoading(false);
     // One store action, so the panel's Esc and this Esc end the same way.
     clearSearchSession();
     inputRef.current?.blur();
@@ -233,6 +279,7 @@ export function PoiSearchBar({
   const clearQuery = () => {
     lastSearchRef.current = null;
     setQuery("");
+    setLoading(false);
     clearSearchSession();
     inputRef.current?.focus();
   };
@@ -249,11 +296,7 @@ export function PoiSearchBar({
         <Input
           ref={inputRef}
           value={query}
-          onChange={(event) => {
-            setSearchActive(true);
-            setQuery(event.target.value);
-          }}
-          onFocus={() => setSearchActive(true)}
+          onChange={(event) => setQuery(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Escape") {
               event.preventDefault();
@@ -262,6 +305,9 @@ export function PoiSearchBar({
           }}
           placeholder="Search for a place…"
           aria-label="Search for a place"
+          aria-keyshortcuts="Meta+K Control+K"
+          title="Search for a place (⌘K)"
+          data-poi-search-input
           className="h-9 pr-8 pl-8"
         />
         {query.length > 0 && (

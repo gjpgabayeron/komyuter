@@ -147,10 +147,15 @@ export function SearchResultsPanel() {
                 }
               } else if (event.key === "Escape") {
                 // The workspace's own `esc` hotkey closes the route editor for
-                // any non-input focus, so this one must not reach it.
+                // any non-input focus, so this one must not reach it. Return the
+                // caret to the pill: the session is over, but the plotter is
+                // still searching, not editing the map.
                 event.stopPropagation();
                 event.preventDefault();
                 clearSearchSession();
+                document
+                  .querySelector<HTMLInputElement>("[data-poi-search-input]")
+                  ?.focus();
               }
             }}
             className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto"

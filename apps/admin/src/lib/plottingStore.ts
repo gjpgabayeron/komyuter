@@ -845,9 +845,16 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         selection: clearSelection,
         tool: "select",
         poi: null,
+        poiLabel: null,
         poiCandidates: [],
         poiHoverId: null,
         poiSelection: null,
+        poiHit: null,
+        // A search session belongs to the route being edited: switching routes
+        // must never leave another route's query, status or rows on screen.
+        searchActive: false,
+        poiQuery: "",
+        poiStatus: null,
         routeMeta: null,
         connections: [],
         draftDirty: false,

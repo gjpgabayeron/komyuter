@@ -235,7 +235,7 @@ describe("plottingStore", () => {
     expect(usePlottingStore.getState().poiHoverId).toBeNull();
   });
 
-  it("searchActive is set on demand and clearSearchSession ends the session", () => {
+  it("clearSearchSession (the Escape / clear action) ends the session", () => {
     const hit = {
       id: "a",
       name: "Jaro Plaza",
@@ -261,6 +261,35 @@ describe("plottingStore", () => {
     expect(after.poiSelection).toBeNull();
     expect(after.poiQuery).toBe("");
     expect(after.poiStatus).toBeNull();
+  });
+
+  it("openRoute switches routes without carrying a search session across", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setSearchActive(true);
+    store.setPoiSearch("jaro", "out_of_area");
+    store.setPoiCandidates([hit]);
+    store.setPoiHoverId("a");
+    store.setPoi(hit.location, hit.name);
+    store.setPoiSelection(hit);
+
+    store.openRoute("route-2");
+
+    const after = usePlottingStore.getState();
+    expect(after.searchActive).toBe(false);
+    expect(after.poiQuery).toBe("");
+    expect(after.poiStatus).toBeNull();
+    expect(after.poiCandidates).toEqual([]);
+    expect(after.poiHoverId).toBeNull();
+    expect(after.poiSelection).toBeNull();
+    expect(after.poiHit).toBeNull();
+    expect(after.poi).toBeNull();
+    expect(after.poiLabel).toBeNull();
   });
 
   it("poiSelection is dropped wherever the marker is dismissed", () => {
@@ -317,6 +346,7 @@ describe("plottingStore", () => {
     const first = usePlottingStore.getState().stops[0].id;
     store.setSelection({ type: "stop", stopId: first });
     store.setSearchActive(true);
+    store.setPoiSearch("jaro", null);
     store.setPoiSelection(hit);
 
     usePlottingStore.getState().addPoiAsStop("major_stop");
@@ -329,6 +359,8 @@ describe("plottingStore", () => {
     ]);
     expect(after.stops[1].type).toBe("major_stop");
     expect(after.searchActive).toBe(false);
+    expect(after.poiQuery).toBe("");
+    expect(after.poiStatus).toBeNull();
     expect(after.poiSelection).toBeNull();
     expect(after.poiCandidates).toEqual([]);
     // The new stop is the selection, so it can be dragged into place.
