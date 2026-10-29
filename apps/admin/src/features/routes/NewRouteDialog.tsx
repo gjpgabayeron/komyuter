@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { FareConfigSelect } from "./FareConfigSelect";
+import { resolveFareSelection } from "./farePrefill";
 import { isValidHexColor, randomRouteColor } from "./routeColors";
 import { useCreateRouteMutation } from "./useRouteQueries";
 import { useFareConfigsQuery } from "@/features/fares/queries";
@@ -32,20 +33,40 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
   const [color, setColor] = useState<string>(randomColor);
   const [hexText, setHexText] = useState(color);
   const [fareConfigId, setFareConfigId] = useState<string | null>(null);
+  const [fareTouched, setFareTouched] = useState(false);
+
+  const fareQuery = useFareConfigsQuery();
 
   // A fresh random colour on EVERY open — not just first mount — so each new
   // route gets a distinct identity even if the dialog stays mounted between
-  // opens (or the previous create was cancelled). Also pre-fills the default
-  // fare config when one exists.
-  const fareQuery = useFareConfigsQuery();
+  // opens (or the previous create was cancelled). Also clears the "the admin
+  // has chosen a fare config" flag so the next open prefills cleanly.
   useEffect(() => {
     if (!open) return;
     const next = randomColor();
     setColor(next);
     setHexText(next);
-    const defaults = fareQuery.data?.filter((c) => c.is_default);
-    setFareConfigId(defaults?.[0]?.fare_config_id ?? null);
-  }, [open, fareQuery.data]);
+    setFareTouched(false);
+  }, [open]);
+
+  // Prefill the default fare config, and re-derive it if the list arrives (or
+  // grows) after the dialog opened — but never override the admin, which is
+  // what `fareTouched` is for: creating a config from the picker invalidates
+  // this query, and an unguarded re-derive would throw the new selection away.
+  useEffect(() => {
+    if (!open) return;
+    setFareConfigId((current) =>
+      resolveFareSelection(fareQuery.data, {
+        touched: fareTouched,
+        currentId: current,
+      }),
+    );
+  }, [open, fareQuery.data, fareTouched]);
+
+  const changeFareConfig = (nextId: string | null) => {
+    setFareTouched(true);
+    setFareConfigId(nextId);
+  };
 
   const createMutation = useCreateRouteMutation();
   // Route creation is blocked entirely until at least one fare config exists.
@@ -57,7 +78,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
     if (!name.trim() || !shortName.trim()) return;
     if (noFareConfigs) {
       toast.error(
-        "No fare config exists yet — create one in Fares first, then add the route.",
+        "No fare config exists yet — add one with “New fare config” in the fare field, then create the route.",
       );
       return;
     }
@@ -82,6 +103,7 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
       setColor(next);
       setHexText(next);
       setFareConfigId(null);
+      setFareTouched(false);
     } catch {
       // Success/error toasts are handled by the mutation.
     }
@@ -154,15 +176,15 @@ export function NewRouteDialog({ open, onOpenChange }: NewRouteDialogProps) {
               <Label>Fare config</Label>
               <FareConfigSelect
                 value={fareConfigId}
-                onChange={setFareConfigId}
+                onChange={changeFareConfig}
               />
             </div>
           </div>
           <DialogFooter className="flex-col items-stretch gap-2">
             {noFareConfigs && (
               <p className="text-xs text-amber-700">
-                No fare config exists yet — routes require one. Create a fare
-                config in the Fares section first.
+                No fare config exists yet — routes require one. Use “New fare
+                config” in the fare field above to add one.
               </p>
             )}
             <div className="flex justify-end gap-2">

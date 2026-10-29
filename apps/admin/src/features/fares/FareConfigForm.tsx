@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
-import type { FareConfigListItem } from "./api";
+import type { FareConfigDetail, FareConfigListItem } from "./api";
 import {
   useCreateFareConfig,
   useFareConfigsQuery,
@@ -31,6 +31,12 @@ interface FareConfigFormProps {
   onOpenChange: (open: boolean) => void;
   /** Present in edit mode: the form is prefilled from this row. */
   config?: FareConfigListItem | null;
+  /**
+   * Called with the newly created configuration, before the dialog closes.
+   * Lets a host that opened the form mid-task (the route picker, issue #15)
+   * select what was just created instead of sending the admin hunting for it.
+   */
+  onCreated?: (config: FareConfigDetail) => void;
 }
 
 /** LTFRB defaults: ₱13 base fare, 4 km base distance, ₱1.80/km, 20% discounts. */
@@ -112,11 +118,15 @@ function NumberField({
  * (inactive-default guard) surface as an error toast with the dialog open and
  * the entered values intact. The default-implies-active invariant (FR-015) is
  * enforced inline by `validateFareConfigForm` for both modes.
+ *
+ * `onCreated` reports the created row to the host so a caller that opened this
+ * form mid-task can select it — see `FareConfigSelect` (issue #15).
  */
 export function FareConfigForm({
   open,
   onOpenChange,
   config = null,
+  onCreated,
 }: FareConfigFormProps) {
   const [values, setValues] = useState<FareConfigFormValues>(LTFRB_DEFAULTS);
   const [errors, setErrors] = useState<FareConfigFormErrors>({});
@@ -192,7 +202,8 @@ export function FareConfigForm({
           patch: { ...shared, is_active: values.is_active },
         });
       } else {
-        await create.mutateAsync(shared);
+        const created = await create.mutateAsync(shared);
+        onCreated?.(created);
       }
       handleOpenChange(false);
     } catch {

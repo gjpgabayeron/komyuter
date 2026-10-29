@@ -179,7 +179,7 @@ The workspace is a **four-state machine** derived from (selection, draft):
 ### 5.7 Fares (`pages/Fares.tsx` + `features/fares/`)
 
 - `FareConfigTable` — list of fare configs: name, base fare, base distance, rate per km, default badge, active state.
-- `FareConfigForm` — create/edit with local validation (`validation.ts`: name/base/rate > 0, base distance ≥ 0, **exactly one default** enforced — `validateDefaultUnset`); currency formatting in `format.ts`.
+- `FareConfigForm` — create/edit with local validation (`validation.ts`: name/base/rate > 0, base distance ≥ 0, **exactly one default** enforced — `validateDefaultUnset`); currency formatting in `format.ts`. It is the **only** fare-config form: the route picker (`features/routes/FareConfigSelect.tsx`) opens this same dialog on top of "New route" rather than offering a reduced inline form, so discounts, the default toggle and label-uniqueness validation exist everywhere and no field is reachable from one path but not the other (issue #15).
 - `DeleteFareConfigDialog` — styled confirm; server guards (cannot deactivate/delete a fare config that would leave no default, or one still in use by active routes).
 - Server: full CRUD in `api/fare-configs.ts`, default enforcement + guards, react-query keys in `features/fares/queries.ts`.
 
