@@ -2,7 +2,11 @@ import { useRef } from "react";
 import type { GeocodeHit } from "@komyuter/shared";
 import { Plate } from "@/components/shared/Plate";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
-import { poiMetaLine } from "./formatPoiMeta";
+import {
+  insertionAnchorLabel,
+  poiAnchorFor,
+  poiMetaLine,
+} from "./formatPoiMeta";
 
 const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
   no_token:
@@ -29,8 +33,11 @@ const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
  */
 export function SearchResultsPanel() {
   const candidates = usePlottingStore((s) => s.poiCandidates);
-  const query = usePlottingStore((s) => s.poiQuery);
   const status = usePlottingStore((s) => s.poiStatus);
+  // The insertion anchor is the current stop selection; subscribing to both
+  // keeps the header line and every row's distance in step when it changes.
+  const selection = usePlottingStore((s) => s.selection);
+  const stops = usePlottingStore((s) => s.stops);
   const hoverId = usePlottingStore((s) => s.poiHoverId);
   const setPoiHoverId = usePlottingStore((s) => s.setPoiHoverId);
   const setPoi = usePlottingStore((s) => s.setPoi);
@@ -38,6 +45,7 @@ export function SearchResultsPanel() {
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
   const clearSearchSession = usePlottingStore((s) => s.clearSearchSession);
   const rowRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const anchor = poiAnchorFor(selection, stops);
 
   /** Highlights the row's pin — no camera request. */
   const previewOn = (hit: GeocodeHit) => {
@@ -74,18 +82,13 @@ export function SearchResultsPanel() {
         padded="md"
         className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
       >
-        <header className="flex shrink-0 items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h2 className="font-display text-foreground text-sm font-semibold">
-              Search results
-            </h2>
-            <p className="text-muted-foreground truncate text-xs">
-              {query === "" ? "Nothing searched yet" : `“${query}”`}
-            </p>
-          </div>
-          <span className="text-muted-foreground text-xs tabular-nums">
-            {candidates.length}
-          </span>
+        <header className="shrink-0">
+          <h2 className="font-display text-foreground text-sm font-semibold">
+            Search results · {candidates.length}
+          </h2>
+          <p className="text-muted-foreground truncate text-xs">
+            {insertionAnchorLabel(anchor)}
+          </p>
         </header>
 
         {/* Rule between the header and the rows: the query line and the count are
@@ -128,7 +131,7 @@ export function SearchResultsPanel() {
             className="overlay-scrollbar mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto"
           >
             {candidates.map((hit, index) => {
-              const meta = poiMetaLine(hit);
+              const meta = poiMetaLine(hit, anchor);
               return (
                 <li key={hit.id}>
                   <button
