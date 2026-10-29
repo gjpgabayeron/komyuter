@@ -13,6 +13,8 @@ describe("WORKSPACE_GEOMETRY", () => {
     // No gutter track — the 12 px `p-3` inset padding on each column cell is
     // the spacing; an extra gutter would double-space (see WorkspaceColumns).
     expect(WORKSPACE_GEOMETRY.gutter).toBe(0);
+    // The same inset is the visible region's edge breathing room (#25).
+    expect(WORKSPACE_GEOMETRY.columnInset).toBe(12);
     expect(WORKSPACE_GEOMETRY.minMapWidth).toBe(400);
   });
 });

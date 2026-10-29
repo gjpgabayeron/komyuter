@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { GeocodeHit } from "@komyuter/shared";
 import type { MapViewport } from "@/lib/plottingStore";
+import type { CameraPadding } from "@/features/routes/workspace/geometry";
 import {
   AREA_SEARCH_THRESHOLD,
+  boundsCentre,
   candidatesToDraw,
   distanceMeters,
   expandBounds,
@@ -10,15 +12,26 @@ import {
   scopeHits,
   scopeToNearestCluster,
   shouldOfferAreaSearch,
+  visibleBounds,
 } from "@/features/routes/poiScope";
 
 const CENTRE = { longitude: 122.5656, latitude: 10.7202 };
 
-/** A ~2 km box around Iloilo centre. */
+/** A ~2 km box around Iloilo centre on a 1000 × 700 canvas. */
 const viewport: MapViewport = {
   ...CENTRE,
   zoom: 14,
   bounds: { west: 122.5476, south: 10.7022, east: 122.5836, north: 10.7382 },
+  width: 1000,
+  height: 700,
+};
+
+/** The edit layout's visible region, in pixels from the canvas edges. */
+const EDIT_PADDING: CameraPadding = {
+  left: 268,
+  right: 348,
+  top: 12,
+  bottom: 12,
 };
 
 function hit(name: string, location: [number, number]): GeocodeHit {
@@ -39,16 +52,74 @@ describe("expandBounds", () => {
   });
 });
 
+describe("visibleBounds", () => {
+  it("turns the layout's pixel padding into the uncovered geographic box", () => {
+    const region = visibleBounds(viewport, EDIT_PADDING);
+    const lngSpan = viewport.bounds.east - viewport.bounds.west;
+    const latSpan = viewport.bounds.north - viewport.bounds.south;
+    expect(region.west).toBeCloseTo(
+      viewport.bounds.west + (lngSpan * 268) / 1000,
+      10,
+    );
+    expect(region.east).toBeCloseTo(
+      viewport.bounds.east - (lngSpan * 348) / 1000,
+      10,
+    );
+    expect(region.south).toBeCloseTo(
+      viewport.bounds.south + (latSpan * 12) / 700,
+      10,
+    );
+    expect(region.north).toBeCloseTo(
+      viewport.bounds.north - (latSpan * 12) / 700,
+      10,
+    );
+  });
+
+  it("excludes the strip covered by a revealed context plate", () => {
+    const searchPadding: CameraPadding = {
+      left: 588,
+      right: 12,
+      top: 12,
+      bottom: 12,
+    };
+    const editing = visibleBounds(viewport, EDIT_PADDING);
+    const searching = visibleBounds(viewport, searchPadding);
+    // The search plate covers the left edge, so the visible box starts further
+    // east than it does while editing.
+    expect(searching.west).toBeGreaterThan(editing.west);
+    expect(searching.east).toBeGreaterThan(editing.east);
+  });
+
+  it("falls back to the full canvas when the measurement is degenerate", () => {
+    expect(visibleBounds({ ...viewport, width: 0 }, EDIT_PADDING)).toEqual(
+      viewport.bounds,
+    );
+    expect(
+      visibleBounds(viewport, { left: 600, right: 600, top: 0, bottom: 0 }),
+    ).toEqual(viewport.bounds);
+  });
+});
+
+describe("boundsCentre", () => {
+  it("returns the midpoint of the visible region", () => {
+    expect(boundsCentre(viewport.bounds)).toEqual(CENTRE);
+  });
+});
+
 describe("scopeHits", () => {
   it("keeps what is in view and drops what is far outside it", () => {
     const beyond = hit("Far Town", [122.95, 10.7248]);
-    const scoped = scopeHits("plaza", [inView, farAway, beyond], viewport);
+    const scoped = scopeHits(
+      "plaza",
+      [inView, farAway, beyond],
+      viewport.bounds,
+    );
     expect(scoped.map((h) => h.name)).toEqual(["Jaro Plaza", "SM City Iloilo"]);
   });
 
   it("keeps a hit just off screen, thanks to the slack", () => {
     // ~3.2 km east of centre: outside the screen, inside the expanded box.
-    const scoped = scopeHits("somewhere", [justOutside], viewport);
+    const scoped = scopeHits("somewhere", [justOutside], viewport.bounds);
     expect(scoped).toHaveLength(1);
   });
 
@@ -56,19 +127,33 @@ describe("scopeHits", () => {
     // ~40 km east: beyond even the expanded box. The query does not name it, so
     // the exact-name exemption does not apply.
     const beyond = hit("Far Town", [122.95, 10.7248]);
-    expect(scopeHits("town", [beyond], viewport)).toEqual([]);
+    expect(scopeHits("town", [beyond], viewport.bounds)).toEqual([]);
   });
 
   it("never hides a hit whose name is the query", () => {
     const beyond = hit("Guimaras Wharf", [122.95, 10.7248]);
     // The name matches, so the plotter can still find it from elsewhere.
-    expect(scopeHits("guimaras wharf", [beyond], viewport)).toHaveLength(1);
+    expect(scopeHits("guimaras wharf", [beyond], viewport.bounds)).toHaveLength(
+      1,
+    );
     // …but a different query does not get that exemption.
-    expect(scopeHits("wharf", [beyond], viewport)).toEqual([]);
+    expect(scopeHits("wharf", [beyond], viewport.bounds)).toEqual([]);
   });
 
   it("hides nothing before the camera has reported", () => {
     expect(scopeHits("plaza", [farAway], null)).toEqual([farAway]);
+  });
+
+  it("drops a hit that is visible on the canvas but under a plate", () => {
+    // Just east of the canvas's west edge: on screen, but behind the stops
+    // column. Fed the visible region, the scope must not offer it.
+    const underPlate = hit("Behind The Stops", [122.5495, 10.72]);
+    // It survives a full-canvas test…
+    expect(scopeHits("behind", [underPlate], viewport.bounds)).toHaveLength(1);
+    // …and disappears once the scope is the uncovered region.
+    expect(
+      scopeHits("behind", [underPlate], visibleBounds(viewport, EDIT_PADDING)),
+    ).toEqual([]);
   });
 });
 

@@ -2,12 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { MapPinned, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
+import type { CameraPadding } from "@/features/routes/workspace/geometry";
 import { searchPlaces } from "./geocodeApi";
 import { isConfident } from "./poiConfidence";
 import {
+  boundsCentre,
   scopeHits,
   scopeToNearestCluster,
   shouldOfferAreaSearch,
+  visibleBounds,
 } from "./poiScope";
 
 const SEARCH_DEBOUNCE_MS = 350;
@@ -45,7 +48,13 @@ function proximityOf(
  * moved by `PoiFocuser`, because this component sits in the workspace chrome,
  * outside `<Map>`.
  */
-export function PoiSearchBar() {
+export function PoiSearchBar({
+  scopePadding,
+}: {
+  /** The edit+search layout's visible-region padding. Answers are scoped to
+   *  the area this leaves uncovered, not to the whole canvas. */
+  scopePadding: CameraPadding;
+}) {
   const setPoi = usePlottingStore((s) => s.setPoi);
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
   const setPoiCandidates = usePlottingStore((s) => s.setPoiCandidates);
@@ -86,12 +95,16 @@ export function PoiSearchBar() {
       proximityOf(viewport),
       signal,
     );
-    // First query of a session: keep the cluster nearest the camera, because the
-    // opening camera is a city view and a viewport filter would hide the place
-    // being typed. Later queries narrow what is already on screen.
+    // Scope to the part of the canvas the plates leave uncovered: a row must
+    // never name a place hidden behind the results plate or the stops list.
+    const region = viewport ? visibleBounds(viewport, scopePadding) : null;
+    // First query of a session: keep the cluster nearest the visible centre,
+    // because the opening camera is a city view and a viewport filter would
+    // hide the place being typed. Later queries narrow what is already on
+    // screen.
     const scoped = firstQuery
-      ? scopeToNearestCluster(q, hits, viewport)
-      : scopeHits(q, hits, viewport);
+      ? scopeToNearestCluster(q, hits, region ? boundsCentre(region) : null)
+      : scopeHits(q, hits, region);
     // Mapbox answered with hits, but none of them survived the scope.
     const status: PoiSearchStatus =
       warning ??

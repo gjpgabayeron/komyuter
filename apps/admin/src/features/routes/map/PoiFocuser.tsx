@@ -1,10 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useMap } from "react-map-gl/maplibre";
 import type { CoordinatePair } from "@komyuter/shared";
 import { usePlottingStore } from "@/lib/plottingStore";
-
-/** Padding around a bounds fit, so dots never sit against the plate edges. */
-const FIT_PADDING = 64;
+import type { CameraPadding } from "@/features/routes/workspace/geometry";
 
 /** Bounding box of a point set, as `[sw, ne]` in `[lng, lat]` order. */
 function boundsOf(
@@ -36,13 +34,22 @@ function boundsOf(
  * skipped (issue #16 follow-up: selecting a result did not move the map). This
  * controller sits inside `<Map>` where the instance exists, consumes the
  * request, and clears it so a re-render never replays the movement.
+ *
+ * Every move starts by installing the layout's visible-region padding, so a
+ * place focus lands in the unoccluded area and a candidate fit frames the
+ * candidates inside it — never under the results plate (ADR-0024).
  */
-export function PoiFocuser() {
+export function PoiFocuser({ padding }: { padding: CameraPadding }) {
   const map = useMap().current;
   const focus = usePlottingStore((s) => s.poiFocus);
+  const paddingRef = useRef(padding);
+  paddingRef.current = padding;
 
   useEffect(() => {
     if (!map || !focus) return;
+    // The request arrived with the layout that answers it (the results plate
+    // has just opened), so this is the post-reveal visible region.
+    map.setPadding(paddingRef.current);
     if (focus.kind === "point") {
       map.flyTo({ center: focus.location, zoom: 15, duration: 600 });
     } else if (focus.locations.length > 0) {
@@ -54,9 +61,8 @@ export function PoiFocuser() {
         map.flyTo({ center: southWest, zoom: 15, duration: 600 });
       } else {
         map.fitBounds([southWest, northEast], {
-          padding: FIT_PADDING,
-          duration: 600,
           maxZoom: 16,
+          duration: 600,
         });
       }
     }

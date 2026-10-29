@@ -281,6 +281,10 @@ export interface MapViewport {
   latitude: number;
   zoom: number;
   bounds: ViewportBounds;
+  /** CSS size of the full-bleed canvas, so pixel insets can be turned into
+   *  geographic bounds for the visible-region search scope. */
+  width: number;
+  height: number;
 }
 
 /** A camera request plus its identity — consumed once by the map. */

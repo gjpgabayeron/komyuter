@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SaveIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,12 +17,26 @@ import { DetourLayer } from "@/features/detours/DetourLayer";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
 import { SearchResultsPanel } from "@/features/routes/search/SearchResultsPanel";
 import { plateSlotsFor } from "@/features/routes/workspace/plateSlots";
+import { deriveWorkspaceLayout } from "@/features/routes/workspace/geometry";
 import { StatusBar } from "@/features/routes/StatusBar";
 import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
 import {
   RouteWorkspaceProvider,
   useRouteWorkspace,
 } from "@/features/routes/workspace/RouteWorkspaceProvider";
+
+/** The focus layout a clicked route is framed into (overview → focus). */
+const FOCUS_LAYOUT = deriveWorkspaceLayout({
+  state: "focus",
+  rightPlate: true,
+});
+
+/** The edit+search layout every answer is scoped and framed against. */
+const SEARCH_LAYOUT = deriveWorkspaceLayout({
+  state: "edit",
+  rightPlate: false,
+  contextPlate: true,
+});
 
 const SNAP_WARNING_COPY: Record<string, string> = {
   no_token:
@@ -89,6 +104,18 @@ function RouteWorkspaceInner() {
     candidateCount: poiCandidates.length,
     hasStatus: poiStatus !== null,
   });
+
+  // One derivation feeds the grid, the camera padding and the search scope
+  // (ADR-0024). The page owns it so the three consumers cannot disagree.
+  const layout = useMemo(
+    () =>
+      deriveWorkspaceLayout({
+        state: uiState,
+        rightPlate: slots.right === "properties",
+        contextPlate: slots.context === "search",
+      }),
+    [uiState, slots.right, slots.context],
+  );
 
   useHotkeys("mod+s", () => void saveAll(), {
     // The detour editor owns SAVE while it is open (its panel has the
@@ -166,9 +193,9 @@ function RouteWorkspaceInner() {
               it spans the whole workspace and never resizes or remounts, so
               the plates float over a consistent, seamless canvas. */}
           <main aria-label="Route map" className="absolute inset-0">
-            <RouteMap className="h-full w-full">
+            <RouteMap className="h-full w-full" padding={layout.padding}>
               {(uiState === "overview" || uiState === "focus") && (
-                <RouteOverviewLayer />
+                <RouteOverviewLayer padding={FOCUS_LAYOUT.padding} />
               )}
               <DetourLayer />
             </RouteMap>
@@ -178,6 +205,7 @@ function RouteWorkspaceInner() {
               tracks + a transparent center track hosting the chrome. */}
           <WorkspaceColumns
             mode={uiState}
+            layout={layout}
             leftPinned={directionOpen}
             left={
               <div
@@ -200,13 +228,12 @@ function RouteWorkspaceInner() {
             }
             right={slots.right === "properties" ? <PropertiesPanel /> : null}
             context={searchActive ? <SearchResultsPanel /> : null}
-            contextOpen={slots.context === "search"}
             empty={<EmptyState onCreateRoute={openNewRoute} />}
             chrome={
               hasRoute ? (
                 <div className="flex h-full flex-col justify-between py-3">
                   <div className="flex w-full justify-between">
-                    <PoiSearchBar />
+                    <PoiSearchBar scopePadding={SEARCH_LAYOUT.padding} />
                     <StatusBar
                       dirty={showSave}
                       saving={saving}

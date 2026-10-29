@@ -1,4 +1,5 @@
 export { BasemapController } from "./BasemapController";
+export { CameraPaddingController } from "./CameraPaddingController";
 export { PerspectiveController } from "./PerspectiveController";
 export { PoiCandidatesLayer } from "./PoiCandidatesLayer";
 export { PoiFocuser } from "./PoiFocuser";

@@ -1,9 +1,14 @@
 import { type ReactNode, useLayoutEffect, useRef } from "react";
 import type { WorkspaceUiState } from "@/lib/plottingStore";
-import { WORKSPACE_GEOMETRY, deriveWorkspaceLayout } from "./geometry";
+import { WORKSPACE_GEOMETRY, type WorkspaceLayout } from "./geometry";
+import { REVEAL_DURATION_MS, REVEAL_EASING_CSS } from "./motion";
 
 interface WorkspaceColumnsProps {
   mode: WorkspaceUiState;
+  /** The workspace's plate configuration, derived once by the page. The grid
+   *  renders its tracks; the same value feeds the camera padding and search
+   *  scope, so the three cannot drift apart (ADR-0024). */
+  layout: WorkspaceLayout;
   /** Left plate — route list / stops (overview, focus, edit). */
   left: ReactNode;
   /** Right plate — FocusPlate (focus) or properties (edit). `null` collapses
@@ -12,9 +17,6 @@ interface WorkspaceColumnsProps {
   /** Context plate — revealed over the free region's left edge while a search
    *  session has something to show. */
   context?: ReactNode;
-  /** Whether the context plate is revealed. Collapsed, it stays mounted so
-   *  reopening is instant, and is made inert so it cannot be reached. */
-  contextOpen?: boolean;
   /** When true the left track fills the cell height (pins a bottom card);
    *  otherwise it stays content-adaptive (ADR-0015 short plates). */
   leftPinned?: boolean;
@@ -54,34 +56,22 @@ interface WorkspaceColumnsProps {
  */
 export function WorkspaceColumns({
   mode,
+  layout,
   left,
   right,
   context = null,
-  contextOpen = false,
   empty,
   chrome,
   leftPinned = false,
 }: WorkspaceColumnsProps) {
   const contextRef = useRef<HTMLDivElement>(null);
-  const showLeft = mode !== "empty";
-  // The plate decides, as well as the state: the right column can hold a plate
-  // or decline it while a confident hit is being shown on the map alone.
-  // Collapsing the track (rather than rendering an empty plate) keeps the map
-  // full-bleed and the grid columns honest.
-  const showRight =
-    (mode === "focus" || mode === "edit") && right !== null && right !== false;
+  // The page derived the plate configuration; render exactly those tracks.
+  const showLeft = layout.tracks.left > 0;
+  const showRight = layout.tracks.right > 0;
   // A session can hold the context column open only in the edit state; the
   // reveal is an overlay, so the plate is mounted but translated away while
   // closed and cannot be reached (inert) until it opens.
-  const showContext = context !== null && contextOpen && mode === "edit";
-  // The plate configuration is derived, not spelled out here: the same value
-  // feeds the camera padding and the search scope (ADR-0024), so the grid can
-  // never disagree with them about where the map is.
-  const layout = deriveWorkspaceLayout({
-    state: mode,
-    rightPlate: showRight,
-    contextPlate: showContext,
-  });
+  const showContext = layout.context.visible;
 
   // A collapsed plate must not be tabbable or clickable even though it stays
   // mounted; React 18 warns on the `inert` prop, so it is set on the element.
@@ -153,10 +143,13 @@ export function WorkspaceColumns({
           <div
             ref={contextRef}
             aria-hidden={!showContext}
-            className="absolute top-[60px] bottom-0 left-0 z-0 p-3 transition-transform duration-[180ms] ease-out motion-reduce:transition-none"
+            className="absolute top-[60px] bottom-0 left-0 z-0 p-3 transition-transform motion-reduce:transition-none"
             style={{
               width: WORKSPACE_GEOMETRY.contextCol,
               transform: showContext ? "translateX(0)" : "translateX(-100%)",
+              // The plate and the camera share one duration and curve.
+              transitionDuration: `${REVEAL_DURATION_MS}ms`,
+              transitionTimingFunction: REVEAL_EASING_CSS,
             }}
           >
             <div className="pointer-events-auto flex max-h-[66%] flex-col">

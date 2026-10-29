@@ -3,6 +3,8 @@ import {
   WORKSPACE_GEOMETRY,
   computeMapWidth,
   deriveWorkspaceLayout,
+  isMapGateActive,
+  revealPanPixels,
   visibleMapWidth,
 } from "@/features/routes/workspace/geometry";
 
@@ -146,5 +148,103 @@ describe("deriveWorkspaceLayout — the revealed context column (#24)", () => {
     const layout = deriveWorkspaceLayout({ state: "edit", rightPlate: true });
     expect(layout.context).toEqual({ visible: false, width: 0 });
     expect(layout.variant).toBe("edit");
+  });
+});
+
+describe("the visible-region padding per layout variant (#25)", () => {
+  const { leftCol, contextCol, rightCol, columnInset } = WORKSPACE_GEOMETRY;
+
+  it("empty: the canvas minus only the 12 px edge breathing room", () => {
+    const { padding } = deriveWorkspaceLayout({
+      state: "empty",
+      rightPlate: false,
+    });
+    expect(padding).toEqual({
+      left: columnInset,
+      right: columnInset,
+      top: columnInset,
+      bottom: columnInset,
+    });
+  });
+
+  it("overview: the stops column + inset on the left", () => {
+    const { padding } = deriveWorkspaceLayout({
+      state: "overview",
+      rightPlate: false,
+    });
+    expect(padding).toEqual({
+      left: leftCol + columnInset,
+      right: columnInset,
+      top: columnInset,
+      bottom: columnInset,
+    });
+  });
+
+  it("focus and edit: both plates + their insets", () => {
+    for (const state of ["focus", "edit"] as const) {
+      const { padding } = deriveWorkspaceLayout({ state, rightPlate: true });
+      expect(padding).toEqual({
+        left: leftCol + columnInset,
+        right: rightCol + columnInset,
+        top: columnInset,
+        bottom: columnInset,
+      });
+    }
+  });
+
+  it("edit + search: stops + context on the left, the right plate yields", () => {
+    const { padding } = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: false,
+      contextPlate: true,
+    });
+    expect(padding).toEqual({
+      left: leftCol + contextCol + columnInset,
+      right: columnInset,
+      top: columnInset,
+      bottom: columnInset,
+    });
+  });
+
+  it("matches the design table's editor and search numbers at 1488", () => {
+    const editing = deriveWorkspaceLayout({ state: "edit", rightPlate: true });
+    const searching = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: false,
+      contextPlate: true,
+    });
+    // Frame spec: edit {left: 268, right: 348}, search {left: 588, right: 12}.
+    expect(editing.padding).toMatchObject({ left: 268, right: 348 });
+    expect(searching.padding).toMatchObject({ left: 588, right: 12 });
+  });
+
+  it("moves the camera by exactly the newly covered strip", () => {
+    const editing = deriveWorkspaceLayout({ state: "edit", rightPlate: true });
+    const searching = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: false,
+      contextPlate: true,
+    });
+    // 320 px of context reveals while 336 px of properties yields:
+    // the visible centre shifts 328 px to the right.
+    expect(revealPanPixels(editing.padding, searching.padding)).toBe(328);
+    expect(revealPanPixels(searching.padding, editing.padding)).toBe(-328);
+  });
+
+  it("keeps the 400 px floor and the 1024 window boundary unchanged", () => {
+    // A 1024 px window with the 48 px rail leaves a 976 px workspace.
+    const editing = deriveWorkspaceLayout({ state: "edit", rightPlate: true });
+    const searching = deriveWorkspaceLayout({
+      state: "edit",
+      rightPlate: false,
+      contextPlate: true,
+    });
+    // Search is 16 px wider than edit (320 context vs 336 properties): it sits
+    // exactly on the floor, so evaluating that variant does not gate.
+    expect(visibleMapWidth(searching, 976)).toBe(400);
+    expect(isMapGateActive(visibleMapWidth(searching, 976))).toBe(false);
+    // Edit stays at 384 and still gates, as ADR-0024 records.
+    expect(visibleMapWidth(editing, 976)).toBe(384);
+    expect(isMapGateActive(visibleMapWidth(editing, 976))).toBe(true);
   });
 });
