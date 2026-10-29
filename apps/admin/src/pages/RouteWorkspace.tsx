@@ -96,11 +96,13 @@ function RouteWorkspaceInner() {
   const searchActive = usePlottingStore((s) => s.searchActive);
   const poiCandidates = usePlottingStore((s) => s.poiCandidates);
   const poiStatus = usePlottingStore((s) => s.poiStatus);
+  const poiLoading = usePlottingStore((s) => s.poiLoading);
   // Which plate lives where is a rule, not a condition buried in JSX: results
   // take the context column while a search has something to say, properties
   // yield for the session, and a confident hit opens neither (ADR-0024).
   const slots = plateSlotsFor({
     searchActive,
+    loading: poiLoading,
     candidateCount: poiCandidates.length,
     hasStatus: poiStatus !== null,
   });

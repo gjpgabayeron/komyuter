@@ -248,9 +248,11 @@ describe("plottingStore", () => {
     store.setPoiHoverId("a");
     store.setPoiSelection(hit);
     store.setPoiSearch("jaro", null);
+    store.setPoiLoading(true);
 
     expect(usePlottingStore.getState().searchActive).toBe(true);
     expect(usePlottingStore.getState().poiQuery).toBe("jaro");
+    expect(usePlottingStore.getState().poiLoading).toBe(true);
 
     usePlottingStore.getState().clearSearchSession();
 
@@ -261,6 +263,7 @@ describe("plottingStore", () => {
     expect(after.poiSelection).toBeNull();
     expect(after.poiQuery).toBe("");
     expect(after.poiStatus).toBeNull();
+    expect(after.poiLoading).toBe(false);
   });
 
   it("openRoute switches routes without carrying a search session across", () => {
@@ -277,6 +280,7 @@ describe("plottingStore", () => {
     store.setPoiHoverId("a");
     store.setPoi(hit.location, hit.name);
     store.setPoiSelection(hit);
+    store.setPoiLoading(true);
 
     store.openRoute("route-2");
 
@@ -284,6 +288,7 @@ describe("plottingStore", () => {
     expect(after.searchActive).toBe(false);
     expect(after.poiQuery).toBe("");
     expect(after.poiStatus).toBeNull();
+    expect(after.poiLoading).toBe(false);
     expect(after.poiCandidates).toEqual([]);
     expect(after.poiHoverId).toBeNull();
     expect(after.poiSelection).toBeNull();

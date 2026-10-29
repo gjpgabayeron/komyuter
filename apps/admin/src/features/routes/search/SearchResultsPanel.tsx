@@ -1,21 +1,42 @@
 import { useRef } from "react";
 import type { GeocodeHit } from "@komyuter/shared";
 import { Plate } from "@/components/shared/Plate";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
 import {
   insertionAnchorLabel,
   poiAnchorFor,
   poiMetaLine,
 } from "./formatPoiMeta";
+import { searchPanelState } from "./panelState";
 
-const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
+const EMPTY_VALID_COPY = "Nothing in this area. Move the map and search again.";
+
+const UNAVAILABLE_COPY: Record<
+  Exclude<PoiSearchStatus, "out_of_area" | null>,
+  string
+> = {
   no_token:
     "Place search is off — no Mapbox token is configured on the server.",
-  upstream_error: "Search is unavailable right now. Try again.",
-  request_failed: "Search is unavailable right now. Try again.",
-  // Mapbox answered, but every hit was outside the area in view.
-  out_of_area: "No places here — pan out, or use Search this area.",
+  upstream_error:
+    "Search is unavailable — the place service returned an error.",
+  request_failed: "Search failed — the request could not be completed.",
 };
+
+/** Three skeleton rows while a query is in flight (no pill spinner). */
+function LoadingRows() {
+  return (
+    <div className="mt-2 flex flex-col gap-2" aria-hidden="true">
+      {[0, 1, 2].map((row) => (
+        <div key={row} className="flex flex-col gap-1 px-1 py-1.5">
+          <Skeleton className="h-3.5 w-2/3" />
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-2.5 w-1/2" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /**
  * Right-hand plate for a search session: the ambiguous results list.
@@ -24,6 +45,11 @@ const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
  * plotter keeps one list rather than a dropdown *and* a panel. Candidates come
  * from `poiCandidates` — the same array the map pins are drawn from — so the
  * panel and the map can never disagree.
+ *
+ * Five states, all decided by `searchPanelState`: loading (skeleton rows),
+ * results, empty but valid (`Nothing in this area`), unavailable (one line
+ * naming the cause), and absent on a confident hit — where the component
+ * renders nothing because the map marker and popup are the answer.
  *
  * Hovering or keyboard-focusing a row only highlights its pin: the camera
  * stays exactly where the plotter put it, so sweeping a list never yanks the
@@ -34,6 +60,7 @@ const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
 export function SearchResultsPanel() {
   const candidates = usePlottingStore((s) => s.poiCandidates);
   const status = usePlottingStore((s) => s.poiStatus);
+  const poiLoading = usePlottingStore((s) => s.poiLoading);
   // The insertion anchor is the current stop selection; subscribing to both
   // keeps the header line and every row's distance in step when it changes.
   const selection = usePlottingStore((s) => s.selection);
@@ -46,6 +73,11 @@ export function SearchResultsPanel() {
   const clearSearchSession = usePlottingStore((s) => s.clearSearchSession);
   const rowRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const anchor = poiAnchorFor(selection, stops);
+  const state = searchPanelState({
+    loading: poiLoading,
+    candidateCount: candidates.length,
+    status,
+  });
 
   /** Highlights the row's pin — no camera request. */
   const previewOn = (hit: GeocodeHit) => {
@@ -73,9 +105,18 @@ export function SearchResultsPanel() {
     rowRefs.current[clamped]?.focus();
   };
 
+  // A confident single hit is shown by the map marker and its popup; the plate
+  // is deliberately absent (frame spec, five states).
+  if (state === "absent") return null;
+
+  const countLabel = `${candidates.length} result${
+    candidates.length === 1 ? "" : "s"
+  }`;
+
   return (
     <aside
       aria-label="Search results"
+      aria-busy={state === "loading"}
       className="flex min-h-0 w-full flex-col overflow-hidden"
     >
       <Plate
@@ -89,17 +130,25 @@ export function SearchResultsPanel() {
           <p className="text-muted-foreground truncate text-xs">
             {insertionAnchorLabel(anchor)}
           </p>
+          {/* The visible count changes with the answer; announce it politely
+              once the query has settled, never as a "0" while loading. */}
+          <span className="sr-only" aria-live="polite">
+            {state === "loading" ? "" : countLabel}
+          </span>
         </header>
 
-        {/* Rule between the header and the rows: the query line and the count are
-            context, the list is content — they should not read as one block. */}
+        {/* Rule between the header and the rows: the header is context, the
+            list is content — they should not read as one block. */}
         <div aria-hidden className="border-border mt-2 border-t" />
 
-        {candidates.length === 0 ? (
-          <p className="text-muted-foreground mt-2 px-1 text-xs">
-            {status === null ? "No places found." : EMPTY_COPY[status]}
-          </p>
-        ) : (
+        {state === "loading" ? (
+          <>
+            <span className="sr-only" role="status">
+              Searching for places…
+            </span>
+            <LoadingRows />
+          </>
+        ) : state === "results" ? (
           <ul
             onMouseLeave={previewOff}
             onKeyDown={(event) => {
@@ -164,6 +213,17 @@ export function SearchResultsPanel() {
               );
             })}
           </ul>
+        ) : state === "empty" ? (
+          <p className="text-muted-foreground mt-2 px-1 text-xs">
+            {EMPTY_VALID_COPY}
+          </p>
+        ) : (
+          status !== null &&
+          status !== "out_of_area" && (
+            <p className="text-muted-foreground mt-2 px-1 text-xs">
+              {UNAVAILABLE_COPY[status]}
+            </p>
+          )
         )}
       </Plate>
     </aside>

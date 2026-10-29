@@ -346,6 +346,8 @@ export interface PlottingState {
   poiQuery: string;
   /** Why that search has no rows, when it has none. */
   poiStatus: PoiSearchStatus;
+  /** True while a query is in flight — the plate's loading state. */
+  poiLoading: boolean;
   /**
    * One-shot camera request from the search pill: frame one place, or frame the
    * whole candidate set. The pill renders in the chrome slot *outside* `<Map>`,
@@ -414,6 +416,8 @@ export interface PlottingState {
   setSearchActive: (active: boolean) => void;
   /** Publishes the query and the reason a search came back empty. */
   setPoiSearch: (query: string, status: PoiSearchStatus) => void;
+  /** Marks the query as in flight (the plate's loading state). */
+  setPoiLoading: (loading: boolean) => void;
   /** Ends the session and everything it published — the panel's Esc. */
   clearSearchSession: () => void;
   /**
@@ -695,6 +699,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     searchActive: false,
     poiQuery: "",
     poiStatus: null,
+    poiLoading: false,
     poiFocus: null,
     poiCandidates: [],
     poiHoverId: null,
@@ -757,6 +762,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
       set({ poiSelection: null, poiHit: null, poi: null, poiLabel: null }),
     setSearchActive: (searchActive) => set({ searchActive }),
     setPoiSearch: (poiQuery, poiStatus) => set({ poiQuery, poiStatus }),
+    setPoiLoading: (poiLoading) => set({ poiLoading }),
     clearSearchSession: () =>
       set({
         poiCandidates: [],
@@ -765,6 +771,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         poiHit: null,
         poiQuery: "",
         poiStatus: null,
+        poiLoading: false,
         searchActive: false,
       }),
     addPoiAsStop: (type) => {
@@ -855,6 +862,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         searchActive: false,
         poiQuery: "",
         poiStatus: null,
+        poiLoading: false,
         routeMeta: null,
         connections: [],
         draftDirty: false,
@@ -1527,6 +1535,7 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
         poiLabel: null,
         poiQuery: "",
         poiStatus: null,
+        poiLoading: false,
         searchActive: false,
         routeMeta: null,
         connections: [],

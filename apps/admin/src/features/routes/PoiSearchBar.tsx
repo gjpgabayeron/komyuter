@@ -70,9 +70,10 @@ export function PoiSearchBar({
   const searchActive = usePlottingStore((s) => s.searchActive);
   const mapViewport = usePlottingStore((s) => s.mapViewport);
   const candidates = usePlottingStore((s) => s.poiCandidates);
+  const poiLoading = usePlottingStore((s) => s.poiLoading);
+  const setPoiLoading = usePlottingStore((s) => s.setPoiLoading);
 
   const [query, setQuery] = useState("");
-  const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   // Centre the current answer was produced at — the reference for the area plate.
   const lastSearchRef = useRef<{
@@ -147,7 +148,7 @@ export function PoiSearchBar({
     if (q.length < MIN_QUERY_LENGTH) {
       setPoiCandidates([]);
       setPoiHoverId(null);
-      setLoading(false);
+      setPoiLoading(false);
       if (usePlottingStore.getState().searchActive) {
         // Deleting back below the trigger ends the session, but the characters
         // still under the caret stay: only the answer is cleared.
@@ -164,7 +165,12 @@ export function PoiSearchBar({
       // The session starts when the query fires, never on focus: focusing or
       // typing a partial query must not rearrange the workspace.
       setSearchActive(true);
-      setLoading(true);
+      // A new query replaces the old answer entirely: old rows and any old
+      // status go, and the plate shows its loading state until the new answer.
+      setPoiCandidates([]);
+      setPoiHoverId(null);
+      setPoiSearch(q, null);
+      setPoiLoading(true);
       try {
         const { hits, status, viewport } = await runQuery(
           q,
@@ -205,7 +211,7 @@ export function PoiSearchBar({
         setPoiHoverId(null);
         setPoiSearch(q, "request_failed");
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setPoiLoading(false);
       }
     }, SEARCH_DEBOUNCE_MS);
     return () => {
@@ -230,7 +236,12 @@ export function PoiSearchBar({
   const runAreaSearch = async () => {
     const last = lastSearchRef.current;
     if (!last) return;
-    setLoading(true);
+    // A re-search is still a query in flight: clear the old answer and show the
+    // plate's loading state until the new one lands.
+    setPoiCandidates([]);
+    setPoiHoverId(null);
+    setPoiSearch(last.query, null);
+    setPoiLoading(true);
     const controller = new AbortController();
     try {
       const { hits, status, viewport } = await runQuery(
@@ -256,7 +267,7 @@ export function PoiSearchBar({
       setPoiCandidates([]);
       setPoiSearch(last.query, "request_failed");
     } finally {
-      setLoading(false);
+      setPoiLoading(false);
     }
   };
 
@@ -264,7 +275,6 @@ export function PoiSearchBar({
   const exitSearch = () => {
     lastSearchRef.current = null;
     setQuery("");
-    setLoading(false);
     // One store action, so the panel's Esc and this Esc end the same way.
     clearSearchSession();
     inputRef.current?.blur();
@@ -279,14 +289,13 @@ export function PoiSearchBar({
   const clearQuery = () => {
     lastSearchRef.current = null;
     setQuery("");
-    setLoading(false);
     clearSearchSession();
     inputRef.current?.focus();
   };
 
   const showAreaSearch =
     candidates.length > 0 &&
-    !loading &&
+    !poiLoading &&
     shouldOfferAreaSearch(mapViewport, lastSearchRef.current);
 
   return (
