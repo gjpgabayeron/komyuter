@@ -1,12 +1,13 @@
 import { type ReactNode } from "react";
 import type { WorkspaceUiState } from "@/lib/plottingStore";
-import { WORKSPACE_GEOMETRY } from "./geometry";
+import { deriveWorkspaceLayout } from "./geometry";
 
 interface WorkspaceColumnsProps {
   mode: WorkspaceUiState;
   /** Left plate — route list / stops (overview, focus, edit). */
   left: ReactNode;
-  /** Right plate — FocusPlate (focus) or properties (edit). */
+  /** Right plate — FocusPlate (focus), properties (edit), or the search
+   *  results while a search session is active. `null` collapses the track. */
   right: ReactNode;
   /** When true the left track fills the cell height (pins a bottom card);
    *  otherwise it stays content-adaptive (ADR-0015 short plates). */
@@ -54,15 +55,18 @@ export function WorkspaceColumns({
   leftPinned = false,
 }: WorkspaceColumnsProps) {
   const showLeft = mode !== "empty";
-  const showRight = mode === "focus" || mode === "edit";
-  const { leftCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
+  // The plate decides, as well as the state: a search session can hold the
+  // right track open with results, or hold it empty while a confident hit is
+  // being shown on the map alone. Collapsing the track (rather than rendering
+  // an empty plate) keeps the map full-bleed and the grid columns honest.
+  const showRight =
+    (mode === "focus" || mode === "edit") && right !== null && right !== false;
+  // The plate configuration is derived, not spelled out here: the same value
+  // feeds the camera padding and the search scope (ADR-0024), so the grid can
+  // never disagree with them about where the map is.
+  const layout = deriveWorkspaceLayout({ state: mode, rightPlate: showRight });
 
-  const gridTemplateColumns =
-    mode === "empty"
-      ? `0px 0px minmax(0, 1fr) 0px 0px`
-      : showRight
-        ? `${leftCol}px ${gutter}px minmax(0, 1fr) ${gutter}px ${rightCol}px`
-        : `${leftCol}px ${gutter}px minmax(0, 1fr) 0px 0px`;
+  const gridTemplateColumns = layout.tracks.template;
 
   return (
     <div

@@ -1,7 +1,14 @@
 import type { StopShape } from "@/lib/stopShapes";
 
+/** Signboard green-blue — the brand's primary plate colour (DESIGN.md). */
+export const SIGNBOARD_BLUE = "#1B6DB2";
+
+/** The picked search place. Red is reserved for it alone, so "which one is this
+ *  popup about" never needs a second look. */
+export const PICKED_RED = "#DC2626";
+
 /** Signboard green-blue (draft path — committed to save). */
-export const DRAFT_LINE = "#1B6DB2";
+export const DRAFT_LINE = SIGNBOARD_BLUE;
 /** Crossfade-out duration for the editor's committed draft line (edit→overview). */
 export const DRAFT_FADE_OUT_MS = 200;
 /** Vivid orange (transient connecting line — the straight fallback shown

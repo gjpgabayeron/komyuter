@@ -178,18 +178,293 @@ describe("plottingStore", () => {
     expect(usePlottingStore.getState().poi).toBeNull();
   });
 
-  it("requestPoiFocus asks once per pick and clearPoiFocus empties it", () => {
+  it("requestPoiFocus asks once per pick, for a point or a bounds", () => {
     expect(usePlottingStore.getState().poiFocus).toBeNull();
-    usePlottingStore.getState().requestPoiFocus([122.56, 10.72]);
+
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "point",
+      location: [122.56, 10.72],
+    });
     const first = usePlottingStore.getState().poiFocus;
-    expect(first?.location).toEqual([122.56, 10.72]);
-    // The same coordinate picked twice is still two distinct requests, or the
-    // map would not fly again.
-    usePlottingStore.getState().requestPoiFocus([122.56, 10.72]);
+    expect(first).toMatchObject({ kind: "point", location: [122.56, 10.72] });
+
+    // The same place picked twice is still two distinct requests, or the map
+    // would not move again.
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "point",
+      location: [122.56, 10.72],
+    });
     const second = usePlottingStore.getState().poiFocus;
     expect(second?.nonce).toBeGreaterThan(first?.nonce ?? 0);
+
+    // A candidate set asks the map to frame all of them, not one.
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "bounds",
+      locations: [
+        [122.55, 10.71],
+        [122.57, 10.73],
+      ],
+    });
+    expect(usePlottingStore.getState().poiFocus).toMatchObject({
+      kind: "bounds",
+      locations: [
+        [122.55, 10.71],
+        [122.57, 10.73],
+      ],
+    });
+
     usePlottingStore.getState().clearPoiFocus();
     expect(usePlottingStore.getState().poiFocus).toBeNull();
+  });
+
+  it("keeps candidates and the hovered id until the marker is dismissed", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    usePlottingStore.getState().setPoiCandidates([hit]);
+    usePlottingStore.getState().setPoiHoverId("a");
+    expect(usePlottingStore.getState().poiCandidates).toHaveLength(1);
+    expect(usePlottingStore.getState().poiHoverId).toBe("a");
+
+    // Selecting a stop ends the search, so the dots go with the marker.
+    usePlottingStore.getState().setSelection({ type: "stop", stopId: "s1" });
+    expect(usePlottingStore.getState().poiCandidates).toEqual([]);
+    expect(usePlottingStore.getState().poiHoverId).toBeNull();
+  });
+
+  it("searchActive is set on demand and clearSearchSession ends the session", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setSearchActive(true);
+    store.setPoiCandidates([hit]);
+    store.setPoiHoverId("a");
+    store.setPoiSelection(hit);
+    store.setPoiSearch("jaro", null);
+
+    expect(usePlottingStore.getState().searchActive).toBe(true);
+    expect(usePlottingStore.getState().poiQuery).toBe("jaro");
+
+    usePlottingStore.getState().clearSearchSession();
+
+    const after = usePlottingStore.getState();
+    expect(after.searchActive).toBe(false);
+    expect(after.poiCandidates).toEqual([]);
+    expect(after.poiHoverId).toBeNull();
+    expect(after.poiSelection).toBeNull();
+    expect(after.poiQuery).toBe("");
+    expect(after.poiStatus).toBeNull();
+  });
+
+  it("poiSelection is dropped wherever the marker is dismissed", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+
+    store.setPoiSelection(hit);
+    store.setPoi(hit.location);
+    store.setPoi(null);
+    expect(usePlottingStore.getState().poiSelection).toBeNull();
+
+    store.setPoiSelection(hit);
+    store.setSelection({ type: "stop", stopId: "s1" });
+    expect(usePlottingStore.getState().poiSelection).toBeNull();
+
+    store.setPoiSelection(hit);
+    store.openRoute("route-1");
+    expect(usePlottingStore.getState().poiSelection).toBeNull();
+  });
+
+  it("insertStopBetween honours an explicit type and keeps the order", () => {
+    const { addStop, insertStopBetween } = usePlottingStore.getState();
+    addStop([122.5, 10.6], "A");
+    addStop([122.51, 10.61], "B");
+    addStop([122.52, 10.62], "C");
+    const anchor = usePlottingStore.getState().stops[0].id;
+
+    insertStopBetween(anchor, [122.505, 10.605], "New", "terminal");
+
+    const stops = usePlottingStore.getState().stops;
+    expect(stops.map((stop) => stop.name)).toEqual(["A", "New", "B", "C"]);
+    expect(stops[1].type).toBe("terminal");
+    expect(usePlottingStore.getState().selection).toEqual({
+      type: "stop",
+      stopId: stops[1].id,
+    });
+  });
+
+  it("addPoiAsStop inserts after the selected stop and ends the search", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.addStop([122.5, 10.6], "A");
+    store.addStop([122.51, 10.61], "B");
+    const first = usePlottingStore.getState().stops[0].id;
+    store.setSelection({ type: "stop", stopId: first });
+    store.setSearchActive(true);
+    store.setPoiSelection(hit);
+
+    usePlottingStore.getState().addPoiAsStop("major_stop");
+
+    const after = usePlottingStore.getState();
+    expect(after.stops.map((stop) => stop.name)).toEqual([
+      "A",
+      "Jaro Plaza",
+      "B",
+    ]);
+    expect(after.stops[1].type).toBe("major_stop");
+    expect(after.searchActive).toBe(false);
+    expect(after.poiSelection).toBeNull();
+    expect(after.poiCandidates).toEqual([]);
+    // The new stop is the selection, so it can be dragged into place.
+    expect(after.selection).toEqual({
+      type: "stop",
+      stopId: after.stops[1].id,
+    });
+  });
+
+  it("addPoiAsStop appends when no stop is selected", () => {
+    const hit = {
+      id: "b",
+      name: "Molo Plaza",
+      description: "Iloilo City",
+      location: [122.5456, 10.6973] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.addStop([122.5, 10.6], "A");
+    store.setSelection(clearSelection);
+    store.setPoiSelection(hit);
+
+    usePlottingStore.getState().addPoiAsStop("waiting_area");
+
+    const after = usePlottingStore.getState();
+    expect(after.stops.map((stop) => stop.name)).toEqual(["A", "Molo Plaza"]);
+    expect(after.stops[1].type).toBe("waiting_area");
+    expect(after.selection).toEqual({
+      type: "stop",
+      stopId: after.stops[1].id,
+    });
+  });
+
+  it("keeps the marker and the results when the map is clicked during a session", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setSearchActive(true);
+    store.setPoiCandidates([hit]);
+    store.setPoiHoverId("a");
+    store.setPoi(hit.location, "Jaro Plaza");
+    store.setPoiSelection(hit);
+
+    // Clicking outside the input is not "stop searching", and not "forget the
+    // place": the pick survives, only its popup card closes.
+    usePlottingStore.getState().setSelection(clearSelection);
+
+    const after = usePlottingStore.getState();
+    expect(after.poiCandidates).toHaveLength(1);
+    expect(after.searchActive).toBe(true);
+    expect(after.poi).toEqual(hit.location);
+    expect(after.poiLabel).toBe("Jaro Plaza");
+    expect(after.poiSelection).toBeNull();
+  });
+
+  it("clears the whole search surface without a session", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setPoiCandidates([hit]);
+    store.setPoi(hit.location, "Jaro Plaza");
+
+    usePlottingStore.getState().setSelection(clearSelection);
+
+    const after = usePlottingStore.getState();
+    expect(after.poi).toBeNull();
+    expect(after.poiLabel).toBeNull();
+    expect(after.poiCandidates).toEqual([]);
+  });
+
+  it("labels the picked marker, and dismissing the popup takes the marker with it", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setSearchActive(true);
+    store.setPoiCandidates([hit]);
+    store.setPoi(hit.location, "Jaro Plaza");
+    store.setPoiSelection(hit);
+    expect(usePlottingStore.getState().poiLabel).toBe("Jaro Plaza");
+
+    usePlottingStore.getState().dismissPoiSelection();
+
+    const after = usePlottingStore.getState();
+    // The card and its marker are one thing — no orphan pin may survive it.
+    expect(after.poi).toBeNull();
+    expect(after.poiLabel).toBeNull();
+    expect(after.poiSelection).toBeNull();
+    expect(after.poiHit).toBeNull();
+    // …while the session and its results stay: closing the card is not ending
+    // the search.
+    expect(after.poiCandidates).toHaveLength(1);
+    expect(after.searchActive).toBe(true);
+  });
+
+  it("a map click closes the popup but keeps the marker it came from", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setSearchActive(true);
+    store.setPoiCandidates([hit]);
+    store.setPoi(hit.location, "Jaro Plaza");
+    store.setPoiSelection(hit);
+
+    usePlottingStore.getState().setPoiSelection(null);
+
+    const after = usePlottingStore.getState();
+    expect(after.poiSelection).toBeNull();
+    // The searched place is still the answer: the marker, its label and the hit
+    // itself stay, so the marker can be clicked to reopen the card.
+    expect(after.poi).toEqual(hit.location);
+    expect(after.poiLabel).toBe("Jaro Plaza");
+    expect(after.poiHit).toEqual(hit);
+    expect(after.poiCandidates).toHaveLength(1);
+
+    usePlottingStore.getState().setPoiSelection(after.poiHit);
+    expect(usePlottingStore.getState().poiSelection).toEqual(hit);
+  });
+
+  it("leaves the label empty when no name is given", () => {
+    usePlottingStore.getState().setPoi([122.5, 10.6]);
+    expect(usePlottingStore.getState().poiLabel).toBeNull();
   });
 
   it("placing a stop, selecting a stop, or opening a route clears the POI marker", () => {

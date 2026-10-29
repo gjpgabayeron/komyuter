@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { MapPin, GitBranch, Merge } from "lucide-react";
+import { GitBranch, Merge } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Map, { Marker } from "react-map-gl/maplibre";
 import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
@@ -16,12 +16,20 @@ import {
 import {
   BasemapController,
   PerspectiveController,
+  PoiCandidatesLayer,
   PoiFocuser,
+  PoiPin,
+  PoiPopup,
   RouteFitter,
   RouteLines,
   SelectionPanner,
 } from "./map";
-import { DRAFT_LINE, SHAPE_CLASS } from "./map/constants";
+import {
+  DRAFT_LINE,
+  PICKED_RED,
+  SHAPE_CLASS,
+  SIGNBOARD_BLUE,
+} from "./map/constants";
 import { useDetourStore } from "@/features/detours/detourStore";
 import {
   useDirectionsQuery,
@@ -29,6 +37,7 @@ import {
   useDirectionStopsQuery,
 } from "@/features/routes/useRouteQueries";
 import { buildDetourTarget } from "@/features/detours/target";
+import { pinSizeForZoom } from "./poiScope";
 
 interface Viewport {
   longitude: number;
@@ -66,10 +75,18 @@ export function RouteMap({ className, children }: RouteMapProps) {
   const polyline = usePlottingStore((s) => s.polyline);
   const selection = usePlottingStore((s) => s.selection);
   const poi = usePlottingStore((s) => s.poi);
+  const poiLabel = usePlottingStore((s) => s.poiLabel);
+  const poiHit = usePlottingStore((s) => s.poiHit);
+  const poiSelection = usePlottingStore((s) => s.poiSelection);
+  const setPoiSelection = usePlottingStore((s) => s.setPoiSelection);
+  const mapViewport = usePlottingStore((s) => s.mapViewport);
   const addStop = usePlottingStore((s) => s.addStop);
   const moveStop = usePlottingStore((s) => s.moveStop);
   const setSelection = usePlottingStore((s) => s.setSelection);
-  const setPoi = usePlottingStore((s) => s.setPoi);
+  const setMapViewport = usePlottingStore((s) => s.setMapViewport);
+  // The picked marker tracks the camera's zoom, so it keeps its proportion to
+  // the streets; candidate pins use the same scale, one step smaller.
+  const pickedPx = pinSizeForZoom(mapViewport?.zoom) + 6;
   // Detour stops are first-class stops while the detour editor is open: the
   // same marker plates as base stops, draggable, clickable → property panel.
   const detourOpen = useDetourStore((s) => s.open);
@@ -89,8 +106,10 @@ export function RouteMap({ className, children }: RouteMapProps) {
     directions?.find((d) => d.direction_id === openDirectionId) ?? null;
 
   const handleMapClick = (event: { lngLat: { lng: number; lat: number } }) => {
-    // Any map click is a "different action" — dismiss the temporary POI marker.
-    setPoi(null);
+    // A map click closes the popup but keeps the picked marker: the place the
+    // search resolved to is still the answer, and a click on the map should not
+    // erase it. Only the popup's own dismiss (× / `onClose`) drops the marker.
+    setPoiSelection(null);
     // While the detour editor is open the map taps belong to it (entry/exit/
     // waypoint placement) — the base-route tooling steps aside entirely.
     // Guard on `open`, not `mode` (a future idle-but-open state must not
@@ -212,12 +231,32 @@ export function RouteMap({ className, children }: RouteMapProps) {
             bearing: event.viewState.bearing ?? 0,
           })
         }
+        onMoveEnd={(event) => {
+          // Search follows the camera, so the camera has to be somewhere the
+          // pill can read it: this component renders inside `<Map>`, the pill
+          // does not. Published on move-end, not on move, to keep the store
+          // quiet while a drag is in flight.
+          const bounds = event.target.getBounds();
+          setMapViewport({
+            longitude: event.viewState.longitude,
+            latitude: event.viewState.latitude,
+            zoom: event.viewState.zoom,
+            bounds: {
+              west: bounds.getWest(),
+              south: bounds.getSouth(),
+              east: bounds.getEast(),
+              north: bounds.getNorth(),
+            },
+          });
+        }}
         mapStyle={mapStyle}
         style={{ width: "100%", height: "100%" }}
       >
         <RouteFitter />
         <SelectionPanner />
         <PoiFocuser />
+        <PoiCandidatesLayer />
+        <PoiPopup />
         <BasemapController />
         <PerspectiveController />
         <RouteLines
@@ -229,11 +268,33 @@ export function RouteMap({ className, children }: RouteMapProps) {
         {poi && (
           <Marker longitude={poi[0]} latitude={poi[1]}>
             <div className="flex flex-col items-center gap-0.5">
-              <span className="flex size-7 items-center justify-center rounded-full border-2 border-white bg-[#C98A1B] text-[#201A10] ring-2 ring-white">
-                <MapPin className="size-4" />
-              </span>
-              <span className="rounded-xs border border-[#C98A1B] bg-white px-1 text-[11px] leading-4 font-medium text-[#201A10]">
-                Place
+              {/* Same silhouette as a candidate pin, one step larger. Red while
+                  its card is open — the "focused" state — and signboard blue once
+                  the card is closed, so the searched place stays on the map and
+                  stays clickable to focus it again. */}
+              <button
+                type="button"
+                disabled={poiHit === null}
+                aria-label={`Show ${poiLabel ?? "this place"} details`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (poiHit) setPoiSelection(poiHit);
+                }}
+                className="focus-visible:outline-foreground flex cursor-pointer rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-default"
+              >
+                <PoiPin
+                  size={pickedPx}
+                  color={poiSelection ? PICKED_RED : SIGNBOARD_BLUE}
+                />
+              </button>
+              <span
+                style={{
+                  borderColor: poiSelection ? PICKED_RED : SIGNBOARD_BLUE,
+                  color: poiSelection ? PICKED_RED : SIGNBOARD_BLUE,
+                }}
+                className="max-w-40 truncate rounded-xs border bg-white px-1 text-[11px] leading-4 font-medium"
+              >
+                {poiLabel ?? "Place"}
               </span>
             </div>
           </Marker>

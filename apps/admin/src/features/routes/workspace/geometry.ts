@@ -26,6 +26,67 @@ export const WORKSPACE_GEOMETRY = {
 
 export type WorkspaceMode = "overview" | "focus" | "edit";
 
+/** Every state the workspace can be in, including the one with no plates. */
+export type WorkspaceState = WorkspaceMode | "empty";
+
+export interface WorkspaceLayoutInput {
+  state: WorkspaceState;
+  /** Whether the right column has a plate to show. A declined plate collapses
+   *  its track, so the map gets the width back (the confident-hit case). */
+  rightPlate: boolean;
+}
+
+export interface WorkspaceTracks {
+  /** `grid-template-columns` for the five-track grid, gutter slots included. */
+  template: string;
+  /** Rendered width of the left and right tracks, in px. */
+  left: number;
+  right: number;
+}
+
+export interface WorkspaceLayout {
+  /** The configuration this workspace is in — named, so callers can switch on it. */
+  variant: WorkspaceState;
+  tracks: WorkspaceTracks;
+  /** Horizontal space the plates occlude, per side. */
+  insets: { left: number; right: number };
+}
+
+/**
+ * The workspace's plate configuration, as data (ADR-0024).
+ *
+ * One derivation owns three answers that used to be spelled out in three
+ * places — which tracks the grid renders, how much space the plates occlude,
+ * and which layout variant is on screen. The grid, the camera padding and the
+ * search scope all read this, so they cannot disagree about where the map is.
+ */
+export function deriveWorkspaceLayout(
+  input: WorkspaceLayoutInput,
+): WorkspaceLayout {
+  const { leftCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
+  const showLeft = input.state !== "empty";
+  const showRight =
+    (input.state === "focus" || input.state === "edit") && input.rightPlate;
+  const left = showLeft ? leftCol : 0;
+  const right = showRight ? rightCol : 0;
+  const template = `${left}px ${showLeft ? gutter : 0}px minmax(0, 1fr) ${
+    showRight ? gutter : 0
+  }px ${right}px`;
+  return {
+    variant: input.state,
+    tracks: { template, left, right },
+    insets: { left, right },
+  };
+}
+
+/** Width of the map the plates leave visible, clamped at zero. */
+export function visibleMapWidth(
+  layout: WorkspaceLayout,
+  viewport: number,
+): number {
+  return Math.max(0, viewport - layout.insets.left - layout.insets.right);
+}
+
 /**
  * Width of the FREE MAP REGION — the strip between the floating plates that
  * is not covered by them (and the map the user actually interacts with).
@@ -40,10 +101,12 @@ export function computeMapWidth(
   railW: number,
   mode: WorkspaceMode,
 ): number {
-  const { leftCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
-  const chrome =
-    mode === "overview" ? leftCol + gutter : leftCol + rightCol + 2 * gutter;
-  return Math.max(0, viewport - railW - chrome);
+  // One source of truth: the gate measures the same derivation the grid renders.
+  const layout = deriveWorkspaceLayout({
+    state: mode,
+    rightPlate: mode !== "overview",
+  });
+  return visibleMapWidth(layout, viewport - railW);
 }
 
 /** True when the free map region would fall below the 400 px floor. */

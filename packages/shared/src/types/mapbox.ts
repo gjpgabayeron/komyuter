@@ -15,26 +15,28 @@ export interface SnappedPath {
 export type SnapCoordinates = CoordinatePair[];
 
 /**
- * One place-search hit as the admin POI pill lists it.
+ * One place-search hit: the dropdown row and the map point in one object.
  *
- * Mapbox's Search Box `suggest` answers with names and ids but no coordinates,
- * so a row carries what the dropdown needs and `id` is the handle the pill
- * resolves into a point only when the plotter picks it (issue #16 follow-up:
- * the classic geocoding endpoint had no POI coverage in Iloilo, so a mall search
- * came back as the road it stands on).
+ * Search Box `forward` answers with names *and* geometry, so a hit carries both
+ * what the pill lists and what the map draws. That is what lets every candidate
+ * appear on the map and one of them preview on hover without a second request
+ * per row (issue #16 follow-up: the classic geocoding endpoint had no POI
+ * coverage in Iloilo, so a mall search came back as the road it stands on).
  */
-export interface GeocodeSuggestion {
+export interface GeocodeHit {
   id: string;
   name: string;
   description: string;
-}
-
-/**
- * A suggestion resolved into a coordinate, `[lng, lat]` like every other
- * coordinate in this codebase (ADR-0013).
- */
-export interface GeocodeResult {
+  /** `[lng, lat]`, like every other coordinate in this codebase (ADR-0013). */
   location: CoordinatePair;
+  /** Most specific Mapbox POI category, e.g. `"shopping mall"`. */
+  category?: string | null;
+  /** Metres from the search centre (the camera), when Mapbox reports it. */
+  distanceMeters?: number | null;
+  /** Display-ready hours for today, e.g. `"Open 24 hours"` or `"10:00 – 22:00"`. */
+  openHours?: string | null;
+  phone?: string | null;
+  website?: string | null;
 }
 
 /**

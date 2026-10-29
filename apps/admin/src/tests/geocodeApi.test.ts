@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import { api, ApiError, AUTH_TOKEN_KEY } from "@/lib/api";
-import { resolvePlace, suggestPlaces } from "@/features/routes/geocodeApi";
+import { searchPlaces } from "@/features/routes/geocodeApi";
 
 /** The client never touches `window`, but the axios interceptors read storage. */
 function installLocalStorage(): void {
@@ -41,7 +41,7 @@ function respondWith(body: unknown, status = 200): AxiosRequestConfig[] {
   return calls;
 }
 
-describe("suggestPlaces", () => {
+describe("searchPlaces", () => {
   beforeEach(() => {
     installLocalStorage();
     localStorage.setItem(AUTH_TOKEN_KEY, "test-token");
@@ -52,41 +52,46 @@ describe("suggestPlaces", () => {
     localStorage.clear();
   });
 
-  it("calls the same-origin suggest route with q, limit and session", async () => {
+  it("calls the same-origin forward route once, with q and limit only", async () => {
     const calls = respondWith({
       success: true,
       data: {
-        suggestions: [
+        results: [
           {
             id: "dXJuOm1ieHBvaTox",
             name: "SM City Iloilo",
             description: "Iloilo City, 5000, Philippines",
+            location: [122.5511, 10.7144],
           },
         ],
         warning: null,
       },
     });
 
-    const response = await suggestPlaces(
+    const response = await searchPlaces(
       "SM City Iloilo",
-      "session-1",
+      "122.5656,10.7202",
       undefined,
       4,
     );
 
-    // Issue #16: same origin only — never a third-party geocoder the CSP refuses.
+    // One call, same origin: nothing here may point at a third-party geocoder
+    // (the CSP would refuse it), no session id is sent — `/forward` rejects
+    // `session_token` — and the camera centre rides along as `proximity`.
+    expect(calls).toHaveLength(1);
     expect(calls[0].url).toBe("/api/admin/mapbox/geocode");
     expect(calls[0].params).toEqual({
       q: "SM City Iloilo",
       limit: 4,
-      session: "session-1",
+      proximity: "122.5656,10.7202",
     });
     expect(response.warning).toBeNull();
-    expect(response.suggestions).toEqual([
+    expect(response.results).toEqual([
       {
         id: "dXJuOm1ieHBvaTox",
         name: "SM City Iloilo",
         description: "Iloilo City, 5000, Philippines",
+        location: [122.5511, 10.7144],
       },
     ]);
   });
@@ -94,22 +99,33 @@ describe("suggestPlaces", () => {
   it("passes the abort signal through so a superseded keystroke cancels", async () => {
     const calls = respondWith({
       success: true,
-      data: { suggestions: [], warning: null },
+      data: { results: [], warning: null },
     });
     const controller = new AbortController();
 
-    await suggestPlaces("Iloilo", "session-1", controller.signal);
+    await searchPlaces("Iloilo", undefined, controller.signal);
 
     expect(calls[0].signal).toBe(controller.signal);
+  });
+
+  it("omits proximity when the camera has not reported yet", async () => {
+    const calls = respondWith({
+      success: true,
+      data: { results: [], warning: null },
+    });
+
+    await searchPlaces("Iloilo");
+
+    expect(calls[0].params).toEqual({ q: "Iloilo", limit: 6 });
   });
 
   it("surfaces no_token as a successful answer with no rows", async () => {
     respondWith({
       success: true,
-      data: { suggestions: [], warning: "no_token" },
+      data: { results: [], warning: "no_token" },
     });
-    await expect(suggestPlaces("Iloilo", "session-1")).resolves.toEqual({
-      suggestions: [],
+    await expect(searchPlaces("Iloilo")).resolves.toEqual({
+      results: [],
       warning: "no_token",
     });
   });
@@ -122,50 +138,6 @@ describe("suggestPlaces", () => {
       },
       422,
     );
-    await expect(suggestPlaces("il", "session-1")).rejects.toBeInstanceOf(
-      ApiError,
-    );
-  });
-});
-
-describe("resolvePlace", () => {
-  beforeEach(() => {
-    installLocalStorage();
-    localStorage.setItem(AUTH_TOKEN_KEY, "test-token");
-  });
-
-  afterEach(() => {
-    api.defaults.adapter = originalAdapter;
-    localStorage.clear();
-  });
-
-  it("resolves a suggestion id into a coordinate on the resolve route", async () => {
-    const calls = respondWith({
-      success: true,
-      data: { location: [122.5511369, 10.7144566], warning: null },
-    });
-
-    const response = await resolvePlace("dXJuOm1ieHBvaTox", "session-1");
-
-    expect(calls[0].url).toBe("/api/admin/mapbox/geocode/resolve");
-    expect(calls[0].params).toEqual({
-      id: "dXJuOm1ieHBvaTox",
-      session: "session-1",
-    });
-    expect(response).toEqual({
-      location: [122.5511369, 10.7144566],
-      warning: null,
-    });
-  });
-
-  it("keeps a degraded answer as a null location plus its warning", async () => {
-    respondWith({
-      success: true,
-      data: { location: null, warning: "upstream_error" },
-    });
-    await expect(resolvePlace("abc", "session-1")).resolves.toEqual({
-      location: null,
-      warning: "upstream_error",
-    });
+    await expect(searchPlaces("il")).rejects.toBeInstanceOf(ApiError);
   });
 });
