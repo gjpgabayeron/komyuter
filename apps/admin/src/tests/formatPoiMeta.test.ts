@@ -78,9 +78,7 @@ describe("insertionAnchorLabel", () => {
   });
 
   it("says plainly that the place appends when nothing is selected", () => {
-    expect(insertionAnchorLabel(null)).toBe(
-      "Appends to end — nothing selected",
-    );
+    expect(insertionAnchorLabel(null)).toBe("Appends to end");
   });
 });
 

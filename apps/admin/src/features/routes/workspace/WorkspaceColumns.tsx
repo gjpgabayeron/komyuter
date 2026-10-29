@@ -14,12 +14,9 @@ interface WorkspaceColumnsProps {
   /** Right plate — FocusPlate (focus) or properties (edit). `null` collapses
    *  the track. Search results never live here (ADR-0024). */
   right: ReactNode;
-  /** Context plate — revealed over the free region's left edge while a search
-   *  session has something to show. */
+  /** Context plate — docked beside the stops column while a search session has
+   *  something to show, revealed by sliding out from behind it. */
   context?: ReactNode;
-  /** When true the left track fills the cell height (pins a bottom card);
-   *  otherwise it stays content-adaptive (ADR-0015 short plates). */
-  leftPinned?: boolean;
   /** Empty-state plate; rendered in the center track over the warm map. */
   empty: ReactNode;
   /** Floating chrome (search, status, action bar) anchored to the center
@@ -28,20 +25,31 @@ interface WorkspaceColumnsProps {
 }
 
 /**
- * The three-column shell over the full-bleed map backdrop (ADR-0015 revision):
- * a 5-track grid `240 | 16 | transparent map region | 16 | 336` laid out ON
- * TOP of the map. Plates are **content-adaptive**: each track's inner wrapper
- * is a capped flex column (`flex max-h-full flex-col`) and the plate root is
- * `min-h-0`, so a short route list or a compact properties panel renders a
- * short plate with the map visible around it, while long content fills the
- * workspace and scrolls inside the plate (its own `overflow-y-auto`). The
- * center track is transparent and `pointer-events: none`: clicks fall through
- * to the map; only the chrome it hosts (and the empty plate) opt back in.
+ * The three-column shell over the full-bleed map backdrop (ADR-0015 revision,
+ * re-composed as a docked editor by the search-state frame).
+ *
+ * The side plates are **docked strips**, not floating cards: each fills its
+ * track's height and sits flush against the workspace edge (the old 12 px
+ * `p-3` inset is gone), so the map starts at the plate's border and the panels
+ * read as one continuous editor. Only the chrome — the search field, the
+ * status slot and the bottom toolbar — floats over the map.
+ *
+ * The center track is transparent and `pointer-events: none`: clicks fall
+ * through to the map; only the chrome it hosts (and the empty plate) opt back
+ * in. The context plate (the search results) is an overlay anchored to the
+ * free region's left edge, not a grid track: the search field is part of that
+ * plate's silhouette, so a real track would push the field 280 px sideways the
+ * moment results appeared.
  *
  *   empty    → 0 0 map 0 0            (map full-width under the empty plate)
- *   overview → 240 16 map 0 0
- *   focus    → 240 16 map 16 336      (FocusPlate)
- *   edit     → 240 16 map 16 336      (properties)
+ *   overview → 280 map 0 0
+ *   focus    → 280 map 0 280          (FocusPlate)
+ *   edit     → 280 map 0 280          (properties)
+ *   edit+search → 280 [280 overlay] map 0 0
+ *
+ * Every side plate is the same 280 px width, so the search results plate
+ * replaces the properties plate rather than adding to it: the visible map
+ * width is identical before and after a search opens.
  *
  * The grid is identity-stable: the same five items render in the same order
  * in every state, each pinned to its own track by an explicit `gridColumn`,
@@ -49,10 +57,8 @@ interface WorkspaceColumnsProps {
  * never resizes or remounts (SC-002) — and hiding a track can never renumber
  * the ones after it (GH #14).
  *
- * The single row is `minmax(0, 1fr)` — the full cell height acts as the cap
- * for each plate's `max-h-full`, so a long plate list can never stretch the
- * grid (or the plate) past the workspace bottom; it scrolls internally
- * instead.
+ * The single row is `minmax(0, 1fr)` — the full cell height is the workspace
+ * height, so a docked plate fills it and scrolls internally.
  */
 export function WorkspaceColumns({
   mode,
@@ -62,7 +68,6 @@ export function WorkspaceColumns({
   context = null,
   empty,
   chrome,
-  leftPinned = false,
 }: WorkspaceColumnsProps) {
   const contextRef = useRef<HTMLDivElement>(null);
   // The page derived the plate configuration; render exactly those tracks.
@@ -101,23 +106,15 @@ export function WorkspaceColumns({
           the centre cell into column 1 — a 0 px track in empty mode — and
           squeeze the empty plate against the left edge (GH #14). */}
       <div
-        className="pointer-events-none relative z-10 min-h-0 min-w-0 p-3"
+        className="pointer-events-none relative z-10 min-h-0 min-w-0"
         style={{
           gridColumn: 1,
           display: showLeft ? undefined : "none",
         }}
       >
-        {/* Content-adaptive: the wrapper is a capped flex column (max-h-full),
-            so short content renders a short plate with the map visible around
-            it; long content caps at the cell height and the plate's internal
-            overflow-y-auto scrolls (plate root is min-h-0 — flex items cap
-            against the container's max-height, percentage heights against a
-            fit-content parent do not). */}
-        <div
-          className={`pointer-events-auto flex w-full flex-col ${
-            leftPinned ? "h-full" : "max-h-full"
-          }`}
-        >
+        {/* Docked strip: the plate owns the full cell height, so the stops
+            column reads as the editor's sidebar rather than a floating card. */}
+        <div className="pointer-events-auto flex h-full w-full flex-col">
           {left}
         </div>
       </div>
@@ -135,27 +132,28 @@ export function WorkspaceColumns({
       >
         {/* Context plate (ADR-0024). Mounted even while closed so reopening is
             instant, translated off the free region's left edge, and animated as
-            a transform — the GL canvas behind it is never resized. It starts
-            below the chrome's top row so the search pill keeps its place. The
-            stops column paints above it (z-10), so a closed plate slides away
-            behind that plate instead of across it. It sits BEFORE the chrome in
-            the DOM, so the tab order is stops → result rows → map chrome. */}
+            a transform — the GL canvas behind it is never resized. It spans the
+            full workspace height and starts at the very top: the search field
+            floats above it with the same width, so the two read as one plate
+            (the frame's "field is part of the results plate" illusion). The
+            plate's own content starts below the field. The stops column paints
+            above it (z-10), so a closed plate slides away behind that plate
+            instead of across it. It sits BEFORE the chrome in the DOM, so the
+            tab order is stops → result rows → map chrome. */}
         {context !== null && (
           <div
             ref={contextRef}
             aria-hidden={!showContext}
-            className="absolute top-[60px] bottom-0 left-0 z-0 p-3 transition-transform motion-reduce:transition-none"
+            className="absolute inset-y-0 left-0 z-0 transition-transform motion-reduce:transition-none"
             style={{
               width: WORKSPACE_GEOMETRY.contextCol,
               transform: showContext ? "translateX(0)" : "translateX(-100%)",
-              // The plate and the camera share one duration and curve.
+              // The plate, the toolbar and the camera share one duration/curve.
               transitionDuration: `${REVEAL_DURATION_MS}ms`,
               transitionTimingFunction: REVEAL_EASING_CSS,
             }}
           >
-            <div className="pointer-events-auto flex max-h-[66%] flex-col">
-              {context}
-            </div>
+            <div className="pointer-events-auto h-full">{context}</div>
           </div>
         )}
         {chrome}
@@ -172,18 +170,14 @@ export function WorkspaceColumns({
         }}
       />
       <div
-        className="pointer-events-none min-h-0 min-w-0 p-3"
+        className="pointer-events-none min-h-0 min-w-0"
         style={{
           gridColumn: 5,
           display: showRight ? undefined : "none",
         }}
       >
-        {/* Content-adaptive: same capped-flex-column contract as the left track. */}
-        <div
-          className={`pointer-events-auto flex w-full flex-col ${
-            leftPinned ? "h-full" : "max-h-full"
-          }`}
-        >
+        {/* Docked strip, mirroring the left column. */}
+        <div className="pointer-events-auto flex h-full w-full flex-col">
           {right}
         </div>
       </div>

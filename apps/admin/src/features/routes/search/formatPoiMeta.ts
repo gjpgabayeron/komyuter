@@ -42,7 +42,7 @@ export function poiAnchorFor(
 export function insertionAnchorLabel(anchor: PoiAnchor | null): string {
   return anchor
     ? `Inserting after #${anchor.index} · ${anchor.name}`
-    : "Appends to end — nothing selected";
+    : "Appends to end";
 }
 
 /**

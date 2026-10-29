@@ -86,7 +86,7 @@ at 384 and still gates. No gate rule changes.
 
 1. `Search results · 3` — Baloo 2 SemiBold 14/20, `#131f25`.
 2. Anchor line — Geist Regular 12/16, `#4a585e`:
-   `Inserting after #3 · Plaza Libertad`, or `Appends to end — nothing selected`.
+   `Inserting after #3 · Plaza Libertad`, or `Appends to end`.
    This is the fact that changes the outcome of a click; it makes the insertion rule visible instead
    of implicit.
 

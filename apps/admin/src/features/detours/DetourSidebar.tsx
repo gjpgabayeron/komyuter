@@ -14,8 +14,11 @@ export function DetourSidebar() {
   if (directionId === null) return null;
 
   return (
-    <div className="mt-2 shrink-0">
-      <Plate padded="sm" className="max-h-64 overflow-y-auto">
+    <div className="flex max-h-[40%] min-h-0 shrink-0 flex-col">
+      <Plate
+        padded="sm"
+        className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-x-0 border-b-0 pb-4"
+      >
         <DetourList directionId={directionId} />
       </Plate>
     </div>

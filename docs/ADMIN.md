@@ -44,7 +44,7 @@ komyuter/
 
 1. **`[lng, lat]` coordinate order everywhere** — GeoJSON, PostGIS `ST_MakePoint`, MapLibre. There is **no conversion layer** (ADR-0013 superseded the old Leaflet exception). A swapped pair puts stops in the ocean.
 2. **No ETA anywhere** — navigation output is distances, fare, transfers, walk distance only (ADR-0009). The mapbox proxy strips `duration`.
-3. **Desktop-only** — the admin is a desktop app. Workspace width gates: right column hides below 1024 px viewport; the map keeps a ≥400 px floor (`WORKSPACE_GEOMETRY.minMapWidth`).
+3. **Desktop-only** — the admin is a desktop app. Workspace width gates: right column hides below 1024 px viewport; the map keeps a ≥420 px floor (`WORKSPACE_GEOMETRY.minMapWidth`).
 4. **One persistent MapLibre instance** — the map never unmounts or re-creates while the app runs (ADR-0013).
 5. **Floating plates over a full-bleed map** — the left/right columns and the action bar are plates that float over the basemap; there is no solid header above the map (ADR-0015).
 6. **Strict TypeScript, single root ESLint flat config** — extend `@repo/typescript-config`; never recreate per-package lint configs.
@@ -138,7 +138,7 @@ The workspace is a **four-state machine** derived from (selection, draft):
 
 - Layout: three fixed columns over a full-bleed map — left **256 px**, center transparent, right **336 px**, gutter 0 (12 px plate padding provides spacing), via a five-track grid (`workspace/WorkspaceColumns.tsx`, `WORKSPACE_GEOMETRY` in `workspace/geometry.ts`).
 - **Search is an overlay on these four states, not a fifth one.** `searchActive` (store) hides the properties plate and reveals the results in a 320 px **context column** beside the stops list — an overlay panel, so neither the map's canvas nor the floating chrome ever reflows — or shows no plate at all when a confident hit answers on the map alone (`workspace/plateSlots.ts` decides both slots). `deriveUiState` still returns exactly `empty` / `overview` / `focus` / `edit`, so route-editing semantics are unchanged while a session runs.
-- **NarrowWindowGate**: viewport < 1024 px or map width < 400 px renders a centered guidance plate instead of the workspace.
+- **NarrowWindowGate**: viewport < 1024 px or map width < 420 px renders a centered guidance plate instead of the workspace.
 - Data flows through `RouteWorkspaceProvider` (fetch route + directions + stops via react-query, drafts, save orchestration, conflict recovery) and `lib/plottingStore.ts` (zustand).
 
 ### 5.3 Route list (overview) & stops (edit) — left column
@@ -305,7 +305,7 @@ Status: ✅ implemented · 🟡 partial · 🚧 planned · ⛔ superseded. "Plan
 3. **Numeric columns are strings** in drizzle — `Number()` at the handler layer.
 4. **Route delete is a hard cascade**; directions/stops/detours/restrictions/fare-configs are **soft** (except fare-config default/active guards). The delete confirm text must stay honest about this.
 5. **One MapLibre instance** — never mount a second map; reset viewport/perspective rather than re-creating (ADR-0013).
-6. **Workspace width gates** — right column hides < 1024 px; map floor 400 px; `NarrowWindowGate` owns the fallback UI.
+6. **Workspace width gates** — right column hides < 1024 px; map floor 420 px; `NarrowWindowGate` owns the fallback UI.
 7. **Snap straight-line fallback is never committed** — committing it would silently corrupt geometry; it renders dashed + warning.
 8. **Undo does not cover reorder/link edits** — documented in `plottingHistory.ts`; keep it that way or extend deliberately.
 9. **Drafts are single-slot** — editing a second route overwrites the first draft; the restore banner is the only recovery.

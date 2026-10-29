@@ -328,7 +328,7 @@ export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
 
   return (
     <TooltipProvider>
-      <Plate className="flex items-center gap-0.5 px-1.5 py-1">
+      <Plate className="flex items-center gap-0.5 rounded-[4px] px-1.5 py-1">
         <ToolToggle disabled={saving} />
 
         <Separator orientation="vertical" className="mx-1 h-5" />

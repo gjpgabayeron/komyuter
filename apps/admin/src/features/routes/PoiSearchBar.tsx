@@ -4,6 +4,7 @@ import { MapPinned, Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
 import type { CameraPadding } from "@/features/routes/workspace/geometry";
+import { WORKSPACE_GEOMETRY } from "@/features/routes/workspace/geometry";
 import { searchPlaces } from "./geocodeApi";
 import { isConfident } from "./poiConfidence";
 import {
@@ -219,6 +220,10 @@ export function PoiSearchBar({
       controller.abort();
       clearTimeout(timer);
     };
+    // Keyed to the query only: the store actions are stable, and `runQuery`
+    // reads the camera at call time, so including their identities would
+    // re-run (and re-bill) the search on unrelated renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
   // A session ended from outside this component (the panel's Esc, a route
@@ -299,8 +304,14 @@ export function PoiSearchBar({
     shouldOfferAreaSearch(mapViewport, lastSearchRef.current);
 
   return (
-    <div className="pointer-events-auto z-30 flex items-start gap-2">
-      <div className="bg-background relative w-72">
+    <div className="pointer-events-auto z-30 ml-2 flex items-start gap-4">
+      {/* Field width = context plate width minus its 8 px insets, so when the
+          results plate reveals behind it the two edges line up and the field
+          reads as the plate's own header row. */}
+      <div
+        className="bg-background relative"
+        style={{ width: WORKSPACE_GEOMETRY.contextCol - 16 }}
+      >
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2" />
         <Input
           ref={inputRef}
@@ -317,7 +328,7 @@ export function PoiSearchBar({
           aria-keyshortcuts="Meta+K Control+K"
           title="Search for a place (⌘K)"
           data-poi-search-input
-          className="h-9 pr-8 pl-8"
+          className="h-9 rounded-sm pr-8 pl-8"
         />
         {query.length > 0 && (
           <button
@@ -335,7 +346,7 @@ export function PoiSearchBar({
         <button
           type="button"
           onClick={() => void runAreaSearch()}
-          className="border-border bg-background hover:bg-muted flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium whitespace-nowrap shadow-sm"
+          className="border-border bg-background hover:bg-muted flex h-9 items-center gap-1.5 rounded-sm border px-3 text-xs font-medium whitespace-nowrap"
         >
           <MapPinned className="size-3.5" />
           Search this area

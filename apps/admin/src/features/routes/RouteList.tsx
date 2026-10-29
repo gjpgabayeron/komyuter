@@ -219,7 +219,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
         >
           <Plate
             padded="sm"
-            className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+            className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-y-0 border-l-0"
           >
             <div className="flex shrink-0 items-center gap-1.5 px-1 pb-1.5">
               <button
@@ -528,7 +528,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
         >
           <Plate
             padded="sm"
-            className="flex min-h-0 w-full flex-1 flex-col overflow-hidden"
+            className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-y-0 border-l-0"
           >
             {/* Row 1: search + filter */}
             <div className="flex items-center gap-1.5">
