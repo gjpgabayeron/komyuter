@@ -1,14 +1,20 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useLayoutEffect, useRef } from "react";
 import type { WorkspaceUiState } from "@/lib/plottingStore";
-import { deriveWorkspaceLayout } from "./geometry";
+import { WORKSPACE_GEOMETRY, deriveWorkspaceLayout } from "./geometry";
 
 interface WorkspaceColumnsProps {
   mode: WorkspaceUiState;
   /** Left plate — route list / stops (overview, focus, edit). */
   left: ReactNode;
-  /** Right plate — FocusPlate (focus), properties (edit), or the search
-   *  results while a search session is active. `null` collapses the track. */
+  /** Right plate — FocusPlate (focus) or properties (edit). `null` collapses
+   *  the track. Search results never live here (ADR-0024). */
   right: ReactNode;
+  /** Context plate — revealed over the free region's left edge while a search
+   *  session has something to show. */
+  context?: ReactNode;
+  /** Whether the context plate is revealed. Collapsed, it stays mounted so
+   *  reopening is instant, and is made inert so it cannot be reached. */
+  contextOpen?: boolean;
   /** When true the left track fills the cell height (pins a bottom card);
    *  otherwise it stays content-adaptive (ADR-0015 short plates). */
   leftPinned?: boolean;
@@ -50,21 +56,38 @@ export function WorkspaceColumns({
   mode,
   left,
   right,
+  context = null,
+  contextOpen = false,
   empty,
   chrome,
   leftPinned = false,
 }: WorkspaceColumnsProps) {
+  const contextRef = useRef<HTMLDivElement>(null);
   const showLeft = mode !== "empty";
-  // The plate decides, as well as the state: a search session can hold the
-  // right track open with results, or hold it empty while a confident hit is
-  // being shown on the map alone. Collapsing the track (rather than rendering
-  // an empty plate) keeps the map full-bleed and the grid columns honest.
+  // The plate decides, as well as the state: the right column can hold a plate
+  // or decline it while a confident hit is being shown on the map alone.
+  // Collapsing the track (rather than rendering an empty plate) keeps the map
+  // full-bleed and the grid columns honest.
   const showRight =
     (mode === "focus" || mode === "edit") && right !== null && right !== false;
+  // A session can hold the context column open only in the edit state; the
+  // reveal is an overlay, so the plate is mounted but translated away while
+  // closed and cannot be reached (inert) until it opens.
+  const showContext = context !== null && contextOpen && mode === "edit";
   // The plate configuration is derived, not spelled out here: the same value
   // feeds the camera padding and the search scope (ADR-0024), so the grid can
   // never disagree with them about where the map is.
-  const layout = deriveWorkspaceLayout({ state: mode, rightPlate: showRight });
+  const layout = deriveWorkspaceLayout({
+    state: mode,
+    rightPlate: showRight,
+    contextPlate: showContext,
+  });
+
+  // A collapsed plate must not be tabbable or clickable even though it stays
+  // mounted; React 18 warns on the `inert` prop, so it is set on the element.
+  useLayoutEffect(() => {
+    if (contextRef.current) contextRef.current.inert = !showContext;
+  }, [showContext]);
 
   const gridTemplateColumns = layout.tracks.template;
 
@@ -88,7 +111,7 @@ export function WorkspaceColumns({
           the centre cell into column 1 — a 0 px track in empty mode — and
           squeeze the empty plate against the left edge (GH #14). */}
       <div
-        className="pointer-events-none min-h-0 min-w-0 p-3"
+        className="pointer-events-none relative z-10 min-h-0 min-w-0 p-3"
         style={{
           gridColumn: 1,
           display: showLeft ? undefined : "none",
@@ -120,6 +143,27 @@ export function WorkspaceColumns({
         className="pointer-events-none relative min-h-0 min-w-0"
         style={{ gridColumn: 3 }}
       >
+        {/* Context plate (ADR-0024). Mounted even while closed so reopening is
+            instant, translated off the free region's left edge, and animated as
+            a transform — the GL canvas behind it is never resized. It starts
+            below the chrome's top row so the search pill keeps its place. The
+            stops column paints above it (z-10), so a closed plate slides away
+            behind that plate instead of across it. */}
+        {context !== null && (
+          <div
+            ref={contextRef}
+            aria-hidden={!showContext}
+            className="absolute top-[60px] bottom-0 left-0 z-0 p-3 transition-transform duration-[180ms] ease-out motion-reduce:transition-none"
+            style={{
+              width: WORKSPACE_GEOMETRY.contextCol,
+              transform: showContext ? "translateX(0)" : "translateX(-100%)",
+            }}
+          >
+            <div className="pointer-events-auto flex max-h-[66%] flex-col">
+              {context}
+            </div>
+          </div>
+        )}
         {chrome}
         {mode === "empty" && (
           <div className="absolute inset-0 z-10">{empty}</div>
