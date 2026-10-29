@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import type { WorkspaceUiState } from "@/lib/plottingStore";
-import { WORKSPACE_GEOMETRY } from "./geometry";
+import { deriveWorkspaceLayout } from "./geometry";
 
 interface WorkspaceColumnsProps {
   mode: WorkspaceUiState;
@@ -61,14 +61,12 @@ export function WorkspaceColumns({
   // an empty plate) keeps the map full-bleed and the grid columns honest.
   const showRight =
     (mode === "focus" || mode === "edit") && right !== null && right !== false;
-  const { leftCol, rightCol, gutter } = WORKSPACE_GEOMETRY;
+  // The plate configuration is derived, not spelled out here: the same value
+  // feeds the camera padding and the search scope (ADR-0024), so the grid can
+  // never disagree with them about where the map is.
+  const layout = deriveWorkspaceLayout({ state: mode, rightPlate: showRight });
 
-  const gridTemplateColumns =
-    mode === "empty"
-      ? `0px 0px minmax(0, 1fr) 0px 0px`
-      : showRight
-        ? `${leftCol}px ${gutter}px minmax(0, 1fr) ${gutter}px ${rightCol}px`
-        : `${leftCol}px ${gutter}px minmax(0, 1fr) 0px 0px`;
+  const gridTemplateColumns = layout.tracks.template;
 
   return (
     <div
