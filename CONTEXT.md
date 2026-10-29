@@ -91,3 +91,25 @@ _Avoid_: Login, login attempt, sign-in (when meaning the flow rather than one re
 **Security Event**:
 A structured, grep-able pino log line emitted by the server for authentication outcomes: `security.sign_in_success`, `security.sign_in_failure`, `security.sign_in_throttled`, or `security.sign_out`. Carries `account`, `source` (request IP), and `outcome`; denial reasons appear ONLY here, never in HTTP responses.
 _Avoid_: Audit trail, event log, auth log
+
+### Admin workspace
+
+**Plate**:
+A rectangular panel of the workspace's visual grammar — white ground, hairline border, mounted flush over the map backdrop, never a shadow. Plates carry the interface; the map is the page they sit on.
+_Avoid_: Card, panel, floating card, surface
+
+**Context Column**:
+The route workspace's second left column (320 px), revealed beside the stops list while a search session is live. It hosts the transient surface for the current task — today the search results — and keeps the stops list visible because that list holds the insertion anchor.
+_Avoid_: Search sidebar, results panel, drawer, second panel
+
+**Search Session**:
+The interval between starting a place search and ending it — by `Esc`, by clearing the query, or by adding the place as a stop. It opens a layout variant of edit; it is not a workspace state.
+_Avoid_: Search mode, search state, search tab
+
+**Insertion Anchor**:
+The stop a searched place is inserted after when it becomes a stop; with no stop selected the place is appended to the end of the chain instead. The search plate's header names it, so the rule is visible before the click.
+_Avoid_: Selected stop (when meaning its role in insertion), insertion point, drop position
+
+**Visible Map Region**:
+The part of the map not covered by plates, in the current layout variant. Camera fits and the search's in-view test both measure against it, so nothing is framed or answered underneath a plate.
+_Avoid_: Free map, viewport (that is the window), safe area
