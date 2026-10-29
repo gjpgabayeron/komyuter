@@ -1,11 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import type { GeocodeHit } from "@komyuter/shared";
 import { Plate } from "@/components/shared/Plate";
 import { usePlottingStore, type PoiSearchStatus } from "@/lib/plottingStore";
 import { poiMetaLine } from "./formatPoiMeta";
-
-/** Hover preview waits a beat, so sweeping the list does not thrash the camera. */
-const HOVER_PREVIEW_MS = 90;
 
 const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
   no_token:
@@ -24,10 +21,11 @@ const EMPTY_COPY: Record<Exclude<PoiSearchStatus, null>, string> = {
  * from `poiCandidates` — the same array the map pins are drawn from — so the
  * panel and the map can never disagree.
  *
- * Hovering previews a row (highlight + a debounced camera move); choosing one
- * marks the place and opens its popup, which is where a stop gets added. The
- * session stays open until the plotter closes it, so browsing several hits does
- * not mean re-typing the query.
+ * Hovering or keyboard-focusing a row only highlights its pin: the camera
+ * stays exactly where the plotter put it, so sweeping a list never yanks the
+ * view. Choosing a row marks the place, flies to it and opens its popup, which
+ * is where a stop gets added. The session stays open until the plotter closes
+ * it, so browsing several hits does not mean re-typing the query.
  */
 export function SearchResultsPanel() {
   const candidates = usePlottingStore((s) => s.poiCandidates);
@@ -39,51 +37,20 @@ export function SearchResultsPanel() {
   const setPoiSelection = usePlottingStore((s) => s.setPoiSelection);
   const requestPoiFocus = usePlottingStore((s) => s.requestPoiFocus);
   const clearSearchSession = usePlottingStore((s) => s.clearSearchSession);
-  const hoverTimerRef = useRef<number | null>(null);
   const rowRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  // A pending hover preview must not fire after the plate unmounts.
-  useEffect(
-    () => () => {
-      if (hoverTimerRef.current !== null) {
-        window.clearTimeout(hoverTimerRef.current);
-      }
-    },
-    [],
-  );
-
-  /** Highlights a row and, after a beat, moves the camera to its place. */
+  /** Highlights the row's pin — no camera request. */
   const previewOn = (hit: GeocodeHit) => {
     setPoiHoverId(hit.id);
-    if (hoverTimerRef.current !== null) {
-      window.clearTimeout(hoverTimerRef.current);
-    }
-    hoverTimerRef.current = window.setTimeout(() => {
-      requestPoiFocus({ kind: "point", location: hit.location });
-    }, HOVER_PREVIEW_MS);
   };
 
-  /** Leaving the list drops the highlight and re-frames the whole answer. */
+  /** Drops the highlight — and still no camera request. */
   const previewOff = () => {
-    if (hoverTimerRef.current !== null) {
-      window.clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
     setPoiHoverId(null);
-    if (candidates.length > 0) {
-      requestPoiFocus({
-        kind: "bounds",
-        locations: candidates.map((hit) => hit.location),
-      });
-    }
   };
 
-  /** Marks the place and opens its popup — the surface that can add a stop. */
+  /** Marks the place, flies to it and opens its popup — the surface that can add a stop. */
   const select = (hit: GeocodeHit) => {
-    if (hoverTimerRef.current !== null) {
-      window.clearTimeout(hoverTimerRef.current);
-      hoverTimerRef.current = null;
-    }
     setPoi(hit.location, hit.name);
     requestPoiFocus({ kind: "point", location: hit.location });
     setPoiSelection(hit);

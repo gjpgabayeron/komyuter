@@ -292,6 +292,45 @@ describe("plottingStore", () => {
     expect(after.poiLabel).toBeNull();
   });
 
+  it("highlighting a candidate never requests a camera move", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    const store = usePlottingStore.getState();
+    store.setPoiCandidates([hit]);
+    expect(usePlottingStore.getState().poiFocus).toBeNull();
+
+    // Hovering / keyboard focus is a highlight only (#29): the camera request
+    // stays null until a row is actually picked.
+    store.setPoiHoverId("a");
+    expect(usePlottingStore.getState().poiHoverId).toBe("a");
+    expect(usePlottingStore.getState().poiFocus).toBeNull();
+
+    store.setPoiHoverId(null);
+    expect(usePlottingStore.getState().poiHoverId).toBeNull();
+    expect(usePlottingStore.getState().poiFocus).toBeNull();
+  });
+
+  it("picking a candidate is what asks the camera to move", () => {
+    const hit = {
+      id: "a",
+      name: "Jaro Plaza",
+      description: "Iloilo City",
+      location: [122.5562, 10.7248] as [number, number],
+    };
+    usePlottingStore.getState().requestPoiFocus({
+      kind: "point",
+      location: hit.location,
+    });
+    expect(usePlottingStore.getState().poiFocus).toMatchObject({
+      kind: "point",
+      location: hit.location,
+    });
+  });
+
   it("poiSelection is dropped wherever the marker is dismissed", () => {
     const hit = {
       id: "a",

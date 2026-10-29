@@ -180,13 +180,11 @@ symmetric on close.
 1. **Plate radius**: this spec says ≤4px (DESIGN.md), the frame draws 8px, and `components/shared/Plate.tsx`
    ships `rounded-lg` (8px). Either `Plate` moves to `rounded-sm`/4px (and the whole admin changes
    once) or DESIGN.md records an exception for admin plates. Pick one.
-2. **Hover preview camera**: today hovering a result row flies the map to that place at zoom 15 after
-   90ms (`search/SearchResultsPanel.tsx:56-64`), which now fights the anchor-relative distance and the
-   reveal pan. Proposal: hover highlights the pin only; the camera moves on click. Confirming this
-   changes existing behaviour.
-3. **`searchActive` trigger change**: it is currently set on focus (`PoiSearchBar.tsx:243`). This spec
-   moves the plate to a _query_ trigger. Confirm nothing else wants the focus-triggered meaning
-   (`poiDismissalFor` uses it to decide what a map click may clear).
+2. **Hover preview camera — DECIDED (2026-10-29, #29)**: hover/focus highlights the pin only; the
+   camera moves when a row is picked. The old 90 ms fly-on-hover fought the anchor-relative distance
+   and the reveal pan, and browsing a list should not yank the view.
+3. **`searchActive` trigger change — DECIDED (2026-10-29, #28)**: the session starts when the debounced
+   query fires, not on focus; focus alone rearranges nothing.
 
 ## Follow-on work
 
