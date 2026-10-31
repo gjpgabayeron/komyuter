@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "bootstrap:owner": "tsx src/scripts/bootstrap-owner.ts"
+    "bootstrap:owner": "tsx src/scripts/bootstrap-owner.ts",
+    "promote:owner": "tsx src/scripts/promote-owner.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.1.0",

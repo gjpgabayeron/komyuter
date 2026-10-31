@@ -1,3 +1,4 @@
+export * from "./authorization";
 export * from "./types/geometry";
 export * from "./types/domain";
 export * from "./types/envelope";

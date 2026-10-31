@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiError, getStoredToken, setStoredToken } from "@/lib/api";
 import { restoreSession } from "@/features/auth/auth";
+import type { AuthUser } from "@/features/auth/api";
 
 vi.mock("@/features/auth/api", () => ({
   login: vi.fn(),
@@ -30,7 +31,31 @@ function installLocalStorage(): void {
   globalThis.localStorage = storage;
 }
 
-const ADMIN = { id: "u1", email: "admin@komyuter.ph", name: "Admin" };
+const ADMIN: AuthUser = {
+  id: "u1",
+  email: "admin@komyuter.ph",
+  name: "Admin",
+  role: {
+    roleId: "administrator",
+    name: "Administrator",
+    position: 100,
+    permissions: [
+      "ROUTES_EDIT",
+      "FARES_EDIT",
+      "EXPORT_DATASET",
+      "MAPBOX_GEOSERVICES",
+      "ADMIN_MANAGE",
+    ],
+  },
+  isSuperAdmin: true,
+  permissions: [
+    "ROUTES_EDIT",
+    "FARES_EDIT",
+    "EXPORT_DATASET",
+    "MAPBOX_GEOSERVICES",
+    "ADMIN_MANAGE",
+  ],
+};
 
 describe("restoreSession", () => {
   beforeEach(() => {

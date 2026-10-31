@@ -85,11 +85,14 @@ export function envWith(overrides: Record<string, string>): Env {
 
 /**
  * Creates a dedicated admin user (confirmed, present in admin_users) that the
- * login tests can thrash without touching the seeded admin account.
+ * login tests can thrash without touching the seeded admin account. The Role
+ * defaults to Administrator; pass a lower Role id to exercise a write-less or
+ * grant-subset path.
  */
 export async function createTestAdmin(
   prefix = "admin",
-): Promise<{ email: string; password: string }> {
+  roleId = "administrator",
+): Promise<{ email: string; password: string; userId: string }> {
   const supabase = createTestSupabase();
   const email = `${prefix}-${randomUUID()}@komyuter.test`;
   const password = "test-admin-password-1";
@@ -110,13 +113,30 @@ export async function createTestAdmin(
       "insert into auth.users (id, email) values ($1, $2) on conflict do nothing",
       [data.user.id, email],
     );
-    await pool.query("insert into admin_users (user_id) values ($1)", [
-      data.user.id,
-    ]);
+    await pool.query(
+      "insert into admin_users (user_id, role_id) values ($1, $2)",
+      [data.user.id, roleId],
+    );
   } finally {
     await pool.end();
   }
-  return { email, password };
+  return { email, password, userId: data.user.id };
+}
+
+/** Signs in an arbitrary Account created by `createTestAdmin`. */
+export async function signInAs(
+  email: string,
+  password: string,
+): Promise<string> {
+  const supabase = createTestSupabase();
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+  if (error || !data.session) {
+    throw error ?? new Error("signInWithPassword returned no session");
+  }
+  return data.session.access_token;
 }
 
 export async function signInAdmin(): Promise<string> {

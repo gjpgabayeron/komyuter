@@ -1,5 +1,16 @@
 import { sql, type SQL } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
+import { adminUsers, roles } from "./schema";
+
+/** The columns every Account read needs, in one place. */
+export const adminAccountSelection = {
+  userId: adminUsers.user_id,
+  isSuperAdmin: adminUsers.is_super_admin,
+  roleId: roles.role_id,
+  roleName: roles.name,
+  position: roles.position,
+  rolePermissions: roles.permissions,
+} as const;
 
 export function asGeoJSON(column: AnyPgColumn | SQL): SQL {
   return sql`ST_AsGeoJSON(${column})::jsonb`;

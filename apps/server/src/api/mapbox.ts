@@ -338,78 +338,82 @@ export function toGeocodeHits(
  * — only geometry + distance (ADR-0009).
  */
 export async function registerMapbox(app: AppInstance): Promise<void> {
-  app.get("/mapbox/directions", async (request) => {
-    const { coordinates: raw } = request.query as { coordinates?: string };
-    if (!raw) {
-      throw validationError("Missing required query parameter: coordinates");
-    }
-    let coordinates: CoordinatePair[];
-    try {
-      coordinates = parseCoordinates(raw);
-    } catch (error) {
-      throw validationError(
-        error instanceof Error ? error.message : "Invalid coordinates",
-      );
-    }
+  app.get(
+    "/mapbox/directions",
+    { config: { permission: "MAPBOX_GEOSERVICES" } },
+    async (request) => {
+      const { coordinates: raw } = request.query as { coordinates?: string };
+      if (!raw) {
+        throw validationError("Missing required query parameter: coordinates");
+      }
+      let coordinates: CoordinatePair[];
+      try {
+        coordinates = parseCoordinates(raw);
+      } catch (error) {
+        throw validationError(
+          error instanceof Error ? error.message : "Invalid coordinates",
+        );
+      }
 
-    const env = loadEnv(process.env);
-    const token = env.MAPBOX_SECRET_TOKEN;
+      const env = loadEnv(process.env);
+      const token = env.MAPBOX_SECRET_TOKEN;
 
-    const fallback = () => ({
-      success: true,
-      data: {
-        polyline: straightLineFallback(coordinates),
-        distance_meters: 0,
-        snapped: false,
-        warning: token ? "upstream_error" : "no_token",
-      },
-    });
-
-    if (!token) {
-      return fallback();
-    }
-
-    try {
-      const chunks = chunkCoordinates(coordinates, MAPBOX_CHUNK_SIZE);
-      const results = await Promise.all(
-        chunks.map(async (chunk) => {
-          const res = await fetch(buildDirectionsUrl(chunk, token));
-          if (!res.ok) {
-            throw new Error(`Mapbox responded with status ${res.status}`);
-          }
-          const json = (await res.json()) as {
-            routes?: { geometry: GeoLineString; distance: number }[];
-          };
-          const route = json.routes?.[0];
-          if (!route) {
-            throw new Error("Mapbox returned no route");
-          }
-          return {
-            polyline: route.geometry,
-            distanceMeters: route.distance,
-          };
-        }),
-      );
-      return {
+      const fallback = () => ({
         success: true,
         data: {
-          polyline: concatenateLineStrings(results.map((r) => r.polyline)),
-          distance_meters: results.reduce(
-            (sum, r) => sum + r.distanceMeters,
-            0,
-          ),
-          snapped: true,
-          warning: null,
+          polyline: straightLineFallback(coordinates),
+          distance_meters: 0,
+          snapped: false,
+          warning: token ? "upstream_error" : "no_token",
         },
-      };
-    } catch (error) {
-      app.log.warn(
-        { error },
-        "Mapbox directions proxy failed; falling back to straight line",
-      );
-      return fallback();
-    }
-  });
+      });
+
+      if (!token) {
+        return fallback();
+      }
+
+      try {
+        const chunks = chunkCoordinates(coordinates, MAPBOX_CHUNK_SIZE);
+        const results = await Promise.all(
+          chunks.map(async (chunk) => {
+            const res = await fetch(buildDirectionsUrl(chunk, token));
+            if (!res.ok) {
+              throw new Error(`Mapbox responded with status ${res.status}`);
+            }
+            const json = (await res.json()) as {
+              routes?: { geometry: GeoLineString; distance: number }[];
+            };
+            const route = json.routes?.[0];
+            if (!route) {
+              throw new Error("Mapbox returned no route");
+            }
+            return {
+              polyline: route.geometry,
+              distanceMeters: route.distance,
+            };
+          }),
+        );
+        return {
+          success: true,
+          data: {
+            polyline: concatenateLineStrings(results.map((r) => r.polyline)),
+            distance_meters: results.reduce(
+              (sum, r) => sum + r.distanceMeters,
+              0,
+            ),
+            snapped: true,
+            warning: null,
+          },
+        };
+      } catch (error) {
+        app.log.warn(
+          { error },
+          "Mapbox directions proxy failed; falling back to straight line",
+        );
+        return fallback();
+      }
+    },
+  );
 
   /**
    * Place search (issue #16). One Search Box `forward` call answers with up to
@@ -425,53 +429,59 @@ export async function registerMapbox(app: AppInstance): Promise<void> {
    * never an error the UI has to guess at. Same-origin from the browser by
    * construction (`/api/admin/...`), which is why the CSP needed no directive.
    */
-  app.get("/mapbox/geocode", async (request) => {
-    const {
-      q: rawQuery,
-      limit: rawLimit,
-      proximity: rawProximity,
-    } = request.query as {
-      q?: string;
-      limit?: string;
-      proximity?: string;
-    };
-    const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
-    if (query.length < GEOCODE_MIN_QUERY_LENGTH) {
-      throw validationError(
-        `Query must be at least ${GEOCODE_MIN_QUERY_LENGTH} characters`,
-      );
-    }
-    const limit = parseGeocodeLimit(rawLimit);
-    const proximity = parseProximity(rawProximity);
-
-    const env = loadEnv(process.env);
-    const token = env.MAPBOX_SECRET_TOKEN;
-
-    const degraded = (warning: GeocodeWarning) => ({
-      success: true,
-      data: { results: [] as GeocodeHit[], warning },
-    });
-
-    if (!token) {
-      return degraded("no_token");
-    }
-
-    try {
-      const res = await fetch(buildForwardUrl(query, token, limit, proximity));
-      if (!res.ok) {
-        throw new Error(`Mapbox forward responded with status ${res.status}`);
-      }
-      const json = (await res.json()) as unknown;
-      return {
-        success: true,
-        data: { results: toGeocodeHits(json), warning: null },
+  app.get(
+    "/mapbox/geocode",
+    { config: { permission: "MAPBOX_GEOSERVICES" } },
+    async (request) => {
+      const {
+        q: rawQuery,
+        limit: rawLimit,
+        proximity: rawProximity,
+      } = request.query as {
+        q?: string;
+        limit?: string;
+        proximity?: string;
       };
-    } catch (error) {
-      app.log.warn(
-        { error },
-        "Mapbox forward proxy failed; returning no candidates",
-      );
-      return degraded("upstream_error");
-    }
-  });
+      const query = typeof rawQuery === "string" ? rawQuery.trim() : "";
+      if (query.length < GEOCODE_MIN_QUERY_LENGTH) {
+        throw validationError(
+          `Query must be at least ${GEOCODE_MIN_QUERY_LENGTH} characters`,
+        );
+      }
+      const limit = parseGeocodeLimit(rawLimit);
+      const proximity = parseProximity(rawProximity);
+
+      const env = loadEnv(process.env);
+      const token = env.MAPBOX_SECRET_TOKEN;
+
+      const degraded = (warning: GeocodeWarning) => ({
+        success: true,
+        data: { results: [] as GeocodeHit[], warning },
+      });
+
+      if (!token) {
+        return degraded("no_token");
+      }
+
+      try {
+        const res = await fetch(
+          buildForwardUrl(query, token, limit, proximity),
+        );
+        if (!res.ok) {
+          throw new Error(`Mapbox forward responded with status ${res.status}`);
+        }
+        const json = (await res.json()) as unknown;
+        return {
+          success: true,
+          data: { results: toGeocodeHits(json), warning: null },
+        };
+      } catch (error) {
+        app.log.warn(
+          { error },
+          "Mapbox forward proxy failed; returning no candidates",
+        );
+        return degraded("upstream_error");
+      }
+    },
+  );
 }
