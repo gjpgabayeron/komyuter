@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { AccountStatusDialog } from "./AccountStatusDialog";
+import { useRolesQuery, useSetAccountRole } from "./queries";
+import { assignableRoleChanges, type RoleActor } from "./roles";
 import {
   lastSignInLabel,
   lifecycleActionFor,
@@ -22,8 +24,8 @@ import {
 
 interface AccountTableProps {
   accounts: AccountSummary[];
-  /** The acting Account — its own row offers no lifecycle action. */
-  actorId: string;
+  /** The acting Account — its own row offers neither a Role change nor a status. */
+  actor: RoleActor;
 }
 
 /** Sticky header styling: keeps column labels in view while the table scrolls. */
@@ -33,12 +35,19 @@ const thClass = "bg-muted sticky top-0 z-10";
  * Every Account with the five facts the surface exists to show: email, name,
  * Role, active state and last sign-in. There is no Delete action anywhere —
  * deactivation is the lifecycle (CONTEXT.md, Deactivated Account).
+ *
+ * The Role picker offers only the Roles the actor may move that row to, taken
+ * from the shared assignable-Role policy, so the surface never offers a move the
+ * server would refuse. Self, the Super Admin and out-of-reach targets read as
+ * inactionable rather than disappearing, so the hierarchy stays legible.
  */
-export function AccountTable({ accounts, actorId }: AccountTableProps) {
+export function AccountTable({ accounts, actor }: AccountTableProps) {
   const [pending, setPending] = useState<{
     account: AccountSummary;
     action: AccountLifecycleAction;
   } | null>(null);
+  const roles = useRolesQuery();
+  const setRole = useSetAccountRole();
 
   return (
     <>
@@ -67,7 +76,15 @@ export function AccountTable({ accounts, actorId }: AccountTableProps) {
         </TableHeader>
         <TableBody>
           {accounts.map((account) => {
-            const action = lifecycleActionFor(account, actorId);
+            const action = lifecycleActionFor(account, actor.userId);
+            const roleOptions = assignableRoleChanges(
+              account,
+              actor,
+              roles.data ?? [],
+            );
+            const pendingRole =
+              setRole.isPending && setRole.variables?.userId === account.userId;
+
             return (
               <TableRow
                 key={account.userId}
@@ -93,20 +110,51 @@ export function AccountTable({ accounts, actorId }: AccountTableProps) {
                 </TableCell>
                 <TableCell>{lastSignInLabel(account.lastSignInAt)}</TableCell>
                 <TableCell className="text-right">
-                  {action === null ? (
-                    <span className="text-muted-foreground text-xs">
-                      {account.userId === actorId ? "You" : "—"}
-                    </span>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setPending({ account, action })}
-                      aria-label={`${action === "deactivate" ? "Deactivate" : "Reactivate"} ${account.email}`}
-                    >
-                      {action === "deactivate" ? "Deactivate" : "Reactivate"}
-                    </Button>
-                  )}
+                  <div className="flex items-center justify-end gap-2">
+                    {roleOptions.length > 0 ? (
+                      <select
+                        value={account.role.roleId}
+                        onChange={(event) =>
+                          setRole.mutate({
+                            userId: account.userId,
+                            roleId: event.target.value,
+                          })
+                        }
+                        disabled={pendingRole}
+                        aria-label={`Change Role for ${account.email}`}
+                        className="border-border bg-muted h-8 rounded-md border px-2 text-sm"
+                      >
+                        {/* The current Role first: it is what the row reads, and
+                            the picker must not pretend the Account moved. */}
+                        <option value={account.role.roleId}>
+                          {account.role.name}
+                        </option>
+                        {roleOptions
+                          .filter((role) => role.roleId !== account.role.roleId)
+                          .map((role) => (
+                            <option key={role.roleId} value={role.roleId}>
+                              {role.name}
+                            </option>
+                          ))}
+                      </select>
+                    ) : null}
+                    {action === null ? (
+                      roleOptions.length === 0 ? (
+                        <span className="text-muted-foreground text-xs">
+                          {account.userId === actor.userId ? "You" : "—"}
+                        </span>
+                      ) : null
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setPending({ account, action })}
+                        aria-label={`${action === "deactivate" ? "Deactivate" : "Reactivate"} ${account.email}`}
+                      >
+                        {action === "deactivate" ? "Deactivate" : "Reactivate"}
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             );

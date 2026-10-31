@@ -6,6 +6,10 @@ export const accountKeys = {
   all: ["accounts"] as const,
 };
 
+export const roleKeys = {
+  all: ["roles"] as const,
+};
+
 export const routeKeys = {
   all: ["routes"] as const,
   overview: ["routes", "overview"] as const,

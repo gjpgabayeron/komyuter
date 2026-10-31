@@ -125,9 +125,20 @@ export const roleInputSchema = z.object({
 
 export type RoleInput = z.infer<typeof roleInputSchema>;
 
+/**
+ * The minimum length of every password the authentication surface accepts —
+ * an Account's own password and a Temporary Password alike, so the policy is
+ * one rule rather than two (ADR-0019 §10).
+ */
+export const PASSWORD_MIN_LENGTH = 12;
+
+/**
+ * The invite body: an email and a Role, nothing else. There is no
+ * client-supplied password: the server generates the Temporary Password and
+ * returns it once (ADR-0019 §10).
+ */
 export const inviteAccountSchema = z.object({
   email: z.string().trim().email(),
-  temporaryPassword: z.string().min(12).max(128),
   roleId: z.string().trim().min(1),
 });
 
@@ -167,6 +178,16 @@ export interface AccountSummary {
   isActive: boolean;
   /** The last successful sign-in, or null when the identity never recorded one. */
   lastSignInAt: string | null;
+}
+
+/**
+ * What an invite answers with: the new Account's summary and the Temporary
+ * Password the server generated for it. The password is a handover, not a
+ * field of the Account — no read returns it again.
+ */
+export interface InviteAccountResponse {
+  account: AccountSummary;
+  temporaryPassword: string;
 }
 
 export interface MeResponse extends AccountSummary {

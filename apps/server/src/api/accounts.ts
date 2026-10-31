@@ -16,6 +16,7 @@ import {
   effectivePermissions,
 } from "../domain/authorization";
 import { identityOf, listAllIdentities } from "../domain/identity";
+import { generateTemporaryPassword } from "../domain/temporary-password";
 
 /**
  * Account provisioning (M2a, server only — the surfaces are M2b).
@@ -23,7 +24,8 @@ import { identityOf, listAllIdentities } from "../domain/identity";
  * Every route is behind `ADMIN_MANAGE`, reads included: the Account list is the
  * access model. An Account is invite-only by construction: there is no
  * self-signup, and `createUser` runs with the service-role key. The caller
- * supplies the temporary password; no email is sent.
+ * supplies an email and a Role; the server generates the Temporary Password and
+ * returns it once (ADR-0019 §10). No email is sent.
  */
 export async function registerAccounts(
   app: AppInstance,
@@ -87,9 +89,12 @@ export async function registerAccounts(
         );
       }
 
+      // Generated here, never accepted from the client, and returned exactly
+      // once: the invite response is the only place the value ever appears.
+      const temporaryPassword = generateTemporaryPassword();
       const { data, error } = await supabase.auth.admin.createUser({
         email: input.email,
-        password: input.temporaryPassword,
+        password: temporaryPassword,
         email_confirm: true,
       });
       if (error || !data.user) {
@@ -117,19 +122,22 @@ export async function registerAccounts(
 
       return reply.code(201).send({
         success: true,
-        data: accountSummaryOf(
-          {
-            userId: data.user.id,
-            roleId: role.role_id,
-            roleName: role.name,
-            position: role.position,
-            rolePermissions: role.permissions,
-            permissions: effectivePermissions(false, role.permissions),
-            isSuperAdmin: false,
-            isActive: true,
-          },
-          identityOf(data.user),
-        ),
+        data: {
+          account: accountSummaryOf(
+            {
+              userId: data.user.id,
+              roleId: role.role_id,
+              roleName: role.name,
+              position: role.position,
+              rolePermissions: role.permissions,
+              permissions: effectivePermissions(false, role.permissions),
+              isSuperAdmin: false,
+              isActive: true,
+            },
+            identityOf(data.user),
+          ),
+          temporaryPassword,
+        },
       });
     },
   );

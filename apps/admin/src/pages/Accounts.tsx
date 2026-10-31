@@ -1,4 +1,5 @@
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, UserPlus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -10,14 +11,17 @@ import {
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AccountTable } from "@/features/accounts/AccountTable";
+import { InviteAccountDialog } from "@/features/accounts/InviteAccountDialog";
 import { useAccountsQuery } from "@/features/accounts/queries";
+import type { RoleActor } from "@/features/accounts/roles";
 import { useAuth } from "@/features/auth/auth";
 import NotFound from "@/pages/NotFound";
 
 /**
  * The Accounts surface (M2b). Reaching it requires `ADMIN_MANAGE`, checked
  * directly here and declared on the navigation entry; the server refuses the
- * list and the status change regardless, so the check is an affordance.
+ * list, the invite and every lifecycle change regardless, so the check is an
+ * affordance.
  */
 export default function Accounts() {
   const { user } = useAuth();
@@ -26,11 +30,21 @@ export default function Accounts() {
     return <NotFound />;
   }
 
-  return <AccountsSurface actorId={user.id} />;
+  // The actor side of every Role decision: the effective Permission set the
+  // server resolved, so the pickers offer exactly what the server would accept.
+  const actor: RoleActor = {
+    userId: user.id,
+    isSuperAdmin: user.isSuperAdmin,
+    role: user.role,
+    permissions: user.permissions,
+  };
+
+  return <AccountsSurface actor={actor} />;
 }
 
-function AccountsSurface({ actorId }: { actorId: string }) {
+function AccountsSurface({ actor }: { actor: RoleActor }) {
   const { data, isError, isLoading, refetch } = useAccountsQuery();
+  const [inviting, setInviting] = useState(false);
 
   return (
     <div className="flex h-full flex-col p-6">
@@ -39,7 +53,17 @@ function AccountsSurface({ actorId }: { actorId: string }) {
           Accounts are invited, never deleted. Deactivating one keeps its
           identity and Role and ends its access on the next request.
         </p>
+        <Button onClick={() => setInviting(true)}>
+          <UserPlus className="size-4" />
+          Invite Account
+        </Button>
       </div>
+
+      <InviteAccountDialog
+        open={inviting}
+        onOpenChange={setInviting}
+        actor={actor}
+      />
 
       {isLoading ? (
         <div
@@ -92,7 +116,7 @@ function AccountsSurface({ actorId }: { actorId: string }) {
           </Empty>
         </div>
       ) : (
-        <AccountTable accounts={data} actorId={actorId} />
+        <AccountTable accounts={data} actor={actor} />
       )}
     </div>
   );
