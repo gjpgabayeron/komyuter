@@ -5,6 +5,7 @@ import {
   inviteAccount,
   listAccounts,
   listRoles,
+  resetAccountPassword,
   setAccountRole,
   setAccountStatus,
 } from "./api";
@@ -87,6 +88,27 @@ export function useSetAccountStatus() {
       toast.success(
         account.isActive ? "Account reactivated." : "Account deactivated.",
       );
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+/**
+ * Force a password reset on one Account. The new Temporary Password arrives in
+ * the mutation's result and is shown once by the dialog — no success toast, the
+ * handover panel is the confirmation. The list is invalidated so a reset reflects
+ * immediately; a server refusal (self, the Super Admin, out of reach) surfaces as
+ * an error toast.
+ */
+export function useResetAccountPassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId }: { userId: string }) =>
+      resetAccountPassword(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: accountKeys.all });
     },
     onError: (error: Error) => {
       toast.error(error.message);

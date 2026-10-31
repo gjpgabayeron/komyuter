@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 import type { InviteAccountResponse } from "@komyuter/shared";
-import { Check, Copy, KeyRound } from "lucide-react";
-import { toast } from "sonner";
+import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useInviteAccount, useRolesQuery } from "./queries";
 import { assignableRoles, type RoleActor } from "./roles";
+import { TemporaryPasswordPanel } from "./TemporaryPasswordPanel";
 
 interface InviteAccountDialogProps {
   open: boolean;
@@ -43,7 +43,6 @@ export function InviteAccountDialog({
   const [email, setEmail] = useState("");
   const [roleId, setRoleId] = useState("");
   const [issued, setIssued] = useState<InviteAccountResponse | null>(null);
-  const [copied, setCopied] = useState(false);
 
   // Only the Roles this actor may assign: strictly below its position and
   // within its Permission set, decided by the shared policy.
@@ -57,7 +56,6 @@ export function InviteAccountDialog({
     setEmail("");
     setRoleId("");
     setIssued(null);
-    setCopied(false);
   }, [open]);
 
   // Default the picker to the first assignable Role, and re-derive it only if
@@ -85,20 +83,8 @@ export function InviteAccountDialog({
     }
   };
 
-  const copyPassword = async () => {
-    if (!issued) return;
-    try {
-      await navigator.clipboard.writeText(issued.temporaryPassword);
-      setCopied(true);
-      toast.success("Temporary Password copied.");
-    } catch {
-      toast.error("Could not copy — select the password and copy it manually.");
-    }
-  };
-
   const close = () => {
     setIssued(null);
-    setCopied(false);
     onOpenChange(false);
   };
 
@@ -124,39 +110,9 @@ export function InviteAccountDialog({
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-3 py-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="invited-temporary-password">
-                  Temporary Password
-                </Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="invited-temporary-password"
-                    value={issued.temporaryPassword}
-                    readOnly
-                    onFocus={(event) => event.currentTarget.select()}
-                    className="h-9 font-mono tracking-wide"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={copyPassword}
-                    aria-label="Copy Temporary Password"
-                  >
-                    {copied ? (
-                      <Check className="size-3.5" />
-                    ) : (
-                      <Copy className="size-3.5" />
-                    )}
-                    {copied ? "Copied" : "Copy"}
-                  </Button>
-                </div>
-              </div>
-              <p className="text-xs text-amber-700">
-                This Temporary Password cannot be shown again. Copy it now and
-                hand it over securely — if it is lost, the Account has to be
-                reset.
-              </p>
+              <TemporaryPasswordPanel
+                temporaryPassword={issued.temporaryPassword}
+              />
               <p className="text-muted-foreground text-xs">
                 {issued.account.email} was invited as {issued.account.role.name}
                 .

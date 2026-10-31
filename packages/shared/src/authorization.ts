@@ -202,6 +202,17 @@ export interface InviteAccountResponse {
   temporaryPassword: string;
 }
 
+/**
+ * What a forced password reset answers with: the reset Account's summary and the
+ * Temporary Password the server generated for it. Like an invite, the password
+ * is a handover rather than a field of the Account — it is returned here exactly
+ * once and no read returns it again (ADR-0019 §13–14).
+ */
+export interface ResetPasswordResponse {
+  account: AccountSummary;
+  temporaryPassword: string;
+}
+
 export interface MeResponse extends AccountSummary {
   /** The Account's effective set — the owner's is every declared Permission. */
   permissions: Permission[];

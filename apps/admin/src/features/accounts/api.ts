@@ -1,6 +1,7 @@
 import type {
   AccountSummary,
   InviteAccountResponse,
+  ResetPasswordResponse,
   RoleSummary,
 } from "@komyuter/shared";
 import { api } from "@/lib/api";
@@ -70,5 +71,23 @@ export async function setAccountStatus(
     await api.put<AccountSummary>(`/api/admin/accounts/${userId}/status`, {
       isActive,
     })
+  ).data;
+}
+
+/**
+ * `POST /api/admin/accounts/:userId/password-reset` — force a reset on another
+ * Account within the actor's reach. The server generates a new Temporary
+ * Password and returns it **once**, in this response; nothing reads it back. The
+ * reset ends the target's live session and forces a change at its next sign-in
+ * (ADR-0019 §13–14).
+ */
+export async function resetAccountPassword(
+  userId: string,
+): Promise<ResetPasswordResponse> {
+  return (
+    await api.post<ResetPasswordResponse>(
+      `/api/admin/accounts/${userId}/password-reset`,
+      {},
+    )
   ).data;
 }

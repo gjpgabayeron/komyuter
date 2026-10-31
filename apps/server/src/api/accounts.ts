@@ -296,4 +296,106 @@ export async function registerAccounts(
       };
     },
   );
+
+  /**
+   * Force a password reset on another Account within reach (ADR-0019 §5, §13–14).
+   *
+   * The reach is the same `canManageRole` the Role surfaces already enforce,
+   * applied to the target's **current** Role — strictly below the actor's Role
+   * Position and within its Permission set — never a second rule. Two rows are
+   * always refused: the acting Account (the self-service change is its only path,
+   * §12) and the Super Admin (unreachable by anyone, including itself).
+   *
+   * The replacement is a server-generated Temporary Password, returned here and
+   * nowhere else. Setting `must_change_password` — and, because a Supabase
+   * password update ends every existing session on this stack, replacing the
+   * credential — revokes the target's live session at its next request and holds
+   * it on the change screen until it picks its own password.
+   */
+  app.post(
+    "/accounts/:userId/password-reset",
+    { config: { permission: "ADMIN_MANAGE" } },
+    async (request) => {
+      const actor = request.adminAccount;
+      if (!actor) {
+        throw forbidden("Missing Account");
+      }
+      const { userId } = request.params as { userId: string };
+
+      if (userId === actor.userId) {
+        throw forbidden(
+          "You cannot reset your own password; change it from the account menu instead",
+        );
+      }
+
+      const [current] = await db
+        .select(adminAccountSelection)
+        .from(adminUsers)
+        .innerJoin(roles, eq(adminUsers.role_id, roles.role_id))
+        .where(eq(adminUsers.user_id, userId))
+        .limit(1);
+      if (!current) {
+        throw notFound(`Account ${userId} not found`);
+      }
+      if (current.isSuperAdmin) {
+        throw forbidden("The Super Admin's password cannot be reset");
+      }
+      if (
+        !canManageRole(authorityOf(actor), {
+          position: current.position,
+          permissions: current.rolePermissions,
+        })
+      ) {
+        throw forbidden(
+          "You may only reset the password of an Account below your own position and within your own Permissions",
+        );
+      }
+
+      // Generated here, never accepted from the client, and returned exactly
+      // once: this response is the only place the value ever appears.
+      const temporaryPassword = generateTemporaryPassword();
+      const { error: updateError } = await supabase.auth.admin.updateUserById(
+        userId,
+        {
+          password: temporaryPassword,
+        },
+      );
+      if (updateError) {
+        throw internal(`Could not reset the password: ${updateError.message}`);
+      }
+
+      // The Temporary Password is a handover: the Account is held on the change
+      // screen until it replaces it (ADR-0019 §4, §14).
+      await db
+        .update(adminUsers)
+        .set({ must_change_password: true })
+        .where(eq(adminUsers.user_id, userId));
+
+      const { data } = await supabase.auth.admin.getUserById(userId);
+
+      return {
+        success: true,
+        data: {
+          account: accountSummaryOf(
+            {
+              userId: current.userId,
+              roleId: current.roleId,
+              roleName: current.roleName,
+              position: current.position,
+              rolePermissions: current.rolePermissions,
+              permissions: effectivePermissions(
+                current.isSuperAdmin,
+                current.rolePermissions,
+              ),
+              isSuperAdmin: current.isSuperAdmin,
+              isActive: current.isActive,
+              mustChangePassword: true,
+            },
+            identityOf(data.user),
+          ),
+          temporaryPassword,
+        },
+      };
+    },
+  );
 }

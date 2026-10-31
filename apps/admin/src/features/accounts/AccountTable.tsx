@@ -13,7 +13,9 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { AccountStatusDialog } from "./AccountStatusDialog";
+import { ResetPasswordDialog } from "./ResetPasswordDialog";
 import { useRolesQuery, useSetAccountRole } from "./queries";
+import { canResetPassword } from "./reset";
 import { assignableRoleChanges, type RoleActor } from "./roles";
 import {
   lastSignInLabel,
@@ -46,6 +48,7 @@ export function AccountTable({ accounts, actor }: AccountTableProps) {
     account: AccountSummary;
     action: AccountLifecycleAction;
   } | null>(null);
+  const [resetAccount, setResetAccount] = useState<AccountSummary | null>(null);
   const roles = useRolesQuery();
   const setRole = useSetAccountRole();
 
@@ -77,6 +80,7 @@ export function AccountTable({ accounts, actor }: AccountTableProps) {
         <TableBody>
           {accounts.map((account) => {
             const action = lifecycleActionFor(account, actor.userId);
+            const mayReset = canResetPassword(account, actor);
             const roleOptions = assignableRoleChanges(
               account,
               actor,
@@ -138,6 +142,16 @@ export function AccountTable({ accounts, actor }: AccountTableProps) {
                           ))}
                       </select>
                     ) : null}
+                    {mayReset ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setResetAccount(account)}
+                        aria-label={`Reset password for ${account.email}`}
+                      >
+                        Reset password
+                      </Button>
+                    ) : null}
                     {action === null ? (
                       roleOptions.length === 0 ? (
                         <span className="text-muted-foreground text-xs">
@@ -167,6 +181,14 @@ export function AccountTable({ accounts, actor }: AccountTableProps) {
         onOpenChange={(open) => {
           if (!open) {
             setPending(null);
+          }
+        }}
+      />
+      <ResetPasswordDialog
+        account={resetAccount}
+        onOpenChange={(open) => {
+          if (!open) {
+            setResetAccount(null);
           }
         }}
       />
