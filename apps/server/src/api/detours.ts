@@ -269,14 +269,19 @@ export async function registerDetours(
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
       // Only the last writer moves: the creator is written once (ADR-0025).
-      // The stamp is applied whenever anything at all is written, including a
-      // detour_stops-only replace or an is_active toggle.
-      const detourPatch = { ...patch, ...updateAttribution(actor) };
+      // The stamp travels with a write, never with a request: an empty body —
+      // no detour field and no detour_stops — changes nothing, so it must not
+      // reattribute the row or bump `updated_at`. A detour_stops-only replace
+      // IS a write, so it still moves the detour's stamp.
+      const writesDetourFields = Object.keys(patch).length > 0;
+      const writesStops = body.detour_stops !== undefined;
 
-      await db
-        .update(detoursTable)
-        .set(detourPatch)
-        .where(eq(detoursTable.detour_id, detourId));
+      if (writesDetourFields || writesStops) {
+        await db
+          .update(detoursTable)
+          .set({ ...patch, ...updateAttribution(actor) })
+          .where(eq(detoursTable.detour_id, detourId));
+      }
 
       // detour_stops is a REPLACE operation: the payload carries the full
       // ordered list, so the previous rows are dropped and re-created. The

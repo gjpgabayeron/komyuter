@@ -1,3 +1,4 @@
+import { ERROR_CODE } from "@komyuter/shared";
 import type { ErrorCode } from "@komyuter/shared";
 
 export interface ApiErrorOptions {
@@ -19,11 +20,15 @@ export class ApiError extends Error {
 }
 
 export function unauthorized(message = "Unauthorized"): ApiError {
-  return new ApiError({ statusCode: 401, code: "UNAUTHORIZED", message });
+  return new ApiError({
+    statusCode: 401,
+    code: ERROR_CODE.UNAUTHORIZED,
+    message,
+  });
 }
 
 export function forbidden(message = "Forbidden"): ApiError {
-  return new ApiError({ statusCode: 403, code: "FORBIDDEN", message });
+  return new ApiError({ statusCode: 403, code: ERROR_CODE.FORBIDDEN, message });
 }
 
 /**
@@ -36,7 +41,7 @@ export function accountDeactivated(
 ): ApiError {
   return new ApiError({
     statusCode: 403,
-    code: "ACCOUNT_DEACTIVATED",
+    code: ERROR_CODE.ACCOUNT_DEACTIVATED,
     message,
   });
 }
@@ -54,23 +59,27 @@ export function passwordChangeRequired(
 ): ApiError {
   return new ApiError({
     statusCode: 403,
-    code: "PASSWORD_CHANGE_REQUIRED",
+    code: ERROR_CODE.PASSWORD_CHANGE_REQUIRED,
     message,
   });
 }
 
 export function notFound(message = "Not found"): ApiError {
-  return new ApiError({ statusCode: 404, code: "NOT_FOUND", message });
+  return new ApiError({ statusCode: 404, code: ERROR_CODE.NOT_FOUND, message });
 }
 
 export function validationError(message: string): ApiError {
-  return new ApiError({ statusCode: 422, code: "VALIDATION_ERROR", message });
+  return new ApiError({
+    statusCode: 422,
+    code: ERROR_CODE.VALIDATION_ERROR,
+    message,
+  });
 }
 
 export function conflict(message: string): ApiError {
-  return new ApiError({ statusCode: 409, code: "CONFLICT", message });
+  return new ApiError({ statusCode: 409, code: ERROR_CODE.CONFLICT, message });
 }
 
 export function internal(message = "Internal server error"): ApiError {
-  return new ApiError({ statusCode: 500, code: "INTERNAL", message });
+  return new ApiError({ statusCode: 500, code: ERROR_CODE.INTERNAL, message });
 }

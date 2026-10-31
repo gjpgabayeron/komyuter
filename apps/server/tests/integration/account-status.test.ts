@@ -189,6 +189,70 @@ describe("Account status and deactivation (M2b)", () => {
     expect(me.json().data.isActive).toBe(true);
   });
 
+  /**
+   * The reach rule (ADR-0019 §5, §6): the status change is bounded by the same
+   * `canManageRole` the Role surfaces and the force reset enforce — strictly
+   * below the actor's Role Position and within its Permission set. An
+   * Administrator is not the Super Admin, so this caller is refused by the
+   * reach, not by the ownership property.
+   */
+  it("refuses a target at or above the actor's own Role position", async () => {
+    const manager = await createTestAdmin("status-reach", "administrator");
+    const managerToken = await signInAs(manager.email, manager.password);
+    // Same Role as the actor: a peer, not a subordinate.
+    const peer = await createTestAdmin("status-peer", "administrator");
+
+    const response = await app.inject({
+      method: "PUT",
+      url: `/api/admin/accounts/${peer.userId}/status`,
+      headers: auth(managerToken),
+      payload: { isActive: false },
+    });
+    expect(response.statusCode).toBe(403);
+    expect(response.json().error.code).toBe("FORBIDDEN");
+    expect(response.json().error.message).toContain("below your own position");
+
+    const listed = await app.inject({
+      method: "GET",
+      url: "/api/admin/accounts",
+      headers: auth(ownerToken),
+    });
+    const peerRow = listed
+      .json()
+      .data.find((row: { userId: string }) => row.userId === peer.userId);
+    expect(peerRow.isActive).toBe(true);
+  });
+
+  /**
+   * The self branch has its own refusal, and only a NON-owner ADMIN_MANAGE
+   * holder can prove it: the owner's `canManageRole` answers true for
+   * everything, so an owner self-deactivation that reaches the reach rule would
+   * be admitted. This caller is refused by the self branch — the message names
+   * it — and the owner test above keeps covering the ownership property.
+   */
+  it("refuses self-deactivation by a non-owner ADMIN_MANAGE holder", async () => {
+    const manager = await createTestAdmin("status-self", "administrator");
+    const managerToken = await signInAs(manager.email, manager.password);
+
+    const response = await app.inject({
+      method: "PUT",
+      url: `/api/admin/accounts/${manager.userId}/status`,
+      headers: auth(managerToken),
+      payload: { isActive: false },
+    });
+    expect(response.statusCode).toBe(403);
+    expect(response.json().error.code).toBe("FORBIDDEN");
+    expect(response.json().error.message).toContain("your own Account status");
+
+    const me = await app.inject({
+      method: "GET",
+      url: "/api/admin/me",
+      headers: auth(managerToken),
+    });
+    expect(me.statusCode).toBe(200);
+    expect(me.json().data.isActive).toBe(true);
+  });
+
   it("refuses deactivating the Super Admin for every other caller", async () => {
     const manager = await createTestAdmin("status-manager", "administrator");
     const managerToken = await signInAs(manager.email, manager.password);

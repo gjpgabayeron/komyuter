@@ -1,4 +1,4 @@
-import { canManageRole, permissionMask } from "@komyuter/shared";
+import { canManageRole, roleShapeOf } from "@komyuter/shared";
 import { authorityOfActor, type RoleActor, type RoleTarget } from "./roles";
 
 /**
@@ -17,8 +17,5 @@ export function canResetPassword(
 ): boolean {
   if (target.userId === actor.userId) return false;
   if (target.isSuperAdmin) return false;
-  return canManageRole(authorityOfActor(actor), {
-    position: target.role.position,
-    permissions: permissionMask(target.role.permissions),
-  });
+  return canManageRole(authorityOfActor(actor), roleShapeOf(target.role));
 }

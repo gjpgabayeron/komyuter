@@ -155,6 +155,50 @@ describe("Attribution on detours, restrictions and fare configs (ADR-0025)", () 
     expect(row.updated_by).toEqual({ userId: plotterId, name: "Test Admin" });
   });
 
+  /**
+   * A PUT that writes nothing must not claim a write: the stamp moves only when
+   * the request actually changes a detour field or replaces its stop list.
+   * Otherwise a client echoing a form back unchanged would reattribute the row
+   * to itself and bump `updated_at` for no edit.
+   */
+  it("leaves the stamp alone when an update writes nothing", async () => {
+    const directionId = await createDirection(ownerToken, "attr-noop");
+    const created = await app.inject({
+      method: "POST",
+      url: `/api/admin/directions/${directionId}/detours`,
+      headers: auth(ownerToken),
+      payload: detourPayload(),
+    });
+    expect(created.statusCode).toBe(201);
+    const before = created.json().data;
+
+    const updated = await app.inject({
+      method: "PUT",
+      url: `/api/admin/detours/${before.detour_id}`,
+      headers: auth(plotterToken),
+      // No detour field and no detour_stops: nothing to write.
+      payload: {},
+    });
+    expect(updated.statusCode).toBe(200);
+    expect(updated.json().data.created_by).toEqual(before.created_by);
+    expect(updated.json().data.updated_by).toEqual(before.updated_by);
+    expect(updated.json().data.updated_at).toBe(before.updated_at);
+
+    // And the stored row agrees — the no-op did not touch the column.
+    const listed = await app.inject({
+      method: "GET",
+      url: `/api/admin/directions/${directionId}/detours`,
+      headers: auth(ownerToken),
+    });
+    const row = listed
+      .json()
+      .data.find(
+        (d: { detour_id: string }) => d.detour_id === before.detour_id,
+      );
+    expect(row.updated_by).toEqual(before.updated_by);
+    expect(row.updated_at).toBe(before.updated_at);
+  });
+
   it("attributes a Detour Stop created with its Detour", async () => {
     const directionId = await createDirection(ownerToken, "attr-dstop");
 

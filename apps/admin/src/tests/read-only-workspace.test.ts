@@ -4,6 +4,7 @@ import type { DraftPayload } from "@/lib/draft";
 import {
   capabilitiesFromPermissions,
   isReadOnlyWorkspace,
+  offersDetourEditing,
   offersDraftRestore,
   workspaceAccess,
   writesDraft,
@@ -90,6 +91,31 @@ describe("workspaceAccess", () => {
     // may be written.
     expect(workspaceAccess(VIEWER).showSave).toBe(false);
     expect(workspaceAccess(EDITOR).showSave).toBe(true);
+  });
+});
+
+describe("the detour editor", () => {
+  it("answers the route-editing Permission, not the tool state", () => {
+    expect(offersDetourEditing(EDITOR)).toBe(true);
+    expect(offersDetourEditing(VIEWER)).toBe(false);
+  });
+
+  it("stays unavailable to an Account holding search and fare Permissions", () => {
+    const viewerWithOtherPermissions = capabilitiesFromPermissions([
+      "MAPBOX_GEOSERVICES",
+      "FARES_EDIT",
+      "EXPORT_DATASET",
+      "ADMIN_MANAGE",
+    ]);
+    expect(offersDetourEditing(viewerWithOtherPermissions)).toBe(false);
+  });
+
+  it("agrees with the read-only workspace it belongs to", () => {
+    for (const capabilities of [VIEWER, EDITOR, VIEWER_WITH_SEARCH]) {
+      expect(offersDetourEditing(capabilities)).toBe(
+        !isReadOnlyWorkspace(capabilities),
+      );
+    }
   });
 });
 

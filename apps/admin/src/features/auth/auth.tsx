@@ -9,9 +9,11 @@ import {
 import type { ReactNode } from "react";
 import { type AuthUser, changePassword, login, me } from "@/features/auth/api";
 import { ApiError, clearStoredToken, getStoredToken } from "@/lib/api";
-import { onSessionExpired } from "@/features/auth/sessionExpired";
-import { onAccessRevoked } from "@/features/auth/accessRevoked";
-import { onPasswordChangeRequired } from "@/features/auth/passwordChangeRequired";
+import {
+  onAccessRevoked,
+  onPasswordChangeRequired,
+  onSessionExpired,
+} from "@/features/auth/authEvents";
 
 export type AuthStatus =
   | "loading"

@@ -1,10 +1,10 @@
 import axios from "axios";
-import { emitSessionExpired } from "@/features/auth/sessionExpired";
 import {
   classifyAuthFailure,
   emitAccessRevoked,
-} from "@/features/auth/accessRevoked";
-import { emitPasswordChangeRequired } from "@/features/auth/passwordChangeRequired";
+  emitPasswordChangeRequired,
+  emitSessionExpired,
+} from "@/features/auth/authEvents";
 import { saveReturnPath } from "@/features/auth/redirect";
 
 export const AUTH_TOKEN_KEY = "komyuter.admin.token";

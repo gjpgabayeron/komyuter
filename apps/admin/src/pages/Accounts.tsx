@@ -14,7 +14,14 @@ import { AccountTable } from "@/features/accounts/AccountTable";
 import { InviteAccountDialog } from "@/features/accounts/InviteAccountDialog";
 import { useAccountsQuery } from "@/features/accounts/queries";
 import type { RoleActor } from "@/features/accounts/roles";
+import {
+  ACCOUNT_STATUS_FILTERS,
+  accountStatusFilterLabel,
+  filterAccountsByStatus,
+  type AccountStatusFilter,
+} from "@/features/accounts/status";
 import { useAuth } from "@/features/auth/auth";
+import { cn } from "@/lib/utils";
 
 /**
  * The Accounts surface (M2b). The navigation entry declares `ADMIN_MANAGE` and
@@ -48,6 +55,10 @@ export default function Accounts() {
 function AccountsSurface({ actor }: { actor: RoleActor }) {
   const { data, isError, isLoading, refetch } = useAccountsQuery();
   const [inviting, setInviting] = useState(false);
+  // The list keeps Deactivated Accounts, so the filter is what answers "who
+  // can still sign in?" — All is where the surface starts.
+  const [filter, setFilter] = useState<AccountStatusFilter>("all");
+  const rows = filterAccountsByStatus(data ?? [], filter);
 
   return (
     <div className="flex h-full flex-col p-6">
@@ -56,10 +67,34 @@ function AccountsSurface({ actor }: { actor: RoleActor }) {
           Accounts are invited, never deleted. Deactivating one keeps its
           identity and Role and ends its access on the next request.
         </p>
-        <Button onClick={() => setInviting(true)}>
-          <UserPlus className="size-4" />
-          Invite Account
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          <div
+            role="group"
+            aria-label="Account status filter"
+            className="bg-muted flex items-center rounded-lg p-0.5"
+          >
+            {ACCOUNT_STATUS_FILTERS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                aria-pressed={filter === option}
+                onClick={() => setFilter(option)}
+                className={cn(
+                  "rounded-[3px] px-2 py-1 text-xs font-medium",
+                  filter === option
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {accountStatusFilterLabel(option)}
+              </button>
+            ))}
+          </div>
+          <Button onClick={() => setInviting(true)}>
+            <UserPlus className="size-4" />
+            Invite Account
+          </Button>
+        </div>
       </div>
 
       <InviteAccountDialog
@@ -118,8 +153,29 @@ function AccountsSurface({ actor }: { actor: RoleActor }) {
             </EmptyContent>
           </Empty>
         </div>
+      ) : rows.length === 0 ? (
+        <div className="flex h-full items-center justify-center">
+          <Empty className="max-w-md">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <ShieldCheck />
+              </EmptyMedia>
+              <EmptyTitle className="text-base font-semibold">
+                No {accountStatusFilterLabel(filter)} Accounts
+              </EmptyTitle>
+            </EmptyHeader>
+            <EmptyContent>
+              <EmptyDescription>
+                Every Account on this dashboard is in the other state.
+              </EmptyDescription>
+              <Button variant="outline" onClick={() => setFilter("all")}>
+                Show all Accounts
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </div>
       ) : (
-        <AccountTable accounts={data} actor={actor} />
+        <AccountTable accounts={rows} actor={actor} />
       )}
     </div>
   );

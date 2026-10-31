@@ -79,7 +79,7 @@ export function AccountTable({ accounts, actor }: AccountTableProps) {
         </TableHeader>
         <TableBody>
           {accounts.map((account) => {
-            const action = lifecycleActionFor(account, actor.userId);
+            const action = lifecycleActionFor(account, actor);
             const mayReset = canResetPassword(account, actor);
             const roleOptions = assignableRoleChanges(
               account,

@@ -12,14 +12,12 @@ import {
 } from "@/features/auth/forcedPasswordChange";
 import {
   PASSWORD_CHANGE_REQUIRED_CODE,
-  emitPasswordChangeRequired,
-  onPasswordChangeRequired,
-} from "@/features/auth/passwordChangeRequired";
-import {
-  onAccessRevoked,
   classifyAuthFailure,
-} from "@/features/auth/accessRevoked";
-import { onSessionExpired } from "@/features/auth/sessionExpired";
+  emitPasswordChangeRequired,
+  onAccessRevoked,
+  onPasswordChangeRequired,
+  onSessionExpired,
+} from "@/features/auth/authEvents";
 
 function installLocalStorage(): void {
   const store = new Map<string, string>();

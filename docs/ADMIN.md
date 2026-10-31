@@ -72,7 +72,7 @@ komyuter/
 | Client store      | zustand                                                                    | `plottingStore`, `uiStore` (sidebar mode)                                    |
 | HTTP              | axios                                                                      | envelope unwrap, token header, session expiry, connection banner             |
 | State persistence | localStorage                                                               | admin session token + route **drafts** (24 h TTL)                            |
-| Tests             | Vitest (node env, no jsdom)                                                | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
+| Tests             | Vitest (node env, no jsdom)                                                | 42 suites in `apps/admin/src/tests` (see §5.11)                              |
 | Build             | `tsc && vite build`                                                        |                                                                              |
 
 **Server surface (what the dashboard talks to):**
@@ -207,7 +207,7 @@ The workspace is a **four-state machine** derived from (selection, draft):
 
 Pure logic lives in `lib/` and is unit-tested: `capabilities` (including `fareAccess`), `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
 
-**Tests:** 42 Vitest suites / 525 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
+**Tests:** 42 Vitest suites / 535 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
 
 ## 6. Roadmap — planned & upcoming
 

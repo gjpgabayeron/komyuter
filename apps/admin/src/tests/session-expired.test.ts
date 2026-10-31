@@ -5,7 +5,7 @@ import { ApiError, api, getStoredToken, setStoredToken } from "@/lib/api";
 import {
   emitSessionExpired,
   onSessionExpired,
-} from "@/features/auth/sessionExpired";
+} from "@/features/auth/authEvents";
 import { readSavedReturnPath } from "@/features/auth/redirect";
 
 function installLocalStorage(): void {

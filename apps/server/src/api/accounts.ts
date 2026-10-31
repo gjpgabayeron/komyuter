@@ -232,9 +232,12 @@ export async function registerAccounts(
    *
    * Deactivation is the whole lifecycle: the identity and the Role stay, and a
    * live session stops being honoured on its next request because the guard
-   * re-reads `is_active`. Two refusals are deliberate and explicit — the acting
-   * Account may not deactivate itself, and no one may deactivate the Super
-   * Admin — with the `protect_super_admin` trigger as the structural backstop.
+   * re-reads `is_active`. The refusals are the same reach the Role surfaces and
+   * the force reset enforce, never a second rule: the acting Account may not
+   * deactivate itself, no one may deactivate the Super Admin, and the target's
+   * **current** Role must be strictly below the actor's position and within its
+   * Permission set (`canManageRole`) — with the `protect_super_admin` trigger as
+   * the structural backstop.
    */
   app.put(
     "/accounts/:userId/status",
@@ -265,6 +268,16 @@ export async function registerAccounts(
       }
       if (current.isSuperAdmin && !isActive) {
         throw forbidden("The Super Admin cannot be deactivated");
+      }
+      if (
+        !canManageRole(authorityOf(actor), {
+          position: current.position,
+          permissions: current.rolePermissions,
+        })
+      ) {
+        throw forbidden(
+          "You may only change the status of an Account below your own position and within your own Permissions",
+        );
       }
 
       await db

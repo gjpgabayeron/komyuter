@@ -152,6 +152,20 @@ export function workspaceAccess(capabilities: Capabilities): WorkspaceAccess {
 }
 
 /**
+ * Is the detour (alternative-route) editor available?
+ *
+ * A detour is plotted the same way the base route is, so it answers to the same
+ * Permission: the editor — opening one from a detour marker, its property
+ * groups, and its save — is the absence-of-`ROUTES_EDIT` rule again, named once
+ * so the map's open path and the property rail cannot drift apart. A read-only
+ * Account still SEES saved detours and their stops; it just has no control that
+ * would create or edit one.
+ */
+export function offersDetourEditing(capabilities: Capabilities): boolean {
+  return !isReadOnlyWorkspace(capabilities);
+}
+
+/**
  * What the Fares surface offers (ADR-0019 §9 M2b amendment).
  *
  * Without `FARES_EDIT` the page keeps its table and loses every mutating

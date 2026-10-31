@@ -69,6 +69,26 @@ export interface RoleShape {
 }
 
 /**
+ * The policy's input for one Role, taken from the Role's **wire shape** —
+ * Position plus Permission names, as `GET /api/admin/roles` and every Account
+ * summary carry it.
+ *
+ * This is the one mapping from "a Role as the API returns it" to "a Role as the
+ * policy takes it". The Role pickers, the reset affordance and the lifecycle
+ * affordance all read it, so no surface can answer `canManageRole` about a Role
+ * mapped differently from its neighbours.
+ */
+export function roleShapeOf(role: {
+  position: number;
+  permissions: readonly Permission[];
+}): RoleShape {
+  return {
+    position: role.position,
+    permissions: permissionMask(role.permissions),
+  };
+}
+
+/**
  * May this actor create, edit or delete this Role? (ADR-0019 §6.)
  *
  * Strictly below the actor's position and strictly within the actor's

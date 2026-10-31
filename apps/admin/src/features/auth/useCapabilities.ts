@@ -3,6 +3,7 @@ import { useAuth } from "@/features/auth/auth";
 import {
   capabilitiesFromPermissions,
   fareAccess,
+  offersDetourEditing,
   workspaceAccess,
   type Capabilities,
   type FareAccess,
@@ -37,4 +38,13 @@ export function useWorkspaceAccess(): WorkspaceAccess {
 export function useFareAccess(): FareAccess {
   const capabilities = useCapabilities();
   return useMemo(() => fareAccess(capabilities), [capabilities]);
+}
+
+/**
+ * May this Account open or edit an alternative route? The Route Workspace's
+ * `ROUTES_EDIT` question again, named for the detour surfaces that ask it.
+ */
+export function useDetourEditing(): boolean {
+  const capabilities = useCapabilities();
+  return useMemo(() => offersDetourEditing(capabilities), [capabilities]);
 }

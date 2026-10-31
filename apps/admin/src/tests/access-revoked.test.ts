@@ -2,16 +2,15 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { AxiosError } from "axios";
 import type { AxiosResponse } from "axios";
 import { api, getStoredToken, setStoredToken } from "@/lib/api";
+import { ERROR_CODE } from "@komyuter/shared";
 import {
   ACCESS_REVOKED_CODE,
   classifyAuthFailure,
   emitAccessRevoked,
-  onAccessRevoked,
-} from "@/features/auth/accessRevoked";
-import {
   emitSessionExpired,
+  onAccessRevoked,
   onSessionExpired,
-} from "@/features/auth/sessionExpired";
+} from "@/features/auth/authEvents";
 import {
   getAccessRevoked,
   readSavedReturnPath,
@@ -85,7 +84,7 @@ function rejectNextWith(status: number, data?: unknown): void {
 const DEACTIVATED_ENVELOPE = {
   success: false,
   error: {
-    code: "ACCOUNT_DEACTIVATED",
+    code: ERROR_CODE.ACCOUNT_DEACTIVATED,
     message: "This Account has been deactivated",
   },
 };
@@ -164,7 +163,7 @@ describe("api response interceptor — access revoked", () => {
     rejectNextWith(403, DEACTIVATED_ENVELOPE);
 
     await expect(api.get("/api/admin/me")).rejects.toMatchObject({
-      code: "ACCOUNT_DEACTIVATED",
+      code: ERROR_CODE.ACCOUNT_DEACTIVATED,
     });
     expect(getStoredToken()).toBeNull();
     expect(revoked).toBe(1);

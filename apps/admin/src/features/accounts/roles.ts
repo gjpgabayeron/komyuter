@@ -2,9 +2,9 @@ import {
   canAssignRole,
   canManageRole,
   permissionMask,
+  roleShapeOf,
   type Permission,
   type RoleAuthority,
-  type RoleShape,
   type RoleSummary,
 } from "@komyuter/shared";
 
@@ -26,14 +26,6 @@ export interface RoleTarget {
   userId: string;
   isSuperAdmin: boolean;
   role: RoleSummary;
-}
-
-/** The policy's input for one Role: its position and its Permission mask. */
-function shapeOf(role: RoleSummary): RoleShape {
-  return {
-    position: role.position,
-    permissions: permissionMask(role.permissions),
-  };
 }
 
 /**
@@ -63,7 +55,7 @@ export function assignableRoles(
   roles: readonly RoleSummary[],
 ): RoleSummary[] {
   const authority = authorityOfActor(actor);
-  return roles.filter((role) => canManageRole(authority, shapeOf(role)));
+  return roles.filter((role) => canManageRole(authority, roleShapeOf(role)));
 }
 
 /**
@@ -85,8 +77,8 @@ export function assignableRoleChanges(
   if (target.isSuperAdmin) return [];
 
   const authority = authorityOfActor(actor);
-  const current = shapeOf(target.role);
+  const current = roleShapeOf(target.role);
   return roles.filter((role) =>
-    canAssignRole(authority, shapeOf(role), current),
+    canAssignRole(authority, roleShapeOf(role), current),
   );
 }

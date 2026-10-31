@@ -1,4 +1,9 @@
-import type { AccountSummary } from "@komyuter/shared";
+import {
+  canManageRole,
+  roleShapeOf,
+  type AccountSummary,
+} from "@komyuter/shared";
+import { authorityOfActor, type RoleActor } from "./roles";
 
 /** The one lifecycle action an Account's row offers, or none. */
 export type AccountLifecycleAction = "deactivate" | "reactivate";
@@ -6,29 +11,73 @@ export type AccountLifecycleAction = "deactivate" | "reactivate";
 /** Only the fields the row's decisions depend on. */
 export type AccountStatusView = Pick<
   AccountSummary,
-  "userId" | "isSuperAdmin" | "isActive"
+  "userId" | "isSuperAdmin" | "isActive" | "role"
 >;
 
 /**
  * Which lifecycle action the Accounts table offers for one row.
  *
- * Two rows offer none, and both are authorization facts rather than
- * presentation choices: an Account cannot deactivate itself, and the Super
- * Admin cannot be deactivated by anyone (the server refuses both, and the
- * `protect_super_admin` trigger is the structural backstop).
+ * Three rows offer none, and each is an authorization fact rather than a
+ * presentation choice: an Account cannot change its own status, the Super
+ * Admin cannot be touched by anyone, and a target at or above the actor's reach
+ * cannot be changed either. The last one is the same `canManageRole` the server
+ * applies before it writes — the target's **current** Role strictly below the
+ * actor's Role Position and within its Permission set — so the surface never
+ * offers a status change the server would refuse (ADR-0019 §5–6).
  */
 export function lifecycleActionFor(
   account: AccountStatusView,
-  actorUserId: string,
+  actor: RoleActor,
 ): AccountLifecycleAction | null {
-  if (account.userId === actorUserId) return null;
+  if (account.userId === actor.userId) return null;
   if (account.isSuperAdmin) return null;
+  if (!canManageRole(authorityOfActor(actor), roleShapeOf(account.role))) {
+    return null;
+  }
   return account.isActive ? "deactivate" : "reactivate";
 }
 
 /** The active state as the dashboard names it (CONTEXT.md, Deactivated Account). */
 export function statusLabel(isActive: boolean): string {
   return isActive ? "Active" : "Deactivated";
+}
+
+/**
+ * The Accounts table's active-state filter.
+ *
+ * A Deactivated Account stays on the list — deactivation keeps the identity and
+ * the Role, and the surface exists to show both — but once a dashboard has more
+ * than a handful of rows, "who can still sign in?" is a question the table
+ * cannot answer by itself. The three states are the domain's own vocabulary
+ * (Active / Deactivated), plus All, which is where the surface starts.
+ */
+export type AccountStatusFilter = "all" | "active" | "inactive";
+
+/** The filter options in the order the control reads them. */
+export const ACCOUNT_STATUS_FILTERS: readonly AccountStatusFilter[] = [
+  "all",
+  "active",
+  "inactive",
+];
+
+/** The control's label for one option. */
+export function accountStatusFilterLabel(filter: AccountStatusFilter): string {
+  if (filter === "active") return "Active";
+  if (filter === "inactive") return "Inactive";
+  return "All";
+}
+
+/**
+ * The rows one filter admits. `all` is a copy rather than the same array, so a
+ * caller can never write through the filter into the cached Account list.
+ */
+export function filterAccountsByStatus<T extends { isActive: boolean }>(
+  accounts: readonly T[],
+  filter: AccountStatusFilter,
+): T[] {
+  if (filter === "all") return [...accounts];
+  const wanted = filter === "active";
+  return accounts.filter((account) => account.isActive === wanted);
 }
 
 const MONTHS = [
