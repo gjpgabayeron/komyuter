@@ -43,6 +43,8 @@ export interface DetourEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 /** A stop owned by a detour (never part of the base chain). */
@@ -58,6 +60,8 @@ export interface DetourStopEntity {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface RestrictionEntity {
@@ -71,6 +75,8 @@ export interface RestrictionEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface DirectionEntity {
@@ -148,6 +154,7 @@ export async function loadStops(
 export async function loadDetours(
   db: Db,
   directionId: string,
+  attribution: AttributionResolver,
 ): Promise<DetourEntity[]> {
   const rows = await db
     .select({
@@ -163,6 +170,8 @@ export async function loadDetours(
       is_active: detoursTable.is_active,
       created_at: detoursTable.created_at,
       updated_at: detoursTable.updated_at,
+      created_by: detoursTable.created_by,
+      updated_by: detoursTable.updated_by,
     })
     .from(detoursTable)
     .where(eq(detoursTable.direction_id, directionId));
@@ -170,10 +179,13 @@ export async function loadDetours(
   const stopsByDetour = await loadDetourStopsByDetour(
     db,
     rows.map((row) => row.detour_id),
+    attribution,
   );
 
   return rows.map((row) => ({
     ...row,
+    created_by: attribution(row.created_by),
+    updated_by: attribution(row.updated_by),
     entry: row.entry as unknown as GeoPoint,
     exit: row.exit as unknown as GeoPoint,
     detour_polyline: row.detour_polyline as unknown as GeoLineString,
@@ -187,6 +199,7 @@ export async function loadDetours(
 export async function loadDetourStopsByDetour(
   db: Db,
   detourIds: string[],
+  attribution: AttributionResolver,
 ): Promise<Map<string, DetourStopEntity[]>> {
   if (detourIds.length === 0) return new Map();
   const rows = await db
@@ -202,6 +215,8 @@ export async function loadDetourStopsByDetour(
       notes: detourStopsTable.notes,
       created_at: detourStopsTable.created_at,
       updated_at: detourStopsTable.updated_at,
+      created_by: detourStopsTable.created_by,
+      updated_by: detourStopsTable.updated_by,
     })
     .from(detourStopsTable)
     .where(inArray(detourStopsTable.detour_id, detourIds))
@@ -221,6 +236,8 @@ export async function loadDetourStopsByDetour(
       notes: row.notes,
       created_at: iso(row.created_at),
       updated_at: iso(row.updated_at),
+      created_by: attribution(row.created_by),
+      updated_by: attribution(row.updated_by),
     };
     const list = grouped.get(row.detour_id) ?? [];
     list.push(entry);
@@ -232,6 +249,7 @@ export async function loadDetourStopsByDetour(
 export async function loadRestrictions(
   db: Db,
   directionId: string,
+  attribution: AttributionResolver,
 ): Promise<RestrictionEntity[]> {
   const rows = await db
     .select({
@@ -245,12 +263,16 @@ export async function loadRestrictions(
       is_active: restrictionsTable.is_active,
       created_at: restrictionsTable.created_at,
       updated_at: restrictionsTable.updated_at,
+      created_by: restrictionsTable.created_by,
+      updated_by: restrictionsTable.updated_by,
     })
     .from(restrictionsTable)
     .where(eq(restrictionsTable.direction_id, directionId));
 
   return rows.map((row) => ({
     ...row,
+    created_by: attribution(row.created_by),
+    updated_by: attribution(row.updated_by),
     created_at: iso(row.created_at),
     updated_at: iso(row.updated_at),
   }));
@@ -303,8 +325,8 @@ export async function loadDirectionFull(
   }
   const [stops, detours, restrictions] = await Promise.all([
     loadStops(db, directionId, attribution),
-    loadDetours(db, directionId),
-    loadRestrictions(db, directionId),
+    loadDetours(db, directionId, attribution),
+    loadRestrictions(db, directionId, attribution),
   ]);
   return { ...summary, stops, detours, restrictions };
 }

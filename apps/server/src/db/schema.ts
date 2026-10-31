@@ -146,6 +146,7 @@ export const fareConfigs = pgTable(
     is_default: boolean("is_default").notNull().default(false),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("fare_configs_is_default_idx").on(table.is_default)],
 );
@@ -239,6 +240,7 @@ export const detours = pgTable(
     driver_instruction: text("driver_instruction"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("detours_direction_id_idx").on(table.direction_id)],
 );
@@ -264,6 +266,7 @@ export const detourStops = pgTable(
     landmark_hint: text("landmark_hint"),
     notes: text("notes"),
     ...timestamps,
+    ...attribution,
   },
   (table) => [
     uniqueIndex("detour_stops_detour_id_order_idx").on(
@@ -287,6 +290,7 @@ export const restrictions = pgTable(
     note: text("note"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("restrictions_direction_id_idx").on(table.direction_id)],
 );

@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { DeleteFareConfigDialog } from "./DeleteFareConfigDialog";
 import type { FareConfigListItem } from "./api";
 import { formatKm, formatPct, formatPeso } from "./format";
+import { formatAttributionName } from "@/features/routes/attribution";
 
 interface FareConfigTableProps {
   configs: FareConfigListItem[];
@@ -77,6 +78,12 @@ export function FareConfigTable({ configs, onEdit }: FareConfigTableProps) {
             <TableHead scope="col" className={thClass}>
               Student / Senior
             </TableHead>
+            <TableHead scope="col" className={thClass}>
+              Created by
+            </TableHead>
+            <TableHead scope="col" className={thClass}>
+              Last written by
+            </TableHead>
             <TableHead scope="col" className={cn(thClass, "text-right")}>
               Actions
             </TableHead>
@@ -113,6 +120,12 @@ export function FareConfigTable({ configs, onEdit }: FareConfigTableProps) {
                 <TableCell>
                   {formatPct(config.student_discount_pct)} /{" "}
                   {formatPct(config.senior_discount_pct)}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-[9rem] truncate text-xs">
+                  {formatAttributionName(config.created_by)}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-[9rem] truncate text-xs">
+                  {formatAttributionName(config.updated_by)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button

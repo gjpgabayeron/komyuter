@@ -101,6 +101,8 @@ export interface Detour {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 /** A stop owned by a detour (never part of the base chain). */
@@ -116,6 +118,8 @@ export interface DetourStop {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface Restriction {
@@ -129,6 +133,8 @@ export interface Restriction {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface FareConfiguration {
@@ -142,4 +148,6 @@ export interface FareConfiguration {
   is_default: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }

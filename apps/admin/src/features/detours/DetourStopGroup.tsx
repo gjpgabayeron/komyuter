@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import type { StopType } from "@komyuter/shared";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
+import { formatAttributionName } from "@/features/routes/attribution";
 import { useDetourStore } from "./detourStore";
 
 /**
@@ -144,6 +145,23 @@ export function DetourStopGroup() {
           />
         </div>
       </div>
+
+      {/* Read-only provenance carried from the saved detour stop (ADR-0025).
+          A stop added in this session has none yet — it reads "Not recorded". */}
+      <dl className="mt-3 space-y-1 border-t pt-3 text-xs">
+        <div className="flex items-center justify-between gap-2">
+          <dt className="text-muted-foreground">Created by</dt>
+          <dd className="truncate">
+            {formatAttributionName(detourStop.created_by)}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-2">
+          <dt className="text-muted-foreground">Last written by</dt>
+          <dd className="truncate">
+            {formatAttributionName(detourStop.updated_by)}
+          </dd>
+        </div>
+      </dl>
 
       <div className="mt-3 flex justify-end">
         <Button

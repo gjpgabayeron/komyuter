@@ -233,6 +233,8 @@ export interface DetourStopEntity {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 /** A detour-stop authoring input (order comes from the array position). */
@@ -259,6 +261,8 @@ export interface DetourEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface SaveDetourPayload {

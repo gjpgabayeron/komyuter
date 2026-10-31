@@ -157,11 +157,15 @@ describe("detour edit — prefilled composition (US3, FR-013)", () => {
         notes: null,
         created_at: "2026-01-01T00:00:00Z",
         updated_at: "2026-01-01T00:00:00Z",
+        created_by: null,
+        updated_by: null,
       },
     ],
     is_active: true,
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
+    created_by: null,
+    updated_by: null,
   };
 
   it("openEdit hydrates nodes, stops, and fields into the waypoint phase", async () => {

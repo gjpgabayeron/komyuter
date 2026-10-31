@@ -21,6 +21,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { routeKeys } from "@/lib/queryKeys";
 import type { UpdateDetourPayload } from "@/features/routes/routesApi";
 import { coordsDistanceMeters, formatDistance } from "@/lib/coords";
+import { formatAttributionName } from "@/features/routes/attribution";
 
 const CONFLICT_COPY =
   "Another detour was added or removed while you were editing — review the list and save again.";
@@ -327,6 +328,25 @@ export function DetourGroup() {
             }
           />
         </div>
+      )}
+
+      {/* Read-only provenance for a saved detour (ADR-0025): who created it and
+          who wrote it last. A detour not yet saved has no baseline to show. */}
+      {editBaseline && (
+        <dl className="mt-2 space-y-1 border-t pt-2 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">Created by</dt>
+            <dd className="truncate">
+              {formatAttributionName(editBaseline.created_by)}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">Last written by</dt>
+            <dd className="truncate">
+              {formatAttributionName(editBaseline.updated_by)}
+            </dd>
+          </div>
+        </dl>
       )}
 
       {draftOffer && offeredDraft && (

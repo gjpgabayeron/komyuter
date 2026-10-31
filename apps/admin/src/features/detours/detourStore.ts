@@ -1,5 +1,5 @@
 import type { CoordinatePair, GeoLineString, GeoPoint } from "@komyuter/shared";
-import type { StopType } from "@komyuter/shared";
+import type { Attribution, StopType } from "@komyuter/shared";
 import { create } from "zustand";
 import type {
   DetourEntity,
@@ -58,6 +58,10 @@ export interface DetourStopDraft {
   is_guaranteed_service: boolean;
   landmark_hint: string | null;
   notes: string | null;
+  /** Read-only provenance carried from the saved detour stop (ADR-0025); a
+   *  stop added in this session has none until the server observes a write. */
+  created_by?: Attribution;
+  updated_by?: Attribution;
 }
 
 /** Fully validated save payload — the exact server POST/PUT shape. */
@@ -345,6 +349,9 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
             is_guaranteed_service: stop.is_guaranteed_service,
             landmark_hint: stop.landmark_hint,
             notes: stop.notes,
+            // Carry the saved stop's Attribution so the stop editor can show it.
+            created_by: stop.created_by,
+            updated_by: stop.updated_by,
           })),
           loop: detour.detour_polyline,
           label: detour.label,
