@@ -6,6 +6,7 @@ import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
 import { useFareConfigsQuery } from "@/features/fares/queries";
 import { cn } from "@/lib/utils";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { formatAttributionName } from "../attribution";
 import { formatTimestamp } from "../format";
 import { FareConfigSelect } from "../FareConfigSelect";
 import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "../routeColors";
@@ -22,6 +23,9 @@ export function RouteGroup() {
   const [unit, setUnit] = useState<"m" | "km">("m");
 
   const route = routeQuery.data;
+  // The direction this workspace plots is the route's base direction; its
+  // attribution is shown beside the route's own (ADR-0025).
+  const baseDirection = route?.directions[0] ?? null;
 
   const [hexText, setHexText] = useState(
     routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
@@ -177,7 +181,48 @@ export function RouteGroup() {
             {route ? formatTimestamp(route.updated_at) : "—"}
           </p>
         </div>
+        <dl className="space-y-1 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">Created by</dt>
+            <dd className="truncate">
+              {route ? formatAttributionName(route.created_by) : "—"}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">Last written by</dt>
+            <dd className="truncate">
+              {route ? formatAttributionName(route.updated_by) : "—"}
+            </dd>
+          </div>
+        </dl>
       </div>
+
+      {baseDirection && (
+        <div className="mt-4 space-y-1.5 border-t pt-3">
+          <SectionLabel>Direction</SectionLabel>
+          <p className="truncate text-sm">{baseDirection.label}</p>
+          <dl className="space-y-1 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-muted-foreground">Created by</dt>
+              <dd className="truncate">
+                {formatAttributionName(baseDirection.created_by)}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-muted-foreground">Last written by</dt>
+              <dd className="truncate">
+                {formatAttributionName(baseDirection.updated_by)}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-muted-foreground">Last updated</dt>
+              <dd className="tabular-nums">
+                {formatTimestamp(baseDirection.updated_at)}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      )}
     </section>
   );
 }

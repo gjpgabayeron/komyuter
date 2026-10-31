@@ -1,5 +1,5 @@
 import { asc, eq, inArray } from "drizzle-orm";
-import type { GeoLineString, GeoPoint } from "@komyuter/shared";
+import type { Attribution, GeoLineString, GeoPoint } from "@komyuter/shared";
 import type { Db } from "../config/db";
 import {
   detourStops as detourStopsTable,
@@ -9,6 +9,7 @@ import {
   stops as stopsTable,
 } from "../db/schema";
 import { asGeoJSON } from "../db/queries";
+import type { AttributionResolver } from "./attribution";
 
 export interface StopEntity {
   stop_id: string;
@@ -24,6 +25,8 @@ export interface StopEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface DetourEntity {
@@ -80,6 +83,8 @@ export interface DirectionEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
   stops: StopEntity[];
   detours: DetourEntity[];
   restrictions: RestrictionEntity[];
@@ -95,6 +100,8 @@ export interface DirectionSummaryEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 function iso(value: unknown): string {
@@ -104,6 +111,7 @@ function iso(value: unknown): string {
 export async function loadStops(
   db: Db,
   directionId: string,
+  attribution: AttributionResolver,
 ): Promise<StopEntity[]> {
   const rows = await db
     .select({
@@ -120,6 +128,8 @@ export async function loadStops(
       is_active: stopsTable.is_active,
       created_at: stopsTable.created_at,
       updated_at: stopsTable.updated_at,
+      created_by: stopsTable.created_by,
+      updated_by: stopsTable.updated_by,
     })
     .from(stopsTable)
     .where(eq(stopsTable.direction_id, directionId))
@@ -127,6 +137,8 @@ export async function loadStops(
 
   return rows.map((row) => ({
     ...row,
+    created_by: attribution(row.created_by),
+    updated_by: attribution(row.updated_by),
     location: row.location as unknown as GeoPoint,
     created_at: iso(row.created_at),
     updated_at: iso(row.updated_at),
@@ -247,6 +259,7 @@ export async function loadRestrictions(
 export async function loadDirectionSummary(
   db: Db,
   directionId: string,
+  attribution: AttributionResolver,
 ): Promise<DirectionSummaryEntity | null> {
   const [row] = await db
     .select({
@@ -259,6 +272,8 @@ export async function loadDirectionSummary(
       is_active: directionsTable.is_active,
       created_at: directionsTable.created_at,
       updated_at: directionsTable.updated_at,
+      created_by: directionsTable.created_by,
+      updated_by: directionsTable.updated_by,
     })
     .from(directionsTable)
     .where(eq(directionsTable.direction_id, directionId))
@@ -269,6 +284,8 @@ export async function loadDirectionSummary(
   }
   return {
     ...row,
+    created_by: attribution(row.created_by),
+    updated_by: attribution(row.updated_by),
     base_polyline: row.base_polyline as unknown as GeoLineString,
     created_at: iso(row.created_at),
     updated_at: iso(row.updated_at),
@@ -278,13 +295,14 @@ export async function loadDirectionSummary(
 export async function loadDirectionFull(
   db: Db,
   directionId: string,
+  attribution: AttributionResolver,
 ): Promise<DirectionEntity | null> {
-  const summary = await loadDirectionSummary(db, directionId);
+  const summary = await loadDirectionSummary(db, directionId, attribution);
   if (!summary) {
     return null;
   }
   const [stops, detours, restrictions] = await Promise.all([
-    loadStops(db, directionId),
+    loadStops(db, directionId, attribution),
     loadDetours(db, directionId),
     loadRestrictions(db, directionId),
   ]);

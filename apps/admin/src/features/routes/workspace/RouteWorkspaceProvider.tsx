@@ -352,6 +352,8 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           name: stop.name,
           type: stop.type,
           location: stop.location.coordinates,
+          created_by: stop.created_by,
+          updated_by: stop.updated_by,
         })),
         result.base_polyline,
       );
@@ -414,6 +416,8 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         is_guaranteed_service: stop.is_guaranteed_service,
         landmark_hint: stop.landmark_hint,
         notes: stop.notes,
+        created_by: stop.created_by,
+        updated_by: stop.updated_by,
       })),
       base.base_polyline,
     );

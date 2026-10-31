@@ -139,6 +139,8 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
             is_guaranteed_service: stop.is_guaranteed_service,
             landmark_hint: stop.landmark_hint,
             notes: stop.notes,
+            created_by: stop.created_by,
+            updated_by: stop.updated_by,
           })),
           base.base_polyline, // closes the chain when the route is a loop (FR-004)
         );

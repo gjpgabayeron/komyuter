@@ -121,6 +121,19 @@ export function createAdminAuthGuard(supabase: SupabaseClient, db: Db) {
 }
 
 /**
+ * The acting Account id for Attribution (ADR-0025 §3). It is read from what the
+ * guard already resolved — never from the request body — so a client cannot
+ * forge who created or last wrote a row.
+ */
+export function actorId(request: FastifyRequest): string {
+  const id = request.adminUserId ?? request.adminAccount?.userId;
+  if (!id) {
+    throw unauthorized("Missing bearer token");
+  }
+  return id;
+}
+
+/**
  * The one Permission check. Routes declare `config.permission`; the route-level
  * hook in `enforceRoutePermission` calls this. Reads stay open to every Account
  * (a Viewer must be able to open the workspace); mutations, export and the

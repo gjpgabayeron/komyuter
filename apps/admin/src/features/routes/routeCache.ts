@@ -31,6 +31,8 @@ function toDirection(
     is_active: result.is_active,
     created_at: result.created_at,
     updated_at: result.updated_at,
+    created_by: result.created_by,
+    updated_by: result.updated_by,
     stops: result.stops,
   };
 }
@@ -99,6 +101,9 @@ export function patchRouteMeta(
         is_active: route.is_active,
         fare_config_id: route.fare_config_id,
         updated_at: route.updated_at,
+        // The writer moved with this update; the creator never does.
+        created_by: route.created_by,
+        updated_by: route.updated_by,
       };
     },
   );

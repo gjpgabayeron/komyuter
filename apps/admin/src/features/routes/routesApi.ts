@@ -1,4 +1,5 @@
 import type {
+  Attribution,
   CoordinatePair,
   GeoLineString,
   GeoPoint,
@@ -18,6 +19,8 @@ export interface RouteSummary {
   fare_config_id: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
   direction_count: number;
 }
 
@@ -34,6 +37,8 @@ export interface StopEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface DirectionEntity {
@@ -46,6 +51,8 @@ export interface DirectionEntity {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
   /** Present in the RouteDetail flow (detail endpoint embeds stops); NOT
    *  populated by the directions LIST endpoint (`loadDirectionSummary`), so
    *  list-driven consumers must fetch stops via the dedicated stops query. */
@@ -62,6 +69,8 @@ export interface RouteDetail {
   fare_config_id: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
   directions: DirectionEntity[];
 }
 
@@ -99,6 +108,8 @@ export interface DirectionSaveResult {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
   stops: StopEntity[];
   return_direction: Omit<DirectionSaveResult, "return_direction">;
 }

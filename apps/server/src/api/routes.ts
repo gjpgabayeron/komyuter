@@ -8,6 +8,12 @@ import {
 import { conflict, notFound } from "./errors";
 import { uniqueSlug } from "../domain/ids";
 import { loadDirectionFull } from "../domain/entities";
+import { actorId } from "./auth";
+import {
+  createAttribution,
+  loadAttributionResolver,
+  updateAttribution,
+} from "../domain/attribution";
 
 function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
@@ -17,7 +23,7 @@ export async function registerRoutes(
   app: AppInstance,
   deps: AppDeps,
 ): Promise<void> {
-  const { db } = deps;
+  const { db, supabase } = deps;
 
   app.get("/routes", async () => {
     const rows = await db
@@ -30,6 +36,8 @@ export async function registerRoutes(
         fare_config_id: routesTable.fare_config_id,
         created_at: routesTable.created_at,
         updated_at: routesTable.updated_at,
+        created_by: routesTable.created_by,
+        updated_by: routesTable.updated_by,
       })
       .from(routesTable)
       .orderBy(desc(routesTable.updated_at));
@@ -46,10 +54,15 @@ export async function registerRoutes(
       counts.map((c) => [c.route_id, Number(c.direction_count)]),
     );
 
+    // One identity listing per request, mapped over the rows (ADR-0025 §5).
+    const attribution = await loadAttributionResolver(supabase);
+
     return {
       success: true,
       data: rows.map((row) => ({
         ...row,
+        created_by: attribution(row.created_by),
+        updated_by: attribution(row.updated_by),
         direction_count: countByRoute.get(row.route_id) ?? 0,
         created_at: iso(row.created_at),
         updated_at: iso(row.updated_at),
@@ -65,6 +78,8 @@ export async function registerRoutes(
     },
     async (request, reply) => {
       const body = request.body;
+      // The actor is the guard's Account — a client-supplied actor is not read.
+      const actor = actorId(request);
 
       const existingIds = await db
         .select({ route_id: routesTable.route_id })
@@ -92,8 +107,12 @@ export async function registerRoutes(
           // Draft-first workflow: new routes start INACTIVE so they can be
           // reviewed before going live (Pasted #42).
           is_active: body.is_active ?? false,
+          // A create is both the first and the last write (ADR-0025 §3).
+          ...createAttribution(actor),
         })
         .returning();
+
+      const attribution = await loadAttributionResolver(supabase);
 
       return reply.code(201).send({
         success: true,
@@ -106,6 +125,8 @@ export async function registerRoutes(
           fare_config_id: inserted.fare_config_id,
           created_at: iso(inserted.created_at),
           updated_at: iso(inserted.updated_at),
+          created_by: attribution(inserted.created_by),
+          updated_by: attribution(inserted.updated_by),
           direction_count: 0,
         },
       });
@@ -128,6 +149,8 @@ export async function registerRoutes(
       // Keep the previous overview z-order (most recently updated first).
       .orderBy(desc(routesTable.updated_at));
 
+    const attribution = await loadAttributionResolver(supabase);
+
     const data = await Promise.all(
       rows.map(async (route) => {
         const directionIds = await db
@@ -142,7 +165,7 @@ export async function registerRoutes(
         const [base, ret] = await Promise.all(
           directionIds
             .slice(0, 2)
-            .map((d) => loadDirectionFull(db, d.direction_id)),
+            .map((d) => loadDirectionFull(db, d.direction_id, attribution)),
         );
         return {
           route_id: route.route_id,
@@ -172,6 +195,8 @@ export async function registerRoutes(
         fare_config_id: routesTable.fare_config_id,
         created_at: routesTable.created_at,
         updated_at: routesTable.updated_at,
+        created_by: routesTable.created_by,
+        updated_by: routesTable.updated_by,
       })
       .from(routesTable)
       .where(eq(routesTable.route_id, routeId))
@@ -194,8 +219,11 @@ export async function registerRoutes(
         asc(directionsTable.direction_id),
       );
 
+    const attribution = await loadAttributionResolver(supabase);
     const directions = await Promise.all(
-      directionRows.map((d) => loadDirectionFull(db, d.direction_id)),
+      directionRows.map((d) =>
+        loadDirectionFull(db, d.direction_id, attribution),
+      ),
     );
 
     return {
@@ -209,6 +237,8 @@ export async function registerRoutes(
         fare_config_id: row.fare_config_id,
         created_at: iso(row.created_at),
         updated_at: iso(row.updated_at),
+        created_by: attribution(row.created_by),
+        updated_by: attribution(row.updated_by),
         directions: directions.filter((d) => d !== null),
       },
     };
@@ -223,6 +253,7 @@ export async function registerRoutes(
     async (request) => {
       const { routeId } = request.params as { routeId: string };
       const body = request.body;
+      const actor = actorId(request);
 
       const [existing] = await db
         .select({ route_id: routesTable.route_id })
@@ -243,9 +274,15 @@ export async function registerRoutes(
 
       const [updated] = await db
         .update(routesTable)
-        .set(patch)
+        .set({
+          ...patch,
+          // Only the last writer moves: the creator is written once (ADR-0025).
+          ...updateAttribution(actor),
+        })
         .where(eq(routesTable.route_id, routeId))
         .returning();
+
+      const attribution = await loadAttributionResolver(supabase);
 
       return {
         success: true,
@@ -258,6 +295,8 @@ export async function registerRoutes(
           fare_config_id: updated.fare_config_id,
           created_at: iso(updated.created_at),
           updated_at: iso(updated.updated_at),
+          created_by: attribution(updated.created_by),
+          updated_by: attribution(updated.updated_by),
         },
       };
     },

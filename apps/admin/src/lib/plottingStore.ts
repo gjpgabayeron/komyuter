@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type {
+  Attribution,
   CoordinatePair,
   GeocodeHit,
   GeoLineString,
@@ -90,6 +91,11 @@ export interface DraftStop {
   is_guaranteed_service?: boolean;
   landmark_hint?: string | null;
   notes?: string | null;
+  /** Attribution as the server reported it when this stop was loaded (ADR-0025).
+   *  Read-only provenance: absent for a stop added in this session, which has
+   *  no recorded writer yet. */
+  created_by?: Attribution;
+  updated_by?: Attribution;
 }
 
 export type SnapStatus = "idle" | "pending" | "applied";
