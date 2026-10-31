@@ -9,11 +9,14 @@ export function RouteRow({
   active,
   onOpen,
   onDelete,
+  readOnly = false,
 }: {
   route: RouteSummary;
   active: boolean;
   onOpen: () => void;
   onDelete: () => void;
+  /** Read-only: the row is a selection target and carries no actions (#47). */
+  readOnly?: boolean;
 }) {
   return (
     <div
@@ -52,27 +55,31 @@ export function RouteRow({
           </span>
         </span>
       </button>
-      <div className="flex shrink-0 items-center gap-0.5">
-        <button
-          type="button"
-          className={cn(buttonVariants({ variant: "ghost", size: "icon-xs" }))}
-          aria-label={`Edit ${route.name}`}
-          onClick={onOpen}
-        >
-          <Pencil className="size-3" />
-        </button>
-        <button
-          type="button"
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "icon-xs" }),
-            "hover:bg-destructive/10 hover:text-destructive",
-          )}
-          aria-label={`Delete ${route.name}`}
-          onClick={onDelete}
-        >
-          <Trash2 className="size-3" />
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="flex shrink-0 items-center gap-0.5">
+          <button
+            type="button"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-xs" }),
+            )}
+            aria-label={`Edit ${route.name}`}
+            onClick={onOpen}
+          >
+            <Pencil className="size-3" />
+          </button>
+          <button
+            type="button"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon-xs" }),
+              "hover:bg-destructive/10 hover:text-destructive",
+            )}
+            aria-label={`Delete ${route.name}`}
+            onClick={onDelete}
+          >
+            <Trash2 className="size-3" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

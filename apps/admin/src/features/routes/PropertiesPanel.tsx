@@ -6,6 +6,7 @@ import { StopGroup } from "./properties/StopGroup";
 import { DetourGroup } from "@/features/detours/DetourGroup";
 import { DetourStopGroup } from "@/features/detours/DetourStopGroup";
 import { useDetourStore } from "@/features/detours/detourStore";
+import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 
 /**
  * Right-side properties plate (focus / edit states) — one of the two
@@ -15,6 +16,9 @@ import { useDetourStore } from "@/features/detours/detourStore";
  * Returns null in overview/empty (the column track is hidden then).
  */
 export function PropertiesPanel() {
+  // Read-only (ticket #47): the column keeps its place and its values —
+  // Route, Direction and Stop render as text with no field to submit.
+  const { readOnly } = useWorkspaceAccess();
   const routeId = usePlottingStore((s) => s.routeId);
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
   const selection = usePlottingStore((s) => s.selection);
@@ -48,9 +52,9 @@ export function PropertiesPanel() {
                 <DetourGroup />
               )
             ) : selection.type === "stop" ? (
-              <StopGroup />
+              <StopGroup readOnly={readOnly} />
             ) : (
-              <RouteGroup />
+              <RouteGroup readOnly={readOnly} />
             )}
           </div>
         </Plate>

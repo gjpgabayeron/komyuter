@@ -33,6 +33,7 @@ import {
   SIGNBOARD_BLUE,
 } from "./map/constants";
 import { useDetourStore } from "@/features/detours/detourStore";
+import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 import {
   useDirectionsQuery,
   useDetoursQuery,
@@ -63,6 +64,7 @@ interface RouteMapProps {
  * when the map needs to react to external actions (e.g. "zoom to route").
  */
 export function RouteMap({ className, children, padding }: RouteMapProps) {
+  const { readOnly } = useWorkspaceAccess();
   const routeColor = usePlottingStore((s) => s.routeMeta?.color ?? null);
   const [viewport, setViewport] = useState<Viewport>({
     longitude: ILOILO_CITY[0],
@@ -151,7 +153,9 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
     setSelection(selectStop(stopId));
   };
 
-  const canDrag = routeId !== null && tool === "select";
+  // Read-only (ticket #47): stops are selection targets, never draggable —
+  // a drag is a stop edit, and nothing on this surface may write.
+  const canDrag = routeId !== null && tool === "select" && !readOnly;
 
   // Keep a visible connecting line between stops (FR-006): the committed
   // road-snapped draft is drawn separately; before any path exists a

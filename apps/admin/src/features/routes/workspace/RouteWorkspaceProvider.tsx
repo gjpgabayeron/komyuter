@@ -21,6 +21,8 @@ import {
 } from "@/lib/plottingStore";
 import { clearSelection } from "@/lib/selection";
 import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
+import { offersDraftRestore, writesDraft } from "@/lib/capabilities";
+import { useCapabilities } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
 import type { DraftPayload } from "@/lib/draft";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
@@ -108,6 +110,11 @@ const RouteWorkspaceContext = createContext<RouteWorkspaceValue | null>(null);
  */
 export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const { routeId: routeParam } = useParams<{ routeId: string }>();
+  // The Draft lifecycle is a write to the admin's unsaved work, so a read-only
+  // Account neither writes it nor is offered a restore (ticket #47: an existing
+  // Draft is left untouched). See `lib/capabilities`.
+  const capabilities = useCapabilities();
+  const canWriteDraft = writesDraft(capabilities);
   const routeId = usePlottingStore((s) => s.routeId);
   const directionId = usePlottingStore((s) => s.directionId);
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
@@ -180,6 +187,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   // Persist the plotting draft to localStorage whenever there are unsaved
   // changes and a route is open. The draft is never sent to the server.
   useEffect(() => {
+    if (!canWriteDraft) return;
     return usePlottingStore.subscribe((state, prevState) => {
       if (state.routeId === null) return;
       if (state.draftDirty) {
@@ -202,10 +210,11 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         draftWriterRef.current.cancel();
       }
     });
-  }, []);
+  }, [canWriteDraft]);
 
   // Flush a pending draft write before the tab goes away.
   useEffect(() => {
+    if (!canWriteDraft) return;
     const writer = draftWriterRef.current;
     const flush = () => writer.flush();
     window.addEventListener("beforeunload", flush);
@@ -213,21 +222,22 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("beforeunload", flush);
       writer.flush();
     };
-  }, []);
+  }, [canWriteDraft]);
 
   // Offer the stored draft when a route (re)opens and a fresh load landed.
   // The offer is made once per route/direction session (guarded by restoredRef)
   // and never after the 24 h TTL (loadDraft returns null then — FR-014).
   const restoredRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!canWriteDraft) return;
     if (routeId === null || !routeQuery.data) return;
     const directionId = routeQuery.data.directions[0]?.direction_id ?? null;
     const key = `${routeId}/${directionId}`;
     if (restoredRef.current === key) return;
     if (usePlottingStore.getState().stops.length === 0) return;
     const draft = loadDraft(routeId, directionId);
-    if (draft) setDraftOffer(draft);
-  }, [routeQuery.data, routeId]);
+    if (offersDraftRestore(capabilities, draft)) setDraftOffer(draft);
+  }, [routeQuery.data, routeId, capabilities, canWriteDraft]);
 
   // Auto-dismiss the transient status notices ("Saved just now" after a save,
   // "Draft restored" after a restore) — no manual dismissal (US4 refinement).
@@ -434,7 +444,8 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     setConflict(false);
   };
 
-  const showSave = routeId !== null && (draftDirty || metaDirty);
+  const showSave =
+    routeId !== null && canWriteDraft && (draftDirty || metaDirty);
 
   // --- FR-014: unsaved-changes navigation guard ---
   // Dirty state read at event time (not captured in closures).
@@ -527,6 +538,9 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
 
   /** Single consolidated save: plotting draft first, then route metadata. */
   const saveAll = async () => {
+    // Nothing to save without the editing Permission — the affordance is not
+    // mounted, and the shortcut is inactive, so this is belt and braces.
+    if (!canWriteDraft) return;
     usePlottingStore.getState().setSaving(true);
     try {
       if (draftDirty && !(await savePlot())) return;
