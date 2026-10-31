@@ -150,3 +150,45 @@ resolution keeps §6 and narrows §5's exclusivity to the ceiling:
   exactly one Role".
 
 The first two points are vocabulary as well as policy and are reflected in `CONTEXT.md`.
+
+## Amendment — 2026-10-31 (M2b)
+
+M2b builds the surfaces and the lifecycle on top of M2a's model. It settles six points the ADR left
+open, and one contradiction in the milestone wording.
+
+1. **Accounts are deactivated, never deleted.** `admin_users.is_active` is the lifecycle flag; the
+   identity and the Role are kept. Reactivation restores the same Role. Deletion is not a dashboard
+   action, so Attribution's foreign keys stay valid (ADR-0025).
+2. **Revocation is the guard's next-request refusal, not a token operation.** `supabase-js` 2.117.3
+   exposes only `admin.signOut(jwt, scope)` — there is no by-user-id session revocation, and a Supabase
+   JWT cannot be un-issued. Revocation is therefore what the seam already does: `loadAdminAccount` runs
+   on every request, an inactive Account is refused with `403 ACCOUNT_DEACTIVATED`, and sign-in refuses
+   it with the same unified denial as a wrong password. No identity ban is used: it would create a
+   second, drift-prone notion of "active" for a project whose Data API is closed anyway.
+3. **A Role change is not a revocation.** Because the Role is re-read per request, the change applies on
+   the next request with no new sign-in. This resolves the M2b deliverable — which asked for revocation
+   "on Role change" — in favour of the exit criterion — which requires the change to take effect without
+   one. The milestone wording is corrected rather than the behaviour.
+4. **Temporary passwords are server-generated and must be replaced.** Creating an Account or forcing a
+   reset issues a generated password, shown to the manager once. `admin_users.must_change_password` then
+   holds the Account on a forced change; while it is set the guard admits only `GET /api/admin/me` and
+   `POST /api/auth/password`, with `403 PASSWORD_CHANGE_REQUIRED`. The allowlist is declared per route,
+   not matched by URL, so a new route cannot silently bypass the gate.
+5. **Force reset is delegated within reach and never on oneself.** An `ADMIN_MANAGE` holder may reset an
+   Account whose current Role sits strictly below its own position and within its own Permission set —
+   the same reach as assigning that Role — and may not reset itself, which uses the ordinary
+   change-password flow. The replacement password sets the flag, so the target's live session is refused
+   at its next request. The owner is unreachable by anyone, and cannot reset itself, so its credential
+   is changed only through the self-service flow.
+6. **The last-owner lockout guard is structural, not a count.** The `protect_super_admin` trigger gains
+   `is_active`, so no caller can deactivate the owner. No "last `ADMIN_MANAGE` holder" query is needed:
+   the owner's effective set is every declared Permission, so an Account manager always exists. The
+   guard is the same invariant §5 already relies on, extended to the new lifecycle flag.
+
+§9's read-only surface is also widened from the workspace to the dashboard. One capability module
+derives every affordance from the effective set: the workspace keeps its layout and shows values
+read-only; the Fares page keeps its table and loses its mutations; the Export and Accounts entries are
+absent without their Permission; place search is absent without `MAPBOX_GEOSERVICES`. Every hidden
+affordance still has a server refusal behind it — the UI remains an affordance, never the boundary.
+
+Attribution is recorded separately in **ADR-0025**.
