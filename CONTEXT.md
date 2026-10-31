@@ -13,19 +13,27 @@ An authenticated identity permitted to sign in to the desktop admin dashboard. E
 _Avoid_: User, login, credential, member
 
 **Role**:
-A named, ordered set of Permissions, created and assigned by the Super Admin. It bounds what the Accounts holding it may do.
+A named, ordered set of Permissions. It bounds what the Accounts holding it may do. An Account holding the role-management Permission may compose Roles below its own Role Position and within its own Permission set; the Super Admin is the ceiling.
 _Avoid_: Group, level, tier
 
 **Permission**:
 A single capability a Role grants — for example deleting a Route, or managing Accounts. Permission, not Role, is what an authorization decision is made on.
 _Avoid_: Privilege, scope, capability flag
 
+**Effective Permission Set**:
+What an Account may actually do: the Permissions of its Role. The Super Admin is the exception — its effective set is every declared Permission, regardless of the Role it holds, so no Role edit can weaken it.
+_Avoid_: Capability set, granted scopes, bitmask
+
+**Role Position**:
+The ordering value on a Role. It is presentation order and a security boundary at once: an Account may only create, change, delete or assign Roles positioned strictly below its own. The Super Admin sits above every Role.
+_Avoid_: Rank, level, tier, priority
+
 **Super Admin**:
-The single, permanent owner Account. It cannot be demoted, deactivated or deleted by anyone, including itself, and it is the only Account permitted to create, change or remove Roles.
+The single, permanent owner Account. It cannot be demoted, deactivated or deleted by anyone, including itself. It is the ceiling for Role management: it may compose or assign any Role, and only it may touch the top.
 _Avoid_: Owner account, root, master admin, system account
 
 **Administrator**:
-The name of one seeded Role — the one holding every Permission. It is not a term for a person: a person is an Account. The other seeded Roles are Plotter, which may edit transit data, and Viewer, which is read-only. Seeded Roles are defaults rather than fixed vocabulary, since the Super Admin composes Roles freely.
+The name of one seeded Role — the one holding every Permission. It is not a term for a person: a person is an Account. The other seeded Roles are Plotter, which may edit transit data, and Viewer, which is read-only. Seeded Roles are defaults rather than fixed vocabulary, since Roles are data and can be composed.
 _Avoid_: Admin, user, operator (as terms for a person)
 
 **Route**:

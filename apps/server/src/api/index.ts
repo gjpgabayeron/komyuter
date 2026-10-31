@@ -1,6 +1,7 @@
 import type { AppDeps, AppInstance } from "./app";
 import { registerAuth } from "./auth-login";
 import { createAdminAuthGuard } from "./auth";
+import { registerMe } from "./me";
 import { registerRoutes } from "./routes";
 import { registerFareConfigs } from "./fare-configs";
 import { registerDirections } from "./directions";
@@ -23,6 +24,7 @@ export async function registerAdminRoutes(
   await app.register(
     async (admin) => {
       admin.addHook("preHandler", authGuard);
+      await admin.register(registerMe, deps);
       await admin.register(registerRoutes, deps);
       await admin.register(registerFareConfigs, deps);
       await admin.register(registerDirections, deps);

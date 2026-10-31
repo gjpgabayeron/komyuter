@@ -1,7 +1,7 @@
 # ADR-0019: Authorization model — Roles as data, Super Admin as ownership (DECIDED)
 
 - **Status**: DECIDED — the direction is agreed and recorded; implementation spans milestones **M2a**
-  and **M2b**
+  and **M2b**. Amended 2026-10-30 (M2a) to reconcile §5 with §6 — see the amendment at the end.
 - **Date**: 2026-10-08
 - **Supersedes/refines**: refines **ADR-0006** (Supabase Auth — admin-gated CRUD) by replacing binary
   admin membership with Roles and Permissions. Supersedes the glossary's definition of **Administrator**
@@ -56,17 +56,21 @@ Constraints that bound the design:
 4. **A Role is data, not code.** The Super Admin creates, renames, reorders and deletes Roles from the
    dashboard; no Role is hard-coded.
 5. **Super Admin is an immutable ownership property, not a Role.** Exactly one Account is the owner. It
-   cannot be demoted, deactivated, deleted or edited by anyone — including itself — and it is the only
-   Account that may create, edit, reorder or delete Roles. This makes the lockout invariant structural
-   rather than a rule someone must remember to check, and it answers "who may create Roles?" without
-   recursion.
+   cannot be demoted, deactivated, deleted or edited by anyone — including itself. It is the **ceiling**
+   for Role management: its effective Permission set is every declared Permission regardless of the Role
+   it holds, and only it may create, change or assign a Role at the top position. This makes the lockout
+   invariant structural rather than a rule someone must remember to check, and it answers "who may manage
+   Roles?" without recursion.
 6. **The hierarchy rule is grant-subset.** An Account may only create or edit a Role whose Permissions
    are a **subset of its own**, and may not modify or assign any Role at or above its own position.
-   Position is presentation order; the subset rule is what closes privilege escalation.
-7. **Enforcement lives at the existing single seam.** `isAdminUserId` grows into the capability check in
-   the same place, and `GET /api/admin/me` returns the Account's effective Permission set, which the
-   admin UI consumes to hide and disable controls. The UI's use of that set is an affordance, never the
-   authorization boundary.
+   Position is presentation order; the subset rule is what closes privilege escalation. This applies to
+   every role manager, not only the owner: `ADMIN_MANAGE` is a Permission, so a holder composes Roles
+   strictly below its own position and strictly within its own set.
+7. **Enforcement lives at the existing single seam.** The membership lookup grows into
+   `loadAdminAccount`, which resolves the Role and effective set once per request; `requirePermission`
+   enforces the route's declared Permission at the same seam. `GET /api/admin/me` returns the Account's
+   effective Permission set, which the admin UI consumes to hide and disable controls. The UI's use of
+   that set is an affordance, never the authorization boundary.
 8. **Provisioning is invite-only.** Accounts are created by the owner (email plus a temporary password,
    through the service-role key). There is no self-signup and no approval queue.
 9. **A read-only Account gets an honest surface.** Because a Role may lack write Permissions, the
@@ -118,3 +122,31 @@ Constraints that bound the design:
   authenticated Account may do.
 - No OAuth, SSO, or commuter-side identity — the commuter app stays anonymous with optional sign-in
   (ADR-0006).
+
+## Amendment — 2026-10-30 (M2a)
+
+§5 originally said the Super Admin was "the only Account that may create, edit, reorder or delete
+Roles". That contradicted §6's grant-subset rule and made M2a's exit criterion untestable: if the only
+role manager holds every Permission, "granting a Permission the creator lacks" can never occur. The
+resolution keeps §6 and narrows §5's exclusivity to the ceiling:
+
+- **Role management is a Permission, not an ownership property.** A holder of `ADMIN_MANAGE` may create,
+  edit, delete or assign a Role strictly below its own Role Position and strictly within its own
+  Permission set. The Super Admin is the ceiling: only it may manage a Role at the top position.
+- **The Super Admin's effective set is every declared Permission, independent of its Role.** The Role
+  shown for it is descriptive. A Permission added later cannot lock the owner out, and editing the
+  seeded Administrator Role cannot weaken it.
+- **Positions are compared, not just displayed.** "At or above its own position" is the boundary; an
+  Account cannot edit or assign its own Role.
+- **Transit reads stay open; the access model does not.** Any Account may read routes, directions,
+  stops, detours, restrictions and fare configurations — a Viewer must be able to open the workspace.
+  `EXPORT_DATASET` gates whole-dataset egress and `MAPBOX_GEOSERVICES` gates the token-spending proxy.
+  Roles and Accounts are the exception: reads and writes both require `ADMIN_MANAGE`, because the list
+  is itself the access model.
+- **Assignment is checked on both sides of the move.** An actor may move an Account only when the target
+  Role _and_ the Account's current Role are strictly below the actor's position, and both Permission
+  sets are subsets of the actor's. Nobody may change their own Role.
+- **Deleting a Role is refused while Accounts hold it** (`409 CONFLICT`), preserving "every Account holds
+  exactly one Role".
+
+The first two points are vocabulary as well as policy and are reflected in `CONTEXT.md`.

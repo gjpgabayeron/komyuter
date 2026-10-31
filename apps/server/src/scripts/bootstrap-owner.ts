@@ -94,17 +94,26 @@ async function main(): Promise<void> {
 
   // Raw pg rather than the drizzle client: `createDb` encapsulates its pool, so
   // this script could not close it and would hang instead of exiting. Mirrors
-  // the insert the integration helpers already perform.
+  // the insert the integration helpers already perform. The seeded Administrator
+  // Role exists as of migration 0007; ownership is the `is_super_admin` property,
+  // not a Role (ADR-0019). Re-running promotes an existing row rather than
+  // leaving a pre-0007 Account without the ownership flag.
   const pool = new Pool({ connectionString: env.DATABASE_URL });
   try {
-    const result = await pool.query(
-      "insert into admin_users (user_id) values ($1) on conflict do nothing",
+    const existing = await pool.query(
+      "select 1 from admin_users where user_id = $1",
+      [userId],
+    );
+    await pool.query(
+      `insert into admin_users (user_id, role_id, is_super_admin)
+       values ($1, 'administrator', true)
+       on conflict (user_id) do update set is_super_admin = true`,
       [userId],
     );
     console.log(
-      result.rowCount === 1
-        ? `Granted admin access to ${email} (${userId}).`
-        : `${email} (${userId}) is already an Account; nothing to do.`,
+      existing.rowCount === 1
+        ? `Adopted ${email} (${userId}) as the Super Admin.`
+        : `Granted the Super Admin ownership to ${email} (${userId}).`,
     );
   } finally {
     await pool.end();

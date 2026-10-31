@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { extractBearerToken, isAdminUserId } from "./auth";
+import { extractBearerToken, loadAdminAccount } from "./auth";
+import { fullNameOf } from "../domain/identity";
 import type { AppDeps, AppInstance } from "./app";
 import { forbidden, unauthorized } from "./errors";
 import {
@@ -23,11 +24,6 @@ const DEV_CREDENTIAL = {
   email: "admin@komyuter.ph",
   password: "komyuter-admin-dev",
 };
-
-function fullNameOf(user: { user_metadata?: { full_name?: unknown } }): string {
-  const value = user.user_metadata?.full_name;
-  return typeof value === "string" ? value : "";
-}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -91,7 +87,7 @@ export async function registerAuth(
       const session = sessionData.session!;
       const user = session.user;
 
-      if (!(await isAdminUserId(db, user.id))) {
+      if (!(await loadAdminAccount(db, user.id))) {
         await deny("security.sign_in_failure", "denied", email, true);
       }
 
@@ -129,7 +125,7 @@ export async function registerAuth(
       throw unauthorized("Invalid or expired token");
     }
 
-    if (!(await isAdminUserId(db, data.user.id))) {
+    if (!(await loadAdminAccount(db, data.user.id))) {
       throw forbidden("User is not an admin");
     }
 

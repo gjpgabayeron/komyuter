@@ -1,15 +1,27 @@
+import type { MeResponse, Permission, RoleSummary } from "@komyuter/shared";
 import { api, ApiError, clearStoredToken, setStoredToken } from "@/lib/api";
 
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
+  /** The Role the Account holds — descriptive for the owner, who holds all. */
+  role: RoleSummary;
+  isSuperAdmin: boolean;
+  /** The effective set, as computed by the server (ADR-0019 §7). */
+  permissions: Permission[];
 }
 
 interface LoginResponse {
   access_token: string;
-  user: AuthUser;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
 }
+
+/** Wire shape of GET /api/admin/me, mapped to the SPA's AuthUser. */
 
 export async function login(
   email: string,
@@ -20,13 +32,24 @@ export async function login(
     password,
   });
   setStoredToken(data.access_token);
-  return data.user;
+  const currentUser = await me();
+  if (!currentUser) {
+    throw new Error("Sign-in succeeded but the session could not be restored");
+  }
+  return currentUser;
 }
 
 export async function me(): Promise<AuthUser | null> {
   try {
-    const { data } = await api.get<AuthUser>("/api/auth/me");
-    return data;
+    const { data } = await api.get<MeResponse>("/api/admin/me");
+    return {
+      id: data.userId,
+      email: data.email,
+      name: data.name,
+      role: data.role,
+      isSuperAdmin: data.isSuperAdmin,
+      permissions: data.permissions,
+    };
   } catch (error) {
     if (error instanceof ApiError && error.code === "UNAUTHORIZED") {
       clearStoredToken();

@@ -53,10 +53,32 @@ export async function recreateTestDatabase(): Promise<void> {
       await testPool.query(sql);
     }
 
+    // The test database keeps only a stub `auth.users`, while the real Supabase
+    // identities live in the MAIN database. Production has both in one
+    // database, so an API-created Account's `admin_users` row resolves its FK
+    // there without help. This trigger supplies the same property in the test
+    // topology, so `POST /api/admin/accounts` is testable end to end.
+    await testPool.query(`
+      create function auth.ensure_stub_user() returns trigger
+      language plpgsql
+      as $$
+      begin
+        insert into auth.users (id, email) values (new.user_id, null)
+          on conflict (id) do nothing;
+        return new;
+      end;
+      $$;
+      create trigger admin_users_auth_stub
+        before insert on admin_users
+        for each row execute function auth.ensure_stub_user();
+    `);
+
     // Seed the test DB's admin reference for the suite's seeded-admin flows:
     // the admin's REAL auth user lives in the main database (auth service);
     // the test DB gets the stub row (FK) + the admin_users entry so the
-    // /api/admin guard resolves exactly like it does in dev.
+    // /api/admin guard resolves exactly like it does in dev. The authz suite
+    // promotes this Account to Super Admin through `promoteOwner`; lower-Role
+    // Accounts are created by `createTestAdmin`.
     const devPool = createDevPool();
     try {
       const { rows } = await devPool.query<{ id: string }>(
@@ -70,7 +92,7 @@ export async function recreateTestDatabase(): Promise<void> {
           [adminId, testEnv().ADMIN_EMAIL],
         );
         await testPool.query(
-          "insert into admin_users (user_id) values ($1) on conflict do nothing",
+          "insert into admin_users (user_id, role_id) values ($1, 'administrator') on conflict do nothing",
           [adminId],
         );
       }

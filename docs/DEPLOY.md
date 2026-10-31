@@ -222,7 +222,26 @@ pnpm --filter server bootstrap:owner
 ```
 
 It creates the auth identity (with `email_confirm: true` — `signInWithPassword` refuses an unconfirmed
-email) and the `admin_users` row, and is idempotent: re-running adopts the existing identity.
+email) and the `admin_users` row, and is idempotent: re-running adopts the existing identity. As of
+migration `0007`, that row also carries `role_id = 'administrator'` and `is_super_admin = true`: the
+ownership property, not a Role (ADR-0019).
+
+### 2.1 Promote the owner on an environment that predates M2a
+
+Migration `0007` backfills every existing `admin_users` row to the seeded Administrator Role, but it
+does not guess which Account is the owner — `admin_users` had no timestamp to order by, and an email in
+SQL would be wrong for every environment but one. Mark the owner explicitly, once per environment:
+
+```bash
+# OWNER_EMAIL, plus DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+OWNER_EMAIL=owner@example.com pnpm --filter server promote:owner
+```
+
+The script refuses to invent an Account (run `bootstrap:owner` first on a fresh environment), allows
+promotion only from `false` to `true`, and reports success without changing anything on a second run.
+A partial unique index makes a second owner impossible; a trigger refuses any later demotion, deletion
+or Role change on the owner row. Staging needs this step once, after `0007` is applied and before Role
+management is used.
 
 > **The owner password must not be the documented dev credential.** The local `apps/server/.env`
 > `ADMIN_PASSWORD` is exactly `komyuter-admin-dev`, and `POST /api/auth/login` refuses that

@@ -1,6 +1,7 @@
 import { customType } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
   integer,
   numeric,
@@ -57,8 +58,35 @@ const timestamps = {
     .defaultNow(),
 };
 
+/**
+ * A Role is a named, ordered set of Permissions (ADR-0019). The Permission set
+ * is one `bigint` bitmask derived from `@komyuter/shared`'s catalogue; the
+ * column is `bigint` rather than `integer` because the list is expected to
+ * pass 32 bits long before it passes 64.
+ */
+export const roles = pgTable(
+  "roles",
+  {
+    role_id: text("role_id").primaryKey(),
+    name: text("name").notNull(),
+    position: integer("position").notNull(),
+    permissions: bigint("permissions", { mode: "bigint" })
+      .notNull()
+      .default(0n),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("roles_name_unique").on(table.name),
+    uniqueIndex("roles_position_unique").on(table.position),
+  ],
+);
+
 export const adminUsers = pgTable("admin_users", {
   user_id: uuid("user_id").primaryKey(),
+  role_id: text("role_id")
+    .notNull()
+    .references(() => roles.role_id, { onDelete: "restrict" }),
+  is_super_admin: boolean("is_super_admin").notNull().default(false),
 });
 
 export const fareConfigs = pgTable(
