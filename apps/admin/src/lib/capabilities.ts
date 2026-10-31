@@ -41,6 +41,35 @@ const CAPABILITY_PERMISSION: Record<Capability, Permission> = {
   manageAccounts: "ADMIN_MANAGE",
 };
 
+/**
+ * The same mapping read the other way: a Permission the dashboard's surfaces
+ * declare, answered by the one capability that models it. Derived from
+ * `CAPABILITY_PERMISSION` so there is still exactly one statement of the
+ * mapping, and a Permission can never be answered by two capabilities.
+ */
+const PERMISSION_CAPABILITY: ReadonlyMap<Permission, Capability> = new Map(
+  CAPABILITIES.map(
+    (capability) => [CAPABILITY_PERMISSION[capability], capability] as const,
+  ),
+);
+
+/**
+ * Does the Account hold the Permission an affordance declares?
+ *
+ * A surface states the Permission it needs (`sections.ts` does, and the Fares
+ * controls do); the dashboard asks its capability. This function is the only
+ * bridge between the two, so no surface answers the question by scanning
+ * `user.permissions` itself. A Permission this build does not model is held by
+ * nobody — the SPA cannot answer a question it never asked the server.
+ */
+export function holdsPermission(
+  capabilities: Capabilities,
+  permission: Permission,
+): boolean {
+  const capability = PERMISSION_CAPABILITY.get(permission);
+  return capability !== undefined && capabilities[capability];
+}
+
 /** Every capability false — no Account, no session, an empty set. */
 export function noCapabilities(): Capabilities {
   return {
@@ -119,6 +148,42 @@ export function workspaceAccess(capabilities: Capabilities): WorkspaceAccess {
     showSave: !readOnly,
     shortcuts: { save: !readOnly, undo: !readOnly, redo: !readOnly },
     showPlaceSearch: capabilities.searchPlaces,
+  };
+}
+
+/**
+ * What the Fares surface offers (ADR-0019 §9 M2b amendment).
+ *
+ * Without `FARES_EDIT` the page keeps its table and loses every mutating
+ * control: no create, no edit, no deactivation, no default toggle. Each control
+ * is named here rather than read off the page, so the degradation is one
+ * decision with one answer per control — and every one of them is omitted, not
+ * mounted disabled, because a disabled control still claims the surface has a
+ * mode to switch into.
+ */
+export interface FareAccess {
+  readOnly: boolean;
+  /** "New fare configuration" and the form it opens. */
+  showCreate: boolean;
+  /** The row's edit control — also the way a configuration is reactivated. */
+  showEdit: boolean;
+  /** Deactivation: the dashboard's only removal, and it never hard-deletes. */
+  showDeactivate: boolean;
+  /** The form's "Set as default" switch. */
+  showDefaultToggle: boolean;
+  /** The table's Actions column, which exists only to hold the controls. */
+  showActionsColumn: boolean;
+}
+
+export function fareAccess(capabilities: Capabilities): FareAccess {
+  const mayEdit = capabilities.editFares;
+  return {
+    readOnly: !mayEdit,
+    showCreate: mayEdit,
+    showEdit: mayEdit,
+    showDeactivate: mayEdit,
+    showDefaultToggle: mayEdit,
+    showActionsColumn: mayEdit,
   };
 }
 

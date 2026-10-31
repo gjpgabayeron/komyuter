@@ -15,19 +15,22 @@ import { InviteAccountDialog } from "@/features/accounts/InviteAccountDialog";
 import { useAccountsQuery } from "@/features/accounts/queries";
 import type { RoleActor } from "@/features/accounts/roles";
 import { useAuth } from "@/features/auth/auth";
-import NotFound from "@/pages/NotFound";
 
 /**
- * The Accounts surface (M2b). Reaching it requires `ADMIN_MANAGE`, checked
- * directly here and declared on the navigation entry; the server refuses the
- * list, the invite and every lifecycle change regardless, so the check is an
- * affordance.
+ * The Accounts surface (M2b). The navigation entry declares `ADMIN_MANAGE` and
+ * the section guard answers it from the capability module, so this page asks
+ * nothing itself: a typed `/accounts` URL without the Permission renders the
+ * not-found surface before reaching here (ticket #48). The server refuses the
+ * list, the invite and every lifecycle change regardless.
  */
 export default function Accounts() {
   const { user } = useAuth();
 
-  if (!user || !user.permissions.includes("ADMIN_MANAGE")) {
-    return <NotFound />;
+  // `RequireAuth` admits only a signed-in Account and the section guard only an
+  // `ADMIN_MANAGE` holder, so this branch cannot be reached — it exists to read
+  // the identity, not to answer for it.
+  if (!user) {
+    return null;
   }
 
   // The actor side of every Role decision: the effective Permission set the

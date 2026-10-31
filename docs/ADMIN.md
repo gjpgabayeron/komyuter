@@ -121,7 +121,8 @@ Full zod schemas live in `@komyuter/shared` (`schemas/domain.ts`) and the drizzl
 
 - **`/login`** — `AuthForm` with brand panel. Calls `POST /api/auth/login`; on success stores `access_token` in `localStorage` (`komyuter.admin.token`) and redirects to the saved return path.
 - **`RequireAuth`** — blocks the four app sections while unauthenticated; on boot calls `GET /api/auth/me` to re-validate the token. A `401` anywhere clears the token, records the intended path (`getReturnPath`/`saveReturnPath`), and redirects with a "Your session expired" flag.
-- **`AppShell`** — skip-to-content link, `ConnectionBanner` (shows when the API is unreachable), `NavRail` (Overview / Routes / Fares / Export; expanded ↔ collapsed ↔ hover via `uiStore.sidebarMode`), `Header` (section title + user menu + sign-out → `POST /api/auth/logout`, global revocation).
+- **`AppShell`** — skip-to-content link, `ConnectionBanner` (shows when the API is unreachable), `NavRail` (expanded ↔ collapsed ↔ hover via `uiStore.sidebarMode`), `Header` (section title + user menu + sign-out → `POST /api/auth/logout`, global revocation).
+- **Navigation is derived, never hard-coded** (ADR-0019 §9 M2b amendment, ticket #48). Each entry in `lib/sections.ts` declares the Permission it needs and `visibleSections()` filters the rail by asking `lib/capabilities.ts`: Overview, Routes and Fares are open to every Account; Export requires `EXPORT_DATASET`; Accounts requires `ADMIN_MANAGE`. `app/SectionGuard.tsx` applies the same answer to the URL, so a guarded address typed directly renders the ordinary not-found surface — not an empty page, and not a "403" plate that would confirm the page exists for someone else. No page repeats the check.
 - `app.tsx` composition: `AuthProvider → QueryClientProvider → BrowserRouter → Toaster`.
 - Server side of auth: unified denial message, ~250 ms fake delay, account-block after 5 failed attempts, source-IP block, `ALLOW_DEV_CREDENTIAL` dev gate, origin guard, security-events audit.
 
@@ -184,10 +185,12 @@ The workspace is a **four-state machine** derived from (selection, draft):
 - `FareConfigForm` — create/edit with local validation (`validation.ts`: name/base/rate > 0, base distance ≥ 0, **exactly one default** enforced — `validateDefaultUnset`); currency formatting in `format.ts`. It is the **only** fare-config form: the route picker (`features/routes/FareConfigSelect.tsx`) opens this same dialog on top of "New route" rather than offering a reduced inline form, so discounts, the default toggle and label-uniqueness validation exist everywhere and no field is reachable from one path but not the other (issue #15).
 - `DeleteFareConfigDialog` — styled confirm; server guards (cannot deactivate/delete a fare config that would leave no default, or one still in use by active routes).
 - Server: full CRUD in `api/fare-configs.ts`, default enforcement + guards, react-query keys in `features/fares/queries.ts`.
+- **Read-only variant** (ADR-0019 §9 M2b amendment, ticket #48). Without `FARES_EDIT` the page keeps the same table — Label, Status, the fare readings and both Attribution columns — and loses every mutating control, omitted rather than disabled: no New fare configuration, no row edit, no reactivation, no deactivation (the dashboard's only removal, never a hard delete), and no default toggle. The form is where reactivation and the default toggle live, so its two entry points are the controls that matter; `fareAccess()` in `lib/capabilities.ts` answers each one. The server still refuses every fare mutation (`apps/admin/src/tests/fare-access.test.ts` holds the matrix).
 
 ### 5.8 Export (`pages/Export.tsx`)
 
 - **Placeholder** — "Nothing to export yet — dataset export arrives in a later milestone."
+- **Unavailable without `EXPORT_DATASET`** (ticket #48): the entry is absent from the rail and a typed `/export` renders the not-found surface, because the dataset is the whole network and the Permission is what the server gates it by.
 - The **server endpoint is complete** (`GET /api/admin/export/dataset`, assembled in `apps/server/src/domain/export.ts` — routes, directions, stops, detours, restrictions, fare configs). Wiring the UI is R7.
 
 ### 5.9 Overview (`pages/Overview.tsx`)
@@ -202,9 +205,9 @@ The workspace is a **four-state machine** derived from (selection, draft):
 
 ### 5.11 Pure helpers & tests
 
-Pure logic lives in `lib/` and is unit-tested: `capabilities`, `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
+Pure logic lives in `lib/` and is unit-tested: `capabilities` (including `fareAccess`), `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
 
-**Tests:** 23 Vitest suites / 311 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
+**Tests:** 42 Vitest suites / 525 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
 
 ## 6. Roadmap — planned & upcoming
 

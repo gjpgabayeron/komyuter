@@ -32,6 +32,13 @@ interface FareConfigFormProps {
   /** Present in edit mode: the form is prefilled from this row. */
   config?: FareConfigListItem | null;
   /**
+   * Whether the "Set as default" switch is offered. It is the form's own
+   * mutating control, so it is omitted rather than disabled for an Account
+   * without `FARES_EDIT` (`fareAccess().showDefaultToggle`, ticket #48). It
+   * defaults to true: every host able to open this dialog may set the default.
+   */
+  showDefaultToggle?: boolean;
+  /**
    * Called with the newly created configuration, before the dialog closes.
    * Lets a host that opened the form mid-task (the route picker, issue #15)
    * select what was just created instead of sending the admin hunting for it.
@@ -127,6 +134,7 @@ export function FareConfigForm({
   onOpenChange,
   config = null,
   onCreated,
+  showDefaultToggle = true,
 }: FareConfigFormProps) {
   const [values, setValues] = useState<FareConfigFormValues>(LTFRB_DEFAULTS);
   const [errors, setErrors] = useState<FareConfigFormErrors>({});
@@ -324,12 +332,14 @@ export function FareConfigForm({
                   Routes without an assigned configuration use the default.
                 </p>
               </div>
-              <Switch
-                id={`${id}-default`}
-                checked={values.is_default}
-                onCheckedChange={(checked) => set("is_default", checked)}
-                aria-describedby={`${id}-default-hint`}
-              />
+              {showDefaultToggle ? (
+                <Switch
+                  id={`${id}-default`}
+                  checked={values.is_default}
+                  onCheckedChange={(checked) => set("is_default", checked)}
+                  aria-describedby={`${id}-default-hint`}
+                />
+              ) : null}
             </div>
           </div>
 

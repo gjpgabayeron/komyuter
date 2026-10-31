@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
+import { holdsPermission, type Capabilities } from "@/lib/capabilities";
 
 export type SectionId = "overview" | "routes" | "fares" | "export" | "accounts";
 
@@ -25,8 +26,16 @@ export interface Section {
 export const sections: Section[] = [
   { id: "overview", label: "Overview", path: "/", icon: LayoutGrid },
   { id: "routes", label: "Routes", path: "/routes", icon: Route },
+  // Fares stays visible to every Account: without `FARES_EDIT` the page
+  // degrades to a read-only table rather than disappearing (ADR-0019 §9 M2b).
   { id: "fares", label: "Fares", path: "/fares", icon: Banknote },
-  { id: "export", label: "Export", path: "/export", icon: Download },
+  {
+    id: "export",
+    label: "Export",
+    path: "/export",
+    icon: Download,
+    permission: "EXPORT_DATASET",
+  },
   {
     id: "accounts",
     label: "Accounts",
@@ -44,21 +53,23 @@ export function getSectionByPath(pathname: string): Section | undefined {
 }
 
 /**
- * May this Account see this entry? A direct Permission check on the effective
- * set the server resolved (`GET /api/admin/me`) — the SPA is an affordance, not
- * the boundary, and every hidden entry has a server refusal behind it.
+ * May this Account see this entry? The declared Permission is answered by the
+ * capability module (`lib/capabilities.ts`), so the rail, the section guard and
+ * anything else asking the question share one rule — and no surface re-derives
+ * it by reading `user.permissions`. The SPA is an affordance, not the boundary:
+ * every hidden entry has a server refusal behind it.
  */
 export function canSeeSection(
   section: Section,
-  permissions: readonly Permission[],
+  capabilities: Capabilities,
 ): boolean {
   if (section.permission === undefined) {
     return true;
   }
-  return permissions.includes(section.permission);
+  return holdsPermission(capabilities, section.permission);
 }
 
-/** The navigation entries to render for an Account's effective set. */
-export function visibleSections(permissions: readonly Permission[]): Section[] {
-  return sections.filter((section) => canSeeSection(section, permissions));
+/** The navigation entries to render for an Account's capability set. */
+export function visibleSections(capabilities: Capabilities): Section[] {
+  return sections.filter((section) => canSeeSection(section, capabilities));
 }

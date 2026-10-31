@@ -10,13 +10,23 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFareAccess } from "@/features/auth/useCapabilities";
 import type { FareConfigListItem } from "@/features/fares/api";
 import { FareConfigForm } from "@/features/fares/FareConfigForm";
 import { FareConfigTable } from "@/features/fares/FareConfigTable";
 import { useFareConfigsQuery } from "@/features/fares/queries";
 
+/**
+ * The Fares surface. Without `FARES_EDIT` it is the same table — same columns,
+ * same readings — with every mutating control omitted rather than disabled:
+ * no New fare configuration, no edit, no reactivation, no deactivation, no
+ * default toggle (ADR-0019 §9 M2b amendment, ticket #48). `useFareAccess()`
+ * answers which of them exist; this page only renders the answers, and the
+ * server refuses each mutation regardless of what is drawn.
+ */
 export default function Fares() {
   const { data, isError, isLoading, refetch } = useFareConfigsQuery();
+  const fares = useFareAccess();
   const [createOpen, setCreateOpen] = useState(false);
   const [editingConfig, setEditingConfig] = useState<FareConfigListItem | null>(
     null,
@@ -29,13 +39,15 @@ export default function Fares() {
           Fares follow the LTFRB formula: base fare plus ₱rate per km beyond the
           base distance.
         </p>
-        <Button
-          onClick={() => setCreateOpen(true)}
-          aria-label="New fare configuration"
-        >
-          <Plus />
-          New fare configuration
-        </Button>
+        {fares.showCreate && (
+          <Button
+            onClick={() => setCreateOpen(true)}
+            aria-label="New fare configuration"
+          >
+            <Plus />
+            New fare configuration
+          </Button>
+        )}
       </div>
 
       {isLoading ? (
@@ -82,17 +94,27 @@ export default function Fares() {
               </EmptyTitle>
             </EmptyHeader>
             <EmptyContent>
+              {/* An empty table owes the reader the next step only when there
+                  is one to take. */}
               <EmptyDescription>
-                Create the first fare configuration to set the fare formula used
-                by routes.
+                {fares.showCreate
+                  ? "Create the first fare configuration to set the fare formula used by routes."
+                  : "Fares follow the LTFRB formula once an Account that may edit them has set a configuration."}
               </EmptyDescription>
             </EmptyContent>
           </Empty>
         </div>
       ) : (
-        <FareConfigTable configs={data} onEdit={setEditingConfig} />
+        <FareConfigTable
+          configs={data}
+          access={fares}
+          onEdit={setEditingConfig}
+        />
       )}
 
+      {/* Neither control that opens this dialog exists without `FARES_EDIT`,
+          so it stays shut — and the default toggle, which only lives here, is
+          never offered. */}
       <FareConfigForm
         open={createOpen || editingConfig !== null}
         onOpenChange={(open) => {
@@ -102,6 +124,7 @@ export default function Fares() {
           }
         }}
         config={editingConfig}
+        showDefaultToggle={fares.showDefaultToggle}
       />
     </div>
   );

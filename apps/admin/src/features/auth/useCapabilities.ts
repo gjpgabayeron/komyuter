@@ -2,8 +2,10 @@ import { useMemo } from "react";
 import { useAuth } from "@/features/auth/auth";
 import {
   capabilitiesFromPermissions,
+  fareAccess,
   workspaceAccess,
   type Capabilities,
+  type FareAccess,
   type WorkspaceAccess,
 } from "@/lib/capabilities";
 
@@ -29,4 +31,10 @@ export function useCapabilities(): Capabilities {
 export function useWorkspaceAccess(): WorkspaceAccess {
   const capabilities = useCapabilities();
   return useMemo(() => workspaceAccess(capabilities), [capabilities]);
+}
+
+/** What the Fares surface offers this Account (read-only when `FARES_EDIT` is absent). */
+export function useFareAccess(): FareAccess {
+  const capabilities = useCapabilities();
+  return useMemo(() => fareAccess(capabilities), [capabilities]);
 }

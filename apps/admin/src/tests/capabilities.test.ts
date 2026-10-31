@@ -6,8 +6,8 @@ import { CAPABILITIES, capabilitiesFromPermissions } from "@/lib/capabilities";
  * The one capability module (ADR-0019 §9 M2b amendment): the server resolves
  * the Effective Permission Set, and these are the only questions the dashboard
  * asks of it. The seeded sets below are the wire shapes the server actually
- * sends — `redesign/seed.sql` for the Administrator, and the two Roles M2b's
- * exit criterion names.
+ * sends — `supabase/migrations/0007_authorization.sql` seeds the Administrator
+ * (mask 31) and the Plotter (mask 11), and the Viewer holds nothing.
  */
 const ADMINISTRATOR: Permission[] = [
   "ROUTES_EDIT",
@@ -17,7 +17,11 @@ const ADMINISTRATOR: Permission[] = [
   "ADMIN_MANAGE",
 ];
 
-const PLOTTER: Permission[] = ["ROUTES_EDIT", "MAPBOX_GEOSERVICES"];
+const PLOTTER: Permission[] = [
+  "ROUTES_EDIT",
+  "FARES_EDIT",
+  "MAPBOX_GEOSERVICES",
+];
 
 /** A Viewer holds no Permission at all: transit reads are open to every Account. */
 const VIEWER: Permission[] = [];
@@ -43,10 +47,10 @@ describe("capabilitiesFromPermissions", () => {
     });
   });
 
-  it("gives a Plotter route editing and place search, nothing else", () => {
+  it("gives a Plotter route and fare editing plus place search, nothing else", () => {
     expect(capabilitiesFromPermissions(PLOTTER)).toEqual({
       editRoutes: true,
-      editFares: false,
+      editFares: true,
       exportDataset: false,
       searchPlaces: true,
       manageAccounts: false,
