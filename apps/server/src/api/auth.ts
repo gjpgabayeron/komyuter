@@ -9,7 +9,7 @@ import {
   effectivePermissions,
   type AdminAccount,
 } from "../domain/authorization";
-import { forbidden, unauthorized } from "./errors";
+import { forbidden, accountDeactivated, unauthorized } from "./errors";
 
 declare module "fastify" {
   interface FastifyContextConfig {
@@ -87,6 +87,9 @@ export function createAdminAuthGuard(supabase: SupabaseClient, db: Db) {
     const account = await loadAdminAccount(db, data.user.id);
     if (!account) {
       throw forbidden("User is not an admin");
+    }
+    if (!account.isActive) {
+      throw accountDeactivated();
     }
     request.adminUserId = account.userId;
     request.adminAccount = account;

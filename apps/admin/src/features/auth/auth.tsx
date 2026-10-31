@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { type AuthUser, login, me } from "@/features/auth/api";
 import { ApiError, clearStoredToken, getStoredToken } from "@/lib/api";
 import { onSessionExpired } from "@/features/auth/sessionExpired";
+import { onAccessRevoked } from "@/features/auth/accessRevoked";
 
 export type AuthStatus =
   | "loading"
@@ -26,6 +27,8 @@ export interface AuthContextValue {
   status: AuthStatus;
   user: AuthUser | null;
   sessionExpired: boolean;
+  /** True when the session ended because the Account was deactivated. */
+  accessRevoked: boolean;
   retrying: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
@@ -74,6 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [accessRevoked, setAccessRevoked] = useState(false);
   const [retrying, setRetrying] = useState(false);
 
   // A 401 from any protected request (mid-use token expiry) kicks the user
@@ -82,6 +86,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     return onSessionExpired(() => {
       setSessionExpired(true);
+      setAccessRevoked(false);
+      setUser(null);
+      setStatus("unauthenticated");
+    });
+  }, []);
+
+  // A Deactivated Account is the other ending: the server refuses its live
+  // session with 403 ACCOUNT_DEACTIVATED, the token is already cleared by the
+  // interceptor, and the login screen explains that signing in again will not
+  // help. It is not read as an expiry.
+  useEffect(() => {
+    return onAccessRevoked(() => {
+      setAccessRevoked(true);
+      setSessionExpired(false);
       setUser(null);
       setStatus("unauthenticated");
     });
@@ -105,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     setStatus("authenticating");
     setSessionExpired(false);
+    setAccessRevoked(false);
     try {
       const currentUser = await login(email, password);
       setUser(currentUser);
@@ -119,6 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearStoredToken();
     setUser(null);
     setSessionExpired(false);
+    setAccessRevoked(false);
     setStatus("unauthenticated");
   }, []);
 
@@ -133,8 +153,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applyRestore, retrying]);
 
   const value = useMemo(
-    () => ({ status, user, sessionExpired, retrying, signIn, signOut, retry }),
-    [status, user, sessionExpired, retrying, signIn, signOut, retry],
+    () => ({
+      status,
+      user,
+      sessionExpired,
+      accessRevoked,
+      retrying,
+      signIn,
+      signOut,
+      retry,
+    }),
+    [
+      status,
+      user,
+      sessionExpired,
+      accessRevoked,
+      retrying,
+      signIn,
+      signOut,
+      retry,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

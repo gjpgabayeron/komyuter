@@ -2,6 +2,10 @@ export const fareConfigKeys = {
   all: ["fare-configs"] as const,
 };
 
+export const accountKeys = {
+  all: ["accounts"] as const,
+};
+
 export const routeKeys = {
   all: ["routes"] as const,
   overview: ["routes", "overview"] as const,

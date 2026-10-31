@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { Eye, EyeOff, Loader2, TriangleAlert } from "lucide-react";
+import { Eye, EyeOff, Loader2, ShieldOff, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ interface AuthFormProps {
   onSubmit: (data: LoginFormData) => Promise<void>;
   /** True when the user was redirected here because their session expired. */
   sessionExpired?: boolean;
+  /** True when the Account was deactivated — a different ending from expiry. */
+  accessRevoked?: boolean;
 }
 
 interface FieldErrors {
@@ -43,7 +45,11 @@ function messageForError(error: unknown): string {
   return "Something went wrong. Please try again.";
 }
 
-export function AuthForm({ onSubmit, sessionExpired = false }: AuthFormProps) {
+export function AuthForm({
+  onSubmit,
+  sessionExpired = false,
+  accessRevoked = false,
+}: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -82,6 +88,19 @@ export function AuthForm({ onSubmit, sessionExpired = false }: AuthFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
+      {accessRevoked ? (
+        <NoticePlate
+          noticeRole="alert"
+          className="border-destructive bg-destructive/10 text-destructive"
+        >
+          <ShieldOff className="size-4 shrink-0" />
+          <span>
+            Your access has been revoked because this Account was deactivated.
+            Ask an Administrator to reactivate it.
+          </span>
+        </NoticePlate>
+      ) : null}
+
       {sessionExpired ? (
         <NoticePlate
           noticeRole="alert"

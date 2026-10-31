@@ -1,5 +1,6 @@
 const RETURN_TO_KEY = "returnTo";
 const SESSION_EXPIRED_KEY = "sessionExpired";
+const ACCESS_REVOKED_KEY = "accessRevoked";
 
 export function getReturnPath(state: unknown, fallback = "/"): string {
   if (state && typeof state === "object" && RETURN_TO_KEY in state) {
@@ -19,6 +20,17 @@ export function getReturnPath(state: unknown, fallback = "/"): string {
 export function getSessionExpired(state: unknown): boolean {
   if (state && typeof state === "object" && SESSION_EXPIRED_KEY in state) {
     return (state as Record<string, unknown>)[SESSION_EXPIRED_KEY] === true;
+  }
+  return false;
+}
+
+/**
+ * True when the login redirect was caused by the Account being deactivated —
+ * a different ending from expiry, so the screen says so in its own words.
+ */
+export function getAccessRevoked(state: unknown): boolean {
+  if (state && typeof state === "object" && ACCESS_REVOKED_KEY in state) {
+    return (state as Record<string, unknown>)[ACCESS_REVOKED_KEY] === true;
   }
   return false;
 }

@@ -8,6 +8,7 @@ import { BrandMark } from "@/components/shared/BrandMark";
 import { useAuth } from "@/features/auth/auth";
 import {
   clearSavedReturnPath,
+  getAccessRevoked,
   getReturnPath,
   getSessionExpired,
   readSavedReturnPath,
@@ -22,6 +23,7 @@ export default function Login() {
 
   const returnTo = getReturnPath(location.state);
   const sessionExpired = getSessionExpired(location.state);
+  const accessRevoked = getAccessRevoked(location.state);
 
   const handleSubmit = async ({ email, password }: LoginFormData) => {
     await signIn(email, password);
@@ -42,7 +44,11 @@ export default function Login() {
             <BrandMark />
           </div>
           <div className="w-full max-w-sm">
-            <AuthForm onSubmit={handleSubmit} sessionExpired={sessionExpired} />
+            <AuthForm
+              onSubmit={handleSubmit}
+              sessionExpired={sessionExpired}
+              accessRevoked={accessRevoked}
+            />
           </div>
         </div>
         <div className="hidden h-full py-2 xl:flex xl:pr-4">

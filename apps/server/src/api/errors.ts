@@ -26,6 +26,21 @@ export function forbidden(message = "Forbidden"): ApiError {
   return new ApiError({ statusCode: 403, code: "FORBIDDEN", message });
 }
 
+/**
+ * A Deactivated Account: the identity and Role are kept, the access is not.
+ * Distinct from `forbidden` so the SPA can end the session with an
+ * access-revoked notice instead of the ordinary session-expiry copy.
+ */
+export function accountDeactivated(
+  message = "This Account has been deactivated",
+): ApiError {
+  return new ApiError({
+    statusCode: 403,
+    code: "ACCOUNT_DEACTIVATED",
+    message,
+  });
+}
+
 export function notFound(message = "Not found"): ApiError {
   return new ApiError({ statusCode: 404, code: "NOT_FOUND", message });
 }

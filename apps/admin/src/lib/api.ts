@@ -1,5 +1,9 @@
 import axios from "axios";
 import { emitSessionExpired } from "@/features/auth/sessionExpired";
+import {
+  classifyAuthFailure,
+  emitAccessRevoked,
+} from "@/features/auth/accessRevoked";
 import { saveReturnPath } from "@/features/auth/redirect";
 
 export const AUTH_TOKEN_KEY = "komyuter.admin.token";
@@ -62,19 +66,31 @@ api.interceptors.response.use(
   },
   (error) => {
     const status = error.response?.status;
-    // A 401 on anything but the login call means the stored token no longer
-    // validates: drop it and tell the app the session expired (the AuthProvider
-    // flips the state and RequireAuth redirects with the `sessionExpired` flag).
-    // Login failures must NOT be treated as an expired session — they render
-    // the ordinary "invalid credentials" message instead.
-    if (status === 401 && !isLoginRequest(error.config?.url)) {
-      // Remember where the user was so a fresh sign-in can drop them back
-      // (survives a full reload, unlike location.state).
-      saveReturnPath(currentPath());
-      clearStoredToken();
-      emitSessionExpired();
-    }
     const body = error.response?.data;
+    const envelopeCode =
+      body && typeof body === "object" && "success" in body
+        ? (body as { error?: { code?: string } }).error?.code
+        : undefined;
+
+    // The two ways a session ends are told apart here, once: a Deactivated
+    // Account (403 ACCOUNT_DEACTIVATED) is access revoked — the token is
+    // dropped and the app shows its own notice, because signing in again will
+    // not help; an expired or invalid token (401) is session expiry, and the
+    // path is remembered so a fresh sign-in can resume it. Login failures are
+    // neither: they render the ordinary "invalid credentials" message.
+    if (!isLoginRequest(error.config?.url)) {
+      const failure = classifyAuthFailure(status, envelopeCode);
+      if (failure === "access-revoked") {
+        clearStoredToken();
+        emitAccessRevoked();
+      } else if (failure === "session-expired") {
+        // Remember where the user was so a fresh sign-in can drop them back
+        // (survives a full reload, unlike location.state).
+        saveReturnPath(currentPath());
+        clearStoredToken();
+        emitSessionExpired();
+      }
+    }
     if (body && body.success === false) {
       return Promise.reject(
         new ApiError(

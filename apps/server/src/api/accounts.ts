@@ -4,6 +4,7 @@ import {
   canAssignRole,
   canManageRole,
   inviteAccountSchema,
+  setAccountStatusSchema,
 } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
 import { conflict, forbidden, internal, notFound } from "./errors";
@@ -49,7 +50,11 @@ export async function registerAccounts(
               row.rolePermissions,
             ),
           },
-          identities.get(row.userId) ?? { email: "", name: "" },
+          identities.get(row.userId) ?? {
+            email: "",
+            name: "",
+            lastSignInAt: null,
+          },
         ),
       ),
     };
@@ -121,6 +126,7 @@ export async function registerAccounts(
             rolePermissions: role.permissions,
             permissions: effectivePermissions(false, role.permissions),
             isSuperAdmin: false,
+            isActive: true,
           },
           identityOf(data.user),
         ),
@@ -200,6 +206,76 @@ export async function registerAccounts(
             rolePermissions: target.permissions,
             permissions: effectivePermissions(false, target.permissions),
             isSuperAdmin: false,
+            isActive: current.isActive,
+          },
+          identityOf(data.user),
+        ),
+      };
+    },
+  );
+
+  /**
+   * Deactivate or reactivate an Account (ADR-0019 §1–2).
+   *
+   * Deactivation is the whole lifecycle: the identity and the Role stay, and a
+   * live session stops being honoured on its next request because the guard
+   * re-reads `is_active`. Two refusals are deliberate and explicit — the acting
+   * Account may not deactivate itself, and no one may deactivate the Super
+   * Admin — with the `protect_super_admin` trigger as the structural backstop.
+   */
+  app.put(
+    "/accounts/:userId/status",
+    {
+      schema: { body: setAccountStatusSchema },
+      config: { permission: "ADMIN_MANAGE" },
+    },
+    async (request) => {
+      const actor = request.adminAccount;
+      if (!actor) {
+        throw forbidden("Missing Account");
+      }
+      const { userId } = request.params as { userId: string };
+      const { isActive } = request.body;
+
+      if (userId === actor.userId) {
+        throw forbidden("You cannot change your own Account status");
+      }
+
+      const [current] = await db
+        .select(adminAccountSelection)
+        .from(adminUsers)
+        .innerJoin(roles, eq(adminUsers.role_id, roles.role_id))
+        .where(eq(adminUsers.user_id, userId))
+        .limit(1);
+      if (!current) {
+        throw notFound(`Account ${userId} not found`);
+      }
+      if (current.isSuperAdmin && !isActive) {
+        throw forbidden("The Super Admin cannot be deactivated");
+      }
+
+      await db
+        .update(adminUsers)
+        .set({ is_active: isActive })
+        .where(eq(adminUsers.user_id, userId));
+
+      const { data } = await supabase.auth.admin.getUserById(userId);
+
+      return {
+        success: true,
+        data: accountSummaryOf(
+          {
+            userId: current.userId,
+            roleId: current.roleId,
+            roleName: current.roleName,
+            position: current.position,
+            rolePermissions: current.rolePermissions,
+            permissions: effectivePermissions(
+              current.isSuperAdmin,
+              current.rolePermissions,
+            ),
+            isSuperAdmin: current.isSuperAdmin,
+            isActive,
           },
           identityOf(data.user),
         ),

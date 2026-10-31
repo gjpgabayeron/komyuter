@@ -21,7 +21,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getSectionByPath, sections } from "@/lib/sections";
+import { useAuth } from "@/features/auth/auth";
+import { getSectionByPath, visibleSections } from "@/lib/sections";
 import { useUiStore, type SidebarMode } from "@/lib/uiStore";
 import { cn } from "@/lib/utils";
 
@@ -64,8 +65,12 @@ export function NavRail({ onHoverChange }: NavRailProps) {
   const setSidebarMode = useUiStore((s) => s.setSidebarMode);
   const { state } = useSidebar();
   const { pathname } = useLocation();
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // An entry declares the Permission it needs; the rail only renders the ones
+  // the Account's effective set covers.
+  const entries = visibleSections(user?.permissions ?? []);
   const collapsed = state === "collapsed";
 
   return (
@@ -94,7 +99,7 @@ export function NavRail({ onHoverChange }: NavRailProps) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {sections.map((section) => {
+            {entries.map((section) => {
               const active = section.id === getSectionByPath(pathname)?.id;
               return (
                 <SidebarMenuItem key={section.id}>

@@ -87,6 +87,8 @@ export const adminUsers = pgTable("admin_users", {
     .notNull()
     .references(() => roles.role_id, { onDelete: "restrict" }),
   is_super_admin: boolean("is_super_admin").notNull().default(false),
+  /** The Account lifecycle flag — Accounts are deactivated, never deleted. */
+  is_active: boolean("is_active").notNull().default(true),
 });
 
 export const fareConfigs = pgTable(

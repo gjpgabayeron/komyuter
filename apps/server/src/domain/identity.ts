@@ -12,6 +12,9 @@ export function identityOf(user: User | null | undefined): AccountIdentity {
   return {
     email: user?.email ?? "",
     name: fullNameOf(user ?? {}),
+    // Supabase records this on every successful sign-in; a freshly invited
+    // Account that has never signed in has no value, and the wire says null.
+    lastSignInAt: user?.last_sign_in_at ?? null,
   };
 }
 

@@ -18,6 +18,8 @@ export interface AdminAccount {
   /** The effective set: the Role's, except the owner's is every Permission. */
   permissions: bigint;
   isSuperAdmin: boolean;
+  /** The lifecycle flag: a Deactivated Account is refused at the guard. */
+  isActive: boolean;
 }
 
 /** A `roles` row as read from Postgres. */
@@ -31,6 +33,8 @@ export interface RoleRecord {
 export interface AccountIdentity {
   email: string;
   name: string;
+  /** Supabase's last successful sign-in, or null when it never recorded one. */
+  lastSignInAt: string | null;
 }
 
 /**
@@ -77,6 +81,8 @@ export function accountSummaryOf(
       permissions: permissionsFromMask(account.rolePermissions),
     },
     isSuperAdmin: account.isSuperAdmin,
+    isActive: account.isActive,
+    lastSignInAt: identity.lastSignInAt,
   };
 }
 

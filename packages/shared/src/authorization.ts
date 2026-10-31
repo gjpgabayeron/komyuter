@@ -139,6 +139,13 @@ export const assignRoleSchema = z.object({
 
 export type AssignRoleInput = z.infer<typeof assignRoleSchema>;
 
+/** The Account lifecycle flag — Accounts are deactivated, never deleted. */
+export const setAccountStatusSchema = z.object({
+  isActive: z.boolean(),
+});
+
+export type SetAccountStatusInput = z.infer<typeof setAccountStatusSchema>;
+
 /**
  * Wire shapes. Permissions cross the wire as names: `bigint` is not
  * JSON-serialisable (ADR-0019, Consequences).
@@ -156,6 +163,10 @@ export interface AccountSummary {
   name: string;
   role: RoleSummary;
   isSuperAdmin: boolean;
+  /** False for a Deactivated Account — its access is refused, nothing deleted. */
+  isActive: boolean;
+  /** The last successful sign-in, or null when the identity never recorded one. */
+  lastSignInAt: string | null;
 }
 
 export interface MeResponse extends AccountSummary {

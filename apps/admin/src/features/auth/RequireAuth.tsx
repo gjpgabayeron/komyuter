@@ -4,7 +4,7 @@ import { useAuth } from "@/features/auth/auth";
 import { BackendUnreachable } from "@/features/auth/BackendUnreachable";
 
 export function RequireAuth() {
-  const { status, sessionExpired } = useAuth();
+  const { status, sessionExpired, accessRevoked } = useAuth();
   const location = useLocation();
 
   if (status === "loading") {
@@ -28,6 +28,7 @@ export function RequireAuth() {
         state={{
           returnTo: location.pathname + location.search,
           sessionExpired,
+          accessRevoked,
         }}
       />
     );

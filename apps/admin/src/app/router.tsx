@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { AppShell } from "@/app/AppShell";
 import { RequireAuth } from "@/features/auth/RequireAuth";
+import Accounts from "@/pages/Accounts";
 import Export from "@/pages/Export";
 import Fares from "@/pages/Fares";
 import Login from "@/pages/Login";
@@ -19,6 +20,7 @@ export function AppRoutes() {
           <Route path="/routes/:routeId" element={<RouteWorkspace />} />
           <Route path="/fares" element={<Fares />} />
           <Route path="/export" element={<Export />} />
+          <Route path="/accounts" element={<Accounts />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Route>
