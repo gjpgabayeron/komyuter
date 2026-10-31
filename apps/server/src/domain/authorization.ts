@@ -20,6 +20,11 @@ export interface AdminAccount {
   isSuperAdmin: boolean;
   /** The lifecycle flag: a Deactivated Account is refused at the guard. */
   isActive: boolean;
+  /**
+   * Forced Password Change: while this is true the guard admits only the routes
+   * that declare `config.passwordChangeAllowed` (ADR-0019 §11).
+   */
+  mustChangePassword: boolean;
 }
 
 /** A `roles` row as read from Postgres. */
@@ -93,5 +98,6 @@ export function meResponseOf(
   return {
     ...accountSummaryOf(account, identity),
     permissions: permissionsFromMask(account.permissions),
+    mustChangePassword: account.mustChangePassword,
   };
 }

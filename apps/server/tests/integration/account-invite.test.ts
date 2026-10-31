@@ -7,6 +7,7 @@ import {
   createTestPool,
   createTestSupabase,
   signInAdmin,
+  signInAndChangePassword,
   signInAs,
   testEnv,
   uniqueRouteId,
@@ -178,7 +179,8 @@ describe("Account invitation and Role assignment (M2b)", () => {
       payload: { email: managerEmail, roleId: managerRole.json().data.roleId },
     });
     expect(manager.statusCode).toBe(201);
-    const managerToken = await signInAs(
+    const managerToken = await signInAndChangePassword(
+      app,
       managerEmail,
       manager.json().data.temporaryPassword,
     );
@@ -256,7 +258,8 @@ describe("Account invitation and Role assignment (M2b)", () => {
       payload: { email: plotterEmail, roleId: "plotter" },
     });
     expect(plotter.statusCode).toBe(201);
-    const plotterToken = await signInAs(
+    const plotterToken = await signInAndChangePassword(
+      app,
       plotterEmail,
       plotter.json().data.temporaryPassword,
     );
@@ -287,7 +290,11 @@ describe("Account invitation and Role assignment (M2b)", () => {
     });
     expect(invited.statusCode).toBe(201);
     const userId = invited.json().data.account.userId;
-    const token = await signInAs(email, invited.json().data.temporaryPassword);
+    const token = await signInAndChangePassword(
+      app,
+      email,
+      invited.json().data.temporaryPassword,
+    );
 
     const plot = (name: string) =>
       app.inject({
@@ -377,7 +384,11 @@ describe("Account invitation and Role assignment (M2b)", () => {
     });
     expect(invited.statusCode).toBe(201);
     const userId = invited.json().data.account.userId;
-    const token = await signInAs(email, invited.json().data.temporaryPassword);
+    const token = await signInAndChangePassword(
+      app,
+      email,
+      invited.json().data.temporaryPassword,
+    );
 
     const selfChange = await app.inject({
       method: "PUT",

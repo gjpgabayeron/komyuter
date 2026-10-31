@@ -16,6 +16,7 @@ export function installAllPermissionsAccount(app: FastifyInstance): void {
       permissions: ALL_PERMISSIONS_MASK,
       isSuperAdmin: true,
       isActive: true,
+      mustChangePassword: false,
     };
   });
 }

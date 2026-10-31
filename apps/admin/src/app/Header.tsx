@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button";
@@ -14,13 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/features/auth/auth";
+import { CHANGE_PASSWORD_PATH } from "@/features/auth/forcedPasswordChange";
 import { getDisplayName, getInitials } from "@/features/auth/session";
 import { getSectionByPath } from "@/lib/sections";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { useRouteQuery } from "@/features/routes/useRouteQueries";
 
 export function Header() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const section = getSectionByPath(pathname);
@@ -39,6 +40,14 @@ export function Header() {
     signOut();
     toast.success("Signed out");
     navigate("/login", { replace: true });
+  };
+
+  const handleChangePassword = () => {
+    // The voluntary flow uses the same screen as the forced one, and returns to
+    // this page afterwards.
+    navigate(CHANGE_PASSWORD_PATH, {
+      state: { returnTo: pathname + search },
+    });
   };
 
   return (
@@ -90,6 +99,12 @@ export function Header() {
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
+                {user.mustChangePassword ? null : (
+                  <DropdownMenuItem onClick={handleChangePassword}>
+                    <KeyRound />
+                    Change password
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut />
                   Sign Out

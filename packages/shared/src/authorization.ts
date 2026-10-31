@@ -158,6 +158,18 @@ export const setAccountStatusSchema = z.object({
 export type SetAccountStatusInput = z.infer<typeof setAccountStatusSchema>;
 
 /**
+ * The self-service password change: the current password proves the caller is
+ * the Account holder, and the new one meets the same minimum length an invite's
+ * Temporary Password satisfies (ADR-0019 §10).
+ */
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(PASSWORD_MIN_LENGTH),
+});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+
+/**
  * Wire shapes. Permissions cross the wire as names: `bigint` is not
  * JSON-serialisable (ADR-0019, Consequences).
  */
@@ -193,4 +205,21 @@ export interface InviteAccountResponse {
 export interface MeResponse extends AccountSummary {
   /** The Account's effective set — the owner's is every declared Permission. */
   permissions: Permission[];
+  /**
+   * True while a Temporary Password is still in place: the SPA routes the
+   * Account to the change screen and the server admits only the identity
+   * lookup and the password change itself.
+   */
+  mustChangePassword: boolean;
+}
+
+/**
+ * What a successful self-service password change answers with. Replacing the
+ * password ends the Account's sessions at the identity provider, so the action
+ * hands back a session for the caller — otherwise the change would sign the
+ * Account out of the very tab it was made in.
+ */
+export interface ChangePasswordResponse {
+  access_token: string;
+  mustChangePassword: boolean;
 }

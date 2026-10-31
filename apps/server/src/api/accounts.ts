@@ -113,6 +113,9 @@ export async function registerAccounts(
         await db.insert(adminUsers).values({
           user_id: data.user.id,
           role_id: role.role_id,
+          // The generated password is a handover, not a credential: the Account
+          // is held on the change screen until it replaces it (ADR-0019 §4).
+          must_change_password: true,
         });
       } catch (insertError) {
         // Do not leave an auth identity with no Account behind it.
@@ -133,6 +136,7 @@ export async function registerAccounts(
               permissions: effectivePermissions(false, role.permissions),
               isSuperAdmin: false,
               isActive: true,
+              mustChangePassword: true,
             },
             identityOf(data.user),
           ),
@@ -215,6 +219,7 @@ export async function registerAccounts(
             permissions: effectivePermissions(false, target.permissions),
             isSuperAdmin: false,
             isActive: current.isActive,
+            mustChangePassword: current.mustChangePassword,
           },
           identityOf(data.user),
         ),
@@ -284,6 +289,7 @@ export async function registerAccounts(
             ),
             isSuperAdmin: current.isSuperAdmin,
             isActive,
+            mustChangePassword: current.mustChangePassword,
           },
           identityOf(data.user),
         ),

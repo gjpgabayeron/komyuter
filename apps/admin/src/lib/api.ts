@@ -4,6 +4,7 @@ import {
   classifyAuthFailure,
   emitAccessRevoked,
 } from "@/features/auth/accessRevoked";
+import { emitPasswordChangeRequired } from "@/features/auth/passwordChangeRequired";
 import { saveReturnPath } from "@/features/auth/redirect";
 
 export const AUTH_TOKEN_KEY = "komyuter.admin.token";
@@ -72,17 +73,22 @@ api.interceptors.response.use(
         ? (body as { error?: { code?: string } }).error?.code
         : undefined;
 
-    // The two ways a session ends are told apart here, once: a Deactivated
+    // The three ways a session ends are told apart here, once: a Deactivated
     // Account (403 ACCOUNT_DEACTIVATED) is access revoked — the token is
     // dropped and the app shows its own notice, because signing in again will
     // not help; an expired or invalid token (401) is session expiry, and the
-    // path is remembered so a fresh sign-in can resume it. Login failures are
-    // neither: they render the ordinary "invalid credentials" message.
+    // path is remembered so a fresh sign-in can resume it; an Account under
+    // Forced Password Change (403 PASSWORD_CHANGE_REQUIRED) is still signed in,
+    // so the token is KEPT and the change screen is opened instead. Login
+    // failures are none of them: they render the ordinary "invalid credentials"
+    // message.
     if (!isLoginRequest(error.config?.url)) {
       const failure = classifyAuthFailure(status, envelopeCode);
       if (failure === "access-revoked") {
         clearStoredToken();
         emitAccessRevoked();
+      } else if (failure === "password-change-required") {
+        emitPasswordChangeRequired();
       } else if (failure === "session-expired") {
         // Remember where the user was so a fresh sign-in can drop them back
         // (survives a full reload, unlike location.state).

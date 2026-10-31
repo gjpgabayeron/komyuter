@@ -2,9 +2,15 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/features/auth/auth";
 import { BackendUnreachable } from "@/features/auth/BackendUnreachable";
+import { forcedPasswordRedirect } from "@/features/auth/forcedPasswordChange";
 
+/**
+ * The single routing decision for a session: not signed in goes to the login
+ * screen, an Account under Forced Password Change goes to the change screen, and
+ * everything else reaches its page. No page repeats either check.
+ */
 export function RequireAuth() {
-  const { status, sessionExpired, accessRevoked } = useAuth();
+  const { status, user, sessionExpired, accessRevoked } = useAuth();
   const location = useLocation();
 
   if (status === "loading") {
@@ -32,6 +38,17 @@ export function RequireAuth() {
         }}
       />
     );
+  }
+
+  const here = location.pathname + location.search;
+  const passwordChange = forcedPasswordRedirect(
+    user?.mustChangePassword ?? false,
+    location.pathname,
+  );
+  if (passwordChange) {
+    // The page the Account was on travels with the redirect, so a successful
+    // change can resume it instead of dropping the Account on the overview.
+    return <Navigate to={passwordChange} replace state={{ returnTo: here }} />;
   }
 
   return <Outlet />;

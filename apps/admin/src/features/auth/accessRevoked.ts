@@ -1,3 +1,5 @@
+import { PASSWORD_CHANGE_REQUIRED_CODE } from "@/features/auth/passwordChangeRequired";
+
 /**
  * Access revocation — the Deactivated Account's side of the lifecycle.
  *
@@ -7,6 +9,10 @@
  * so the SPA clears the token and shows an access-revoked notice instead of the
  * session-expired copy. Kept as its own bus so neither path can be mistaken for
  * the other.
+ *
+ * The classifier below carries all three endings, because the interceptor asks
+ * one question once. The Forced Password Change branch lives in its own module:
+ * that Account keeps its token, so it is not this ending.
  */
 type AccessRevokedListener = () => void;
 
@@ -15,18 +21,24 @@ const listeners = new Set<AccessRevokedListener>();
 /** The server's error code for a Deactivated Account. */
 export const ACCESS_REVOKED_CODE = "ACCOUNT_DEACTIVATED";
 
-export type AuthFailure = "session-expired" | "access-revoked" | null;
+export type AuthFailure =
+  "session-expired" | "access-revoked" | "password-change-required" | null;
 
 /**
  * Which ending an auth failure represents. Pure so the interceptor's rule is
  * testable without a browser; the login call is handled by the caller because
  * its 401 is an ordinary "invalid credentials", not an expired session.
+ *
+ * The three outcomes share statuses, so the code decides first: a flagged
+ * Account is still signed in (`PASSWORD_CHANGE_REQUIRED`), a deactivated one is
+ * not (`ACCOUNT_DEACTIVATED`), and a bare 401 is an expired token.
  */
 export function classifyAuthFailure(
   status: number | undefined,
   code: string | undefined,
 ): AuthFailure {
   if (code === ACCESS_REVOKED_CODE) return "access-revoked";
+  if (code === PASSWORD_CHANGE_REQUIRED_CODE) return "password-change-required";
   if (status === 401) return "session-expired";
   return null;
 }

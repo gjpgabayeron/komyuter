@@ -41,6 +41,24 @@ export function accountDeactivated(
   });
 }
 
+/**
+ * Forced Password Change (ADR-0019 §11): a Temporary Password is a handover,
+ * and until the Account replaces it only the identity lookup and the
+ * password-change action are admitted. Its own code rather than a bare
+ * `FORBIDDEN`, so the SPA can route to the change screen instead of showing a
+ * permissions refusal — and so the token is kept, because the Account is
+ * still signed in.
+ */
+export function passwordChangeRequired(
+  message = "This Account must change its password before continuing",
+): ApiError {
+  return new ApiError({
+    statusCode: 403,
+    code: "PASSWORD_CHANGE_REQUIRED",
+    message,
+  });
+}
+
 export function notFound(message = "Not found"): ApiError {
   return new ApiError({ statusCode: 404, code: "NOT_FOUND", message });
 }

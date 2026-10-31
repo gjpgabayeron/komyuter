@@ -7,10 +7,11 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { type AuthUser, login, me } from "@/features/auth/api";
+import { type AuthUser, changePassword, login, me } from "@/features/auth/api";
 import { ApiError, clearStoredToken, getStoredToken } from "@/lib/api";
 import { onSessionExpired } from "@/features/auth/sessionExpired";
 import { onAccessRevoked } from "@/features/auth/accessRevoked";
+import { onPasswordChangeRequired } from "@/features/auth/passwordChangeRequired";
 
 export type AuthStatus =
   | "loading"
@@ -33,6 +34,13 @@ export interface AuthContextValue {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
   retry: () => Promise<void>;
+  /** Re-reads the identity — after a password change, or when the flag appears. */
+  refreshUser: () => Promise<void>;
+  /** Replaces the Account's own password and adopts the identity it answers. */
+  changeOwnPassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -142,6 +150,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus("unauthenticated");
   }, []);
 
+  /** Re-reads the identity the server currently resolves for this session. */
+  const refreshUser = useCallback(async () => {
+    const currentUser = await me();
+    if (currentUser) {
+      setUser(currentUser);
+    }
+  }, []);
+
+  const changeOwnPassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      // The action stores the session it answers with before this resolves, so
+      // the identity read here is made with a live token.
+      setUser(await changePassword(currentPassword, newPassword));
+    },
+    [],
+  );
+
+  // The third ending: a request refused with 403 PASSWORD_CHANGE_REQUIRED means
+  // the flag appeared while the Account was working (a forced reset from
+  // elsewhere). The token is still valid, so the session is not ended — the
+  // identity is re-read, and the fresh `mustChangePassword` is what sends the
+  // Account to the change screen.
+  useEffect(
+    () =>
+      onPasswordChangeRequired(() => {
+        void refreshUser().catch(() => {});
+      }),
+    [refreshUser],
+  );
+
   const retry = useCallback(async () => {
     if (retrying) return;
     setRetrying(true);
@@ -162,6 +200,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       retry,
+      refreshUser,
+      changeOwnPassword,
     }),
     [
       status,
@@ -172,6 +212,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       retry,
+      refreshUser,
+      changeOwnPassword,
     ],
   );
 

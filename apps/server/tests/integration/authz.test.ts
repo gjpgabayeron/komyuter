@@ -8,6 +8,7 @@ import {
   createTestPool,
   createTestSupabase,
   signInAdmin,
+  signInAndChangePassword,
   signInAs,
   testEnv,
   uniqueRouteId,
@@ -244,7 +245,11 @@ describe("M2a authorization core", () => {
     });
     expect(invited.statusCode).toBe(201);
     managerId = invited.json().data.account.userId;
-    managerToken = await signInAs(email, invited.json().data.temporaryPassword);
+    managerToken = await signInAndChangePassword(
+      app,
+      email,
+      invited.json().data.temporaryPassword,
+    );
 
     const me = await app.inject({
       method: "GET",

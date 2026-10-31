@@ -89,6 +89,13 @@ export const adminUsers = pgTable("admin_users", {
   is_super_admin: boolean("is_super_admin").notNull().default(false),
   /** The Account lifecycle flag — Accounts are deactivated, never deleted. */
   is_active: boolean("is_active").notNull().default(true),
+  /**
+   * Forced Password Change: set while a Temporary Password is still in place,
+   * cleared when the Account replaces it (ADR-0019 §4, migration 0009).
+   */
+  must_change_password: boolean("must_change_password")
+    .notNull()
+    .default(false),
 });
 
 export const fareConfigs = pgTable(
