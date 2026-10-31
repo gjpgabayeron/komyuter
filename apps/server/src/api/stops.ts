@@ -38,7 +38,10 @@ export async function registerStops(
 
   app.post(
     "/directions/:directionId/stops",
-    { schema: { body: createStopSchema } },
+    {
+      schema: { body: createStopSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request, reply) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
@@ -100,7 +103,10 @@ export async function registerStops(
 
   app.put(
     "/stops/:stopId",
-    { schema: { body: updateStopSchema } },
+    {
+      schema: { body: updateStopSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request) => {
       const { stopId } = request.params as { stopId: string };
       const body = request.body;
@@ -160,29 +166,33 @@ export async function registerStops(
     },
   );
 
-  app.delete("/stops/:stopId", async (request) => {
-    const { stopId } = request.params as { stopId: string };
+  app.delete(
+    "/stops/:stopId",
+    { config: { permission: "ROUTES_EDIT" } },
+    async (request) => {
+      const { stopId } = request.params as { stopId: string };
 
-    const [existing] = await db
-      .select()
-      .from(stopsTable)
-      .where(eq(stopsTable.stop_id, stopId))
-      .limit(1);
-    if (!existing) {
-      throw notFound(`Stop ${stopId} not found`);
-    }
+      const [existing] = await db
+        .select()
+        .from(stopsTable)
+        .where(eq(stopsTable.stop_id, stopId))
+        .limit(1);
+      if (!existing) {
+        throw notFound(`Stop ${stopId} not found`);
+      }
 
-    await assertNotDirectionTerminal(db, stopId);
+      await assertNotDirectionTerminal(db, stopId);
 
-    const [updated] = await db
-      .update(stopsTable)
-      .set({ is_active: false })
-      .where(eq(stopsTable.stop_id, stopId))
-      .returning();
+      const [updated] = await db
+        .update(stopsTable)
+        .set({ is_active: false })
+        .where(eq(stopsTable.stop_id, stopId))
+        .returning();
 
-    return {
-      success: true,
-      data: { stop_id: updated.stop_id, is_active: updated.is_active },
-    };
-  });
+      return {
+        success: true,
+        data: { stop_id: updated.stop_id, is_active: updated.is_active },
+      };
+    },
+  );
 }

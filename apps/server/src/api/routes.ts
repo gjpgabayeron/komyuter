@@ -59,7 +59,10 @@ export async function registerRoutes(
 
   app.post(
     "/routes",
-    { schema: { body: createRouteSchema } },
+    {
+      schema: { body: createRouteSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request, reply) => {
       const body = request.body;
 
@@ -213,7 +216,10 @@ export async function registerRoutes(
 
   app.put(
     "/routes/:routeId",
-    { schema: { body: updateRouteSchema } },
+    {
+      schema: { body: updateRouteSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request) => {
       const { routeId } = request.params as { routeId: string };
       const body = request.body;
@@ -257,23 +263,27 @@ export async function registerRoutes(
     },
   );
 
-  app.delete("/routes/:routeId", async (request) => {
-    const { routeId } = request.params as { routeId: string };
+  app.delete(
+    "/routes/:routeId",
+    { config: { permission: "ROUTES_EDIT" } },
+    async (request) => {
+      const { routeId } = request.params as { routeId: string };
 
-    // Hard delete: the directions → routes and stops → directions foreign keys
-    // cascade (schema.ts), so one row removal clears the route's plotted
-    // directions and stops from the database.
-    const [deleted] = await db
-      .delete(routesTable)
-      .where(eq(routesTable.route_id, routeId))
-      .returning({ route_id: routesTable.route_id });
-    if (!deleted) {
-      throw notFound(`Route ${routeId} not found`);
-    }
+      // Hard delete: the directions → routes and stops → directions foreign keys
+      // cascade (schema.ts), so one row removal clears the route's plotted
+      // directions and stops from the database.
+      const [deleted] = await db
+        .delete(routesTable)
+        .where(eq(routesTable.route_id, routeId))
+        .returning({ route_id: routesTable.route_id });
+      if (!deleted) {
+        throw notFound(`Route ${routeId} not found`);
+      }
 
-    return {
-      success: true,
-      data: { route_id: deleted.route_id },
-    };
-  });
+      return {
+        success: true,
+        data: { route_id: deleted.route_id },
+      };
+    },
+  );
 }

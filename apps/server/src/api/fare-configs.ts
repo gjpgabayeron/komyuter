@@ -93,7 +93,10 @@ export async function registerFareConfigs(
 
   app.post(
     "/fare-configs",
-    { schema: { body: createFareConfigSchema } },
+    {
+      schema: { body: createFareConfigSchema },
+      config: { permission: "FARES_EDIT" },
+    },
     async (request, reply) => {
       const body = request.body;
 
@@ -132,7 +135,10 @@ export async function registerFareConfigs(
 
   app.put(
     "/fare-configs/:fareConfigId",
-    { schema: { body: updateFareConfigSchema } },
+    {
+      schema: { body: updateFareConfigSchema },
+      config: { permission: "FARES_EDIT" },
+    },
     async (request) => {
       const { fareConfigId } = request.params as { fareConfigId: string };
       const body = request.body;
@@ -206,50 +212,54 @@ export async function registerFareConfigs(
     },
   );
 
-  app.delete("/fare-configs/:fareConfigId", async (request) => {
-    const { fareConfigId } = request.params as { fareConfigId: string };
+  app.delete(
+    "/fare-configs/:fareConfigId",
+    { config: { permission: "FARES_EDIT" } },
+    async (request) => {
+      const { fareConfigId } = request.params as { fareConfigId: string };
 
-    const [existing] = await db
-      .select()
-      .from(fareConfigsTable)
-      .where(eq(fareConfigsTable.fare_config_id, fareConfigId))
-      .limit(1);
-    if (!existing) {
-      throw notFound(`Fare config ${fareConfigId} not found`);
-    }
+      const [existing] = await db
+        .select()
+        .from(fareConfigsTable)
+        .where(eq(fareConfigsTable.fare_config_id, fareConfigId))
+        .limit(1);
+      if (!existing) {
+        throw notFound(`Fare config ${fareConfigId} not found`);
+      }
 
-    const [activeReference] = await db
-      .select({ route_id: routesTable.route_id })
-      .from(routesTable)
-      .where(
-        and(
-          eq(routesTable.fare_config_id, fareConfigId),
-          eq(routesTable.is_active, true),
-        ),
-      )
-      .limit(1);
-    if (activeReference) {
-      throw conflict(
-        "Cannot deactivate fare configuration referenced by active Routes",
-      );
-    }
+      const [activeReference] = await db
+        .select({ route_id: routesTable.route_id })
+        .from(routesTable)
+        .where(
+          and(
+            eq(routesTable.fare_config_id, fareConfigId),
+            eq(routesTable.is_active, true),
+          ),
+        )
+        .limit(1);
+      if (activeReference) {
+        throw conflict(
+          "Cannot deactivate fare configuration referenced by active Routes",
+        );
+      }
 
-    if (existing.is_default) {
-      throw conflict("Cannot deactivate the last default fare configuration");
-    }
+      if (existing.is_default) {
+        throw conflict("Cannot deactivate the last default fare configuration");
+      }
 
-    const [updated] = await db
-      .update(fareConfigsTable)
-      .set({ is_active: false })
-      .where(eq(fareConfigsTable.fare_config_id, fareConfigId))
-      .returning();
+      const [updated] = await db
+        .update(fareConfigsTable)
+        .set({ is_active: false })
+        .where(eq(fareConfigsTable.fare_config_id, fareConfigId))
+        .returning();
 
-    return {
-      success: true,
-      data: {
-        fare_config_id: updated.fare_config_id,
-        is_active: updated.is_active,
-      },
-    };
-  });
+      return {
+        success: true,
+        data: {
+          fare_config_id: updated.fare_config_id,
+          is_active: updated.is_active,
+        },
+      };
+    },
+  );
 }

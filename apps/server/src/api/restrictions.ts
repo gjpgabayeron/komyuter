@@ -41,7 +41,10 @@ export async function registerRestrictions(
 
   app.post(
     "/directions/:directionId/restrictions",
-    { schema: { body: createRestrictionSchema } },
+    {
+      schema: { body: createRestrictionSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request, reply) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
@@ -96,7 +99,10 @@ export async function registerRestrictions(
 
   app.put(
     "/restrictions/:restrictionId",
-    { schema: { body: updateRestrictionSchema } },
+    {
+      schema: { body: updateRestrictionSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request) => {
       const { restrictionId } = request.params as { restrictionId: string };
       const body = request.body;
@@ -147,30 +153,34 @@ export async function registerRestrictions(
     },
   );
 
-  app.delete("/restrictions/:restrictionId", async (request) => {
-    const { restrictionId } = request.params as { restrictionId: string };
+  app.delete(
+    "/restrictions/:restrictionId",
+    { config: { permission: "ROUTES_EDIT" } },
+    async (request) => {
+      const { restrictionId } = request.params as { restrictionId: string };
 
-    const [existing] = await db
-      .select()
-      .from(restrictionsTable)
-      .where(eq(restrictionsTable.restriction_id, restrictionId))
-      .limit(1);
-    if (!existing) {
-      throw notFound(`Restriction ${restrictionId} not found`);
-    }
+      const [existing] = await db
+        .select()
+        .from(restrictionsTable)
+        .where(eq(restrictionsTable.restriction_id, restrictionId))
+        .limit(1);
+      if (!existing) {
+        throw notFound(`Restriction ${restrictionId} not found`);
+      }
 
-    const [updated] = await db
-      .update(restrictionsTable)
-      .set({ is_active: false })
-      .where(eq(restrictionsTable.restriction_id, restrictionId))
-      .returning();
+      const [updated] = await db
+        .update(restrictionsTable)
+        .set({ is_active: false })
+        .where(eq(restrictionsTable.restriction_id, restrictionId))
+        .returning();
 
-    return {
-      success: true,
-      data: {
-        restriction_id: updated.restriction_id,
-        is_active: updated.is_active,
-      },
-    };
-  });
+      return {
+        success: true,
+        data: {
+          restriction_id: updated.restriction_id,
+          is_active: updated.is_active,
+        },
+      };
+    },
+  );
 }

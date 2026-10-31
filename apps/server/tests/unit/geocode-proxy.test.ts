@@ -12,9 +12,11 @@ import {
   registerMapbox,
   toGeocodeHits,
 } from "../../src/api/mapbox";
+import { installAllPermissionsAccount } from "../helpers/fake-account";
 
 async function bareApp() {
   const app = Fastify();
+  installAllPermissionsAccount(app);
   await registerMapbox(app as never);
   await app.ready();
   return app;

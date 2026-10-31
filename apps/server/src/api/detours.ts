@@ -94,7 +94,10 @@ export async function registerDetours(
 
   app.post(
     "/directions/:directionId/detours",
-    { schema: { body: createDetourSchema } },
+    {
+      schema: { body: createDetourSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request, reply) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
@@ -159,7 +162,10 @@ export async function registerDetours(
 
   app.put(
     "/detours/:detourId",
-    { schema: { body: updateDetourSchema } },
+    {
+      schema: { body: updateDetourSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request) => {
       const { detourId } = request.params as { detourId: string };
       const body = request.body;
@@ -251,29 +257,33 @@ export async function registerDetours(
     },
   );
 
-  app.delete("/detours/:detourId", async (request) => {
-    const { detourId } = request.params as { detourId: string };
+  app.delete(
+    "/detours/:detourId",
+    { config: { permission: "ROUTES_EDIT" } },
+    async (request) => {
+      const { detourId } = request.params as { detourId: string };
 
-    const [existing] = await db
-      .select()
-      .from(detoursTable)
-      .where(eq(detoursTable.detour_id, detourId))
-      .limit(1);
-    if (!existing) {
-      throw notFound(`Detour ${detourId} not found`);
-    }
+      const [existing] = await db
+        .select()
+        .from(detoursTable)
+        .where(eq(detoursTable.detour_id, detourId))
+        .limit(1);
+      if (!existing) {
+        throw notFound(`Detour ${detourId} not found`);
+      }
 
-    // DESTRUCTIVE delete (product decision: no soft-remove tier for detours).
-    // The row is removed permanently; its label becomes free for reuse and
-    // the direction's detour list contracts (no archived rows anywhere).
-    const [deleted] = await db
-      .delete(detoursTable)
-      .where(eq(detoursTable.detour_id, detourId))
-      .returning();
+      // DESTRUCTIVE delete (product decision: no soft-remove tier for detours).
+      // The row is removed permanently; its label becomes free for reuse and
+      // the direction's detour list contracts (no archived rows anywhere).
+      const [deleted] = await db
+        .delete(detoursTable)
+        .where(eq(detoursTable.detour_id, detourId))
+        .returning();
 
-    return {
-      success: true,
-      data: { detour_id: deleted.detour_id },
-    };
-  });
+      return {
+        success: true,
+        data: { detour_id: deleted.detour_id },
+      };
+    },
+  );
 }

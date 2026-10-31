@@ -7,14 +7,18 @@ export async function registerExport(
 ): Promise<void> {
   const { db } = deps;
 
-  app.get("/export/dataset", async (_request, reply) => {
-    const dataset = await assembleExportDataset(db);
-    return reply
-      .header(
-        "Content-Disposition",
-        'attachment; filename="komyuter-dataset.json"',
-      )
-      .header("Content-Type", "application/json")
-      .send(dataset);
-  });
+  app.get(
+    "/export/dataset",
+    { config: { permission: "EXPORT_DATASET" } },
+    async (_request, reply) => {
+      const dataset = await assembleExportDataset(db);
+      return reply
+        .header(
+          "Content-Disposition",
+          'attachment; filename="komyuter-dataset.json"',
+        )
+        .header("Content-Type", "application/json")
+        .send(dataset);
+    },
+  );
 }

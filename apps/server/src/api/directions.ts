@@ -251,7 +251,10 @@ export async function registerDirections(
 
   app.post(
     "/routes/:routeId/directions",
-    { schema: { body: createDirectionSchema } },
+    {
+      schema: { body: createDirectionSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request, reply) => {
       const { routeId } = request.params as { routeId: string };
       const body = request.body;
@@ -339,7 +342,10 @@ export async function registerDirections(
 
   app.put(
     "/directions/:directionId",
-    { schema: { body: updateDirectionSchema } },
+    {
+      schema: { body: updateDirectionSchema },
+      config: { permission: "ROUTES_EDIT" },
+    },
     async (request) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
@@ -413,30 +419,34 @@ export async function registerDirections(
     },
   );
 
-  app.delete("/directions/:directionId", async (request) => {
-    const { directionId } = request.params as { directionId: string };
+  app.delete(
+    "/directions/:directionId",
+    { config: { permission: "ROUTES_EDIT" } },
+    async (request) => {
+      const { directionId } = request.params as { directionId: string };
 
-    const [existing] = await db
-      .select({ direction_id: directionsTable.direction_id })
-      .from(directionsTable)
-      .where(eq(directionsTable.direction_id, directionId))
-      .limit(1);
-    if (!existing) {
-      throw notFound(`Direction ${directionId} not found`);
-    }
+      const [existing] = await db
+        .select({ direction_id: directionsTable.direction_id })
+        .from(directionsTable)
+        .where(eq(directionsTable.direction_id, directionId))
+        .limit(1);
+      if (!existing) {
+        throw notFound(`Direction ${directionId} not found`);
+      }
 
-    const [updated] = await db
-      .update(directionsTable)
-      .set({ is_active: false })
-      .where(eq(directionsTable.direction_id, directionId))
-      .returning();
+      const [updated] = await db
+        .update(directionsTable)
+        .set({ is_active: false })
+        .where(eq(directionsTable.direction_id, directionId))
+        .returning();
 
-    return {
-      success: true,
-      data: {
-        direction_id: updated.direction_id,
-        is_active: updated.is_active,
-      },
-    };
-  });
+      return {
+        success: true,
+        data: {
+          direction_id: updated.direction_id,
+          is_active: updated.is_active,
+        },
+      };
+    },
+  );
 }
