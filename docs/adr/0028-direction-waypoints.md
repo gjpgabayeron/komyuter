@@ -80,9 +80,9 @@ survive that derivation or the first save silently deletes it.
    persisted polyline is the server's answer, and the mobile app renders the final geometry without
    re-snapping anything.
 
-10. **Stable stop ids are required before this ships.** A Via Point references coordinates today, but
-    Stop Waypoints reference stops; the save path regenerating stop ids on every save (the defect
-    ADR-0020's context records) would break both the waypoint list and the review diff.
+10. **Stable stop ids are required before this ships (ADR-0031).** A Via Point references coordinates
+    today, but Stop Waypoints reference stops; the save path regenerating stop ids on every save (the
+    defect ADR-0020's context records) would break both the waypoint list and the review diff.
 
 ## Alternatives considered
 

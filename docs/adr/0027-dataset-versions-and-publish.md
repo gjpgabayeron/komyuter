@@ -73,9 +73,9 @@ snapshots are simpler and safer than per-entity revisions, and rollback becomes 
    mobile app pins the version for a navigation session and refreshes between sessions; the routing
    graph is built and cached per Dataset Version, not mutated in place.
 
-9. **Stable stop ids are a prerequisite.** The current save path regenerates stop ids, so every publish
-   would look like "all stops deleted and recreated" and every diff would be unreadable. Stop identity
-   is fixed before version review is built.
+9. **Stable stop ids are a prerequisite (ADR-0031).** The current save path regenerates stop ids, so
+   every publish would look like "all stops deleted and recreated" and every diff would be unreadable.
+   Stop identity is fixed before version review is built.
 
 10. **ADR-0020 still owns editing conflicts.** Its version stamp, three-way merge and "the polyline is
     never merged" rules remain. A Proposal whose parent is no longer published is refused with the same

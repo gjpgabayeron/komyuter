@@ -25,7 +25,7 @@ The save path is a blind overwrite, and the interface says otherwise.
   favour of the server's version. The message describes a capability the server does not have.
 - Drafts are single-slot: "editing a second route overwrites the first draft" (`docs/ADMIN.md` §11).
 - Because stop ids are regenerated on every save, anything the client remembers about a stop's identity
-  is invalidated by a save.
+  is invalidated by a save (ADR-0031 removes this constraint).
 
 This was tolerable while one person plotted. It stops being tolerable at M2a, when the milestone plan
 deliberately enables several people to grow the seed dataset — and that dataset is itself the

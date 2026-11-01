@@ -148,6 +148,8 @@ from M2b onward records who created and last updated it.
 
 - ADR-0020 implemented: a version stamp on the route and direction save path, and a 409 when the base
   is stale — making the existing conflict copy true rather than aspirational.
+- ADR-0031 implemented: stop ids survive a save — the payload carries them, the save updates in place
+  and deletes only what is gone — including the derived return's stops.
 - Per-user draft slots, replacing the single-slot `localStorage` draft.
 - A client-side three-way merge (base = the draft's loaded snapshot, mine = the draft, theirs = the
   server's current state) with a resolver UI.
