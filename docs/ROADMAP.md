@@ -250,6 +250,26 @@ the release reaches production through the M4 pipeline.
 admin UI and the result shown with its distance, fare and transfer count; results are compared against
 the checked-in golden set, and a divergence fails visibly.
 
+## Decided, not yet scheduled
+
+These ADRs are agreed and unimplemented. They sit outside the milestone sequence above, and each names
+its own prerequisite.
+
+- **ADR-0026 — service area.** One stored polygon, enforced at stop and direction save and at
+  navigation.
+- **ADR-0027 — dataset versions and publish.** Whole-dataset snapshots behind a per-environment
+  pointer; supersedes ADR-0020's "no server-side revision history" clause. Its publish gate requires
+  **stable stop ids** (§9).
+- **ADR-0028 — direction waypoints.** Shape waypoints, snap modes and manual segments. It rewrites what
+  a direction save carries, and it too requires stable stop ids (§10).
+- **ADR-0029 — open routing and geocoding.** Provider interfaces replace Mapbox on the critical path.
+- **ADR-0030 — mobile renderer and Geo-AR.** MapLibre on both surfaces; Geo-AR only.
+
+**Why they bear on M2c.** ADR-0020's version stamp is M2c's own deliverable. ADR-0027 and ADR-0028
+independently require stable stop ids, which today's save path does not provide — it regenerates every
+stop id on every save. Whichever milestone lands stable ids must land them before either of those ADRs
+is implemented.
+
 ## Deferred and out of scope
 
 These items are deliberately **not** in any milestone. Two of them carry a risk worth stating plainly

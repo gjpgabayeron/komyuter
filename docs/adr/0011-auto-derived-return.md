@@ -5,3 +5,5 @@
 Constraints that survive the derivation: a route **must start on a stop and end on a stop** (may end on the start stop — a loop); stops are connected to the polyline, not floating points; each Direction keeps its own ordered stop list and graph edges run only in the direction of travel (ADR-0008). The auto-derived return is a starting point for editing, never a frozen mirror — editing the return after derivation must not rewrite the base path.
 
 Rationale: PUJ franchises are bidirectional; the two directions of a real route share the same physical corridor, so drawing the corridor once and deriving the mirror is honest to the domain and roughly halves plotting effort. Keeping the return a real, editable Direction (own polyline + ordered stops) preserves the existing model and ADR-0008's "never reverse one polyline for the return trip" rule — the derivation happens once at save time, not at render time.
+
+ADR-0028 refines the derivation: the return carries Via Points as well as Stop Waypoints, and a `manual` segment is mirrored only with the plotter's confirmation, because a mirrored hand-drawn path is a new claim about the return road.

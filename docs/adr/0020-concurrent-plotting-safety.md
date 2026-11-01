@@ -89,7 +89,9 @@ deliverable of this phase, so its loss is both silent and unrecoverable.
 
 ## Non-goals (explicit)
 
-- No server-side revision history, rollback or time travel.
+- No server-side revision history, rollback or time travel. **Superseded by ADR-0027** for the history
+  clause: the dataset's history is kept as whole-dataset snapshots, not per-entity revisions. The
+  conflict decisions above are unchanged.
 - No real-time collaborative editing: no CRDT or operational transform, no live cursors, no presence.
 - No geometry merging of any kind, for polylines or for detour loops.
 - No change to the snapping proxy, and no change to the `[lng, lat]` rule (ADR-0013).
