@@ -21,6 +21,25 @@ export const RESTRICTION_AFFECTS_VALUES = [
 ] as const;
 export type RestrictionAffects = (typeof RESTRICTION_AFFECTS_VALUES)[number];
 
+/**
+ * An Account named as the creator or the last writer of an entity (ADR-0025).
+ *
+ * A reference, not a snapshot: the name is the Account's current name, resolved
+ * through the identity lookup the Accounts surface already uses. The wire never
+ * carries an email for attribution.
+ */
+export interface AttributedAccount {
+  userId: string;
+  name: string;
+}
+
+/**
+ * Attribution, or `null` when the write was never recorded. Rows that predate
+ * the columns stay null rather than being assigned an actor the system did not
+ * observe; the dashboard reads that as "Not recorded".
+ */
+export type Attribution = AttributedAccount | null;
+
 export interface Route {
   route_id: string;
   name: string;
@@ -30,6 +49,8 @@ export interface Route {
   fare_config_id: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface Direction {
@@ -42,6 +63,8 @@ export interface Direction {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface Stop {
@@ -58,6 +81,8 @@ export interface Stop {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface Detour {
@@ -76,6 +101,8 @@ export interface Detour {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 /** A stop owned by a detour (never part of the base chain). */
@@ -91,6 +118,8 @@ export interface DetourStop {
   notes: string | null;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface Restriction {
@@ -104,6 +133,8 @@ export interface Restriction {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }
 
 export interface FareConfiguration {
@@ -117,4 +148,6 @@ export interface FareConfiguration {
   is_default: boolean;
   created_at: string;
   updated_at: string;
+  created_by: Attribution;
+  updated_by: Attribution;
 }

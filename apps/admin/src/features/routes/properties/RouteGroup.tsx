@@ -6,12 +6,14 @@ import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
 import { useFareConfigsQuery } from "@/features/fares/queries";
 import { cn } from "@/lib/utils";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { formatAttributionName } from "../attribution";
 import { formatTimestamp } from "../format";
 import { FareConfigSelect } from "../FareConfigSelect";
+import { ReadOnlyValue } from "./ReadOnlyValue";
 import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "../routeColors";
 import { useRouteQuery } from "../useRouteQueries";
 
-export function RouteGroup() {
+export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
   const routeId = usePlottingStore((s) => s.routeId);
   const routeQuery = useRouteQuery(routeId);
   const polyline = usePlottingStore((s) => s.polyline);
@@ -22,6 +24,9 @@ export function RouteGroup() {
   const [unit, setUnit] = useState<"m" | "km">("m");
 
   const route = routeQuery.data;
+  // The direction this workspace plots is the route's base direction; its
+  // attribution is shown beside the route's own (ADR-0025).
+  const baseDirection = route?.directions[0] ?? null;
 
   const [hexText, setHexText] = useState(
     routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
@@ -64,79 +69,121 @@ export function RouteGroup() {
       </div>
 
       <div className="mt-2.5 space-y-3.5">
-        <div className="space-y-1.5">
-          <SectionLabel>Route name</SectionLabel>
-          <Input
-            autoFocus
-            value={routeMeta?.name ?? ""}
-            onChange={(event) => setRouteMeta({ name: event.target.value })}
-            aria-label="Route name"
-            disabled={saving}
-            className="h-8"
+        {readOnly ? (
+          <ReadOnlyValue
+            label="Route name"
+            value={route?.name ?? routeMeta?.name ?? "—"}
           />
-        </div>
-        <div className="space-y-1.5">
-          <SectionLabel>Route code</SectionLabel>
-          <Input
-            value={routeMeta?.shortName ?? ""}
-            onChange={(event) =>
-              setRouteMeta({ shortName: event.target.value })
-            }
-            maxLength={10}
-            aria-label="Route code"
-            disabled={saving}
-            className="h-8"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <SectionLabel>Colour</SectionLabel>
-          <div className="flex items-center gap-1.5">
-            <label
-              title="Pick a colour"
-              className="border-border flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-white"
-            >
-              <input
-                type="color"
-                value={routeMeta?.color ?? DEFAULT_ROUTE_COLOR}
-                onChange={(event) =>
-                  setRouteMeta({ color: event.target.value })
-                }
-                disabled={saving}
-                aria-label="Route colour"
-                className="size-9 cursor-pointer border-none bg-transparent p-0"
-              />
-            </label>
+        ) : (
+          <div className="space-y-1.5">
+            <SectionLabel>Route name</SectionLabel>
             <Input
-              value={hexText}
-              onChange={(event) => {
-                const value = event.target.value;
-                setHexText(value);
-                if (isValidHexColor(value)) setRouteMeta({ color: value });
-              }}
+              autoFocus
+              value={routeMeta?.name ?? ""}
+              onChange={(event) => setRouteMeta({ name: event.target.value })}
+              aria-label="Route name"
               disabled={saving}
-              aria-label="Route colour (hex)"
-              aria-invalid={!isValidHexColor(hexText) && hexText.trim() !== ""}
-              spellCheck={false}
-              className="h-8 font-mono tabular-nums"
+              className="h-8"
             />
           </div>
-          {!isValidHexColor(hexText) && hexText.trim() !== "" && (
-            <p role="alert" className="text-destructive text-xs">
-              Not a valid colour — use six hex digits, e.g. #1B6DB2.
-            </p>
-          )}
-        </div>
-        <div className="space-y-1.5">
-          <SectionLabel>Fare config</SectionLabel>
-          <FareConfigSelect
-            value={routeMeta?.fareConfigId ?? null}
-            onChange={(fareConfigId) => setRouteMeta({ fareConfigId })}
-            disabled={saving}
+        )}
+        {readOnly ? (
+          <ReadOnlyValue
+            label="Route code"
+            value={route?.short_name ?? routeMeta?.shortName ?? "—"}
           />
-          {fareLabel && (
-            <p className="text-muted-foreground text-xs">{fareLabel}</p>
-          )}
-        </div>
+        ) : (
+          <div className="space-y-1.5">
+            <SectionLabel>Route code</SectionLabel>
+            <Input
+              value={routeMeta?.shortName ?? ""}
+              onChange={(event) =>
+                setRouteMeta({ shortName: event.target.value })
+              }
+              maxLength={10}
+              aria-label="Route code"
+              disabled={saving}
+              className="h-8"
+            />
+          </div>
+        )}
+        {readOnly ? (
+          <div className="space-y-1.5">
+            <SectionLabel>Colour</SectionLabel>
+            <div className="flex items-center gap-1.5">
+              <span
+                aria-hidden
+                className="border-border size-5 shrink-0 rounded-[3px] border"
+                style={{ backgroundColor: route?.color ?? "transparent" }}
+              />
+              <span className="font-mono text-sm tabular-nums">
+                {route?.color ?? "—"}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-1.5">
+            <SectionLabel>Colour</SectionLabel>
+            <div className="flex items-center gap-1.5">
+              <label
+                title="Pick a colour"
+                className="border-border flex size-8 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-lg border bg-white"
+              >
+                <input
+                  type="color"
+                  value={routeMeta?.color ?? DEFAULT_ROUTE_COLOR}
+                  onChange={(event) =>
+                    setRouteMeta({ color: event.target.value })
+                  }
+                  disabled={saving}
+                  aria-label="Route colour"
+                  className="size-9 cursor-pointer border-none bg-transparent p-0"
+                />
+              </label>
+              <Input
+                value={hexText}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setHexText(value);
+                  if (isValidHexColor(value)) setRouteMeta({ color: value });
+                }}
+                disabled={saving}
+                aria-label="Route colour (hex)"
+                aria-invalid={
+                  !isValidHexColor(hexText) && hexText.trim() !== ""
+                }
+                spellCheck={false}
+                className="h-8 font-mono tabular-nums"
+              />
+            </div>
+            {!isValidHexColor(hexText) && hexText.trim() !== "" && (
+              <p role="alert" className="text-destructive text-xs">
+                Not a valid colour — use six hex digits, e.g. #1B6DB2.
+              </p>
+            )}
+          </div>
+        )}
+        {readOnly ? (
+          <ReadOnlyValue
+            label="Fare config"
+            value={
+              fareLabel ??
+              (route?.fare_config_id ? route.fare_config_id : "None")
+            }
+          />
+        ) : (
+          <div className="space-y-1.5">
+            <SectionLabel>Fare config</SectionLabel>
+            <FareConfigSelect
+              value={routeMeta?.fareConfigId ?? null}
+              onChange={(fareConfigId) => setRouteMeta({ fareConfigId })}
+              disabled={saving}
+            />
+            {fareLabel && (
+              <p className="text-muted-foreground text-xs">{fareLabel}</p>
+            )}
+          </div>
+        )}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <SectionLabel>Distance</SectionLabel>
@@ -177,7 +224,48 @@ export function RouteGroup() {
             {route ? formatTimestamp(route.updated_at) : "—"}
           </p>
         </div>
+        <dl className="space-y-1 text-xs">
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">Created by</dt>
+            <dd className="truncate">
+              {route ? formatAttributionName(route.created_by) : "—"}
+            </dd>
+          </div>
+          <div className="flex items-center justify-between gap-2">
+            <dt className="text-muted-foreground">Last written by</dt>
+            <dd className="truncate">
+              {route ? formatAttributionName(route.updated_by) : "—"}
+            </dd>
+          </div>
+        </dl>
       </div>
+
+      {baseDirection && (
+        <div className="mt-4 space-y-1.5 border-t pt-3">
+          <SectionLabel>Direction</SectionLabel>
+          <p className="truncate text-sm">{baseDirection.label}</p>
+          <dl className="space-y-1 text-xs">
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-muted-foreground">Created by</dt>
+              <dd className="truncate">
+                {formatAttributionName(baseDirection.created_by)}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-muted-foreground">Last written by</dt>
+              <dd className="truncate">
+                {formatAttributionName(baseDirection.updated_by)}
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <dt className="text-muted-foreground">Last updated</dt>
+              <dd className="tabular-nums">
+                {formatTimestamp(baseDirection.updated_at)}
+              </dd>
+            </div>
+          </dl>
+        </div>
+      )}
     </section>
   );
 }

@@ -55,6 +55,7 @@ const ADMIN: AuthUser = {
     "MAPBOX_GEOSERVICES",
     "ADMIN_MANAGE",
   ],
+  mustChangePassword: false,
 };
 
 describe("restoreSession", () => {

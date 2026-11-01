@@ -12,6 +12,7 @@ import { registerRoles } from "./roles";
 import { registerAccounts } from "./accounts";
 import { registerExport } from "./export";
 import { registerMapbox } from "./mapbox";
+import { registerPasswordChange } from "./password";
 import { registerStatus } from "./status";
 
 export async function registerAdminRoutes(
@@ -41,4 +42,15 @@ export async function registerAdminRoutes(
     },
     { prefix: "/api/admin" },
   );
+
+  // The password change lives at `/api/auth/password` but runs behind the same
+  // guard as the admin routes — it needs the resolved Account, and a Deactivated
+  // Account must not change its password with a live token. It is a separate
+  // plugin only because of the prefix; its route declares
+  // `passwordChangeAllowed`, which is what admits it through the gate.
+  await app.register(async (password) => {
+    password.addHook("preHandler", authGuard);
+    password.addHook("preHandler", enforceRoutePermission);
+    await password.register(registerPasswordChange, deps);
+  });
 }

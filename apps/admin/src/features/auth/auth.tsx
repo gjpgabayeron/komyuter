@@ -7,9 +7,13 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
-import { type AuthUser, login, me } from "@/features/auth/api";
+import { type AuthUser, changePassword, login, me } from "@/features/auth/api";
 import { ApiError, clearStoredToken, getStoredToken } from "@/lib/api";
-import { onSessionExpired } from "@/features/auth/sessionExpired";
+import {
+  onAccessRevoked,
+  onPasswordChangeRequired,
+  onSessionExpired,
+} from "@/features/auth/authEvents";
 
 export type AuthStatus =
   | "loading"
@@ -26,10 +30,19 @@ export interface AuthContextValue {
   status: AuthStatus;
   user: AuthUser | null;
   sessionExpired: boolean;
+  /** True when the session ended because the Account was deactivated. */
+  accessRevoked: boolean;
   retrying: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
   retry: () => Promise<void>;
+  /** Re-reads the identity — after a password change, or when the flag appears. */
+  refreshUser: () => Promise<void>;
+  /** Replaces the Account's own password and adopts the identity it answers. */
+  changeOwnPassword: (
+    currentPassword: string,
+    newPassword: string,
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -74,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AuthStatus>("loading");
   const [user, setUser] = useState<AuthUser | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [accessRevoked, setAccessRevoked] = useState(false);
   const [retrying, setRetrying] = useState(false);
 
   // A 401 from any protected request (mid-use token expiry) kicks the user
@@ -82,6 +96,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     return onSessionExpired(() => {
       setSessionExpired(true);
+      setAccessRevoked(false);
+      setUser(null);
+      setStatus("unauthenticated");
+    });
+  }, []);
+
+  // A Deactivated Account is the other ending: the server refuses its live
+  // session with 403 ACCOUNT_DEACTIVATED, the token is already cleared by the
+  // interceptor, and the login screen explains that signing in again will not
+  // help. It is not read as an expiry.
+  useEffect(() => {
+    return onAccessRevoked(() => {
+      setAccessRevoked(true);
+      setSessionExpired(false);
       setUser(null);
       setStatus("unauthenticated");
     });
@@ -105,6 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = useCallback(async (email: string, password: string) => {
     setStatus("authenticating");
     setSessionExpired(false);
+    setAccessRevoked(false);
     try {
       const currentUser = await login(email, password);
       setUser(currentUser);
@@ -119,8 +148,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearStoredToken();
     setUser(null);
     setSessionExpired(false);
+    setAccessRevoked(false);
     setStatus("unauthenticated");
   }, []);
+
+  /** Re-reads the identity the server currently resolves for this session. */
+  const refreshUser = useCallback(async () => {
+    const currentUser = await me();
+    if (currentUser) {
+      setUser(currentUser);
+    }
+  }, []);
+
+  const changeOwnPassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      // The action stores the session it answers with before this resolves, so
+      // the identity read here is made with a live token.
+      setUser(await changePassword(currentPassword, newPassword));
+    },
+    [],
+  );
+
+  // The third ending: a request refused with 403 PASSWORD_CHANGE_REQUIRED means
+  // the flag appeared while the Account was working (a forced reset from
+  // elsewhere). The token is still valid, so the session is not ended — the
+  // identity is re-read, and the fresh `mustChangePassword` is what sends the
+  // Account to the change screen.
+  useEffect(
+    () =>
+      onPasswordChangeRequired(() => {
+        void refreshUser().catch(() => {});
+      }),
+    [refreshUser],
+  );
 
   const retry = useCallback(async () => {
     if (retrying) return;
@@ -133,8 +193,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applyRestore, retrying]);
 
   const value = useMemo(
-    () => ({ status, user, sessionExpired, retrying, signIn, signOut, retry }),
-    [status, user, sessionExpired, retrying, signIn, signOut, retry],
+    () => ({
+      status,
+      user,
+      sessionExpired,
+      accessRevoked,
+      retrying,
+      signIn,
+      signOut,
+      retry,
+      refreshUser,
+      changeOwnPassword,
+    }),
+    [
+      status,
+      user,
+      sessionExpired,
+      accessRevoked,
+      retrying,
+      signIn,
+      signOut,
+      retry,
+      refreshUser,
+      changeOwnPassword,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

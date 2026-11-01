@@ -6,6 +6,8 @@ import { adminUsers, roles } from "./schema";
 export const adminAccountSelection = {
   userId: adminUsers.user_id,
   isSuperAdmin: adminUsers.is_super_admin,
+  isActive: adminUsers.is_active,
+  mustChangePassword: adminUsers.must_change_password,
   roleId: roles.role_id,
   roleName: roles.name,
   position: roles.position,

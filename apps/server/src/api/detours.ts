@@ -15,16 +15,24 @@ import {
   assertPointOnLine,
   loadBasePolyline,
 } from "../domain/validation";
-import { loadDetours } from "../domain/entities";
+import { loadDetours, loadDetourStopsByDetour } from "../domain/entities";
+import { actorId } from "./auth";
+import {
+  createAttribution,
+  loadAttributionResolver,
+  updateAttribution,
+} from "../domain/attribution";
 
 function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
 }
 
-/** Inserts a detour's stop list (ordered by array position). */
+/** Inserts a detour's stop list (ordered by array position), stamped with the
+ *  acting Account — a detour stop is created by the same write as its detour. */
 async function insertDetourStops(
   db: AppDeps["db"],
   detourId: string,
+  actor: string,
   stops: {
     name: string;
     location: GeoPoint;
@@ -46,6 +54,8 @@ async function insertDetourStops(
       is_guaranteed_service: stop.is_guaranteed_service ?? false,
       landmark_hint: stop.landmark_hint ?? null,
       notes: stop.notes ?? null,
+      // Every detour stop this write creates carries the same actor.
+      ...createAttribution(actor),
     })),
   );
 }
@@ -77,7 +87,7 @@ export async function registerDetours(
   app: AppInstance,
   deps: AppDeps,
 ): Promise<void> {
-  const { db } = deps;
+  const { db, supabase } = deps;
 
   app.get("/directions/:directionId/detours", async (request) => {
     const { directionId } = request.params as { directionId: string };
@@ -89,7 +99,14 @@ export async function registerDetours(
     if (!direction) {
       throw notFound(`Direction ${directionId} not found`);
     }
-    return { success: true, data: await loadDetours(db, directionId) };
+    return {
+      success: true,
+      data: await loadDetours(
+        db,
+        directionId,
+        await loadAttributionResolver(supabase),
+      ),
+    };
   });
 
   app.post(
@@ -101,6 +118,8 @@ export async function registerDetours(
     async (request, reply) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
+      // The actor is the guard's Account — a client-supplied actor is not read.
+      const actor = actorId(request);
 
       const [direction] = await db
         .select({ direction_id: directionsTable.direction_id })
@@ -132,13 +151,25 @@ export async function registerDetours(
           additional_distance_meters: body.additional_distance_meters ?? null,
           commuter_instruction: body.commuter_instruction,
           driver_instruction: body.driver_instruction ?? null,
+          // A create is both the first and the last write (ADR-0025 §3).
+          ...createAttribution(actor),
         })
         .returning();
 
-      // Detour stops (ordered): created atomically with the detour.
+      // Detour stops (ordered): created atomically with the detour, stamped
+      // with the same actor as the detour itself.
       if (body.detour_stops && body.detour_stops.length > 0) {
-        await insertDetourStops(db, detourId, body.detour_stops);
+        await insertDetourStops(db, detourId, actor, body.detour_stops);
       }
+
+      const attribution = await loadAttributionResolver(supabase);
+      // Re-read the stops so the response carries their Attribution, resolved
+      // through the same per-request resolver as every other read.
+      const stopsByDetour = await loadDetourStopsByDetour(
+        db,
+        [detourId],
+        attribution,
+      );
 
       return reply.code(201).send({
         success: true,
@@ -155,6 +186,9 @@ export async function registerDetours(
           is_active: inserted.is_active,
           created_at: iso(inserted.created_at),
           updated_at: iso(inserted.updated_at),
+          created_by: attribution(inserted.created_by),
+          updated_by: attribution(inserted.updated_by),
+          detour_stops: stopsByDetour.get(detourId) ?? [],
         },
       });
     },
@@ -169,6 +203,9 @@ export async function registerDetours(
     async (request) => {
       const { detourId } = request.params as { detourId: string };
       const body = request.body;
+      // The actor is the guard's Account — a client-supplied actor is not read.
+      const actor = actorId(request);
+      const attribution = await loadAttributionResolver(supabase);
 
       const [existing] = await db
         .select()
@@ -192,9 +229,9 @@ export async function registerDetours(
         // FR-023: revalidate the loop against the CURRENT entry/exit even when
         // only one of the three geometry fields is being replaced, so a partial
         // edit can never drift the loop's endpoints off its detour (SC-014).
-        const current = (await loadDetours(db, existing.direction_id)).find(
-          (detour) => detour.detour_id === detourId,
-        );
+        const current = (
+          await loadDetours(db, existing.direction_id, attribution)
+        ).find((detour) => detour.detour_id === detourId);
         if (!current) {
           throw validationError(`Detour ${detourId} not found`);
         }
@@ -231,26 +268,33 @@ export async function registerDetours(
         patch.driver_instruction = body.driver_instruction;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
-      // A detour_stops-only PUT (or a no-op) must not run an empty SET clause
-      // (drizzle `update().set({})` is invalid SQL → 500).
-      if (Object.keys(patch).length > 0) {
+      // Only the last writer moves: the creator is written once (ADR-0025).
+      // The stamp travels with a write, never with a request: an empty body —
+      // no detour field and no detour_stops — changes nothing, so it must not
+      // reattribute the row or bump `updated_at`. A detour_stops-only replace
+      // IS a write, so it still moves the detour's stamp.
+      const writesDetourFields = Object.keys(patch).length > 0;
+      const writesStops = body.detour_stops !== undefined;
+
+      if (writesDetourFields || writesStops) {
         await db
           .update(detoursTable)
-          .set(patch)
+          .set({ ...patch, ...updateAttribution(actor) })
           .where(eq(detoursTable.detour_id, detourId));
       }
 
       // detour_stops is a REPLACE operation: the payload carries the full
-      // ordered list, so the previous rows are dropped and re-created.
+      // ordered list, so the previous rows are dropped and re-created. The
+      // re-created rows are fresh writes, so they are stamped in full.
       if (body.detour_stops !== undefined) {
         await db
           .delete(detourStopsTable)
           .where(eq(detourStopsTable.detour_id, detourId));
-        await insertDetourStops(db, detourId, body.detour_stops);
+        await insertDetourStops(db, detourId, actor, body.detour_stops);
       }
 
       const [detours] = await Promise.all([
-        loadDetours(db, existing.direction_id),
+        loadDetours(db, existing.direction_id, attribution),
       ]);
       const updated = detours.find((d) => d.detour_id === detourId);
       return { success: true, data: updated };

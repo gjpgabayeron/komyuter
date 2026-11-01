@@ -8,6 +8,7 @@ import {
   createTestPool,
   createTestSupabase,
   signInAdmin,
+  signInAndChangePassword,
   signInAs,
   testEnv,
   uniqueRouteId,
@@ -239,13 +240,16 @@ describe("M2a authorization core", () => {
       headers: auth(ownerToken),
       payload: {
         email,
-        temporaryPassword: "manager-password-1",
         roleId: managerRoleId,
       },
     });
     expect(invited.statusCode).toBe(201);
-    managerId = invited.json().data.userId;
-    managerToken = await signInAs(email, "manager-password-1");
+    managerId = invited.json().data.account.userId;
+    managerToken = await signInAndChangePassword(
+      app,
+      email,
+      invited.json().data.temporaryPassword,
+    );
 
     const me = await app.inject({
       method: "GET",
@@ -306,7 +310,6 @@ describe("M2a authorization core", () => {
     const email = `duplicate-${suffix()}@komyuter.test`;
     const payload = {
       email,
-      temporaryPassword: "duplicate-password-1",
       roleId: "viewer",
     };
     const first = await app.inject({
@@ -316,7 +319,7 @@ describe("M2a authorization core", () => {
       payload,
     });
     expect(first.statusCode).toBe(201);
-    const accountId = first.json().data.userId;
+    const accountId = first.json().data.account.userId;
 
     const second = await app.inject({
       method: "POST",
@@ -412,7 +415,6 @@ describe("M2a authorization core", () => {
       headers: auth(managerToken),
       payload: {
         email: `overreach-${suffix()}@komyuter.test`,
-        temporaryPassword: "overreach-password-1",
         roleId: "administrator",
       },
     });
@@ -473,7 +475,6 @@ describe("M2a authorization core", () => {
       headers: auth(ownerToken),
       payload: {
         email,
-        temporaryPassword: "exporter-password-1",
         roleId: exporterRoleId,
       },
     });
@@ -481,7 +482,7 @@ describe("M2a authorization core", () => {
 
     const response = await app.inject({
       method: "PUT",
-      url: `/api/admin/accounts/${invited.json().data.userId}/role`,
+      url: `/api/admin/accounts/${invited.json().data.account.userId}/role`,
       headers: auth(managerToken),
       payload: { roleId: "viewer" },
     });

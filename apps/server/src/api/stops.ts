@@ -10,6 +10,12 @@ import { notFound } from "./errors";
 import { uuidId } from "../domain/ids";
 import { assertNotDirectionTerminal } from "../domain/validation";
 import { loadStops } from "../domain/entities";
+import { actorId } from "./auth";
+import {
+  createAttribution,
+  loadAttributionResolver,
+  updateAttribution,
+} from "../domain/attribution";
 
 function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
@@ -19,7 +25,7 @@ export async function registerStops(
   app: AppInstance,
   deps: AppDeps,
 ): Promise<void> {
-  const { db } = deps;
+  const { db, supabase } = deps;
 
   app.get("/directions/:directionId/stops", async (request) => {
     const { directionId } = request.params as { directionId: string };
@@ -33,7 +39,14 @@ export async function registerStops(
       throw notFound(`Direction ${directionId} not found`);
     }
 
-    return { success: true, data: await loadStops(db, directionId) };
+    return {
+      success: true,
+      data: await loadStops(
+        db,
+        directionId,
+        await loadAttributionResolver(supabase),
+      ),
+    };
   });
 
   app.post(
@@ -45,6 +58,8 @@ export async function registerStops(
     async (request, reply) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
+      // The actor is the guard's Account — a client-supplied actor is not read.
+      const actor = actorId(request);
 
       const [direction] = await db
         .select({ direction_id: directionsTable.direction_id })
@@ -77,8 +92,11 @@ export async function registerStops(
           is_guaranteed_service: body.is_guaranteed_service ?? true,
           landmark_hint: body.landmark_hint ?? null,
           notes: body.notes ?? null,
+          ...createAttribution(actor),
         })
         .returning();
+
+      const attribution = await loadAttributionResolver(supabase);
 
       return reply.code(201).send({
         success: true,
@@ -96,6 +114,8 @@ export async function registerStops(
           is_active: inserted.is_active,
           created_at: iso(inserted.created_at),
           updated_at: iso(inserted.updated_at),
+          created_by: attribution(inserted.created_by),
+          updated_by: attribution(inserted.updated_by),
         },
       });
     },
@@ -110,6 +130,7 @@ export async function registerStops(
     async (request) => {
       const { stopId } = request.params as { stopId: string };
       const body = request.body;
+      const actor = actorId(request);
 
       const [existing] = await db
         .select()
@@ -135,7 +156,11 @@ export async function registerStops(
 
       const [updated] = await db
         .update(stopsTable)
-        .set(patch)
+        .set({
+          ...patch,
+          // Only the last writer moves: the creator is written once (ADR-0025).
+          ...updateAttribution(actor),
+        })
         .where(eq(stopsTable.stop_id, stopId))
         .returning();
 
@@ -144,6 +169,8 @@ export async function registerStops(
         .from(stopsTable)
         .where(eq(stopsTable.stop_id, stopId))
         .limit(1);
+
+      const attribution = await loadAttributionResolver(supabase);
 
       return {
         success: true,
@@ -161,6 +188,8 @@ export async function registerStops(
           is_active: updated.is_active,
           created_at: iso(updated.created_at),
           updated_at: iso(updated.updated_at),
+          created_by: attribution(updated.created_by),
+          updated_by: attribution(updated.updated_by),
         },
       };
     },
@@ -171,6 +200,7 @@ export async function registerStops(
     { config: { permission: "ROUTES_EDIT" } },
     async (request) => {
       const { stopId } = request.params as { stopId: string };
+      const actor = actorId(request);
 
       const [existing] = await db
         .select()
@@ -183,9 +213,10 @@ export async function registerStops(
 
       await assertNotDirectionTerminal(db, stopId);
 
+      // Deactivating a stop is a write to the row, so it moves the last writer.
       const [updated] = await db
         .update(stopsTable)
-        .set({ is_active: false })
+        .set({ is_active: false, ...updateAttribution(actor) })
         .where(eq(stopsTable.stop_id, stopId))
         .returning();
 

@@ -10,6 +10,13 @@ import {
 } from "../db/schema";
 import { conflict, notFound } from "./errors";
 import { uniqueSlug, uuidId } from "../domain/ids";
+import { actorId } from "./auth";
+import {
+  createAttribution,
+  type AttributionResolver,
+  loadAttributionResolver,
+  updateAttribution,
+} from "../domain/attribution";
 
 function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
@@ -19,19 +26,24 @@ function num(value: unknown): number {
   return Number(value);
 }
 
-function serialize(row: {
-  fare_config_id: string;
-  label: string;
-  base_fare: unknown;
-  base_distance_km: unknown;
-  rate_per_km: unknown;
-  student_discount_pct: unknown;
-  senior_discount_pct: unknown;
-  is_default: boolean;
-  is_active: boolean;
-  created_at: unknown;
-  updated_at: unknown;
-}) {
+function serialize(
+  row: {
+    fare_config_id: string;
+    label: string;
+    base_fare: unknown;
+    base_distance_km: unknown;
+    rate_per_km: unknown;
+    student_discount_pct: unknown;
+    senior_discount_pct: unknown;
+    is_default: boolean;
+    is_active: boolean;
+    created_at: unknown;
+    updated_at: unknown;
+    created_by: string | null;
+    updated_by: string | null;
+  },
+  attribution: AttributionResolver,
+) {
   return {
     fare_config_id: row.fare_config_id,
     label: row.label,
@@ -44,6 +56,8 @@ function serialize(row: {
     is_active: row.is_active,
     created_at: iso(row.created_at),
     updated_at: iso(row.updated_at),
+    created_by: attribution(row.created_by),
+    updated_by: attribution(row.updated_by),
   };
 }
 
@@ -51,7 +65,7 @@ export async function registerFareConfigs(
   app: AppInstance,
   deps: AppDeps,
 ): Promise<void> {
-  const { db } = deps;
+  const { db, supabase } = deps;
 
   app.get("/fare-configs", async () => {
     const rows = await db
@@ -69,10 +83,13 @@ export async function registerFareConfigs(
       )
       .groupBy(fareConfigsTable.fare_config_id);
 
+    // One identity listing per request, mapped over the rows (ADR-0025 §5).
+    const attribution = await loadAttributionResolver(supabase);
+
     return {
       success: true,
       data: rows.map((row) => ({
-        ...serialize(row.config),
+        ...serialize(row.config, attribution),
         active_route_count: num(row.active_route_count),
       })),
     };
@@ -88,7 +105,8 @@ export async function registerFareConfigs(
     if (!row) {
       throw notFound(`Fare config ${fareConfigId} not found`);
     }
-    return { success: true, data: serialize(row) };
+    const attribution = await loadAttributionResolver(supabase);
+    return { success: true, data: serialize(row, attribution) };
   });
 
   app.post(
@@ -99,6 +117,8 @@ export async function registerFareConfigs(
     },
     async (request, reply) => {
       const body = request.body;
+      // The actor is the guard's Account — a client-supplied actor is not read.
+      const actor = actorId(request);
 
       if (body.is_default) {
         await db
@@ -126,10 +146,16 @@ export async function registerFareConfigs(
           student_discount_pct: String(body.student_discount_pct),
           senior_discount_pct: String(body.senior_discount_pct),
           is_default: body.is_default ?? false,
+          // A create is both the first and the last write (ADR-0025 §3).
+          ...createAttribution(actor),
         })
         .returning();
 
-      return reply.code(201).send({ success: true, data: serialize(inserted) });
+      const attribution = await loadAttributionResolver(supabase);
+
+      return reply
+        .code(201)
+        .send({ success: true, data: serialize(inserted, attribution) });
     },
   );
 
@@ -142,6 +168,8 @@ export async function registerFareConfigs(
     async (request) => {
       const { fareConfigId } = request.params as { fareConfigId: string };
       const body = request.body;
+      // The actor is the guard's Account — a client-supplied actor is not read.
+      const actor = actorId(request);
 
       const [existing] = await db
         .select()
@@ -204,11 +232,17 @@ export async function registerFareConfigs(
 
       const [updated] = await db
         .update(fareConfigsTable)
-        .set(patch)
+        .set({
+          ...patch,
+          // Only the last writer moves: the creator is written once (ADR-0025).
+          ...updateAttribution(actor),
+        })
         .where(eq(fareConfigsTable.fare_config_id, fareConfigId))
         .returning();
 
-      return { success: true, data: serialize(updated) };
+      const attribution = await loadAttributionResolver(supabase);
+
+      return { success: true, data: serialize(updated, attribution) };
     },
   );
 
@@ -247,9 +281,12 @@ export async function registerFareConfigs(
         throw conflict("Cannot deactivate the last default fare configuration");
       }
 
+      // Deactivating a fare config is a write to the row, so it moves the last
+      // writer (mirrors the stop/restriction deactivate path).
+      const actor = actorId(request);
       const [updated] = await db
         .update(fareConfigsTable)
-        .set({ is_active: false })
+        .set({ is_active: false, ...updateAttribution(actor) })
         .where(eq(fareConfigsTable.fare_config_id, fareConfigId))
         .returning();
 

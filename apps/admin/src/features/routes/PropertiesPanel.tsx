@@ -6,6 +6,10 @@ import { StopGroup } from "./properties/StopGroup";
 import { DetourGroup } from "@/features/detours/DetourGroup";
 import { DetourStopGroup } from "@/features/detours/DetourStopGroup";
 import { useDetourStore } from "@/features/detours/detourStore";
+import {
+  useDetourEditing,
+  useWorkspaceAccess,
+} from "@/features/auth/useCapabilities";
 
 /**
  * Right-side properties plate (focus / edit states) — one of the two
@@ -15,6 +19,13 @@ import { useDetourStore } from "@/features/detours/detourStore";
  * Returns null in overview/empty (the column track is hidden then).
  */
 export function PropertiesPanel() {
+  // Read-only (ticket #47): the column keeps its place and its values —
+  // Route, Direction and Stop render as text with no field to submit. The
+  // detour groups are editing surfaces too, so they are never mounted here
+  // without `ROUTES_EDIT`: the branch falls through to the base-route groups,
+  // which render read-only.
+  const { readOnly } = useWorkspaceAccess();
+  const detourEditing = useDetourEditing();
   const routeId = usePlottingStore((s) => s.routeId);
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
   const selection = usePlottingStore((s) => s.selection);
@@ -41,16 +52,16 @@ export function PropertiesPanel() {
               creating a sideways scrollbar. The 4 px gutter keeps the ring
               visible without moving the fields off the plate's content edge. */}
           <div className="overlay-scrollbar -mx-1 mt-2 min-h-0 flex-1 overflow-x-clip overflow-y-auto px-1">
-            {detourOpen ? (
+            {detourOpen && detourEditing ? (
               selectedDetourStopId !== null ? (
                 <DetourStopGroup />
               ) : (
                 <DetourGroup />
               )
             ) : selection.type === "stop" ? (
-              <StopGroup />
+              <StopGroup readOnly={readOnly} />
             ) : (
-              <RouteGroup />
+              <RouteGroup readOnly={readOnly} />
             )}
           </div>
         </Plate>

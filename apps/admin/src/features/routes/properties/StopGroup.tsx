@@ -14,8 +14,9 @@ import { Button } from "@/components/ui/button";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { SectionLabel } from "@/components/shared/SectionLabel";
 import { StopEditor } from "./StopEditor";
+import { StopReadOnly } from "./StopReadOnly";
 
-export function StopGroup() {
+export function StopGroup({ readOnly = false }: { readOnly?: boolean }) {
   const selection = usePlottingStore((s) => s.selection);
   const stops = usePlottingStore((s) => s.stops);
   const removeStop = usePlottingStore((s) => s.removeStop);
@@ -32,20 +33,26 @@ export function StopGroup() {
     <section className="mt-4 border-t pt-3">
       <SectionLabel>Stop</SectionLabel>
       {stop ? (
-        <div className="mt-2.5 space-y-4">
-          <StopEditor stop={stop} index={index} disabled={saving} />
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            className="w-full"
-            disabled={saving}
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2 className="size-3.5" />
-            Delete stop
-          </Button>
-        </div>
+        readOnly ? (
+          <div className="mt-2.5">
+            <StopReadOnly stop={stop} index={index} />
+          </div>
+        ) : (
+          <div className="mt-2.5 space-y-4">
+            <StopEditor stop={stop} index={index} disabled={saving} />
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="w-full"
+              disabled={saving}
+              onClick={() => setDeleteOpen(true)}
+            >
+              <Trash2 className="size-3.5" />
+              Delete stop
+            </Button>
+          </div>
+        )
       ) : (
         <p className="text-muted-foreground mt-2.5 text-xs">
           Select a stop on the map or in the list to edit its details.

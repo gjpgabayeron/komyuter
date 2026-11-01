@@ -124,19 +124,21 @@ never offers an action the Account cannot perform.
 
 **Deliverables.**
 
-- Create an Account (email plus temporary password) with a Role; change a Role; deactivate and
-  reactivate; force a password reset.
-- Session revocation on deactivation and on Role change.
-- The last-owner lockout guard.
-- `created_by` / `updated_by` attribution on every entity.
+- Create an Account (email plus a server-generated temporary password) with a Role; change a Role;
+  deactivate and reactivate; force a password reset on another Account within your reach.
+- Session revocation on deactivation; a Role change applies on the next request without a new sign-in.
+- The last-owner lockout guard: the schema trigger that makes the Super Admin undeactivatable as well as
+  undemotable and undeletable.
+- `created_by` / `updated_by` attribution on every entity (ADR-0025).
 - Full read-only workspace degradation: map, selection and pan keep working, while add stop, snap,
-  rewire, detour and restriction editing, delete and save are **absent**, and the action bar reduces to
-  read-only status.
+  rewire, detour and restriction editing, delete and save are **absent**, the properties show values
+  read-only, and the action bar reduces to read-only status. The Fares, Export and Accounts surfaces
+  degrade from the same effective set.
 
 **Exit criterion.** A write-less Account can open the workspace and every mutating affordance is absent
 rather than merely failing; deactivating an Account revokes its live session on the next request; a Role
-change takes effect without a new sign-in; every route, direction, stop, detour and restriction records
-who created and last updated it.
+change takes effect without a new sign-in; every route, direction, stop, detour and restriction written
+from M2b onward records who created and last updated it.
 
 ## M2c — Collaboration safety
 

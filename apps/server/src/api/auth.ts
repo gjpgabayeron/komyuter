@@ -9,7 +9,12 @@ import {
   effectivePermissions,
   type AdminAccount,
 } from "../domain/authorization";
-import { forbidden, unauthorized } from "./errors";
+import {
+  forbidden,
+  accountDeactivated,
+  passwordChangeRequired,
+  unauthorized,
+} from "./errors";
 
 declare module "fastify" {
   interface FastifyContextConfig {
@@ -18,6 +23,14 @@ declare module "fastify" {
      * by `enforceRoutePermission`, rather than repeated in each handler.
      */
     permission?: Permission;
+    /**
+     * The Forced Password Change allowlist (ADR-0019 §11). A route opts in with
+     * this flag; the guard refuses a flagged Account everywhere else. Declared
+     * per route rather than matched by URL, so a route added later cannot
+     * silently inherit the bypass. Exactly two routes carry it: the Account's
+     * own identity lookup and the password-change action.
+     */
+    passwordChangeAllowed?: boolean;
   }
 
   interface FastifyRequest {
@@ -88,10 +101,36 @@ export function createAdminAuthGuard(supabase: SupabaseClient, db: Db) {
     if (!account) {
       throw forbidden("User is not an admin");
     }
+    if (!account.isActive) {
+      throw accountDeactivated();
+    }
+    // Forced Password Change is the guard's third question, before the route's
+    // Permission: a flagged Account reaches only what its route opted into
+    // (ADR-0019 §11). The allowlist is per route — `request.routeOptions.config`
+    // — so no new route can inherit the bypass by looking like one that has it.
+    if (
+      account.mustChangePassword &&
+      !request.routeOptions.config?.passwordChangeAllowed
+    ) {
+      throw passwordChangeRequired();
+    }
     request.adminUserId = account.userId;
     request.adminAccount = account;
     request.authUser = data.user;
   };
+}
+
+/**
+ * The acting Account id for Attribution (ADR-0025 §3). It is read from what the
+ * guard already resolved — never from the request body — so a client cannot
+ * forge who created or last wrote a row.
+ */
+export function actorId(request: FastifyRequest): string {
+  const id = request.adminUserId ?? request.adminAccount?.userId;
+  if (!id) {
+    throw unauthorized("Missing bearer token");
+  }
+  return id;
 }
 
 /**

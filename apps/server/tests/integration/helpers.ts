@@ -139,6 +139,53 @@ export async function signInAs(
   return data.session.access_token;
 }
 
+/**
+ * A password the suite sets when it completes a Forced Password Change.
+ * Comfortably above the shared minimum (12), and never a Temporary Password, so
+ * a passing assertion cannot be explained by the generated credential.
+ */
+export const REPLACEMENT_PASSWORD = "integration-password-1";
+
+/**
+ * Completes a Forced Password Change and returns the session it answers with.
+ * Replacing the password ends the Account's sessions at the identity provider,
+ * so the token passed in is dead afterwards — the caller must use the returned
+ * one.
+ */
+export async function changePassword(
+  app: FastifyInstance,
+  token: string,
+  currentPassword: string,
+  newPassword: string = REPLACEMENT_PASSWORD,
+): Promise<string> {
+  const response = await app.inject({
+    method: "POST",
+    url: "/api/auth/password",
+    headers: { authorization: `Bearer ${token}` },
+    payload: { currentPassword, newPassword },
+  });
+  if (response.statusCode !== 200) {
+    throw new Error(
+      `Password change failed: ${response.statusCode} ${response.body}`,
+    );
+  }
+  return response.json().data.access_token as string;
+}
+
+/**
+ * Signs in an Account the API invited and completes its Forced Password Change,
+ * so the returned session may use the rest of the admin API. Signing in is not
+ * what the gate refuses (ADR-0019 §4); every other route is.
+ */
+export async function signInAndChangePassword(
+  app: FastifyInstance,
+  email: string,
+  temporaryPassword: string,
+): Promise<string> {
+  const temporaryToken = await signInAs(email, temporaryPassword);
+  return changePassword(app, temporaryToken, temporaryPassword);
+}
+
 export async function signInAdmin(): Promise<string> {
   const supabase = createTestSupabase();
   const { data, error } = await supabase.auth.signInWithPassword({

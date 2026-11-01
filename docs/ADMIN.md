@@ -15,7 +15,7 @@
 - **Plotting model:** **single-mode "auto" plotting.** The `Select` / `Add` pointer-tool toggles; in Add mode, every stop placed in click order forms a **connection** to the previous stop (chain). The polyline is derived from the connection chain. No "Automatic vs Manual" mode switch — the previous design's Automatic/Manual split was superseded by this one chain-based model.
 - **Snap:** debounced road-following via a Mapbox Directions proxy; snap auto-commits into undo history (no manual Apply/Revert — that is a deliberate re-design, see FR-013).
 - **Safety net:** drafts (24 h local storage), undo/redo (5 history kinds), styled confirm dialogs, connection-banner + session-expiry handling, atomic save with conflict recovery.
-- **Auth:** single admin account, email + password over `POST /api/auth/login`; token kept in `localStorage`; `GET /api/auth/me` re-validates on boot; global revocation on logout.
+- **Auth:** one Account per person, invited with a server-generated Temporary Password; email + password over `POST /api/auth/login`; token kept in `localStorage`; `GET /api/admin/me` re-validates on boot; global revocation on logout. A Temporary Password holds the Account on `/change-password` outside the AppShell and the server admits nothing else meanwhile (`403 PASSWORD_CHANGE_REQUIRED`); any Account may change its own password later from the account menu by supplying the current one.
 - **Design language:** The Route Sign — flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4 px corners, no shadows (see `DESIGN.md`, Appendix E).
 - **Not yet built (roadmap):** detour + restriction **editing UI**, detour **conditional triggers** (server work, ADR-0012), no-stop segments, shared fare calculator, Overview + Export pages (currently placeholders), dataset import. Each is marked `Planned` in the FR/SC tables and expanded in §6.
 
@@ -72,7 +72,7 @@ komyuter/
 | Client store      | zustand                                                                    | `plottingStore`, `uiStore` (sidebar mode)                                    |
 | HTTP              | axios                                                                      | envelope unwrap, token header, session expiry, connection banner             |
 | State persistence | localStorage                                                               | admin session token + route **drafts** (24 h TTL)                            |
-| Tests             | Vitest (node env, no jsdom)                                                | 21 suites in `apps/admin/src/tests` (see §5.11)                              |
+| Tests             | Vitest (node env, no jsdom)                                                | 42 suites in `apps/admin/src/tests` (see §5.11)                              |
 | Build             | `tsc && vite build`                                                        |                                                                              |
 
 **Server surface (what the dashboard talks to):**
@@ -121,7 +121,8 @@ Full zod schemas live in `@komyuter/shared` (`schemas/domain.ts`) and the drizzl
 
 - **`/login`** — `AuthForm` with brand panel. Calls `POST /api/auth/login`; on success stores `access_token` in `localStorage` (`komyuter.admin.token`) and redirects to the saved return path.
 - **`RequireAuth`** — blocks the four app sections while unauthenticated; on boot calls `GET /api/auth/me` to re-validate the token. A `401` anywhere clears the token, records the intended path (`getReturnPath`/`saveReturnPath`), and redirects with a "Your session expired" flag.
-- **`AppShell`** — skip-to-content link, `ConnectionBanner` (shows when the API is unreachable), `NavRail` (Overview / Routes / Fares / Export; expanded ↔ collapsed ↔ hover via `uiStore.sidebarMode`), `Header` (section title + user menu + sign-out → `POST /api/auth/logout`, global revocation).
+- **`AppShell`** — skip-to-content link, `ConnectionBanner` (shows when the API is unreachable), `NavRail` (expanded ↔ collapsed ↔ hover via `uiStore.sidebarMode`), `Header` (section title + user menu + sign-out → `POST /api/auth/logout`, global revocation).
+- **Navigation is derived, never hard-coded** (ADR-0019 §9 M2b amendment, ticket #48). Each entry in `lib/sections.ts` declares the Permission it needs and `visibleSections()` filters the rail by asking `lib/capabilities.ts`: Overview, Routes and Fares are open to every Account; Export requires `EXPORT_DATASET`; Accounts requires `ADMIN_MANAGE`. `app/SectionGuard.tsx` applies the same answer to the URL, so a guarded address typed directly renders the ordinary not-found surface — not an empty page, and not a "403" plate that would confirm the page exists for someone else. No page repeats the check.
 - `app.tsx` composition: `AuthProvider → QueryClientProvider → BrowserRouter → Toaster`.
 - Server side of auth: unified denial message, ~250 ms fake delay, account-block after 5 failed attempts, source-IP block, `ALLOW_DEV_CREDENTIAL` dev gate, origin guard, security-events audit.
 
@@ -140,6 +141,7 @@ The workspace is a **four-state machine** derived from (selection, draft):
 - **Search is an overlay on these four states, not a fifth one.** `searchActive` (store) hides the properties plate and reveals the results in a 320 px **context column** beside the stops list — an overlay panel, so neither the map's canvas nor the floating chrome ever reflows — or shows no plate at all when a confident hit answers on the map alone (`workspace/plateSlots.ts` decides both slots). `deriveUiState` still returns exactly `empty` / `overview` / `focus` / `edit`, so route-editing semantics are unchanged while a session runs.
 - **NarrowWindowGate**: viewport < 1024 px or map width < 420 px renders a centered guidance plate instead of the workspace.
 - Data flows through `RouteWorkspaceProvider` (fetch route + directions + stops via react-query, drafts, save orchestration, conflict recovery) and `lib/plottingStore.ts` (zustand).
+- **Read-only variant** (ADR-0019 §9 M2b amendment, `lib/capabilities.ts`). The same four states, the same three columns and the same map, for an Account whose Effective Permission Set lacks `ROUTES_EDIT`: pan, zoom, the route list, the stop list, selection and the context column all keep working, and every mutating affordance is **omitted rather than disabled** — no New Route, no row Edit/Delete, no Active toggle, no stop reorder or insert-a-stop gap, no draggable marker, no Plot route, no add stop, no detour or restriction editing, no save, no undo/redo, and the save/undo/redo shortcuts are inactive (there is no delete shortcut to disable). The centred action bar reduces to a **read-only status plate** naming the Role; the properties column renders Route, Direction and Stop values as plain text (Attribution included) with nothing that can submit; no Draft is written and an existing one is neither restored nor cleared. Place search is independently absent without `MAPBOX_GEOSERVICES`, which is what gates the Mapbox token — the basemap itself keeps working. Nothing here is the boundary: every hidden affordance is still refused by the server (`apps/server/tests/unit/workspace-write-refusal.test.ts`).
 
 ### 5.3 Route list (overview) & stops (edit) — left column
 
@@ -183,10 +185,12 @@ The workspace is a **four-state machine** derived from (selection, draft):
 - `FareConfigForm` — create/edit with local validation (`validation.ts`: name/base/rate > 0, base distance ≥ 0, **exactly one default** enforced — `validateDefaultUnset`); currency formatting in `format.ts`. It is the **only** fare-config form: the route picker (`features/routes/FareConfigSelect.tsx`) opens this same dialog on top of "New route" rather than offering a reduced inline form, so discounts, the default toggle and label-uniqueness validation exist everywhere and no field is reachable from one path but not the other (issue #15).
 - `DeleteFareConfigDialog` — styled confirm; server guards (cannot deactivate/delete a fare config that would leave no default, or one still in use by active routes).
 - Server: full CRUD in `api/fare-configs.ts`, default enforcement + guards, react-query keys in `features/fares/queries.ts`.
+- **Read-only variant** (ADR-0019 §9 M2b amendment, ticket #48). Without `FARES_EDIT` the page keeps the same table — Label, Status, the fare readings and both Attribution columns — and loses every mutating control, omitted rather than disabled: no New fare configuration, no row edit, no reactivation, no deactivation (the dashboard's only removal, never a hard delete), and no default toggle. The form is where reactivation and the default toggle live, so its two entry points are the controls that matter; `fareAccess()` in `lib/capabilities.ts` answers each one. The server still refuses every fare mutation (`apps/admin/src/tests/fare-access.test.ts` holds the matrix).
 
 ### 5.8 Export (`pages/Export.tsx`)
 
 - **Placeholder** — "Nothing to export yet — dataset export arrives in a later milestone."
+- **Unavailable without `EXPORT_DATASET`** (ticket #48): the entry is absent from the rail and a typed `/export` renders the not-found surface, because the dataset is the whole network and the Permission is what the server gates it by.
 - The **server endpoint is complete** (`GET /api/admin/export/dataset`, assembled in `apps/server/src/domain/export.ts` — routes, directions, stops, detours, restrictions, fare configs). Wiring the UI is R7.
 
 ### 5.9 Overview (`pages/Overview.tsx`)
@@ -201,9 +205,9 @@ The workspace is a **four-state machine** derived from (selection, draft):
 
 ### 5.11 Pure helpers & tests
 
-Pure logic lives in `lib/` and is unit-tested: `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
+Pure logic lives in `lib/` and is unit-tested: `capabilities` (including `fareAccess`), `coords`, `connections`, `draft`, `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, fare `format`/`validation`.
 
-**Tests:** 23 Vitest suites / 311 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
+**Tests:** 42 Vitest suites / 535 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
 
 ## 6. Roadmap — planned & upcoming
 

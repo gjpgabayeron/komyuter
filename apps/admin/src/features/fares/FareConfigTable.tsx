@@ -17,12 +17,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import type { FareAccess } from "@/lib/capabilities";
 import { DeleteFareConfigDialog } from "./DeleteFareConfigDialog";
 import type { FareConfigListItem } from "./api";
 import { formatKm, formatPct, formatPeso } from "./format";
+import { formatAttributionName } from "@/features/routes/attribution";
 
 interface FareConfigTableProps {
   configs: FareConfigListItem[];
+  /**
+   * What this Account may do with a configuration (`fareAccess()` in
+   * `lib/capabilities.ts`). Without it the table loses every mutating control
+   * and keeps every column of data — the read-only Fares surface (ticket #48).
+   */
+  access: FareAccess;
   /** Opens the edit form prefilled from the row (US3). */
   onEdit: (config: FareConfigListItem) => void;
 }
@@ -50,7 +58,11 @@ function deleteGuardLabel(config: FareConfigListItem): string | null {
 /** Sticky header styling: keeps column labels in view while the table body scrolls. */
 const thClass = "bg-muted sticky top-0 z-10";
 
-export function FareConfigTable({ configs, onEdit }: FareConfigTableProps) {
+export function FareConfigTable({
+  configs,
+  access,
+  onEdit,
+}: FareConfigTableProps) {
   const rows = sortConfigs(configs);
   const [deleting, setDeleting] = useState<FareConfigListItem | null>(null);
 
@@ -77,9 +89,17 @@ export function FareConfigTable({ configs, onEdit }: FareConfigTableProps) {
             <TableHead scope="col" className={thClass}>
               Student / Senior
             </TableHead>
-            <TableHead scope="col" className={cn(thClass, "text-right")}>
-              Actions
+            <TableHead scope="col" className={thClass}>
+              Created by
             </TableHead>
+            <TableHead scope="col" className={thClass}>
+              Last written by
+            </TableHead>
+            {access.showActionsColumn && (
+              <TableHead scope="col" className={cn(thClass, "text-right")}>
+                Actions
+              </TableHead>
+            )}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -114,42 +134,55 @@ export function FareConfigTable({ configs, onEdit }: FareConfigTableProps) {
                   {formatPct(config.student_discount_pct)} /{" "}
                   {formatPct(config.senior_discount_pct)}
                 </TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onEdit(config)}
-                    aria-label={`Edit ${config.label}`}
-                  >
-                    <Pencil />
-                  </Button>
-                  {deleteDisabled ? (
-                    <Tooltip>
-                      <TooltipTrigger render={<span className="inline-flex" />}>
+                <TableCell className="text-muted-foreground max-w-[9rem] truncate text-xs">
+                  {formatAttributionName(config.created_by)}
+                </TableCell>
+                <TableCell className="text-muted-foreground max-w-[9rem] truncate text-xs">
+                  {formatAttributionName(config.updated_by)}
+                </TableCell>
+                {access.showActionsColumn && (
+                  <TableCell className="text-right">
+                    {access.showEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onEdit(config)}
+                        aria-label={`Edit ${config.label}`}
+                      >
+                        <Pencil />
+                      </Button>
+                    )}
+                    {access.showDeactivate &&
+                      (deleteDisabled ? (
+                        <Tooltip>
+                          <TooltipTrigger
+                            render={<span className="inline-flex" />}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              aria-disabled="true"
+                              className="pointer-events-none opacity-50"
+                              tabIndex={0}
+                              aria-label={`Deactivate ${config.label} (disabled: ${guardLabel})`}
+                            >
+                              <Trash2 />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{guardLabel}</TooltipContent>
+                        </Tooltip>
+                      ) : (
                         <Button
                           variant="ghost"
                           size="icon"
-                          aria-disabled="true"
-                          className="pointer-events-none opacity-50"
-                          tabIndex={0}
-                          aria-label={`Deactivate ${config.label} (disabled: ${guardLabel})`}
+                          onClick={() => setDeleting(config)}
+                          aria-label={`Deactivate ${config.label}`}
                         >
                           <Trash2 />
                         </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>{guardLabel}</TooltipContent>
-                    </Tooltip>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleting(config)}
-                      aria-label={`Deactivate ${config.label}`}
-                    >
-                      <Trash2 />
-                    </Button>
-                  )}
-                </TableCell>
+                      ))}
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}

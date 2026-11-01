@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SaveIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { RouteMap } from "@/features/routes/RouteMap";
@@ -11,6 +12,8 @@ import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
 import { EmptyState } from "@/features/routes/EmptyState";
 import { NarrowWindowGate } from "@/features/routes/NarrowWindowGate";
 import { PlotActionBar } from "@/features/routes/PlotActionBar";
+import { ReadOnlyPlate } from "@/features/routes/ReadOnlyPlate";
+import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
 import { DetourSidebar } from "@/features/detours/DetourSidebar";
 import { DetourLayer } from "@/features/detours/DetourLayer";
@@ -93,6 +96,11 @@ function RouteWorkspaceInner() {
       '[role="dialog"], [role="alertdialog"], [role="menu"]',
     ) !== null;
 
+  // Everything this page offers comes from the Account's effective set: a
+  // read-only Account keeps the layout, the map, the lists and the selection,
+  // and gets a status plate where the plotting tools would be (ticket #47).
+  const access = useWorkspaceAccess();
+
   const directionOpen = usePlottingStore((s) => s.directionId !== null);
   const detourOpen = useDetourStore((s) => s.open);
   // A search session owns the right column while it lasts: results when the
@@ -127,7 +135,7 @@ function RouteWorkspaceInner() {
     // The detour editor owns SAVE while it is open (its panel has the
     // buttons); the base-route save stays silent so mod+s never saves the
     // wrong thing mid-detour (review follow-up).
-    enabled: hasRoute && !saving && !detourOpen,
+    enabled: hasRoute && !saving && !detourOpen && access.shortcuts.save,
     preventDefault: true,
   });
 
@@ -140,7 +148,10 @@ function RouteWorkspaceInner() {
       if (detour.open) detour.undo();
       else usePlottingStore.getState().undo();
     },
-    { enabled: hasRoute && !saving, preventDefault: true },
+    {
+      enabled: hasRoute && !saving && access.shortcuts.undo,
+      preventDefault: true,
+    },
   );
   useHotkeys(
     "mod+shift+z",
@@ -149,7 +160,10 @@ function RouteWorkspaceInner() {
       if (detour.open) detour.redo();
       else usePlottingStore.getState().redo();
     },
-    { enabled: hasRoute && !saving, preventDefault: true },
+    {
+      enabled: hasRoute && !saving && access.shortcuts.redo,
+      preventDefault: true,
+    },
   );
 
   // Keyboard contract (FR-008): Esc dismisses the focus plate (T6) or leaves
@@ -220,20 +234,37 @@ function RouteWorkspaceInner() {
                     onCloseEdit={requestCloseEdit}
                   />
                 </div>
-                {directionOpen && <DetourSidebar />}
+                {directionOpen && !access.readOnly && <DetourSidebar />}
               </div>
             }
             right={slots.right === "properties" ? <PropertiesPanel /> : null}
             context={uiState === "edit" ? <SearchResultsPanel /> : null}
-            empty={<EmptyState onCreateRoute={openNewRoute} />}
+            empty={
+              <EmptyState
+                onCreateRoute={openNewRoute}
+                readOnly={access.readOnly}
+              />
+            }
             chrome={
               hasRoute ? (
                 <div className="flex h-full flex-col justify-between py-3">
-                  <div className="flex w-full justify-between pr-3">
-                    <PoiSearchBar
-                      scopePadding={SEARCH_LAYOUT.padding}
-                      shortcutEnabled={!anyDialogOpen}
-                    />
+                  <div
+                    className={cn(
+                      "flex w-full items-start gap-2 pr-3",
+                      access.showPlaceSearch
+                        ? "justify-between"
+                        : "justify-end",
+                    )}
+                  >
+                    {/* A place search spends the gated Mapbox token, so the
+                        pill is absent without MAPBOX_GEOSERVICES — the map
+                        itself keeps working. */}
+                    {access.showPlaceSearch && (
+                      <PoiSearchBar
+                        scopePadding={SEARCH_LAYOUT.padding}
+                        shortcutEnabled={!anyDialogOpen}
+                      />
+                    )}
                     <StatusBar
                       dirty={showSave}
                       saving={saving}
@@ -263,11 +294,15 @@ function RouteWorkspaceInner() {
                       transitionTimingFunction: REVEAL_EASING_CSS,
                     }}
                   >
-                    <PlotActionBar
-                      onUndo={() => usePlottingStore.getState().undo()}
-                      onRedo={() => usePlottingStore.getState().redo()}
-                    />
-                    {showSave && !detourOpen && (
+                    {access.showPlotActionBar ? (
+                      <PlotActionBar
+                        onUndo={() => usePlottingStore.getState().undo()}
+                        onRedo={() => usePlottingStore.getState().redo()}
+                      />
+                    ) : (
+                      <ReadOnlyPlate />
+                    )}
+                    {access.showSave && showSave && !detourOpen && (
                       <Button
                         size="icon"
                         onClick={() => void saveAll()}

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { extractBearerToken, loadAdminAccount } from "./auth";
 import { fullNameOf } from "../domain/identity";
 import type { AppDeps, AppInstance } from "./app";
-import { forbidden, unauthorized } from "./errors";
+import { forbidden, accountDeactivated, unauthorized } from "./errors";
 import {
   DENIAL_MIN_MS,
   createLoginThrottler,
@@ -87,7 +87,9 @@ export async function registerAuth(
       const session = sessionData.session!;
       const user = session.user;
 
-      if (!(await loadAdminAccount(db, user.id))) {
+      if (!(await loadAdminAccount(db, user.id))?.isActive) {
+        // A Deactivated Account signs in with the same denial as a wrong
+        // password: same body, same timing floor (FR-005, ADR-0019 §2).
         await deny("security.sign_in_failure", "denied", email, true);
       }
 
@@ -125,8 +127,12 @@ export async function registerAuth(
       throw unauthorized("Invalid or expired token");
     }
 
-    if (!(await loadAdminAccount(db, data.user.id))) {
+    const account = await loadAdminAccount(db, data.user.id);
+    if (!account) {
       throw forbidden("User is not an admin");
+    }
+    if (!account.isActive) {
+      throw accountDeactivated();
     }
 
     return {

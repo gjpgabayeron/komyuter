@@ -6,6 +6,7 @@ import { usePlottingStore } from "@/lib/plottingStore";
 import { readOverviewCache } from "@/lib/overviewCache";
 import { Plate } from "@/components/shared/Plate";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 import { useRoutesQuery } from "../useRouteQueries";
 
 /**
@@ -15,6 +16,7 @@ import { useRoutesQuery } from "../useRouteQueries";
  * overview cache — no extra network fetch, so the plate appears instantly.
  */
 export function FocusPlate({ routeId }: { routeId: string }) {
+  const { readOnly } = useWorkspaceAccess();
   const setFocusedRouteId = usePlottingStore((s) => s.setFocusedRouteId);
   const routesQuery = useRoutesQuery();
   const route =
@@ -72,16 +74,19 @@ export function FocusPlate({ routeId }: { routeId: string }) {
             <dd className="tabular-nums">{route?.direction_count ?? "—"}</dd>
           </div>
         </dl>
-        <div className="mt-auto pt-4">
-          <Button
-            autoFocus
-            className="w-full"
-            onClick={() => usePlottingStore.getState().openRoute(routeId)}
-          >
-            <Pencil className="size-3.5" />
-            Edit route
-          </Button>
-        </div>
+        {/* Read-only: the peek stays a peek — no Edit route entry point. */}
+        {!readOnly && (
+          <div className="mt-auto pt-4">
+            <Button
+              autoFocus
+              className="w-full"
+              onClick={() => usePlottingStore.getState().openRoute(routeId)}
+            >
+              <Pencil className="size-3.5" />
+              Edit route
+            </Button>
+          </div>
+        )}
       </Plate>
     </aside>
   );

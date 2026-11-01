@@ -45,6 +45,7 @@ import {
 import type { RouteSummary } from "./routesApi";
 import { STOP_TYPE_LABELS } from "./stopLabels";
 import { useRouteFilter, type RouteStatusFilter } from "./useRouteFilter";
+import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 import { RouteRow } from "./RouteRow";
 
 interface RouteListProps {
@@ -76,6 +77,11 @@ const SHAPE_CHIP: Record<StopShape, string> = {
  *   the right-side properties panel).
  */
 export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
+  // The list stays a list in the read-only workspace: search, filter, rows and
+  // the stop list all keep working. What goes are the mutating affordances —
+  // no New Route, no row Edit/Delete, no Active toggle, no reordering and no
+  // insert-a-stop gap (ticket #47: omitted, never disabled).
+  const { readOnly } = useWorkspaceAccess();
   const [deleteTarget, setDeleteTarget] = useState<RouteSummary | null>(null);
 
   const routesQuery = useRoutesQuery();
@@ -139,6 +145,8 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
             is_guaranteed_service: stop.is_guaranteed_service,
             landmark_hint: stop.landmark_hint,
             notes: stop.notes,
+            created_by: stop.created_by,
+            updated_by: stop.updated_by,
           })),
           base.base_polyline, // closes the chain when the route is a loop (FR-004)
         );
@@ -263,19 +271,21 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                   )}
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <Switch
-                  checked={
-                    routeMeta?.isActive ?? routeQuery.data?.is_active ?? false
-                  }
-                  onCheckedChange={(checked) =>
-                    setRouteMeta({ isActive: checked })
-                  }
-                  disabled={saving}
-                  aria-label="Active route"
-                  className="scale-90"
-                />
-              </div>
+              {!readOnly && (
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <Switch
+                    checked={
+                      routeMeta?.isActive ?? routeQuery.data?.is_active ?? false
+                    }
+                    onCheckedChange={(checked) =>
+                      setRouteMeta({ isActive: checked })
+                    }
+                    disabled={saving}
+                    aria-label="Active route"
+                    className="scale-90"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex min-h-0 flex-1 flex-col border-t pt-1.5">
@@ -356,7 +366,9 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                     <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
                       <p className="text-sm font-medium">No stops yet</p>
                       <p className="text-muted-foreground max-w-52 text-xs">
-                        Switch to the Add tool and click the map to place stops.
+                        {readOnly
+                          ? "This direction has no plotted stops."
+                          : "Switch to the Add tool and click the map to place stops."}
                       </p>
                     </div>
                   ) : (
@@ -373,8 +385,9 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                           <div className="group" key={stop.id}>
                             <button
                               type="button"
-                              draggable
+                              draggable={!readOnly}
                               onDragStart={(event) => {
+                                if (readOnly) return;
                                 event.dataTransfer.effectAllowed = "move";
                                 event.dataTransfer.setData(
                                   "text/plain",
@@ -383,11 +396,13 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                                 setDragIndex(index);
                               }}
                               onDragOver={(event) => {
+                                if (readOnly) return;
                                 event.preventDefault();
                                 event.dataTransfer.dropEffect = "move";
                                 setDropIndex(index);
                               }}
                               onDrop={(event) => {
+                                if (readOnly) return;
                                 event.preventDefault();
                                 const from = Number(
                                   event.dataTransfer.getData("text/plain"),
@@ -403,6 +418,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                               }}
                               onClick={() => setSelection(selectStop(stop.id))}
                               onKeyDown={(event) => {
+                                if (readOnly) return;
                                 if (event.key === "ArrowUp" && index > 0) {
                                   event.preventDefault();
                                   reorderStop(index, index - 1);
@@ -475,20 +491,22 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                           the base state has zero delay, so it disappears
                           immediately on leave (Pasted #42/#43/#44). The icon
                           is centered via flex on a full-width button. */}
-                            <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
-                              <button
-                                type="button"
-                                aria-label={`Insert stop after ${stop.name}`}
-                                onClick={() => insertAfter(stop.id)}
-                                className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
-                              >
-                                <Plus className="size-3" />
-                              </button>
-                            </div>
+                            {!readOnly && (
+                              <div className="max-h-0 overflow-hidden transition-[max-height] delay-0 duration-150 group-hover:max-h-8 group-hover:delay-[550ms] focus-within:max-h-8">
+                                <button
+                                  type="button"
+                                  aria-label={`Insert stop after ${stop.name}`}
+                                  onClick={() => insertAfter(stop.id)}
+                                  className="text-muted-foreground hover:text-primary flex w-full items-center justify-center py-0.5"
+                                >
+                                  <Plus className="size-3" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
-                      {stops.length > 0 && (
+                      {!readOnly && stops.length > 0 && (
                         <div
                           className={cn(
                             "h-1 rounded",
@@ -578,11 +596,17 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
               </DropdownMenu>
             </div>
 
-            {/* Row 2: create */}
-            <Button size="sm" className="mt-1.5 w-full" onClick={onCreateRoute}>
-              <Plus className="size-3.5" />
-              New Route
-            </Button>
+            {/* Row 2: create — absent in the read-only workspace. */}
+            {!readOnly && (
+              <Button
+                size="sm"
+                className="mt-1.5 w-full"
+                onClick={onCreateRoute}
+              >
+                <Plus className="size-3.5" />
+                New Route
+              </Button>
+            )}
 
             {/* List / states */}
             <div className="overlay-scrollbar mt-1.5 min-h-0 flex-1 space-y-1 overflow-y-auto">
@@ -614,13 +638,16 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                   </div>
                   <p className="text-sm font-medium">No routes yet</p>
                   <p className="text-muted-foreground text-xs">
-                    Create your first route, then plot it stop by stop on the
-                    map.
+                    {readOnly
+                      ? "Routes appear here once an Administrator plots one."
+                      : "Create your first route, then plot it stop by stop on the map."}
                   </p>
-                  <Button size="sm" className="mt-1" onClick={onCreateRoute}>
-                    <Plus className="size-3.5" />
-                    Create first route
-                  </Button>
+                  {!readOnly && (
+                    <Button size="sm" className="mt-1" onClick={onCreateRoute}>
+                      <Plus className="size-3.5" />
+                      Create first route
+                    </Button>
+                  )}
                 </div>
               )}
               {!empty &&
@@ -633,6 +660,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                     active={route.route_id === routeId}
                     onOpen={() => selectRoute(route)}
                     onDelete={() => setDeleteTarget(route)}
+                    readOnly={readOnly}
                   />
                 ))}
               {!empty &&

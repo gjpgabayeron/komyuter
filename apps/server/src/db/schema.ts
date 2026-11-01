@@ -59,6 +59,22 @@ const timestamps = {
 };
 
 /**
+ * Attribution (ADR-0025): the Account that created the row and the Account that
+ * last wrote it. Both are Account references with `ON DELETE SET NULL`, and
+ * both are null on rows that predate the columns — nothing is backfilled, so a
+ * null is "not recorded" rather than "the owner". The server stamps them from
+ * the resolved guard identity; no handler takes an actor from request input.
+ */
+const attribution = {
+  created_by: uuid("created_by").references(() => adminUsers.user_id, {
+    onDelete: "set null",
+  }),
+  updated_by: uuid("updated_by").references(() => adminUsers.user_id, {
+    onDelete: "set null",
+  }),
+};
+
+/**
  * A Role is a named, ordered set of Permissions (ADR-0019). The Permission set
  * is one `bigint` bitmask derived from `@komyuter/shared`'s catalogue; the
  * column is `bigint` rather than `integer` because the list is expected to
@@ -87,6 +103,15 @@ export const adminUsers = pgTable("admin_users", {
     .notNull()
     .references(() => roles.role_id, { onDelete: "restrict" }),
   is_super_admin: boolean("is_super_admin").notNull().default(false),
+  /** The Account lifecycle flag — Accounts are deactivated, never deleted. */
+  is_active: boolean("is_active").notNull().default(true),
+  /**
+   * Forced Password Change: set while a Temporary Password is still in place,
+   * cleared when the Account replaces it (ADR-0019 §4, migration 0009).
+   */
+  must_change_password: boolean("must_change_password")
+    .notNull()
+    .default(false),
 });
 
 export const fareConfigs = pgTable(
@@ -121,6 +146,7 @@ export const fareConfigs = pgTable(
     is_default: boolean("is_default").notNull().default(false),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("fare_configs_is_default_idx").on(table.is_default)],
 );
@@ -140,6 +166,7 @@ export const routes = pgTable(
       },
     ),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("routes_fare_config_id_idx").on(table.fare_config_id)],
 );
@@ -158,6 +185,7 @@ export const directions = pgTable(
     direction_kind: directionKind("direction_kind").notNull().default("base"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [
     index("directions_route_id_idx").on(table.route_id),
@@ -185,6 +213,7 @@ export const stops = pgTable(
     notes: text("notes"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [
     index("stops_direction_id_stop_order_idx").on(
@@ -211,6 +240,7 @@ export const detours = pgTable(
     driver_instruction: text("driver_instruction"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("detours_direction_id_idx").on(table.direction_id)],
 );
@@ -236,6 +266,7 @@ export const detourStops = pgTable(
     landmark_hint: text("landmark_hint"),
     notes: text("notes"),
     ...timestamps,
+    ...attribution,
   },
   (table) => [
     uniqueIndex("detour_stops_detour_id_order_idx").on(
@@ -259,6 +290,7 @@ export const restrictions = pgTable(
     note: text("note"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,
+    ...attribution,
   },
   (table) => [index("restrictions_direction_id_idx").on(table.direction_id)],
 );

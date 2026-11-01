@@ -19,6 +19,12 @@ import {
   type PlotBaseInput,
   type PlotStopInput,
 } from "../domain/derive";
+import { actorId } from "./auth";
+import {
+  createAttribution,
+  loadAttributionResolver,
+  updateAttribution,
+} from "../domain/attribution";
 
 function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
@@ -36,6 +42,8 @@ function toDirectionPayload(direction: DirectionEntity) {
     is_active: direction.is_active,
     created_at: direction.created_at,
     updated_at: direction.updated_at,
+    created_by: direction.created_by,
+    updated_by: direction.updated_by,
     stops: direction.stops,
   };
 }
@@ -53,6 +61,10 @@ async function persistPlottedPair(
     baseId: string | null;
     base: PlotBaseInput;
     createMode: boolean;
+    /** The guard's Account id — stamped onto the direction and every stop it
+     *  writes, in this same transaction (ADR-0025 §4). The parent Route is not
+     *  touched: editing a direction is not an edit of the Route entity. */
+    actorId: string;
   },
 ): Promise<{ baseId: string; returnId: string }> {
   return db.transaction(async (tx) => {
@@ -86,6 +98,7 @@ async function persistPlottedPair(
           label: input.base.label,
           base_polyline: baseGeometry,
           direction_kind: "base",
+          ...updateAttribution(input.actorId),
         })
         .where(eq(directionsTable.direction_id, baseId));
       await tx.delete(stopsTable).where(eq(stopsTable.direction_id, baseId));
@@ -98,6 +111,7 @@ async function persistPlottedPair(
           label: input.base.label,
           base_polyline: baseGeometry,
           direction_kind: "base",
+          ...createAttribution(input.actorId),
         })
         .returning();
     }
@@ -116,6 +130,7 @@ async function persistPlottedPair(
         is_guaranteed_service: stop.is_guaranteed_service ?? true,
         landmark_hint: stop.landmark_hint ?? null,
         notes: stop.notes ?? null,
+        ...createAttribution(input.actorId),
       });
       insertedStopIds.push(stopId);
     }
@@ -153,6 +168,7 @@ async function persistPlottedPair(
           label: derived.label,
           base_polyline: returnGeometry,
           direction_kind: "return",
+          ...updateAttribution(input.actorId),
         })
         .where(eq(directionsTable.direction_id, returnId));
       await tx.delete(stopsTable).where(eq(stopsTable.direction_id, returnId));
@@ -165,6 +181,7 @@ async function persistPlottedPair(
           label: derived.label,
           base_polyline: returnGeometry,
           direction_kind: "return",
+          ...createAttribution(input.actorId),
         })
         .returning();
     }
@@ -186,6 +203,7 @@ async function persistPlottedPair(
         is_guaranteed_service: stop.is_guaranteed_service ?? true,
         landmark_hint: stop.landmark_hint ?? null,
         notes: stop.notes ?? null,
+        ...createAttribution(input.actorId),
       });
       returnStopIds.push(stopId);
     }
@@ -223,7 +241,7 @@ export async function registerDirections(
   app: AppInstance,
   deps: AppDeps,
 ): Promise<void> {
-  const { db } = deps;
+  const { db, supabase } = deps;
 
   app.get("/routes/:routeId/directions", async (request) => {
     const { routeId } = request.params as { routeId: string };
@@ -242,8 +260,11 @@ export async function registerDirections(
       .from(directionsTable)
       .where(eq(directionsTable.route_id, routeId));
 
+    const attribution = await loadAttributionResolver(supabase);
     const directions = await Promise.all(
-      rows.map((row) => loadDirectionSummary(db, row.direction_id)),
+      rows.map((row) =>
+        loadDirectionSummary(db, row.direction_id, attribution),
+      ),
     );
 
     return { success: true, data: directions.filter((d) => d !== null) };
@@ -258,6 +279,7 @@ export async function registerDirections(
     async (request, reply) => {
       const { routeId } = request.params as { routeId: string };
       const body = request.body;
+      const actor = actorId(request);
 
       const [route] = await db
         .select({ route_id: routesTable.route_id })
@@ -283,10 +305,12 @@ export async function registerDirections(
             stops: body.stops,
           },
           createMode: true,
+          actorId: actor,
         });
+        const attribution = await loadAttributionResolver(supabase);
         const [baseFull, returnFull] = await Promise.all([
-          loadDirectionFull(db, baseId),
-          loadDirectionFull(db, returnId),
+          loadDirectionFull(db, baseId, attribution),
+          loadDirectionFull(db, returnId, attribution),
         ]);
         return reply.code(201).send({
           success: true,
@@ -310,8 +334,11 @@ export async function registerDirections(
           ) as unknown as string,
           origin_stop_id: body.origin_stop_id ?? null,
           destination_stop_id: body.destination_stop_id ?? null,
+          ...createAttribution(actor),
         })
         .returning();
+
+      const attribution = await loadAttributionResolver(supabase);
 
       return reply.code(201).send({
         success: true,
@@ -325,6 +352,8 @@ export async function registerDirections(
           is_active: inserted.is_active,
           created_at: iso(inserted.created_at),
           updated_at: iso(inserted.updated_at),
+          created_by: attribution(inserted.created_by),
+          updated_by: attribution(inserted.updated_by),
           stops: [],
         },
       });
@@ -333,7 +362,11 @@ export async function registerDirections(
 
   app.get("/directions/:directionId", async (request) => {
     const { directionId } = request.params as { directionId: string };
-    const direction = await loadDirectionFull(db, directionId);
+    const direction = await loadDirectionFull(
+      db,
+      directionId,
+      await loadAttributionResolver(supabase),
+    );
     if (!direction) {
       throw notFound(`Direction ${directionId} not found`);
     }
@@ -349,6 +382,7 @@ export async function registerDirections(
     async (request) => {
       const { directionId } = request.params as { directionId: string };
       const body = request.body;
+      const actor = actorId(request);
 
       const [existing] = await db
         .select({
@@ -383,10 +417,12 @@ export async function registerDirections(
             stops: body.stops,
           },
           createMode: false,
+          actorId: actor,
         });
+        const attribution = await loadAttributionResolver(supabase);
         const [baseFull, returnFull] = await Promise.all([
-          loadDirectionFull(db, baseId),
-          loadDirectionFull(db, returnId),
+          loadDirectionFull(db, baseId, attribution),
+          loadDirectionFull(db, returnId, attribution),
         ]);
         return {
           success: true,
@@ -411,10 +447,18 @@ export async function registerDirections(
 
       await db
         .update(directionsTable)
-        .set(patch)
+        .set({
+          ...patch,
+          // Only the last writer moves: the creator is written once (ADR-0025).
+          ...updateAttribution(actor),
+        })
         .where(eq(directionsTable.direction_id, directionId));
 
-      const updated = await loadDirectionFull(db, directionId);
+      const updated = await loadDirectionFull(
+        db,
+        directionId,
+        await loadAttributionResolver(supabase),
+      );
       return { success: true, data: updated };
     },
   );
@@ -436,7 +480,7 @@ export async function registerDirections(
 
       const [updated] = await db
         .update(directionsTable)
-        .set({ is_active: false })
+        .set({ is_active: false, ...updateAttribution(actorId(request)) })
         .where(eq(directionsTable.direction_id, directionId))
         .returning();
 

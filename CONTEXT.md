@@ -100,6 +100,30 @@ _Avoid_: Login, login attempt, sign-in (when meaning the flow rather than one re
 A structured, grep-able pino log line emitted by the server for authentication outcomes: `security.sign_in_success`, `security.sign_in_failure`, `security.sign_in_throttled`, or `security.sign_out`. Carries `account`, `source` (request IP), and `outcome`; denial reasons appear ONLY here, never in HTTP responses.
 _Avoid_: Audit trail, event log, auth log
 
+**Deactivated Account**:
+An Account whose identity and Role are kept but whose access is refused: it cannot sign in, and its live session is refused on its next request. Reactivation restores the same Role; nothing is deleted.
+_Avoid_: Disabled user, banned account, deleted account
+
+**Temporary Password**:
+A server-generated password issued when an Account is created or forced to reset, shown to the manager once and valid only until the Account replaces it with its own.
+_Avoid_: Default password, initial password
+
+**Forced Password Change**:
+The state in which an Account may reach only its own identity and the password-change endpoint until it replaces a Temporary Password. Enforced by the server, not by the screen that asks for it.
+_Avoid_: Password reset, must-change flag, first-login flow
+
+**Session Revocation**:
+The refusal of a live session at the authorization seam on its next request — for a Deactivated Account or one under Forced Password Change. A Supabase token is not un-issued; the seam, not the token's expiry, is what ends access.
+_Avoid_: Logout (that is the Account's own action), token invalidation
+
+**Attribution**:
+The Accounts recorded as the creator and the last writer of an entity. Rows that predate attribution read as "not recorded" rather than being assigned an actor the system did not observe.
+_Avoid_: Provenance (that is deployment metadata), audit trail, author
+
+**Last-Owner Lockout Guard**:
+The schema-level invariant that the Super Admin cannot be deactivated, demoted, deleted or role-changed, so no sequence of Account edits can leave the dataset without an owner. It is structural, not a count of remaining administrators.
+_Avoid_: Last-admin check, orphan guard
+
 ### Admin workspace
 
 **Plate**:
@@ -109,6 +133,10 @@ _Avoid_: Card, panel, floating card, surface
 **Context Column**:
 The route workspace's second left column (320 px), revealed beside the stops list while a search session is live. It hosts the transient surface for the current task — today the search results — and keeps the stops list visible because that list holds the insertion anchor.
 _Avoid_: Search sidebar, results panel, drawer, second panel
+
+**Read-only Workspace**:
+The Route Workspace as an Account without the editing Permission sees it: map, selection, pan, lists and values, with every mutating affordance absent. It is not a mode the Account toggles and not a Permission of its own — it is the absence of one.
+_Avoid_: View mode, viewer mode, read mode
 
 **Search Session**:
 The interval between starting a place search and ending it — by `Esc`, by clearing the query, or by adding the place as a stop. It opens a layout variant of edit; it is not a workspace state.
