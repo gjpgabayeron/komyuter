@@ -69,11 +69,11 @@ A directed service of a route — the "To City Proper" or "To Calaparan" journey
 _Avoid_: Forward, reverse, inbound, outbound (as model entities)
 
 **Draft**:
-The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage with a 24-hour time-to-live, never sent to the server, and offered for restore when the Account returns.
+The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage per Account with a 24-hour time-to-live, never sent to the server, and offered for restore when that Account returns. A Draft remembers the Direction Version it was loaded from; that is the base a Save Conflict is resolved against.
 _Avoid_: Working copy, pending route
 
 **Save Conflict**:
-The state in which a plotter's Draft is based on a version of a Direction that the server has since replaced, so the save is refused rather than applied. "The version" here is the Direction Version. It is resolved over the stop list and the descriptive fields; the polyline is never merged — one side is chosen, and the workspace re-snaps on request.
+The state in which a plotter's Draft is based on a version of a Direction that the server has since replaced, so the save is refused rather than applied. "The version" here is the Direction Version. It is resolved over the ordered anchors — Stops today, Waypoints under ADR-0028 — and the descriptive fields; the polyline is never merged — one side is chosen, and the workspace re-snaps on request.
 _Avoid_: Merge conflict, stale write, overwrite
 
 **Virtual Node**:
@@ -163,6 +163,12 @@ _Avoid_: Version (unqualified), deploy
 **Direction Version**:
 The stamp a Direction carries for optimistic concurrency: the save path refuses a write whose base is
 stale. It answers "is my edit based on what I read?", never "what is published?".
+_Avoid_: Dataset Version, revision
+
+**Route Version**:
+The stamp a Route carries for optimistic concurrency, covering its descriptive fields: name, short
+name, colour, active state and fare configuration. It is separate from a Direction Version because the
+Route and its Directions are saved by different writes, and either stale base is refused on its own.
 _Avoid_: Dataset Version, revision
 
 **Waypoint**:
