@@ -20,11 +20,18 @@ import {
   type WorkspaceUiState,
 } from "@/lib/plottingStore";
 import { clearSelection } from "@/lib/selection";
-import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
-import { offersDraftRestore, writesDraft } from "@/lib/capabilities";
+import {
+  clearDraft,
+  createDebouncedDraftWriter,
+  DRAFT_SCHEMA_VERSION,
+  listDrafts,
+  loadDraft,
+} from "@/lib/draft";
+import { writesDraft } from "@/lib/capabilities";
+import { useAuth } from "@/features/auth/auth";
 import { useCapabilities } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
-import type { DraftPayload } from "@/lib/draft";
+import type { DraftBase, DraftPayload, DraftSummary } from "@/lib/draft";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
 import { pathFromConnections } from "@/lib/connections";
 import type { CreateDirectionPayload } from "@/features/routes/routesApi";
@@ -76,8 +83,8 @@ interface RouteWorkspaceValue {
   saving: boolean;
   snap: SnapState;
   showSnapWarning: boolean;
-  /** Pending draft-restore offer (null when none). */
-  draftOffer: DraftPayload | null;
+  /** The Account's Drafts, newest first (the restore surface is a list). */
+  draftOffers: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
   /** A save just completed — transient "Saved just now" notice. */
@@ -92,8 +99,8 @@ interface RouteWorkspaceValue {
   requestCloseEdit: () => void;
   /** Single consolidated save: plotting draft then route metadata. */
   saveAll: () => Promise<void>;
-  restoreDraft: (draft: DraftPayload) => void;
-  discardDraft: (draft: DraftPayload) => void;
+  restoreDraft: (entry: DraftSummary) => void;
+  discardDraft: (entry: DraftSummary) => void;
   onLoadLatest: () => void;
   onDismissConflict: () => void;
 }
@@ -115,6 +122,8 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   // Draft is left untouched). See `lib/capabilities`.
   const capabilities = useCapabilities();
   const canWriteDraft = writesDraft(capabilities);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const routeId = usePlottingStore((s) => s.routeId);
   const directionId = usePlottingStore((s) => s.directionId);
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
@@ -125,7 +134,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
 
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [conflict, setConflict] = useState(false);
-  const [draftOffer, setDraftOffer] = useState<DraftPayload | null>(null);
+  const [draftOffers, setDraftOffers] = useState<DraftSummary[]>([]);
   const [justSaved, setJustSaved] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
@@ -181,17 +190,60 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // --- FR-014: client-local draft (24 h TTL, debounced ~500 ms writes) ---
-  const draftWriterRef = useRef(createDebouncedDraftWriter());
+  // --- FR-014 / M2c: the Account's client-local Drafts (24 h TTL) ---
+  const draftWriterRef = useRef<ReturnType<
+    typeof createDebouncedDraftWriter
+  > | null>(null);
+  // The ancestor a three-way merge needs: the last known loaded state + Version.
+  const baseRef = useRef<DraftBase | null>(null);
+  const baseMetaRef = useRef<DraftBase["routeMeta"]>(null);
+  const pendingRestoreRef = useRef<DraftPayload | null>(null);
+  const restoredRef = useRef<string | null>(null);
 
-  // Persist the plotting draft to localStorage whenever there are unsaved
-  // changes and a route is open. The draft is never sent to the server.
+  const refreshDrafts = () => {
+    if (!userId || !canWriteDraft) {
+      setDraftOffers([]);
+      return;
+    }
+    setDraftOffers(listDrafts(userId));
+  };
+
+  // Capture the loaded Route metadata: it is the metadata half of the base.
   useEffect(() => {
-    if (!canWriteDraft) return;
-    return usePlottingStore.subscribe((state, prevState) => {
+    if (!routeQuery.data) return;
+    baseMetaRef.current = {
+      name: routeQuery.data.name,
+      shortName: routeQuery.data.short_name,
+      color: routeQuery.data.color ?? ROUTE_COLORS[0],
+      isActive: routeQuery.data.is_active,
+      fareConfigId: routeQuery.data.fare_config_id,
+    };
+  }, [routeQuery.data]);
+
+  // Persist the Draft whenever there are unsaved changes and a route is open.
+  // The Draft is never sent to the server.
+  useEffect(() => {
+    if (!canWriteDraft || !userId) return;
+    const writer = createDebouncedDraftWriter(userId);
+    draftWriterRef.current = writer;
+
+    const unsubscribe = usePlottingStore.subscribe((state, prevState) => {
       if (state.routeId === null) return;
       if (state.draftDirty) {
-        draftWriterRef.current.save({
+        const loadedBase = state.savedBaseline
+          ? {
+              version:
+                routeQuery.data?.directions.find(
+                  (d) => d.direction_id === state.directionId,
+                )?.version ?? 0,
+              stops: state.savedBaseline.stops,
+              polyline: state.savedBaseline.polyline,
+              routeMeta: baseMetaRef.current,
+            }
+          : null;
+        if (loadedBase) baseRef.current = loadedBase;
+
+        writer.save({
           routeId: state.routeId,
           directionId: state.directionId,
           stops: state.stops,
@@ -200,44 +252,38 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           history: state.history,
           routeMeta: state.routeMeta,
           pathStopIds: state.pathStopIds,
+          schemaVersion: DRAFT_SCHEMA_VERSION,
+          base: loadedBase ?? baseRef.current,
         });
         return;
       }
       // Just became clean (undo back to the baseline / save) — drop the
-      // stored draft so a stale copy is never offered again.
+      // stored Draft so a stale copy is never offered again.
       if (prevState.draftDirty) {
-        clearDraft(state.routeId, state.directionId);
-        draftWriterRef.current.cancel();
+        clearDraft(userId, state.routeId, state.directionId);
+        writer.cancel();
+        refreshDrafts();
       }
     });
-  }, [canWriteDraft]);
 
-  // Flush a pending draft write before the tab goes away.
-  useEffect(() => {
-    if (!canWriteDraft) return;
-    const writer = draftWriterRef.current;
+    // Flush a pending write before the tab goes away.
     const flush = () => writer.flush();
     window.addEventListener("beforeunload", flush);
     return () => {
+      unsubscribe();
       window.removeEventListener("beforeunload", flush);
       writer.flush();
     };
-  }, [canWriteDraft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canWriteDraft, userId, routeQuery.data]);
 
-  // Offer the stored draft when a route (re)opens and a fresh load landed.
-  // The offer is made once per route/direction session (guarded by restoredRef)
-  // and never after the 24 h TTL (loadDraft returns null then — FR-014).
-  const restoredRef = useRef<string | null>(null);
+  // Offer this Account's Drafts once the route and capabilities are known.
   useEffect(() => {
     if (!canWriteDraft) return;
-    if (routeId === null || !routeQuery.data) return;
-    const directionId = routeQuery.data.directions[0]?.direction_id ?? null;
-    const key = `${routeId}/${directionId}`;
-    if (restoredRef.current === key) return;
-    if (usePlottingStore.getState().stops.length === 0) return;
-    const draft = loadDraft(routeId, directionId);
-    if (offersDraftRestore(capabilities, draft)) setDraftOffer(draft);
-  }, [routeQuery.data, routeId, capabilities, canWriteDraft]);
+    if (routeId === null || !routeQuery.data || !userId) return;
+    refreshDrafts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeQuery.data, routeId, capabilities, canWriteDraft, userId]);
 
   // Auto-dismiss the transient status notices ("Saved just now" after a save,
   // "Draft restored" after a restore) — no manual dismissal (US4 refinement).
@@ -250,19 +296,50 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(t);
   }, [justSaved, draftRestored]);
 
-  const restoreDraft = (draft: DraftPayload) => {
+  const applyDraft = (draft: DraftPayload) => {
+    if (!userId) return;
     restoredRef.current = `${draft.routeId}/${draft.directionId}`;
+    baseRef.current = draft.base;
+    if (draft.base?.routeMeta) baseMetaRef.current = draft.base.routeMeta;
     usePlottingStore.getState().restoreDraft(draft);
-    clearDraft(draft.routeId, draft.directionId);
-    setDraftOffer(null);
+    clearDraft(userId, draft.routeId, draft.directionId);
+    refreshDrafts();
     setDraftRestored(true);
   };
 
-  const discardDraft = (draft: DraftPayload) => {
-    restoredRef.current = `${draft.routeId}/${draft.directionId}`;
-    clearDraft(draft.routeId, draft.directionId);
-    draftWriterRef.current.cancel();
-    setDraftOffer(null);
+  const restoreDraft = (entry: DraftSummary) => {
+    if (!userId) return;
+    const draft = loadDraft(userId, entry.routeId, entry.directionId);
+    if (!draft) {
+      refreshDrafts();
+      return;
+    }
+    if (entry.routeId !== routeId) {
+      // Another route's Draft: open that route, restore once it has loaded.
+      pendingRestoreRef.current = draft;
+      usePlottingStore.getState().openRoute(entry.routeId);
+      return;
+    }
+    applyDraft(draft);
+  };
+
+  // Restore a Draft that lives on another route, after that route has loaded.
+  useEffect(() => {
+    const pending = pendingRestoreRef.current;
+    if (!pending || !routeQuery.data) return;
+    if (routeQuery.data.route_id !== pending.routeId) return;
+    pendingRestoreRef.current = null;
+    const t = window.setTimeout(() => applyDraft(pending), 0);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeQuery.data]);
+
+  const discardDraft = (entry: DraftSummary) => {
+    if (!userId) return;
+    clearDraft(userId, entry.routeId, entry.directionId);
+    restoredRef.current = `${entry.routeId}/${entry.directionId}`;
+    draftWriterRef.current?.cancel();
+    refreshDrafts();
   };
 
   const createSave = useSaveDirectionMutation(routeId ?? "");
@@ -395,9 +472,9 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       // A saved route is the new baseline — the undo history no longer applies.
       store.clearHistory();
       // The persisted state is the draft's content too — stop offering/keeping it.
-      clearDraft(store.routeId, store.directionId);
-      draftWriterRef.current.cancel();
-      setDraftOffer(null);
+      if (userId) clearDraft(userId, store.routeId, store.directionId);
+      draftWriterRef.current?.cancel();
+      refreshDrafts();
       setConflict(false);
       return true;
     } catch (error) {
@@ -631,7 +708,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     saving,
     snap,
     showSnapWarning,
-    draftOffer,
+    draftOffers,
     conflict,
     justSaved,
     draftRestored,

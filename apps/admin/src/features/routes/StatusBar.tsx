@@ -1,6 +1,6 @@
 import { CircleCheck, TriangleAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { DraftPayload } from "@/lib/draft";
+import type { DraftSummary } from "@/lib/draft";
 import { DraftRestoreBanner } from "./DraftRestoreBanner";
 import { NoticePlate } from "@/components/shared/NoticePlate";
 
@@ -13,12 +13,12 @@ interface StatusBarProps {
   justSaved: boolean;
   /** A draft was just restored — show the confirmation transiently. */
   restored: boolean;
-  /** Pending draft-restore offer (null when none). */
-  draft: DraftPayload | null;
+  /** The Account's Drafts, newest first (empty when none). */
+  drafts: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
-  onRestoreDraft: () => void;
-  onDiscardDraft: () => void;
+  onRestoreDraft: (entry: DraftSummary) => void;
+  onDiscardDraft: (entry: DraftSummary) => void;
   onLoadLatest: () => void;
   onDismissConflict: () => void;
 }
@@ -41,7 +41,7 @@ export function StatusBar({
   saving,
   justSaved,
   restored,
-  draft,
+  drafts,
   conflict,
   onRestoreDraft,
   onDiscardDraft,
@@ -58,7 +58,8 @@ export function StatusBar({
       ? "Unsaved changes"
       : "Saved just now";
 
-  if (!showLifecycle && !conflict && !draft && !restored) return null;
+  if (!showLifecycle && !conflict && drafts.length === 0 && !restored)
+    return null;
 
   return (
     <div className="pointer-events-auto z-30 flex w-max max-w-sm flex-col items-end gap-1.5">
@@ -120,9 +121,9 @@ export function StatusBar({
             <X className="size-3.5" />
           </Button>
         </NoticePlate>
-      ) : draft ? (
+      ) : drafts.length > 0 ? (
         <DraftRestoreBanner
-          draft={draft}
+          drafts={drafts}
           onRestore={onRestoreDraft}
           onDiscard={onDiscardDraft}
         />

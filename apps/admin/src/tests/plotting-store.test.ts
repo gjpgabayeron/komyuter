@@ -1598,6 +1598,8 @@ describe("draft restore association race (rewired chain + stale path)", () => {
     );
     bindSnapFetcher(fetcher);
     usePlottingStore.getState().restoreDraft({
+      schemaVersion: 2,
+      base: null,
       routeId: "r",
       directionId: "d",
       stops: [
