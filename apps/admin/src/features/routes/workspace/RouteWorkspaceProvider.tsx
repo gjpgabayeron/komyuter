@@ -349,6 +349,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       label: `To ${saveStops[saveStops.length - 1].name}`,
       base_polyline: polyline,
       stops: saveStops.map((stop) => ({
+        stop_id: stop.id,
         name: stop.name,
         type: stop.type,
         location: { type: "Point", coordinates: stop.location },

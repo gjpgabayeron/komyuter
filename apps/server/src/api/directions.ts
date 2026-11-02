@@ -1,4 +1,4 @@
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { createDirectionSchema, updateDirectionSchema } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
 import {
@@ -6,7 +6,11 @@ import {
   routes as routesTable,
   stops as stopsTable,
 } from "../db/schema";
-import { asLineStringFromGeoJSON, asPointFromGeoJSON } from "../db/queries";
+import {
+  asGeoJSON,
+  asLineStringFromGeoJSON,
+  asPointFromGeoJSON,
+} from "../db/queries";
 import { conflict, notFound, validationError, versionConflict } from "./errors";
 import { requireBaseVersion } from "./version";
 import { uuidId } from "../domain/ids";
@@ -29,6 +33,170 @@ import {
 
 function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
+}
+
+/** The transaction handle the plotted save runs on. */
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+
+interface ExistingStopRow {
+  stop_id: string;
+  name: string;
+  stop_order: number;
+  type: string;
+  location: unknown;
+  is_guaranteed_service: boolean;
+  landmark_hint: string | null;
+  notes: string | null;
+  derived_from_stop_id: string | null;
+}
+
+function sameCoordinates(row: ExistingStopRow, stop: PlotStopInput): boolean {
+  try {
+    // `asGeoJSON` yields a parsed GeoJSON value in this stack; a driver that
+    // returns text is accepted too.
+    const raw: unknown =
+      typeof row.location === "string"
+        ? JSON.parse(row.location)
+        : row.location;
+    const parsed = raw as { coordinates?: [number, number] };
+    return (
+      parsed.coordinates?.[0] === stop.location.coordinates[0] &&
+      parsed.coordinates?.[1] === stop.location.coordinates[1]
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** A row sent back unchanged keeps its attribution — only real edits move it
+ *  (ADR-0031 §5). */
+function sameStop(
+  row: ExistingStopRow,
+  stop: PlotStopInput,
+  stopOrder: number,
+): boolean {
+  return (
+    row.name === stop.name &&
+    row.stop_order === stopOrder &&
+    row.type === stop.type &&
+    row.is_guaranteed_service === (stop.is_guaranteed_service ?? true) &&
+    row.landmark_hint === (stop.landmark_hint ?? null) &&
+    row.notes === (stop.notes ?? null) &&
+    sameCoordinates(row, stop)
+  );
+}
+
+/**
+ * Persists a Direction's stop list by upsert (ADR-0031): a stop the client
+ * already has from the server keeps its id, a new one gets a server id, and
+ * only rows absent from the payload are deleted.
+ *
+ * `match` says how an incoming stop finds its row: a base stop by its own
+ * `stop_id`, a return stop by the base stop it mirrors (`derived_from_stop_id`).
+ */
+async function persistStops(
+  tx: Tx,
+  directionId: string,
+  stops: readonly PlotStopInput[],
+  actorId: string,
+  match: "own-id" | "derived",
+): Promise<string[]> {
+  const existing = await tx
+    .select({
+      stop_id: stopsTable.stop_id,
+      name: stopsTable.name,
+      stop_order: stopsTable.stop_order,
+      type: stopsTable.type,
+      location: asGeoJSON(stopsTable.location),
+      is_guaranteed_service: stopsTable.is_guaranteed_service,
+      landmark_hint: stopsTable.landmark_hint,
+      notes: stopsTable.notes,
+      derived_from_stop_id: stopsTable.derived_from_stop_id,
+    })
+    .from(stopsTable)
+    .where(eq(stopsTable.direction_id, directionId));
+
+  if (match === "own-id") {
+    const wanted = stops
+      .map((stop) => stop.stop_id)
+      .filter((id): id is string => typeof id === "string" && id.length > 0);
+    if (wanted.length > 0) {
+      const owned = await tx
+        .select({
+          stop_id: stopsTable.stop_id,
+          direction_id: stopsTable.direction_id,
+        })
+        .from(stopsTable)
+        .where(inArray(stopsTable.stop_id, wanted));
+      const foreign = owned.find((row) => row.direction_id !== directionId);
+      if (foreign) {
+        throw conflict(`Stop ${foreign.stop_id} belongs to another direction`);
+      }
+    }
+  }
+
+  const byKey = new Map<string, ExistingStopRow>();
+  for (const row of existing) {
+    const key = match === "derived" ? row.derived_from_stop_id : row.stop_id;
+    if (key) byKey.set(key, row);
+  }
+
+  const kept = new Set<string>();
+  const ids: string[] = [];
+
+  for (let index = 0; index < stops.length; index++) {
+    const stop = stops[index];
+    const stopOrder = index + 1;
+    const key = stop.stop_id ?? null;
+    const row = key ? byKey.get(key) : undefined;
+    const derivedFrom = match === "derived" ? key : null;
+
+    if (row) {
+      if (!sameStop(row, stop, stopOrder)) {
+        await tx
+          .update(stopsTable)
+          .set({
+            name: stop.name,
+            stop_order: stopOrder,
+            type: stop.type,
+            location: asPointFromGeoJSON(stop.location) as unknown as string,
+            is_guaranteed_service: stop.is_guaranteed_service ?? true,
+            landmark_hint: stop.landmark_hint ?? null,
+            notes: stop.notes ?? null,
+            ...updateAttribution(actorId),
+          })
+          .where(eq(stopsTable.stop_id, row.stop_id));
+      }
+      kept.add(row.stop_id);
+      ids.push(row.stop_id);
+      continue;
+    }
+
+    const stopId = uuidId("stop");
+    await tx.insert(stopsTable).values({
+      stop_id: stopId,
+      direction_id: directionId,
+      name: stop.name,
+      stop_order: stopOrder,
+      type: stop.type,
+      location: asPointFromGeoJSON(stop.location) as unknown as string,
+      is_guaranteed_service: stop.is_guaranteed_service ?? true,
+      landmark_hint: stop.landmark_hint ?? null,
+      notes: stop.notes ?? null,
+      derived_from_stop_id: derivedFrom,
+      ...createAttribution(actorId),
+    });
+    ids.push(stopId);
+  }
+
+  const removed = existing
+    .filter((row) => !kept.has(row.stop_id))
+    .map((row) => row.stop_id);
+  if (removed.length > 0) {
+    await tx.delete(stopsTable).where(inArray(stopsTable.stop_id, removed));
+  }
+
+  return ids;
 }
 
 /** The wire payload for a direction (kept flat; legacy shape). */
@@ -129,8 +297,6 @@ async function persistPlottedPair(
           .limit(1);
         throw versionConflict(current?.version ?? 0);
       }
-
-      await tx.delete(stopsTable).where(eq(stopsTable.direction_id, baseId));
     } else {
       await tx
         .insert(directionsTable)
@@ -145,26 +311,15 @@ async function persistPlottedPair(
         .returning();
     }
 
-    const insertedStopIds: string[] = [];
-    for (let index = 0; index < normalized.length; index++) {
-      const stop = normalized[index];
-      const stopId = uuidId("stop");
-      await tx.insert(stopsTable).values({
-        stop_id: stopId,
-        direction_id: baseId,
-        name: stop.name,
-        stop_order: index + 1,
-        type: stop.type,
-        location: asPointFromGeoJSON(stop.location) as unknown as string,
-        is_guaranteed_service: stop.is_guaranteed_service ?? true,
-        landmark_hint: stop.landmark_hint ?? null,
-        notes: stop.notes ?? null,
-        ...createAttribution(input.actorId),
-      });
-      insertedStopIds.push(stopId);
-    }
-    const originStopId = insertedStopIds[0];
-    const destinationStopId = insertedStopIds[insertedStopIds.length - 1];
+    const baseStopIds = await persistStops(
+      tx,
+      baseId,
+      normalized,
+      input.actorId,
+      "own-id",
+    );
+    const originStopId = baseStopIds[0];
+    const destinationStopId = baseStopIds[baseStopIds.length - 1];
     await tx
       .update(directionsTable)
       .set({
@@ -173,7 +328,15 @@ async function persistPlottedPair(
       })
       .where(eq(directionsTable.direction_id, baseId));
 
-    const derived = buildDerivedReturn(input.base);
+    // Carry the persisted base ids into the derivation, so every derived stop
+    // knows which base stop it mirrors (ADR-0031 §4).
+    const derived = buildDerivedReturn({
+      ...input.base,
+      stops: normalized.map((stop, index) => ({
+        ...stop,
+        stop_id: baseStopIds[index],
+      })),
+    });
     const [sibling] = await tx
       .select({ direction_id: directionsTable.direction_id })
       .from(directionsTable)
@@ -203,7 +366,6 @@ async function persistPlottedPair(
           ...updateAttribution(input.actorId),
         })
         .where(eq(directionsTable.direction_id, returnId));
-      await tx.delete(stopsTable).where(eq(stopsTable.direction_id, returnId));
     } else {
       await tx
         .insert(directionsTable)
@@ -220,25 +382,15 @@ async function persistPlottedPair(
 
     // The return's terminals are its OWN first/last stop rows (the reversed
     // base stops), so every direction's terminals always resolve inside its
-    // own ordered stop list (export reference check).
-    const returnStopIds: string[] = [];
-    for (let index = 0; index < derived.stops.length; index++) {
-      const stop = derived.stops[index];
-      const stopId = uuidId("stop");
-      await tx.insert(stopsTable).values({
-        stop_id: stopId,
-        direction_id: returnId,
-        name: stop.name,
-        stop_order: index + 1,
-        type: stop.type,
-        location: asPointFromGeoJSON(stop.location) as unknown as string,
-        is_guaranteed_service: stop.is_guaranteed_service ?? true,
-        landmark_hint: stop.landmark_hint ?? null,
-        notes: stop.notes ?? null,
-        ...createAttribution(input.actorId),
-      });
-      returnStopIds.push(stopId);
-    }
+    // own ordered stop list (export reference check). The rows are matched by
+    // `derived_from_stop_id`, never by position (ADR-0031 §4).
+    const returnStopIds = await persistStops(
+      tx,
+      returnId,
+      derived.stops,
+      input.actorId,
+      "derived",
+    );
     await tx
       .update(directionsTable)
       .set({

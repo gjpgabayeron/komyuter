@@ -67,6 +67,13 @@ export const createStopSchema = z.object({
   notes: z.string().nullable().optional(),
 });
 
+/** A plotted-save stop: the same shape plus the id the row already has. The
+ *  save upserts by it (ADR-0031); an unknown id is treated as a new stop, so a
+ *  Draft from before stable ids still saves once. */
+export const plotStopSchema = createStopSchema.extend({
+  stop_id: z.string().min(1).optional(),
+});
+
 /** Lean stop shape for the overview — enough to render markers + labels. */
 export const overviewStopSchema = z.object({
   stop_id: z.string(),
@@ -100,7 +107,7 @@ export const createDirectionSchema = z.object({
   base_polyline: geoLineStringSchema,
   origin_stop_id: z.string().min(1).nullable().optional(),
   destination_stop_id: z.string().min(1).nullable().optional(),
-  stops: z.array(createStopSchema).optional(),
+  stops: z.array(plotStopSchema).optional(),
 });
 
 export const updateDirectionSchema = createDirectionSchema.partial().extend({

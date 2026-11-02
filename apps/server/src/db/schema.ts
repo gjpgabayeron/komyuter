@@ -209,6 +209,9 @@ export const stops = pgTable(
     stop_order: integer("stop_order").notNull(),
     type: stopType("type").notNull(),
     location: pointGeometry("location").notNull(),
+    /** On a return stop: the base stop it mirrors (ADR-0031 §4). Null on a
+     *  base stop. */
+    derived_from_stop_id: text("derived_from_stop_id"),
     is_guaranteed_service: boolean("is_guaranteed_service")
       .notNull()
       .default(true),

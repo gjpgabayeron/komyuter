@@ -88,6 +88,9 @@ export interface CreateRoutePayload {
 }
 
 export interface SaveStopPayload {
+  /** The id this stop already has on the server (ADR-0031). A stop the
+   *  plotter just placed sends no id; the save names it. */
+  stop_id?: string;
   name: string;
   type: StopType;
   location: GeoPoint;
