@@ -132,7 +132,7 @@ describe("Attribution on the plotted path (ADR-0025)", () => {
       method: "PUT",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(plotterToken),
-      payload: { name: "Renamed by the plotter" },
+      payload: { name: "Renamed by the plotter", base_version: 1 },
     });
     expect(updated.statusCode).toBe(200);
 
@@ -209,7 +209,7 @@ describe("Attribution on the plotted path (ADR-0025)", () => {
       method: "PUT",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(ownerToken),
-      payload: { short_name: "RENAMED" },
+      payload: { short_name: "RENAMED", base_version: 1 },
     });
     expect(updated.statusCode).toBe(200);
 
@@ -322,7 +322,7 @@ describe("Attribution on the plotted path (ADR-0025)", () => {
       method: "PUT",
       url: `/api/admin/directions/${directionId}`,
       headers: auth(plotterToken),
-      payload: { label: "To the Port" },
+      payload: { label: "To the Port", base_version: 1 },
     });
     expect(updated.statusCode).toBe(200);
     expect(updated.json().data.created_by).toEqual({
@@ -368,7 +368,7 @@ describe("Attribution on the plotted path (ADR-0025)", () => {
       method: "PUT",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(ownerToken),
-      payload: { name: "Legacy Route (touched)" },
+      payload: { name: "Legacy Route (touched)", base_version: 1 },
     });
     expect(updated.statusCode).toBe(200);
     // The unobserved writes stay unobserved: only the last writer is recorded.

@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { createDirectionSchema, updateDirectionSchema } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
 import {
@@ -6,8 +6,13 @@ import {
   routes as routesTable,
   stops as stopsTable,
 } from "../db/schema";
-import { asLineStringFromGeoJSON, asPointFromGeoJSON } from "../db/queries";
+import {
+  asGeoJSON,
+  asLineStringFromGeoJSON,
+  asPointFromGeoJSON,
+} from "../db/queries";
 import { conflict, notFound, validationError } from "./errors";
+import { requireBaseVersion, versionedWrite } from "./version";
 import { uuidId } from "../domain/ids";
 import type { Db } from "../config/db";
 import type { DirectionEntity } from "../domain/entities";
@@ -30,6 +35,170 @@ function iso(value: unknown): string {
   return value instanceof Date ? value.toISOString() : String(value);
 }
 
+/** The transaction handle the plotted save runs on. */
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+
+interface ExistingStopRow {
+  stop_id: string;
+  name: string;
+  stop_order: number;
+  type: string;
+  location: unknown;
+  is_guaranteed_service: boolean;
+  landmark_hint: string | null;
+  notes: string | null;
+  derived_from_stop_id: string | null;
+}
+
+function sameCoordinates(row: ExistingStopRow, stop: PlotStopInput): boolean {
+  try {
+    // `asGeoJSON` yields a parsed GeoJSON value in this stack; a driver that
+    // returns text is accepted too.
+    const raw: unknown =
+      typeof row.location === "string"
+        ? JSON.parse(row.location)
+        : row.location;
+    const parsed = raw as { coordinates?: [number, number] };
+    return (
+      parsed.coordinates?.[0] === stop.location.coordinates[0] &&
+      parsed.coordinates?.[1] === stop.location.coordinates[1]
+    );
+  } catch {
+    return false;
+  }
+}
+
+/** A row sent back unchanged keeps its attribution — only real edits move it
+ *  (ADR-0031 §5). */
+function sameStop(
+  row: ExistingStopRow,
+  stop: PlotStopInput,
+  stopOrder: number,
+): boolean {
+  return (
+    row.name === stop.name &&
+    row.stop_order === stopOrder &&
+    row.type === stop.type &&
+    row.is_guaranteed_service === (stop.is_guaranteed_service ?? true) &&
+    row.landmark_hint === (stop.landmark_hint ?? null) &&
+    row.notes === (stop.notes ?? null) &&
+    sameCoordinates(row, stop)
+  );
+}
+
+/**
+ * Persists a Direction's stop list by upsert (ADR-0031): a stop the client
+ * already has from the server keeps its id, a new one gets a server id, and
+ * only rows absent from the payload are deleted.
+ *
+ * `match` says how an incoming stop finds its row: a base stop by its own
+ * `stop_id`, a return stop by the base stop it mirrors (`derived_from_stop_id`).
+ */
+async function persistStops(
+  tx: Tx,
+  directionId: string,
+  stops: readonly PlotStopInput[],
+  actorId: string,
+  match: "own-id" | "derived",
+): Promise<string[]> {
+  const existing = await tx
+    .select({
+      stop_id: stopsTable.stop_id,
+      name: stopsTable.name,
+      stop_order: stopsTable.stop_order,
+      type: stopsTable.type,
+      location: asGeoJSON(stopsTable.location),
+      is_guaranteed_service: stopsTable.is_guaranteed_service,
+      landmark_hint: stopsTable.landmark_hint,
+      notes: stopsTable.notes,
+      derived_from_stop_id: stopsTable.derived_from_stop_id,
+    })
+    .from(stopsTable)
+    .where(eq(stopsTable.direction_id, directionId));
+
+  if (match === "own-id") {
+    const wanted = stops
+      .map((stop) => stop.stop_id)
+      .filter((id): id is string => typeof id === "string" && id.length > 0);
+    if (wanted.length > 0) {
+      const owned = await tx
+        .select({
+          stop_id: stopsTable.stop_id,
+          direction_id: stopsTable.direction_id,
+        })
+        .from(stopsTable)
+        .where(inArray(stopsTable.stop_id, wanted));
+      const foreign = owned.find((row) => row.direction_id !== directionId);
+      if (foreign) {
+        throw conflict(`Stop ${foreign.stop_id} belongs to another direction`);
+      }
+    }
+  }
+
+  const byKey = new Map<string, ExistingStopRow>();
+  for (const row of existing) {
+    const key = match === "derived" ? row.derived_from_stop_id : row.stop_id;
+    if (key) byKey.set(key, row);
+  }
+
+  const kept = new Set<string>();
+  const ids: string[] = [];
+
+  for (let index = 0; index < stops.length; index++) {
+    const stop = stops[index];
+    const stopOrder = index + 1;
+    const key = stop.stop_id ?? null;
+    const row = key ? byKey.get(key) : undefined;
+    const derivedFrom = match === "derived" ? key : null;
+
+    if (row) {
+      if (!sameStop(row, stop, stopOrder)) {
+        await tx
+          .update(stopsTable)
+          .set({
+            name: stop.name,
+            stop_order: stopOrder,
+            type: stop.type,
+            location: asPointFromGeoJSON(stop.location) as unknown as string,
+            is_guaranteed_service: stop.is_guaranteed_service ?? true,
+            landmark_hint: stop.landmark_hint ?? null,
+            notes: stop.notes ?? null,
+            ...updateAttribution(actorId),
+          })
+          .where(eq(stopsTable.stop_id, row.stop_id));
+      }
+      kept.add(row.stop_id);
+      ids.push(row.stop_id);
+      continue;
+    }
+
+    const stopId = uuidId("stop");
+    await tx.insert(stopsTable).values({
+      stop_id: stopId,
+      direction_id: directionId,
+      name: stop.name,
+      stop_order: stopOrder,
+      type: stop.type,
+      location: asPointFromGeoJSON(stop.location) as unknown as string,
+      is_guaranteed_service: stop.is_guaranteed_service ?? true,
+      landmark_hint: stop.landmark_hint ?? null,
+      notes: stop.notes ?? null,
+      derived_from_stop_id: derivedFrom,
+      ...createAttribution(actorId),
+    });
+    ids.push(stopId);
+  }
+
+  const removed = existing
+    .filter((row) => !kept.has(row.stop_id))
+    .map((row) => row.stop_id);
+  if (removed.length > 0) {
+    await tx.delete(stopsTable).where(inArray(stopsTable.stop_id, removed));
+  }
+
+  return ids;
+}
+
 /** The wire payload for a direction (kept flat; legacy shape). */
 function toDirectionPayload(direction: DirectionEntity) {
   return {
@@ -40,6 +209,7 @@ function toDirectionPayload(direction: DirectionEntity) {
     origin_stop_id: direction.origin_stop_id,
     destination_stop_id: direction.destination_stop_id,
     is_active: direction.is_active,
+    version: direction.version,
     created_at: direction.created_at,
     updated_at: direction.updated_at,
     created_by: direction.created_by,
@@ -59,6 +229,9 @@ async function persistPlottedPair(
   input: {
     routeId: string;
     baseId: string | null;
+    /** The Direction Version the save is based on (ADR-0020). Required when
+     *  `baseId` is set: a replace with no base would be last-write-wins. */
+    baseVersion?: number;
     base: PlotBaseInput;
     createMode: boolean;
     /** The guard's Account id — stamped onto the direction and every stop it
@@ -92,16 +265,40 @@ async function persistPlottedPair(
     ) as unknown as string;
 
     if (input.baseId) {
-      await tx
-        .update(directionsTable)
-        .set({
-          label: input.base.label,
-          base_polyline: baseGeometry,
-          direction_kind: "base",
-          ...updateAttribution(input.actorId),
-        })
-        .where(eq(directionsTable.direction_id, baseId));
-      await tx.delete(stopsTable).where(eq(stopsTable.direction_id, baseId));
+      if (input.baseVersion === undefined) {
+        throw new Error(
+          "persistPlottedPair: baseVersion is required when baseId is set",
+        );
+      }
+      // The compare-and-swap is the FIRST write of the transaction, so a stale
+      // save aborts before any stop is deleted or the sibling is re-derived.
+      await versionedWrite(
+        await tx
+          .update(directionsTable)
+          .set({
+            label: input.base.label,
+            base_polyline: baseGeometry,
+            direction_kind: "base",
+            version: sql`${directionsTable.version} + 1`,
+            ...updateAttribution(input.actorId),
+          })
+          .where(
+            and(
+              eq(directionsTable.direction_id, baseId),
+              eq(directionsTable.version, input.baseVersion),
+            ),
+          )
+          .returning({ version: directionsTable.version }),
+        async () => {
+          const [current] = await tx
+            .select({ version: directionsTable.version })
+            .from(directionsTable)
+            .where(eq(directionsTable.direction_id, baseId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Direction ${baseId} not found`,
+      );
     } else {
       await tx
         .insert(directionsTable)
@@ -116,26 +313,15 @@ async function persistPlottedPair(
         .returning();
     }
 
-    const insertedStopIds: string[] = [];
-    for (let index = 0; index < normalized.length; index++) {
-      const stop = normalized[index];
-      const stopId = uuidId("stop");
-      await tx.insert(stopsTable).values({
-        stop_id: stopId,
-        direction_id: baseId,
-        name: stop.name,
-        stop_order: index + 1,
-        type: stop.type,
-        location: asPointFromGeoJSON(stop.location) as unknown as string,
-        is_guaranteed_service: stop.is_guaranteed_service ?? true,
-        landmark_hint: stop.landmark_hint ?? null,
-        notes: stop.notes ?? null,
-        ...createAttribution(input.actorId),
-      });
-      insertedStopIds.push(stopId);
-    }
-    const originStopId = insertedStopIds[0];
-    const destinationStopId = insertedStopIds[insertedStopIds.length - 1];
+    const baseStopIds = await persistStops(
+      tx,
+      baseId,
+      normalized,
+      input.actorId,
+      "own-id",
+    );
+    const originStopId = baseStopIds[0];
+    const destinationStopId = baseStopIds[baseStopIds.length - 1];
     await tx
       .update(directionsTable)
       .set({
@@ -144,7 +330,15 @@ async function persistPlottedPair(
       })
       .where(eq(directionsTable.direction_id, baseId));
 
-    const derived = buildDerivedReturn(input.base);
+    // Carry the persisted base ids into the derivation, so every derived stop
+    // knows which base stop it mirrors (ADR-0031 §4).
+    const derived = buildDerivedReturn({
+      ...input.base,
+      stops: normalized.map((stop, index) => ({
+        ...stop,
+        stop_id: baseStopIds[index],
+      })),
+    });
     const [sibling] = await tx
       .select({ direction_id: directionsTable.direction_id })
       .from(directionsTable)
@@ -168,10 +362,12 @@ async function persistPlottedPair(
           label: derived.label,
           base_polyline: returnGeometry,
           direction_kind: "return",
+          // The return is rewritten by this save, so its stamp moves too. It is
+          // never a client-held base — the workspace edits the base direction.
+          version: sql`${directionsTable.version} + 1`,
           ...updateAttribution(input.actorId),
         })
         .where(eq(directionsTable.direction_id, returnId));
-      await tx.delete(stopsTable).where(eq(stopsTable.direction_id, returnId));
     } else {
       await tx
         .insert(directionsTable)
@@ -188,25 +384,15 @@ async function persistPlottedPair(
 
     // The return's terminals are its OWN first/last stop rows (the reversed
     // base stops), so every direction's terminals always resolve inside its
-    // own ordered stop list (export reference check).
-    const returnStopIds: string[] = [];
-    for (let index = 0; index < derived.stops.length; index++) {
-      const stop = derived.stops[index];
-      const stopId = uuidId("stop");
-      await tx.insert(stopsTable).values({
-        stop_id: stopId,
-        direction_id: returnId,
-        name: stop.name,
-        stop_order: index + 1,
-        type: stop.type,
-        location: asPointFromGeoJSON(stop.location) as unknown as string,
-        is_guaranteed_service: stop.is_guaranteed_service ?? true,
-        landmark_hint: stop.landmark_hint ?? null,
-        notes: stop.notes ?? null,
-        ...createAttribution(input.actorId),
-      });
-      returnStopIds.push(stopId);
-    }
+    // own ordered stop list (export reference check). The rows are matched by
+    // `derived_from_stop_id`, never by position (ADR-0031 §4).
+    const returnStopIds = await persistStops(
+      tx,
+      returnId,
+      derived.stops,
+      input.actorId,
+      "derived",
+    );
     await tx
       .update(directionsTable)
       .set({
@@ -384,17 +570,31 @@ export async function registerDirections(
       const body = request.body;
       const actor = actorId(request);
 
+      if (body.base_version === undefined) {
+        throw validationError("base_version is required");
+      }
+
       const [existing] = await db
         .select({
           direction_id: directionsTable.direction_id,
           route_id: directionsTable.route_id,
           label: directionsTable.label,
+          direction_kind: directionsTable.direction_kind,
         })
         .from(directionsTable)
         .where(eq(directionsTable.direction_id, directionId))
         .limit(1);
       if (!existing) {
         throw notFound(`Direction ${directionId} not found`);
+      }
+
+      // The return is derived from the base on every save (ADR-0011); saving
+      // it as a base would swap both kinds and re-derive the pair from the
+      // wrong side. The workspace never does this — the API must refuse it.
+      if (existing.direction_kind === "return") {
+        throw conflict(
+          `Direction ${directionId} is the derived return; plot the base direction instead`,
+        );
       }
 
       if (body.stops !== undefined && body.stops.length === 0) {
@@ -411,6 +611,7 @@ export async function registerDirections(
         const { baseId, returnId } = await persistPlottedPair(db, {
           routeId: existing.route_id,
           baseId: directionId,
+          baseVersion: body.base_version,
           base: {
             label: body.label ?? existing.label,
             polyline: body.base_polyline,
@@ -445,14 +646,32 @@ export async function registerDirections(
         patch.destination_stop_id = body.destination_stop_id;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
-      await db
-        .update(directionsTable)
-        .set({
-          ...patch,
-          // Only the last writer moves: the creator is written once (ADR-0025).
-          ...updateAttribution(actor),
-        })
-        .where(eq(directionsTable.direction_id, directionId));
+      await versionedWrite(
+        await db
+          .update(directionsTable)
+          .set({
+            ...patch,
+            version: sql`${directionsTable.version} + 1`,
+            // Only the last writer moves: the creator is written once (ADR-0025).
+            ...updateAttribution(actor),
+          })
+          .where(
+            and(
+              eq(directionsTable.direction_id, directionId),
+              eq(directionsTable.version, body.base_version),
+            ),
+          )
+          .returning({ version: directionsTable.version }),
+        async () => {
+          const [current] = await db
+            .select({ version: directionsTable.version })
+            .from(directionsTable)
+            .where(eq(directionsTable.direction_id, directionId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Direction ${directionId} not found`,
+      );
 
       const updated = await loadDirectionFull(
         db,
@@ -468,21 +687,33 @@ export async function registerDirections(
     { config: { permission: "ROUTES_EDIT" } },
     async (request) => {
       const { directionId } = request.params as { directionId: string };
+      const baseVersion = requireBaseVersion(request.query);
 
-      const [existing] = await db
-        .select({ direction_id: directionsTable.direction_id })
-        .from(directionsTable)
-        .where(eq(directionsTable.direction_id, directionId))
-        .limit(1);
-      if (!existing) {
-        throw notFound(`Direction ${directionId} not found`);
-      }
-
-      const [updated] = await db
-        .update(directionsTable)
-        .set({ is_active: false, ...updateAttribution(actorId(request)) })
-        .where(eq(directionsTable.direction_id, directionId))
-        .returning();
+      const updated = await versionedWrite(
+        await db
+          .update(directionsTable)
+          .set({
+            is_active: false,
+            version: sql`${directionsTable.version} + 1`,
+            ...updateAttribution(actorId(request)),
+          })
+          .where(
+            and(
+              eq(directionsTable.direction_id, directionId),
+              eq(directionsTable.version, baseVersion),
+            ),
+          )
+          .returning(),
+        async () => {
+          const [current] = await db
+            .select({ version: directionsTable.version })
+            .from(directionsTable)
+            .where(eq(directionsTable.direction_id, directionId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Direction ${directionId} not found`,
+      );
 
       return {
         success: true,

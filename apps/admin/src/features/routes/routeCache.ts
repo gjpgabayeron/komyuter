@@ -15,7 +15,9 @@ import type {
  * refetched the route list AND every cached route detail — the redundant
  * network traffic this model eliminates. Mutations now PATCH the caches they
  * can (detail, overview, list) from the mutation response; the server remains
- * the single source of truth (its save-time 409 guards write-write conflicts).
+ * the single source of truth, and a save based on a stale Direction Version is
+ * refused with `VERSION_CONFLICT` (ADR-0020) and resolved by the client-side
+ * merge, not by a silent overwrite.
  */
 
 function toDirection(
@@ -29,6 +31,7 @@ function toDirection(
     origin_stop_id: result.origin_stop_id,
     destination_stop_id: result.destination_stop_id,
     is_active: result.is_active,
+    version: result.version,
     created_at: result.created_at,
     updated_at: result.updated_at,
     created_by: result.created_by,
@@ -100,6 +103,7 @@ export function patchRouteMeta(
         color: route.color,
         is_active: route.is_active,
         fare_config_id: route.fare_config_id,
+        version: route.version,
         updated_at: route.updated_at,
         // The writer moved with this update; the creator never does.
         created_by: route.created_by,

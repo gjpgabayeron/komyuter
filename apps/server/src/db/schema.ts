@@ -165,6 +165,8 @@ export const routes = pgTable(
         onDelete: "set null",
       },
     ),
+    /** Route Version (ADR-0020): the stamp a metadata save is based on. */
+    version: integer("version").notNull().default(1),
     ...timestamps,
     ...attribution,
   },
@@ -184,6 +186,8 @@ export const directions = pgTable(
     destination_stop_id: text("destination_stop_id"),
     direction_kind: directionKind("direction_kind").notNull().default("base"),
     is_active: boolean("is_active").notNull().default(true),
+    /** Direction Version (ADR-0020): the stamp a plotted save is based on. */
+    version: integer("version").notNull().default(1),
     ...timestamps,
     ...attribution,
   },
@@ -205,6 +209,9 @@ export const stops = pgTable(
     stop_order: integer("stop_order").notNull(),
     type: stopType("type").notNull(),
     location: pointGeometry("location").notNull(),
+    /** On a return stop: the base stop it mirrors (ADR-0031 §4). Null on a
+     *  base stop. */
+    derived_from_stop_id: text("derived_from_stop_id"),
     is_guaranteed_service: boolean("is_guaranteed_service")
       .notNull()
       .default(true),

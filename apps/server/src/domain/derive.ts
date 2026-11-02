@@ -10,6 +10,9 @@ export const ENDPOINT_TOLERANCE_METERS = 100;
 
 /** Stop payload as submitted by the plotting UI (before persistence). */
 export interface PlotStopInput {
+  /** The server id this stop already has (ADR-0031). Absent for a stop the
+   *  plotter just placed; the save then names it. */
+  stop_id?: string;
   name: string;
   type: StopType;
   location: GeoPoint;

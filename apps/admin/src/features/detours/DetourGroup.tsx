@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/features/auth/auth";
 import {
   clearDetourDraft,
   loadDetourDraft,
@@ -45,6 +46,8 @@ const PLACE_STEPS: Record<"entry" | "exit" | "waypoint", string> = {
  * blocks the save (US4).
  */
 export function DetourGroup() {
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const open = useDetourStore((s) => s.open);
   const target = useDetourStore((s) => s.target);
   const snap = useDetourStore((s) => s.snap);
@@ -130,7 +133,8 @@ export function DetourGroup() {
     // (open=false) can never re-write a draft we just erased. A successful
     // save clears the draft; Cancel/Esc/tool-switch PRESERVE it (the restore
     // offer recovers it next time — same contract as the base route).
-    if (opts.clearDraft && directionId) clearDetourDraft(directionId);
+    if (opts.clearDraft && directionId && userId)
+      clearDetourDraft(userId, directionId);
   };
 
   // Draft offers: the first time the editor opens for a direction with a
@@ -140,10 +144,10 @@ export function DetourGroup() {
     if (!open || !target) return;
     if (draftCheckedRef.current === target.directionId) return;
     draftCheckedRef.current = target.directionId;
-    if (loadDetourDraft(target.directionId) !== null) {
+    if (userId && loadDetourDraft(userId, target.directionId) !== null) {
       useDetourStore.getState().offerDraft();
     }
-  }, [open, target]);
+  }, [open, target, userId]);
 
   // Persist the composition as the direction's detour draft while editing
   // (US4, T031) — a full snapshot per change; the payload is small and the
@@ -167,12 +171,14 @@ export function DetourGroup() {
     // flag covers BOTH the new and the edit path (review follow-up).
     if (!state.touched) return;
     const draft = state.serializeDraft();
-    if (draft) saveDetourDraft(target.directionId, draft);
-  }, [open, target, draftSignature, loop]);
+    if (draft && userId) saveDetourDraft(userId, target.directionId, draft);
+  }, [open, target, draftSignature, loop, userId]);
 
   const offeredDraft = useMemo(
     () =>
-      target ? loadDetourDraft<DetourDraftSnapshot>(target.directionId) : null,
+      target && userId
+        ? loadDetourDraft<DetourDraftSnapshot>(userId, target.directionId)
+        : null,
     // Re-read only when an offer is pending; the draft body changes on every
     // edit but the banner only needs existence + restore snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -363,7 +369,7 @@ export function DetourGroup() {
               onClick={() => {
                 if (!offeredDraft) return;
                 restoreDraft(offeredDraft);
-                clearDetourDraft(target.directionId);
+                if (userId) clearDetourDraft(userId, target.directionId);
               }}
             >
               Restore draft
@@ -374,7 +380,7 @@ export function DetourGroup() {
               size="sm"
               className="h-6 px-2 text-xs"
               onClick={() => {
-                clearDetourDraft(target.directionId);
+                if (userId) clearDetourDraft(userId, target.directionId);
                 markDraftHandled();
               }}
             >

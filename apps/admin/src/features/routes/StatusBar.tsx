@@ -1,6 +1,6 @@
 import { CircleCheck, TriangleAlert, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { DraftPayload } from "@/lib/draft";
+import type { DraftSummary } from "@/lib/draft";
 import { DraftRestoreBanner } from "./DraftRestoreBanner";
 import { NoticePlate } from "@/components/shared/NoticePlate";
 
@@ -13,12 +13,16 @@ interface StatusBarProps {
   justSaved: boolean;
   /** A draft was just restored — show the confirmation transiently. */
   restored: boolean;
-  /** Pending draft-restore offer (null when none). */
-  draft: DraftPayload | null;
+  /** The Account's Drafts, newest first (empty when none). */
+  drafts: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
-  onRestoreDraft: () => void;
-  onDiscardDraft: () => void;
+  /** Who last wrote the Direction, when the server recorded it. */
+  conflictOwner?: string | null;
+  /** Which half of the save succeeded before the conflict, when known. */
+  saveHalf?: "direction" | "metadata" | null;
+  onRestoreDraft: (entry: DraftSummary) => void;
+  onDiscardDraft: (entry: DraftSummary) => void;
   onLoadLatest: () => void;
   onDismissConflict: () => void;
 }
@@ -41,8 +45,10 @@ export function StatusBar({
   saving,
   justSaved,
   restored,
-  draft,
+  drafts,
   conflict,
+  conflictOwner,
+  saveHalf,
   onRestoreDraft,
   onDiscardDraft,
   onLoadLatest,
@@ -58,7 +64,8 @@ export function StatusBar({
       ? "Unsaved changes"
       : "Saved just now";
 
-  if (!showLifecycle && !conflict && !draft && !restored) return null;
+  if (!showLifecycle && !conflict && drafts.length === 0 && !restored)
+    return null;
 
   return (
     <div className="pointer-events-auto z-30 flex w-max max-w-sm flex-col items-end gap-1.5">
@@ -99,8 +106,9 @@ export function StatusBar({
           <span className="min-w-0 flex-1">
             <span className="text-destructive font-medium">Save conflict</span>{" "}
             <span className="text-muted-foreground">
-              Another Administrator edited this route. Your work is still here —
-              reload to see the latest, or adjust and save again.
+              {saveHalf === "direction"
+                ? "Your direction was saved. The route's details changed elsewhere — your edits are still here."
+                : `${conflictOwner ?? "Another Administrator"} edited this route. Your work is still here — adjust and save again, or load the latest.`}
             </span>
           </span>
           <Button
@@ -120,9 +128,9 @@ export function StatusBar({
             <X className="size-3.5" />
           </Button>
         </NoticePlate>
-      ) : draft ? (
+      ) : drafts.length > 0 ? (
         <DraftRestoreBanner
-          draft={draft}
+          drafts={drafts}
           onRestore={onRestoreDraft}
           onDiscard={onDiscardDraft}
         />

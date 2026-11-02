@@ -31,8 +31,8 @@ export function LoadLatestDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Discard unsaved changes?</AlertDialogTitle>
           <AlertDialogDescription>
-            Loading the latest version replaces your unsaved edits. Your current
-            work is kept as a draft on this device.
+            Loading the latest version replaces your unsaved edits. Your Draft
+            is not kept — this cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

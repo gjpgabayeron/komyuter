@@ -25,7 +25,7 @@ The save path is a blind overwrite, and the interface says otherwise.
   favour of the server's version. The message describes a capability the server does not have.
 - Drafts are single-slot: "editing a second route overwrites the first draft" (`docs/ADMIN.md` §11).
 - Because stop ids are regenerated on every save, anything the client remembers about a stop's identity
-  is invalidated by a save.
+  is invalidated by a save (ADR-0031 removes this constraint).
 
 This was tolerable while one person plotted. It stops being tolerable at M2a, when the milestone plan
 deliberately enables several people to grow the seed dataset — and that dataset is itself the
@@ -87,9 +87,57 @@ deliverable of this phase, so its loss is both silent and unrecoverable.
 - **Risk**: the resolver must cope with an entity that no longer exists — deleting a Stop another
   plotter is renaming is a legitimate conflict shape — so it must work on ids, never on positions.
 
+## Conflict preview (post-trial amendment)
+
+The M2c resolver named the conflicting stop and both values but left the map
+showing only the plotter's Draft. Trial feedback asked to _see_ the difference,
+and to handle a save that carries many edits at once. Both are amendments to the
+decision above, not a new model.
+
+1. **The preview is a side-by-side comparison, and is visual only.** Two maps
+   inside the resolver — mine left, theirs right, cameras synchronised. Each
+   side draws its own version: a Conflicting Stop appears on both maps at its
+   own position, a stop the other side deleted is a hollow ghost on the side
+   that kept it, and an order conflict carries each side's position. The
+   polylines are not drawn because they are not a decision (clause 6). Nothing
+   here enters the Draft, the save payload or the merge: Cancel leaves the Draft
+   exactly as the plotter left it, and Apply is still the only write.
+
+2. **A decision sits under the side it is about.** The Mine card is under the
+   left map, the Theirs card under the right one, so a choice and the geometry
+   it applies to are one column. Order and Route details carry no geometry and
+   use the same two columns without maps.
+
+3. **The camera serves the decision.** Opening the resolver frames the selected
+   change on both maps; selecting another change refits both; panning or
+   zooming either map moves the other.
+
+4. **A Save is a batch, and the resolver says so.** The list holds every change,
+   not only the conflicting ones, and each row states its state — `Needs
+decision`, `Decided · Mine/Theirs`, `Merged`. A summary line states what the
+   whole save changed — stops moved, renamed, added, deleted, Route details —
+   and a clean merge is applied silently with the same counts. One row per field
+   was the M2c shape; it reads as twenty rows for eight stops.
+
+5. **Bulk decisions are per class, never universal.** "Take all mine" / "Take
+   all theirs" may cover stop fields and Route details as two separate controls.
+   They never touch order or delete/modify: those stay per-decision because the
+   decision is about a sequence or an existence, not a value.
+
+6. **The polyline is not a merge input; it is derived.** The resolved stop list
+   is the content. When a resolution changes a stop position, the saved path is
+   stale and the workspace re-snaps it — a line is never chosen against a moved
+   marker. A **pure shape difference** (identical stops, different lines) is the
+   remaining geometry decision: one side, then a re-snap on request.
+   Content-bearing geometry — Via Points and `manual` segments (ADR-0027),
+   Restrictions, and detour projections — is the future exception: it must be
+   reviewed, never silently re-derived from anchors.
+
 ## Non-goals (explicit)
 
-- No server-side revision history, rollback or time travel.
+- No server-side revision history, rollback or time travel. **Superseded by ADR-0027** for the history
+  clause: the dataset's history is kept as whole-dataset snapshots, not per-entity revisions. The
+  conflict decisions above are unchanged.
 - No real-time collaborative editing: no CRDT or operational transform, no live cursors, no presence.
 - No geometry merging of any kind, for polylines or for detour loops.
 - No change to the snapping proxy, and no change to the `[lng, lat]` rule (ADR-0013).

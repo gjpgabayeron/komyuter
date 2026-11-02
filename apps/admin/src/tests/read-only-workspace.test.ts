@@ -24,6 +24,7 @@ const VIEWER_WITH_SEARCH = capabilitiesFromPermissions([
 ] as Permission[]);
 
 const DRAFT: DraftPayload = {
+  schemaVersion: 2,
   savedAt: 1_700_000_000_000,
   routeId: "iloilo-city-proper",
   directionId: "direction-1",
@@ -33,6 +34,7 @@ const DRAFT: DraftPayload = {
   history: { past: [], future: [] },
   routeMeta: null,
   pathStopIds: null,
+  base: null,
 };
 
 describe("isReadOnlyWorkspace", () => {

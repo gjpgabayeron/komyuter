@@ -20,15 +20,56 @@ import {
   type WorkspaceUiState,
 } from "@/lib/plottingStore";
 import { clearSelection } from "@/lib/selection";
-import { clearDraft, createDebouncedDraftWriter, loadDraft } from "@/lib/draft";
-import { offersDraftRestore, writesDraft } from "@/lib/capabilities";
+import {
+  clearDraft,
+  createDebouncedDraftWriter,
+  DRAFT_SCHEMA_VERSION,
+  listDrafts,
+  loadDraft,
+} from "@/lib/draft";
+import { writesDraft } from "@/lib/capabilities";
+import { useAuth } from "@/features/auth/auth";
 import { useCapabilities } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
-import type { DraftPayload } from "@/lib/draft";
+import type { DraftBase, DraftPayload, DraftSummary } from "@/lib/draft";
+import type { DraftStop } from "@/lib/plottingStore";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
-import { pathFromConnections } from "@/lib/connections";
-import type { SaveDirectionPayload } from "@/features/routes/routesApi";
+import { connectionsFromStops, pathFromConnections } from "@/lib/connections";
+import type {
+  CreateDirectionPayload,
+  DirectionEntity,
+  RouteDetail,
+} from "@/features/routes/routesApi";
 import { getRoute, snapPreview } from "@/features/routes/routesApi";
+import {
+  mergeSnapshots,
+  carryChoices,
+  resolveMerge,
+  resolveMeta,
+  type MergeChoices,
+  type MergeOutcome,
+} from "@/lib/merge";
+import {
+  anchorsToStops,
+  baseSnapshot,
+  draftSnapshot,
+  entityToDraftStop,
+  fieldsToRouteMeta,
+  polylinePair,
+  routeMetaFromRoute,
+  serverSnapshot,
+} from "@/features/routes/conflict/mergeInputs";
+import { ConflictResolverDialog } from "@/features/routes/conflict/ConflictResolverDialog";
+import { DeletedDirectionDialog } from "@/features/routes/conflict/DeletedDirectionDialog";
+import {
+  buildConflictPreview,
+  listChanges,
+  mergeInvalidatesPath,
+  summarizeMerge,
+  type ChangeEntry,
+  type MergeSummary,
+} from "@/lib/conflictPreview";
+import type { MergeSnapshot } from "@/lib/merge";
 import { queryClient } from "@/lib/queryClient";
 import { routeKeys } from "@/lib/queryKeys";
 import { ROUTE_COLORS } from "@/features/routes/routeColors";
@@ -76,10 +117,12 @@ interface RouteWorkspaceValue {
   saving: boolean;
   snap: SnapState;
   showSnapWarning: boolean;
-  /** Pending draft-restore offer (null when none). */
-  draftOffer: DraftPayload | null;
+  /** The Account's Drafts, newest first (the restore surface is a list). */
+  draftOffers: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
+  /** Who last wrote the Direction (ADR-0025), when recorded. */
+  conflictOwner: string | null;
   /** A save just completed — transient "Saved just now" notice. */
   justSaved: boolean;
   /** A draft was just restored — transient confirmation. */
@@ -92,8 +135,10 @@ interface RouteWorkspaceValue {
   requestCloseEdit: () => void;
   /** Single consolidated save: plotting draft then route metadata. */
   saveAll: () => Promise<void>;
-  restoreDraft: (draft: DraftPayload) => void;
-  discardDraft: (draft: DraftPayload) => void;
+  restoreDraft: (entry: DraftSummary) => void;
+  discardDraft: (entry: DraftSummary) => void;
+  /** Which half of the save succeeded before a conflict (null when neither). */
+  saveHalf: "direction" | "metadata" | null;
   onLoadLatest: () => void;
   onDismissConflict: () => void;
 }
@@ -115,6 +160,8 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   // Draft is left untouched). See `lib/capabilities`.
   const capabilities = useCapabilities();
   const canWriteDraft = writesDraft(capabilities);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const routeId = usePlottingStore((s) => s.routeId);
   const directionId = usePlottingStore((s) => s.directionId);
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
@@ -122,10 +169,30 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const draftDirty = usePlottingStore((s) => s.draftDirty);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const saving = usePlottingStore((s) => s.saving);
+  const conflictPreview = usePlottingStore((s) => s.conflictPreview);
 
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [conflict, setConflict] = useState(false);
-  const [draftOffer, setDraftOffer] = useState<DraftPayload | null>(null);
+  const [draftOffers, setDraftOffers] = useState<DraftSummary[]>([]);
+  const [conflictSession, setConflictSession] = useState<{
+    outcome: MergeOutcome;
+    route: RouteDetail;
+    direction: DirectionEntity;
+    names: Record<string, string>;
+    summary: MergeSummary;
+    changes: ChangeEntry[];
+    mine: MergeSnapshot;
+    theirs: MergeSnapshot;
+    base: MergeSnapshot;
+  } | null>(null);
+  const [deletedSession, setDeletedSession] = useState<{
+    routeExists: boolean;
+    routeName: string;
+  } | null>(null);
+  const [saveHalf, setSaveHalf] = useState<"direction" | "metadata" | null>(
+    null,
+  );
+  const lastChoicesRef = useRef<MergeChoices>({});
   const [justSaved, setJustSaved] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
@@ -181,17 +248,60 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // --- FR-014: client-local draft (24 h TTL, debounced ~500 ms writes) ---
-  const draftWriterRef = useRef(createDebouncedDraftWriter());
+  // --- FR-014 / M2c: the Account's client-local Drafts (24 h TTL) ---
+  const draftWriterRef = useRef<ReturnType<
+    typeof createDebouncedDraftWriter
+  > | null>(null);
+  // The ancestor a three-way merge needs: the last known loaded state + Version.
+  const baseRef = useRef<DraftBase | null>(null);
+  const baseMetaRef = useRef<DraftBase["routeMeta"]>(null);
+  const pendingRestoreRef = useRef<DraftPayload | null>(null);
+  const restoredRef = useRef<string | null>(null);
 
-  // Persist the plotting draft to localStorage whenever there are unsaved
-  // changes and a route is open. The draft is never sent to the server.
+  const refreshDrafts = () => {
+    if (!userId || !canWriteDraft) {
+      setDraftOffers([]);
+      return;
+    }
+    setDraftOffers(listDrafts(userId));
+  };
+
+  // Capture the loaded Route metadata: it is the metadata half of the base.
   useEffect(() => {
-    if (!canWriteDraft) return;
-    return usePlottingStore.subscribe((state, prevState) => {
+    if (!routeQuery.data) return;
+    baseMetaRef.current = {
+      name: routeQuery.data.name,
+      shortName: routeQuery.data.short_name,
+      color: routeQuery.data.color ?? ROUTE_COLORS[0],
+      isActive: routeQuery.data.is_active,
+      fareConfigId: routeQuery.data.fare_config_id,
+    };
+  }, [routeQuery.data]);
+
+  // Persist the Draft whenever there are unsaved changes and a route is open.
+  // The Draft is never sent to the server.
+  useEffect(() => {
+    if (!canWriteDraft || !userId) return;
+    const writer = createDebouncedDraftWriter(userId);
+    draftWriterRef.current = writer;
+
+    const unsubscribe = usePlottingStore.subscribe((state, prevState) => {
       if (state.routeId === null) return;
       if (state.draftDirty) {
-        draftWriterRef.current.save({
+        const loadedBase = state.savedBaseline
+          ? {
+              version:
+                routeQuery.data?.directions.find(
+                  (d) => d.direction_id === state.directionId,
+                )?.version ?? 0,
+              stops: state.savedBaseline.stops,
+              polyline: state.savedBaseline.polyline,
+              routeMeta: baseMetaRef.current,
+            }
+          : null;
+        if (loadedBase) baseRef.current = loadedBase;
+
+        writer.save({
           routeId: state.routeId,
           directionId: state.directionId,
           stops: state.stops,
@@ -200,44 +310,38 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           history: state.history,
           routeMeta: state.routeMeta,
           pathStopIds: state.pathStopIds,
+          schemaVersion: DRAFT_SCHEMA_VERSION,
+          base: loadedBase ?? baseRef.current,
         });
         return;
       }
       // Just became clean (undo back to the baseline / save) — drop the
-      // stored draft so a stale copy is never offered again.
+      // stored Draft so a stale copy is never offered again.
       if (prevState.draftDirty) {
-        clearDraft(state.routeId, state.directionId);
-        draftWriterRef.current.cancel();
+        clearDraft(userId, state.routeId, state.directionId);
+        writer.cancel();
+        refreshDrafts();
       }
     });
-  }, [canWriteDraft]);
 
-  // Flush a pending draft write before the tab goes away.
-  useEffect(() => {
-    if (!canWriteDraft) return;
-    const writer = draftWriterRef.current;
+    // Flush a pending write before the tab goes away.
     const flush = () => writer.flush();
     window.addEventListener("beforeunload", flush);
     return () => {
+      unsubscribe();
       window.removeEventListener("beforeunload", flush);
       writer.flush();
     };
-  }, [canWriteDraft]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canWriteDraft, userId, routeQuery.data]);
 
-  // Offer the stored draft when a route (re)opens and a fresh load landed.
-  // The offer is made once per route/direction session (guarded by restoredRef)
-  // and never after the 24 h TTL (loadDraft returns null then — FR-014).
-  const restoredRef = useRef<string | null>(null);
+  // Offer this Account's Drafts once the route and capabilities are known.
   useEffect(() => {
     if (!canWriteDraft) return;
-    if (routeId === null || !routeQuery.data) return;
-    const directionId = routeQuery.data.directions[0]?.direction_id ?? null;
-    const key = `${routeId}/${directionId}`;
-    if (restoredRef.current === key) return;
-    if (usePlottingStore.getState().stops.length === 0) return;
-    const draft = loadDraft(routeId, directionId);
-    if (offersDraftRestore(capabilities, draft)) setDraftOffer(draft);
-  }, [routeQuery.data, routeId, capabilities, canWriteDraft]);
+    if (routeId === null || !routeQuery.data || !userId) return;
+    refreshDrafts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeQuery.data, routeId, capabilities, canWriteDraft, userId]);
 
   // Auto-dismiss the transient status notices ("Saved just now" after a save,
   // "Draft restored" after a restore) — no manual dismissal (US4 refinement).
@@ -250,19 +354,214 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(t);
   }, [justSaved, draftRestored]);
 
-  const restoreDraft = (draft: DraftPayload) => {
+  const applyDraft = (draft: DraftPayload) => {
+    if (!userId) return;
     restoredRef.current = `${draft.routeId}/${draft.directionId}`;
+    baseRef.current = draft.base;
+    if (draft.base?.routeMeta) baseMetaRef.current = draft.base.routeMeta;
     usePlottingStore.getState().restoreDraft(draft);
-    clearDraft(draft.routeId, draft.directionId);
-    setDraftOffer(null);
+    clearDraft(userId, draft.routeId, draft.directionId);
+    refreshDrafts();
     setDraftRestored(true);
   };
 
-  const discardDraft = (draft: DraftPayload) => {
-    restoredRef.current = `${draft.routeId}/${draft.directionId}`;
-    clearDraft(draft.routeId, draft.directionId);
-    draftWriterRef.current.cancel();
-    setDraftOffer(null);
+  const restoreDraft = (entry: DraftSummary) => {
+    if (!userId) return;
+    const draft = loadDraft(userId, entry.routeId, entry.directionId);
+    if (!draft) {
+      refreshDrafts();
+      return;
+    }
+    if (entry.routeId !== routeId) {
+      // Another route's Draft: open that route, restore once it has loaded.
+      pendingRestoreRef.current = draft;
+      usePlottingStore.getState().openRoute(entry.routeId);
+      return;
+    }
+    applyDraft(draft);
+  };
+
+  // Restore a Draft that lives on another route, after that route has loaded.
+  useEffect(() => {
+    const pending = pendingRestoreRef.current;
+    if (!pending || !routeQuery.data) return;
+    if (routeQuery.data.route_id !== pending.routeId) return;
+    pendingRestoreRef.current = null;
+    const t = window.setTimeout(() => applyDraft(pending), 0);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeQuery.data]);
+
+  const discardDraft = (entry: DraftSummary) => {
+    if (!userId) return;
+    clearDraft(userId, entry.routeId, entry.directionId);
+    restoredRef.current = `${entry.routeId}/${entry.directionId}`;
+    draftWriterRef.current?.cancel();
+    refreshDrafts();
+  };
+
+  // --- Save Conflict (ADR-0020 §3-5, ticket #55) ---
+  const rememberNames = (
+    direction: DirectionEntity,
+    mine: readonly DraftStop[],
+  ): Record<string, string> => {
+    const names: Record<string, string> = {};
+    for (const stop of [...direction.stops, ...mine]) {
+      for (const who of [stop.created_by, stop.updated_by]) {
+        if (who) names[who.userId] = who.name;
+      }
+    }
+    return names;
+  };
+
+  const applyMerged = (
+    session: {
+      outcome: MergeOutcome;
+      route: RouteDetail;
+      direction: DirectionEntity;
+      base: MergeSnapshot;
+      summary: MergeSummary;
+    },
+    choices: MergeChoices,
+    notice?: string,
+  ) => {
+    lastChoicesRef.current = choices;
+    const store = usePlottingStore.getState();
+    const anchors = resolveMerge(session.outcome, choices);
+    const stops = anchorsToStops(anchors);
+    const routeMeta = fieldsToRouteMeta(
+      resolveMeta(session.outcome, choices),
+      store.routeMeta,
+    );
+    // The polyline is derived, not a merge input: a resolved stop list with new
+    // positions makes the saved path stale, and the workspace re-snaps.
+    const pathStale = mergeInvalidatesPath(session.base, { anchors });
+    const polyline = pathStale ? null : store.polyline;
+    const base: DraftBase = {
+      version: session.direction.version,
+      stops: session.direction.stops.map(entityToDraftStop),
+      routeMeta: routeMetaFromRoute(session.route),
+      polyline: session.direction.base_polyline,
+    };
+    baseRef.current = base;
+    baseMetaRef.current = base.routeMeta;
+
+    // The merged result becomes the Draft — still unsaved, still undoable.
+    usePlottingStore.getState().restoreDraft({
+      schemaVersion: DRAFT_SCHEMA_VERSION,
+      routeId: store.routeId,
+      directionId: store.directionId,
+      stops,
+      polyline,
+      connections: connectionsFromStops(stops, polyline),
+      history: store.history,
+      routeMeta,
+      pathStopIds: pathStale ? null : store.pathStopIds,
+      base,
+    });
+    if (pathStale) usePlottingStore.getState().requestSnapPreview();
+
+    setConflictSession(null);
+    setConflict(false);
+    usePlottingStore.getState().setConflictPreview(null);
+    refreshDrafts();
+    const count =
+      session.summary.total === 0
+        ? "the latest version"
+        : `${session.summary.total} ${session.summary.total === 1 ? "change" : "changes"}`;
+    toast.success(
+      notice ??
+        `Merged ${count} — ${pathStale ? "the path is re-snapping from the merged stops." : "review, then save."}`,
+    );
+  };
+
+  /**
+   * A stale save: refetch the Direction, merge it with the Draft, and either
+   * apply a clean merge silently or open the resolver. Returns false when the
+   * Draft has no base (a pre-M2c Draft), where only the two-way choice exists.
+   */
+  const beginResolution = async (): Promise<boolean> => {
+    if (!routeId) return false;
+    const base = baseRef.current;
+    if (!base) return false;
+
+    let fresh: RouteDetail;
+    try {
+      fresh = await queryClient.fetchQuery({
+        queryKey: routeKeys.detail(routeId),
+        queryFn: () => getRoute(routeId),
+        staleTime: 0,
+      });
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "NOT_FOUND") {
+        // Deletion is a conflict shape, not a terminal error (ADR-0020 risk).
+        const routeExists = (routesQuery.data ?? []).some(
+          (candidate) => candidate.route_id === routeId,
+        );
+        setDeletedSession({
+          routeExists,
+          routeName: routeQuery.data?.name ?? routeId,
+        });
+        return true;
+      }
+      throw error;
+    }
+    const direction = fresh.directions[0];
+    if (!direction) return false;
+    if (!direction.is_active) {
+      // A Direction is deleted softly; the workspace treats that as gone.
+      setDeletedSession({
+        routeExists: (routesQuery.data ?? []).some(
+          (candidate) => candidate.route_id === routeId,
+        ),
+        routeName: fresh.name,
+      });
+      return true;
+    }
+
+    const store = usePlottingStore.getState();
+    const baseSnap = baseSnapshot(base)!;
+    const mine = draftSnapshot(store.stops, store.routeMeta, store.polyline);
+    const theirs = serverSnapshot(fresh, direction, direction.base_polyline);
+    const outcome = mergeSnapshots(
+      baseSnap,
+      mine.snapshot,
+      theirs.snapshot,
+      polylinePair(mine.polyline, theirs.polyline),
+    );
+    const summary = summarizeMerge(baseSnap, mine.snapshot, theirs.snapshot);
+
+    const session = {
+      outcome,
+      route: fresh,
+      direction,
+      names: rememberNames(direction, store.stops),
+      summary,
+      base: baseSnap,
+      changes: listChanges(baseSnap, mine.snapshot, theirs.snapshot, outcome),
+      mine: mine.snapshot,
+      theirs: theirs.snapshot,
+    };
+
+    if (outcome.conflicts.length === 0) {
+      applyMerged(session, {});
+      return true;
+    }
+
+    // The map preview is built from the same three snapshots — no second read.
+    usePlottingStore
+      .getState()
+      .setConflictPreview(
+        buildConflictPreview(
+          outcome,
+          mine.snapshot.anchors,
+          theirs.snapshot.anchors,
+          mine.polyline,
+          theirs.polyline,
+        ),
+      );
+    setConflictSession(session);
+    return true;
   };
 
   const createSave = useSaveDirectionMutation(routeId ?? "");
@@ -333,20 +632,42 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    const payload: SaveDirectionPayload = {
+    // The Direction Version this save is based on (ADR-0020). A replace without
+    // it would be last-write-wins, so a missing version stops the save rather
+    // than guessing.
+    const currentDirection = editingId
+      ? routeQuery.data?.directions.find((d) => d.direction_id === editingId)
+      : undefined;
+    if (editingId && !currentDirection) {
+      toast.error("Reload the route before saving.");
+      return false;
+    }
+
+    const payload: CreateDirectionPayload = {
       // Auto-default base label; the server derives the return label (FR-012).
       label: `To ${saveStops[saveStops.length - 1].name}`,
       base_polyline: polyline,
       stops: saveStops.map((stop) => ({
+        stop_id: stop.id,
         name: stop.name,
         type: stop.type,
         location: { type: "Point", coordinates: stop.location },
+        // Send the full row back: the server compares every field, so omitting
+        // these would look like an edit on every save and move `updated_by`.
+        is_guaranteed_service: stop.is_guaranteed_service,
+        landmark_hint: stop.landmark_hint ?? null,
+        notes: stop.notes ?? null,
       })),
     };
 
     try {
       const result = editingId
-        ? await replaceSave.mutateAsync(payload)
+        ? await replaceSave.mutateAsync({
+            ...payload,
+            // The base is the version this Draft was loaded from, not whatever
+            // the cache happens to hold now (ADR-0020).
+            base_version: baseRef.current?.version ?? currentDirection!.version,
+          })
         : await createSave.mutateAsync(payload);
       toast.success("Route plotted and saved.");
       // Reflect the persisted state in the draft and clear any pending edits
@@ -368,6 +689,20 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         result.base_polyline,
       );
       // The persisted state is the new baseline — the draft matches it exactly.
+      baseRef.current = {
+        version: result.version,
+        stops: result.stops.map((stop) => ({
+          id: stop.stop_id,
+          name: stop.name,
+          type: stop.type,
+          location: stop.location.coordinates,
+          is_guaranteed_service: stop.is_guaranteed_service,
+          landmark_hint: stop.landmark_hint,
+          notes: stop.notes,
+        })),
+        routeMeta: baseMetaRef.current,
+        polyline: result.base_polyline,
+      };
       store.captureSavedBaseline();
       store.setSnap({
         status: "idle",
@@ -380,12 +715,23 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       // A saved route is the new baseline — the undo history no longer applies.
       store.clearHistory();
       // The persisted state is the draft's content too — stop offering/keeping it.
-      clearDraft(store.routeId, store.directionId);
-      draftWriterRef.current.cancel();
-      setDraftOffer(null);
+      if (userId) clearDraft(userId, store.routeId, store.directionId);
+      draftWriterRef.current?.cancel();
+      refreshDrafts();
       setConflict(false);
+      setSaveHalf(null);
       return true;
     } catch (error) {
+      if (error instanceof ApiError && error.code === "VERSION_CONFLICT") {
+        const resolved = await beginResolution();
+        if (!resolved) {
+          setConflict(true);
+          toast.error(
+            "This route moved and your Draft has no base to merge from. Reload to see the latest.",
+          );
+        }
+        return false;
+      }
       if (error instanceof ApiError && error.code === "CONFLICT") {
         setConflict(true);
         toast.error(
@@ -553,6 +899,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           color: meta.color,
           is_active: meta.isActive,
           fare_config_id: meta.fareConfigId,
+          base_version: current.version,
         });
         usePlottingStore.getState().setRouteMeta({
           name: updated.name,
@@ -568,14 +915,20 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       // a transient "Saved just now" confirmation (auto-dismisses).
       usePlottingStore.getState().requestFit();
       setJustSaved(true);
+      setSaveHalf(null);
     } catch (error) {
       // The metadata save can conflict just like the plotting save — surface
       // the same conflict notice in the status slot (never an unhandled
       // rejection that silently skips it).
-      if (error instanceof ApiError && error.code === "CONFLICT") {
+      if (
+        error instanceof ApiError &&
+        (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
+      ) {
+        // The plotting half already saved; only the metadata half was refused.
+        setSaveHalf("direction");
         setConflict(true);
         toast.error(
-          "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again.",
+          "Your direction was saved. The route's details changed elsewhere — your edits are still here.",
         );
       } else {
         toast.error(error instanceof Error ? error.message : "Save failed.");
@@ -602,6 +955,12 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   // change regardless — so memoizing would buy nothing today. If a
   // memoized/deep consumer ever appears, wrap the actions in useCallback and
   // the value in useMemo as a unit.
+  const onLoadLatest = (): void => {
+    setConflictSession(null);
+    usePlottingStore.getState().setConflictPreview(null);
+    setLoadLatestOpen(true);
+  };
+
   const value: RouteWorkspaceValue = {
     uiState,
     hasRoute,
@@ -609,8 +968,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     saving,
     snap,
     showSnapWarning,
-    draftOffer,
+    draftOffers,
     conflict,
+    conflictOwner: routeQuery.data?.directions[0]?.updated_by?.name ?? null,
+    saveHalf,
     justSaved,
     draftRestored,
     openNewRoute: () => setNewRouteOpen(true),
@@ -619,7 +980,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     saveAll,
     restoreDraft,
     discardDraft,
-    onLoadLatest: () => setLoadLatestOpen(true),
+    onLoadLatest,
     onDismissConflict: () => setConflict(false),
   };
 
@@ -643,6 +1004,48 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         onOpenChange={setNavConfirmOpen}
         onStay={cancelLeaveNav}
         onLeaveAnyway={confirmLeaveNav}
+      />
+      <ConflictResolverDialog
+        open={conflictSession !== null}
+        outcome={conflictSession?.outcome ?? null}
+        routeLabel={conflictSession?.route.name ?? ""}
+        changes={conflictSession?.changes ?? []}
+        preview={conflictPreview}
+        mine={conflictSession?.mine ?? null}
+        theirs={conflictSession?.theirs ?? null}
+        initialChoices={
+          conflictSession
+            ? carryChoices(
+                conflictSession.outcome.conflicts,
+                lastChoicesRef.current,
+              )
+            : {}
+        }
+        accountName={(accountId) => {
+          if (!accountId) return "Not recorded";
+          if (accountId === userId) return "You";
+          return conflictSession?.names[accountId] || "Another Administrator";
+        }}
+        onApply={(choices) => {
+          if (conflictSession) applyMerged(conflictSession, choices);
+        }}
+        onCancel={() => {
+          setConflictSession(null);
+          usePlottingStore.getState().setConflictPreview(null);
+        }}
+      />
+      <DeletedDirectionDialog
+        open={deletedSession !== null}
+        routeExists={deletedSession?.routeExists ?? false}
+        routeLabel={deletedSession?.routeName ?? ""}
+        onKeepDraft={() => setDeletedSession(null)}
+        onSaveAsNew={() => {
+          setDeletedSession(null);
+          usePlottingStore.getState().setDirectionId(null);
+          toast.success(
+            "Your Draft is kept — save it to create a new direction.",
+          );
+        }}
       />
       <NewRouteDialog open={newRouteOpen} onOpenChange={setNewRouteOpen} />
     </RouteWorkspaceContext.Provider>

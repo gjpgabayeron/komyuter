@@ -148,6 +148,8 @@ from M2b onward records who created and last updated it.
 
 - ADR-0020 implemented: a version stamp on the route and direction save path, and a 409 when the base
   is stale — making the existing conflict copy true rather than aspirational.
+- ADR-0031 implemented: stop ids survive a save — the payload carries them, the save updates in place
+  and deletes only what is gone — including the derived return's stops.
 - Per-user draft slots, replacing the single-slot `localStorage` draft.
 - A client-side three-way merge (base = the draft's loaded snapshot, mine = the draft, theirs = the
   server's current state) with a resolver UI.
@@ -249,6 +251,26 @@ the release reaches production through the M4 pipeline.
 **Exit criterion.** A plotted route can be run through routing, fare and detour computation from the
 admin UI and the result shown with its distance, fare and transfer count; results are compared against
 the checked-in golden set, and a divergence fails visibly.
+
+## Decided, not yet scheduled
+
+These ADRs are agreed and unimplemented. They sit outside the milestone sequence above, and each names
+its own prerequisite.
+
+- **ADR-0026 — service area.** One stored polygon, enforced at stop and direction save and at
+  navigation.
+- **ADR-0027 — dataset versions and publish.** Whole-dataset snapshots behind a per-environment
+  pointer; supersedes ADR-0020's "no server-side revision history" clause. Its publish gate requires
+  **stable stop ids** (§9).
+- **ADR-0028 — direction waypoints.** Shape waypoints, snap modes and manual segments. It rewrites what
+  a direction save carries, and it too requires stable stop ids (§10).
+- **ADR-0029 — open routing and geocoding.** Provider interfaces replace Mapbox on the critical path.
+- **ADR-0030 — mobile renderer and Geo-AR.** MapLibre on both surfaces; Geo-AR only.
+
+**Why they bear on M2c.** ADR-0020's version stamp is M2c's own deliverable, and M2c also lands
+ADR-0031: stop ids are stable from the first save, for both Directions of the pair. ADR-0027 and
+ADR-0028 required that before they could be implemented; the requirement is met, and neither ADR is
+implemented yet.
 
 ## Deferred and out of scope
 

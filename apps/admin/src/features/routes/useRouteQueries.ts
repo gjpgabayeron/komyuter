@@ -18,7 +18,8 @@ import type {
   RouteDetail,
   RouteSummary,
   SaveDetourPayload,
-  SaveDirectionPayload,
+  CreateDirectionPayload,
+  ReplaceDirectionPayload,
   StopEntity,
   UpdateDetourPayload,
 } from "./routesApi";
@@ -130,8 +131,14 @@ export function useCreateRouteMutation() {
 export function useDeleteRouteMutation() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (routeId: string) => deleteRoute(routeId),
-    onSuccess: (_result, routeId) => {
+    mutationFn: ({
+      routeId,
+      baseVersion,
+    }: {
+      routeId: string;
+      baseVersion: number;
+    }) => deleteRoute(routeId, baseVersion),
+    onSuccess: (_result, { routeId }) => {
       patchRouteDeleted(queryClient, routeId);
       toast.success("Route deleted.");
     },
@@ -162,14 +169,19 @@ export function useUpdateRouteMutation(routeId: string) {
 export function useSaveDirectionMutation(routeId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: SaveDirectionPayload) =>
+    mutationFn: (payload: CreateDirectionPayload) =>
       saveDirection(routeId, payload),
     onSuccess: (result: DirectionSaveResult) => {
       patchRouteFromSave(queryClient, result);
     },
     onError: (error: Error) => {
-      // A save conflict surfaces as an inline banner, not a toast (edge case).
-      if (error instanceof ApiError && error.code === "CONFLICT") return;
+      // A save conflict surfaces as an inline banner, not a toast; a stale base
+      // is a Save Conflict too, and the resolver owns the message (M2c).
+      if (
+        error instanceof ApiError &&
+        (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
+      )
+        return;
       toast.error(error.message);
     },
   });
@@ -180,13 +192,17 @@ export function useSaveDirectionMutation(routeId: string) {
 export function useReplaceDirectionMutation(directionId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: SaveDirectionPayload) =>
+    mutationFn: (payload: ReplaceDirectionPayload) =>
       replaceDirection(directionId, payload),
     onSuccess: (result: DirectionSaveResult) => {
       patchRouteFromSave(queryClient, result);
     },
     onError: (error: Error) => {
-      if (error instanceof ApiError && error.code === "CONFLICT") return;
+      if (
+        error instanceof ApiError &&
+        (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
+      )
+        return;
       toast.error(error.message);
     },
   });

@@ -17,6 +17,8 @@ export interface RouteSummary {
   color: string | null;
   is_active: boolean;
   fare_config_id: string | null;
+  /** Route Version (ADR-0020): the base a metadata save sends back. */
+  version: number;
   created_at: string;
   updated_at: string;
   created_by: Attribution;
@@ -49,6 +51,8 @@ export interface DirectionEntity {
   origin_stop_id: string | null;
   destination_stop_id: string | null;
   is_active: boolean;
+  /** Direction Version (ADR-0020): the base a plotted save sends back. */
+  version: number;
   created_at: string;
   updated_at: string;
   created_by: Attribution;
@@ -67,6 +71,7 @@ export interface RouteDetail {
   color: string | null;
   is_active: boolean;
   fare_config_id: string | null;
+  version: number;
   created_at: string;
   updated_at: string;
   created_by: Attribution;
@@ -83,6 +88,9 @@ export interface CreateRoutePayload {
 }
 
 export interface SaveStopPayload {
+  /** The id this stop already has on the server (ADR-0031). A stop the
+   *  plotter just placed sends no id; the save names it. */
+  stop_id?: string;
   name: string;
   type: StopType;
   location: GeoPoint;
@@ -91,11 +99,16 @@ export interface SaveStopPayload {
   notes?: string | null;
 }
 
-export interface SaveDirectionPayload {
+export interface CreateDirectionPayload {
   label: string;
   base_polyline: GeoLineString;
   stops: SaveStopPayload[];
 }
+
+/** A replace carries the Direction Version it was based on (ADR-0020). */
+export type ReplaceDirectionPayload = CreateDirectionPayload & {
+  base_version: number;
+};
 
 /** Flat base-direction payload returned by the atomic save + its derived return. */
 export interface DirectionSaveResult {
@@ -106,6 +119,7 @@ export interface DirectionSaveResult {
   origin_stop_id: string | null;
   destination_stop_id: string | null;
   is_active: boolean;
+  version: number;
   created_at: string;
   updated_at: string;
   created_by: Attribution;
@@ -138,9 +152,10 @@ export async function createRoute(
 /** Hard-deletes a route (and its plotted directions + stops via cascade). */
 export async function deleteRoute(
   routeId: string,
+  baseVersion: number,
 ): Promise<{ route_id: string }> {
   const { data } = await api.delete<{ route_id: string }>(
-    `/api/admin/routes/${routeId}`,
+    `/api/admin/routes/${routeId}?base_version=${baseVersion}`,
   );
   return data;
 }
@@ -153,7 +168,7 @@ export async function updateRoute(
       CreateRoutePayload,
       "name" | "short_name" | "color" | "fare_config_id"
     > & { is_active?: boolean }
-  >,
+  > & { base_version: number },
 ): Promise<RouteSummary> {
   const { data } = await api.put<RouteSummary>(
     `/api/admin/routes/${routeId}`,
@@ -188,7 +203,7 @@ export async function getDirectionStops(
 /** Atomic create: base direction + stops + derived return in one transaction. */
 export async function saveDirection(
   routeId: string,
-  payload: SaveDirectionPayload,
+  payload: CreateDirectionPayload,
 ): Promise<DirectionSaveResult> {
   const { data } = await api.post<DirectionSaveResult>(
     `/api/admin/routes/${routeId}/directions`,
@@ -200,7 +215,7 @@ export async function saveDirection(
 /** Atomic replace: replaces the direction + re-derives its return. */
 export async function replaceDirection(
   directionId: string,
-  payload: SaveDirectionPayload,
+  payload: ReplaceDirectionPayload,
 ): Promise<DirectionSaveResult> {
   const { data } = await api.put<DirectionSaveResult>(
     `/api/admin/directions/${directionId}`,

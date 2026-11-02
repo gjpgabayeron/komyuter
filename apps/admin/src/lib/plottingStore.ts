@@ -8,6 +8,7 @@ import type {
   StopType,
 } from "@komyuter/shared";
 import type { Selection } from "./selection";
+import type { ConflictPreview } from "./conflictPreview";
 import { clearSelection } from "./selection";
 import {
   connectionsFromStops,
@@ -408,6 +409,10 @@ export interface PlottingState {
    *  effect upgrades a pristine cache seed once the detail lands; null =
    *  nothing loaded yet (or a fresh new route). */
   seedSource: "cache" | "detail" | null;
+  /** The map preview of an open Save Conflict (ADR-0020 amendment). Visual
+   *  only: never part of the Draft, the save payload or the merge. */
+  conflictPreview: ConflictPreview | null;
+  setConflictPreview: (preview: ConflictPreview | null) => void;
 
   setRouteId: (routeId: string | null) => void;
   setDirectionId: (directionId: string | null) => void;
@@ -731,9 +736,11 @@ export const usePlottingStore = create<PlottingState>((set, get) => {
     savedBaseline: null,
     pathStopIds: null,
     seedSource: null,
+    conflictPreview: null,
 
     setRouteId: (routeId) => set({ routeId }),
     setDirectionId: (directionId) => set({ directionId }),
+    setConflictPreview: (conflictPreview) => set({ conflictPreview }),
     setTool: (tool) => set({ tool }),
     setPoi: (poi, label) =>
       // Clearing the marker also drops the candidate dots: the search that

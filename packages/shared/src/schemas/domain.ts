@@ -40,6 +40,10 @@ export const createRouteSchema = z.object({
 
 export const updateRouteSchema = createRouteSchema.partial().extend({
   is_active: z.boolean().optional(),
+  /** The Route Version the save is based on (ADR-0020). Optional in the
+   *  schema so body validation cannot outrank the Permission check; the
+   *  handler refuses a save without it. */
+  base_version: z.number().int().min(1).optional(),
 });
 
 /** A detour stop input — same shape as a base stop input, scoped to its
@@ -61,6 +65,13 @@ export const createStopSchema = z.object({
   is_guaranteed_service: z.boolean().optional(),
   landmark_hint: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
+});
+
+/** A plotted-save stop: the same shape plus the id the row already has. The
+ *  save upserts by it (ADR-0031); an unknown id is treated as a new stop, so a
+ *  Draft from before stable ids still saves once. */
+export const plotStopSchema = createStopSchema.extend({
+  stop_id: z.string().min(1).optional(),
 });
 
 /** Lean stop shape for the overview — enough to render markers + labels. */
@@ -96,11 +107,14 @@ export const createDirectionSchema = z.object({
   base_polyline: geoLineStringSchema,
   origin_stop_id: z.string().min(1).nullable().optional(),
   destination_stop_id: z.string().min(1).nullable().optional(),
-  stops: z.array(createStopSchema).optional(),
+  stops: z.array(plotStopSchema).optional(),
 });
 
 export const updateDirectionSchema = createDirectionSchema.partial().extend({
   is_active: z.boolean().optional(),
+  /** The Direction Version the save is based on (ADR-0020). Optional in the
+   *  schema; the handler refuses a save without it. */
+  base_version: z.number().int().min(1).optional(),
 });
 
 export const updateStopSchema = createStopSchema.partial().extend({

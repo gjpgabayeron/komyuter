@@ -283,6 +283,7 @@ describe("Route plotting atomic save (FR-012/FR-027/FR-028, ADR-0008)", () => {
       headers: auth(),
       payload: {
         label: "To Market",
+        base_version: 1,
         base_polyline: { type: "LineString", coordinates: [B, C] },
         stops: [
           { name: "Port", type: "terminal", location: point(B), stop_order: 1 },

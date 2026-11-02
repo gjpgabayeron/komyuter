@@ -69,12 +69,16 @@ A directed service of a route — the "To City Proper" or "To Calaparan" journey
 _Avoid_: Forward, reverse, inbound, outbound (as model entities)
 
 **Draft**:
-The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage with a 24-hour time-to-live, never sent to the server, and offered for restore when the Account returns.
+The client-only, unsaved working state of a plotted path on the Route Plotting Page — placed stops, the applied polyline, and undo/redo history. Held in localStorage per Account with a 24-hour time-to-live, never sent to the server, and offered for restore when that Account returns. A Draft remembers the Direction Version it was loaded from; that is the base a Save Conflict is resolved against.
 _Avoid_: Working copy, pending route
 
 **Save Conflict**:
-The state in which a plotter's Draft is based on a version of a Direction that the server has since replaced, so the save is refused rather than applied. It is resolved over the stop list and the descriptive fields; the polyline is never merged — one side is chosen, and the workspace re-snaps on request.
+The state in which a plotter's Draft is based on a version of a Direction that the server has since replaced, so the save is refused rather than applied. "The version" here is the Direction Version. It is resolved over the ordered anchors — Stops today, Waypoints under ADR-0028 — and the descriptive fields; the polyline is never merged — one side is chosen, and the workspace re-snaps on request.
 _Avoid_: Merge conflict, stale write, overwrite
+
+**Conflicting Stop**:
+A Stop whose fields or position differ between a plotter's Draft and the Direction's current state, so the Save Conflict cannot be resolved without a decision. Both positions are previewed on the map, and the plotter chooses per field.
+_Avoid_: Duplicate stop, clashing marker, overwritten stop
 
 **Virtual Node**:
 A temporary graph node inserted per navigation request for a non-stop boarding or alighting position on a direction's polyline. Connected to the two nearest stops via board edges. Never persisted.
@@ -123,6 +127,99 @@ _Avoid_: Provenance (that is deployment metadata), audit trail, author
 **Last-Owner Lockout Guard**:
 The schema-level invariant that the Super Admin cannot be deactivated, demoted, deleted or role-changed, so no sequence of Account edits can leave the dataset without an owner. It is structural, not a count of remaining administrators.
 _Avoid_: Last-admin check, orphan guard
+
+### Data lifecycle
+
+**Service Area**:
+The curated geographic extent Komyuter supports — the Iloilo City Proper, Oton, Pavia and Leganes region
+of ADR-0010 — stored as one polygon and published with the dataset. It is the product's "supported" claim.
+_Avoid_: Coverage, bbox, service region, service boundary
+
+**Network Coverage**:
+The part of the Service Area that published routes actually reach, derived from the published polylines
+on each publish. It answers "supported, but no jeepney reaches here" and is never edited by hand.
+_Avoid_: Service area, coverage map (when meaning the supported extent)
+
+**Working Set**:
+The mutable dataset the admin edits. Never read by commuters.
+_Avoid_: Live data, current data, master data
+
+**Proposal**:
+An immutable snapshot offered for review before it can be published. It is not a Draft: a Draft is
+client-local and unpublished by definition.
+_Avoid_: Draft, change request, commit
+
+**Dataset Version**:
+An immutable, validated snapshot of the whole dataset — routes, directions, stops, waypoints, detours,
+restrictions, fares and the Service Area — with its parent, author and checksum. Addressable by id.
+_Avoid_: Data release, snapshot (when naming the concept), commit
+
+**Published Dataset**:
+The Dataset Version a given environment currently serves, reached through a single per-environment
+pointer. Readers see this and nothing else.
+_Avoid_: Live dataset, production data, current version
+
+**Release**:
+A versioned artifact of the codebase, promoted between environments by ADR-0021's branch flow. It is a
+different axis from a Dataset Version, and neither triggers the other.
+_Avoid_: Version (unqualified), deploy
+
+**Direction Version**:
+The stamp a Direction carries for optimistic concurrency: the save path refuses a write whose base is
+stale. It answers "is my edit based on what I read?", never "what is published?".
+_Avoid_: Dataset Version, revision
+
+**Route Version**:
+The stamp a Route carries for optimistic concurrency, covering its descriptive fields: name, short
+name, colour, active state and fare configuration. It is separate from a Direction Version because the
+Route and its Directions are saved by different writes, and either stale base is refused on its own.
+_Avoid_: Dataset Version, revision
+
+**Waypoint**:
+One ordered anchor of a Direction: either a Stop Waypoint or a Via Point. The sequence is the direction
+of travel, and snapping runs between consecutive Waypoints.
+_Avoid_: Anchor, control point, node
+
+**Stop Waypoint**:
+A Waypoint that references a Stop. The Direction's ordered stop list is the projection of its Stop
+Waypoints.
+_Avoid_: Stop (when meaning its role in the geometry sequence)
+
+**Via Point**:
+A Waypoint that shapes the polyline without being a Stop. It never enters the stop list, the transit
+graph, the commuter's stops or the AR marker set.
+_Avoid_: Shaping stop, fake stop, waypoint stop
+
+**Auto Snap**:
+A segment snapped between its two Waypoints by the routing engine. Road-verified.
+_Avoid_: Automatic, default snap
+
+**Pinned Snap**:
+A segment snapped **through** an exact Via Point, used when the road is right but the engine would
+otherwise choose a parallel one. Road-verified.
+_Avoid_: Forced snap, locked point
+
+**Manual Segment**:
+A hand-drawn segment permitted only for terminal/depot access or a road absent from the routing data. It
+carries a reason, is visible in review, and is exported as manual — never presented as road-verified.
+_Avoid_: Eye-traced line, freehand route, unsnapped path
+
+**Road Snap**:
+The server operation that turns Waypoints into road-following geometry. The result is the authority; the
+client previews it and the mobile app renders it without re-snapping.
+_Avoid_: Route trace, path fit, GPS snap
+
+### Mobile and AR
+
+**Geo-AR**:
+Location-based augmented reality: a camera feed with markers projected from GPS position, compass
+heading and device tilt. It uses no surface detection and no ARCore/ARKit.
+_Avoid_: AR navigation, marker overlay, ARCore
+
+**AR-Eligible Step**:
+A navigation Step on which Geo-AR may be offered — only `walk` and `transfer`. Eligibility is decided by
+the server, never inferred by the client.
+_Avoid_: Walking mode, AR segment
 
 ### Admin workspace
 
