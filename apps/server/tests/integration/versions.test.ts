@@ -1,7 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type { GeoLineString, GeoPoint } from "@komyuter/shared";
-import { buildTestApp, signInAdmin, uniqueRouteId } from "./helpers";
+import {
+  buildTestApp,
+  createTestAdmin,
+  signInAdmin,
+  signInAs,
+  uniqueRouteId,
+} from "./helpers";
 
 const A: [number, number] = [122.5, 10.6];
 const B: [number, number] = [122.52, 10.62];
@@ -20,18 +26,21 @@ function point(coordinates: [number, number]): GeoPoint {
 describe("Route and Direction versions (ADR-0020)", () => {
   let app: FastifyInstance;
   let token = "";
+  let plotterToken = "";
 
   beforeAll(async () => {
     app = buildTestApp();
     await app.ready();
     token = await signInAdmin();
+    const plotter = await createTestAdmin("versions-plotter", "plotter");
+    plotterToken = await signInAs(plotter.email, plotter.password);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  const auth = () => ({ authorization: `Bearer ${token}` });
+  const auth = (as = token) => ({ authorization: `Bearer ${as}` });
 
   async function createRoute(): Promise<{ routeId: string; version: number }> {
     const routeId = uniqueRouteId("ver");
@@ -128,11 +137,15 @@ describe("Route and Direction versions (ADR-0020)", () => {
       },
     });
     expect(first.statusCode).toBe(200);
+    const savedStopIds = first
+      .json()
+      .data.stops.map((stop: { stop_id: string }) => stop.stop_id);
 
+    // A second Account still holding the pre-save base.
     const stale = await app.inject({
       method: "PUT",
       url: `/api/admin/directions/${direction.direction_id}`,
-      headers: auth(),
+      headers: auth(plotterToken),
       payload: {
         ...plotPayload("Stale Save"),
         base_version: direction.version,
@@ -149,6 +162,11 @@ describe("Route and Direction versions (ADR-0020)", () => {
     const current = await getDirection(direction.direction_id);
     expect(current.json().data.label).toBe("First Save");
     expect(current.json().data.version).toBe(direction.version + 1);
+    expect(
+      current
+        .json()
+        .data.stops.map((stop: { stop_id: string }) => stop.stop_id),
+    ).toEqual(savedStopIds);
   });
 
   it("refuses a stale Route metadata save", async () => {

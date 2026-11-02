@@ -225,6 +225,17 @@ describe("three-way merge (ADR-0020)", () => {
     expect(carried).toEqual({ "field:a:name": "theirs" });
   });
 
+  it("keeps a stop the other side added when resolving an order conflict", () => {
+    const outcome = merge(
+      [anchor("a"), anchor("b")],
+      [anchor("b"), anchor("a")],
+      [anchor("a"), anchor("b"), anchor("c")],
+    );
+
+    const resolved = resolveMerge(outcome, { order: "mine" });
+    expect(resolved.map((entry) => entry.id)).toContain("c");
+  });
+
   it("keeps every id that is not in conflict", () => {
     const outcome = merge(
       [anchor("a"), anchor("b"), anchor("c")],

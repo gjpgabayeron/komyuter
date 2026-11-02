@@ -1,4 +1,4 @@
-import { validationError } from "./errors";
+import { notFound, validationError, versionConflict } from "./errors";
 
 /**
  * The version a delete is based on (ADR-0020). Deletes carry it in the query
@@ -12,4 +12,27 @@ export function requireBaseVersion(query: unknown): number {
     throw validationError("base_version is required");
   }
   return parsed;
+}
+
+/**
+ * The refusal every versioned write shares (ADR-0020: "the check belongs in the
+ * shared save helper rather than being repeated per route").
+ *
+ * The caller runs one compare-and-swap and hands over the rows it returned:
+ * exactly one means the base matched. Zero means the row is gone or the base is
+ * stale, and the current version decides which — a read is only paid on the
+ * failure path.
+ */
+export async function versionedWrite<T>(
+  rows: readonly T[],
+  readCurrent: () => Promise<number | null>,
+  missingMessage?: string,
+): Promise<T> {
+  if (rows.length > 0) return rows[0];
+
+  const current = await readCurrent();
+  if (current === null) {
+    throw notFound(missingMessage ?? "Not found");
+  }
+  throw versionConflict(current);
 }

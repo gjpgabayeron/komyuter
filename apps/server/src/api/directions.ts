@@ -11,8 +11,8 @@ import {
   asLineStringFromGeoJSON,
   asPointFromGeoJSON,
 } from "../db/queries";
-import { conflict, notFound, validationError, versionConflict } from "./errors";
-import { requireBaseVersion } from "./version";
+import { conflict, notFound, validationError } from "./errors";
+import { requireBaseVersion, versionedWrite } from "./version";
 import { uuidId } from "../domain/ids";
 import type { Db } from "../config/db";
 import type { DirectionEntity } from "../domain/entities";
@@ -272,31 +272,33 @@ async function persistPlottedPair(
       }
       // The compare-and-swap is the FIRST write of the transaction, so a stale
       // save aborts before any stop is deleted or the sibling is re-derived.
-      const [cas] = await tx
-        .update(directionsTable)
-        .set({
-          label: input.base.label,
-          base_polyline: baseGeometry,
-          direction_kind: "base",
-          version: sql`${directionsTable.version} + 1`,
-          ...updateAttribution(input.actorId),
-        })
-        .where(
-          and(
-            eq(directionsTable.direction_id, baseId),
-            eq(directionsTable.version, input.baseVersion),
-          ),
-        )
-        .returning({ version: directionsTable.version });
-
-      if (!cas) {
-        const [current] = await tx
-          .select({ version: directionsTable.version })
-          .from(directionsTable)
-          .where(eq(directionsTable.direction_id, baseId))
-          .limit(1);
-        throw versionConflict(current?.version ?? 0);
-      }
+      await versionedWrite(
+        await tx
+          .update(directionsTable)
+          .set({
+            label: input.base.label,
+            base_polyline: baseGeometry,
+            direction_kind: "base",
+            version: sql`${directionsTable.version} + 1`,
+            ...updateAttribution(input.actorId),
+          })
+          .where(
+            and(
+              eq(directionsTable.direction_id, baseId),
+              eq(directionsTable.version, input.baseVersion),
+            ),
+          )
+          .returning({ version: directionsTable.version }),
+        async () => {
+          const [current] = await tx
+            .select({ version: directionsTable.version })
+            .from(directionsTable)
+            .where(eq(directionsTable.direction_id, baseId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Direction ${baseId} not found`,
+      );
     } else {
       await tx
         .insert(directionsTable)
@@ -644,30 +646,32 @@ export async function registerDirections(
         patch.destination_stop_id = body.destination_stop_id;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
-      const [updatedRow] = await db
-        .update(directionsTable)
-        .set({
-          ...patch,
-          version: sql`${directionsTable.version} + 1`,
-          // Only the last writer moves: the creator is written once (ADR-0025).
-          ...updateAttribution(actor),
-        })
-        .where(
-          and(
-            eq(directionsTable.direction_id, directionId),
-            eq(directionsTable.version, body.base_version),
-          ),
-        )
-        .returning({ version: directionsTable.version });
-
-      if (!updatedRow) {
-        const [current] = await db
-          .select({ version: directionsTable.version })
-          .from(directionsTable)
-          .where(eq(directionsTable.direction_id, directionId))
-          .limit(1);
-        throw versionConflict(current?.version ?? 0);
-      }
+      await versionedWrite(
+        await db
+          .update(directionsTable)
+          .set({
+            ...patch,
+            version: sql`${directionsTable.version} + 1`,
+            // Only the last writer moves: the creator is written once (ADR-0025).
+            ...updateAttribution(actor),
+          })
+          .where(
+            and(
+              eq(directionsTable.direction_id, directionId),
+              eq(directionsTable.version, body.base_version),
+            ),
+          )
+          .returning({ version: directionsTable.version }),
+        async () => {
+          const [current] = await db
+            .select({ version: directionsTable.version })
+            .from(directionsTable)
+            .where(eq(directionsTable.direction_id, directionId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Direction ${directionId} not found`,
+      );
 
       const updated = await loadDirectionFull(
         db,
@@ -685,32 +689,31 @@ export async function registerDirections(
       const { directionId } = request.params as { directionId: string };
       const baseVersion = requireBaseVersion(request.query);
 
-      const [updated] = await db
-        .update(directionsTable)
-        .set({
-          is_active: false,
-          version: sql`${directionsTable.version} + 1`,
-          ...updateAttribution(actorId(request)),
-        })
-        .where(
-          and(
-            eq(directionsTable.direction_id, directionId),
-            eq(directionsTable.version, baseVersion),
-          ),
-        )
-        .returning();
-
-      if (!updated) {
-        const [current] = await db
-          .select({ version: directionsTable.version })
-          .from(directionsTable)
-          .where(eq(directionsTable.direction_id, directionId))
-          .limit(1);
-        if (!current) {
-          throw notFound(`Direction ${directionId} not found`);
-        }
-        throw versionConflict(current.version);
-      }
+      const updated = await versionedWrite(
+        await db
+          .update(directionsTable)
+          .set({
+            is_active: false,
+            version: sql`${directionsTable.version} + 1`,
+            ...updateAttribution(actorId(request)),
+          })
+          .where(
+            and(
+              eq(directionsTable.direction_id, directionId),
+              eq(directionsTable.version, baseVersion),
+            ),
+          )
+          .returning(),
+        async () => {
+          const [current] = await db
+            .select({ version: directionsTable.version })
+            .from(directionsTable)
+            .where(eq(directionsTable.direction_id, directionId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Direction ${directionId} not found`,
+      );
 
       return {
         success: true,

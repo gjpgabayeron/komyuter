@@ -39,7 +39,7 @@ export function DeletedDirectionDialog({
       >
         <DialogHeader className="border-border bg-warning text-warning-foreground border-b px-5 py-3">
           <DialogTitle className="text-sm font-black tracking-[0.08em] uppercase">
-            Direction deleted
+            Gone from the dataset
           </DialogTitle>
           <DialogDescription className="text-sm opacity-80">
             {routeLabel}

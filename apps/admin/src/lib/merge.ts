@@ -324,6 +324,26 @@ export function mergeSnapshots(
   };
 }
 
+/** The chosen sequence, plus the other side's extras at their relative place —
+ *  an order decision must not discard a stop the other side added. */
+function orderWithExtras(chosen: string[], other: string[]): string[] {
+  const order = [...chosen];
+  for (let index = 0; index < other.length; index++) {
+    const id = other[index];
+    if (order.includes(id)) continue;
+    let at = 0;
+    for (let back = index - 1; back >= 0; back--) {
+      const found = order.indexOf(other[back]);
+      if (found >= 0) {
+        at = found + 1;
+        break;
+      }
+    }
+    order.splice(at, 0, id);
+  }
+  return order;
+}
+
 /**
  * Applies the plotter's choices. Every conflict must be answered; an unanswered
  * conflict keeps the mine-preferred merge (never an invented answer).
@@ -371,7 +391,10 @@ export function resolveMerge(
       continue;
     }
 
-    order = choice === "theirs" ? conflict.order.theirs : conflict.order.mine;
+    order =
+      choice === "theirs"
+        ? orderWithExtras(conflict.order.theirs, conflict.order.mine)
+        : orderWithExtras(conflict.order.mine, conflict.order.theirs);
   }
 
   const ids = order ?? outcome.anchors.map((a) => a.id);

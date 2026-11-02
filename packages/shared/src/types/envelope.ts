@@ -28,6 +28,8 @@ export const ERROR_CODE = Object.fromEntries(
 export interface ErrorBody {
   code: ErrorCode;
   message: string;
+  /** Present on `VERSION_CONFLICT`: the version the row now holds (ADR-0020). */
+  current_version?: number;
 }
 
 export type Envelope<T> =

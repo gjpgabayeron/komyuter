@@ -108,7 +108,7 @@ export function StatusBar({
             <span className="text-muted-foreground">
               {saveHalf === "direction"
                 ? "Your direction was saved. The route's details changed elsewhere — your edits are still here."
-                : `${conflictOwner ?? "Another Administrator"} edited this route. Your work is still here — open the resolver to keep both, or load the latest.`}
+                : `${conflictOwner ?? "Another Administrator"} edited this route. Your work is still here — adjust and save again, or load the latest.`}
             </span>
           </span>
           <Button

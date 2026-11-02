@@ -267,10 +267,10 @@ its own prerequisite.
 - **ADR-0029 — open routing and geocoding.** Provider interfaces replace Mapbox on the critical path.
 - **ADR-0030 — mobile renderer and Geo-AR.** MapLibre on both surfaces; Geo-AR only.
 
-**Why they bear on M2c.** ADR-0020's version stamp is M2c's own deliverable. ADR-0027 and ADR-0028
-independently require stable stop ids, which today's save path does not provide — it regenerates every
-stop id on every save. Whichever milestone lands stable ids must land them before either of those ADRs
-is implemented.
+**Why they bear on M2c.** ADR-0020's version stamp is M2c's own deliverable, and M2c also lands
+ADR-0031: stop ids are stable from the first save, for both Directions of the pair. ADR-0027 and
+ADR-0028 required that before they could be implemented; the requirement is met, and neither ADR is
+implemented yet.
 
 ## Deferred and out of scope
 

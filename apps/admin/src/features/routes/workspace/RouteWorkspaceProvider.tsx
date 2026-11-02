@@ -479,6 +479,16 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     }
     const direction = fresh.directions[0];
     if (!direction) return false;
+    if (!direction.is_active) {
+      // A Direction is deleted softly; the workspace treats that as gone.
+      setDeletedSession({
+        routeExists: (routesQuery.data ?? []).some(
+          (candidate) => candidate.route_id === routeId,
+        ),
+        routeName: fresh.name,
+      });
+      return true;
+    }
 
     const store = usePlottingStore.getState();
     const mine = draftSnapshot(store.stops, store.routeMeta, store.polyline);
@@ -593,6 +603,11 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         name: stop.name,
         type: stop.type,
         location: { type: "Point", coordinates: stop.location },
+        // Send the full row back: the server compares every field, so omitting
+        // these would look like an edit on every save and move `updated_by`.
+        is_guaranteed_service: stop.is_guaranteed_service,
+        landmark_hint: stop.landmark_hint ?? null,
+        notes: stop.notes ?? null,
       })),
     };
 
@@ -600,7 +615,9 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       const result = editingId
         ? await replaceSave.mutateAsync({
             ...payload,
-            base_version: currentDirection!.version,
+            // The base is the version this Draft was loaded from, not whatever
+            // the cache happens to hold now (ADR-0020).
+            base_version: baseRef.current?.version ?? currentDirection!.version,
           })
         : await createSave.mutateAsync(payload);
       toast.success("Route plotted and saved.");
@@ -623,6 +640,20 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         result.base_polyline,
       );
       // The persisted state is the new baseline — the draft matches it exactly.
+      baseRef.current = {
+        version: result.version,
+        stops: result.stops.map((stop) => ({
+          id: stop.stop_id,
+          name: stop.name,
+          type: stop.type,
+          location: stop.location.coordinates,
+          is_guaranteed_service: stop.is_guaranteed_service,
+          landmark_hint: stop.landmark_hint,
+          notes: stop.notes,
+        })),
+        routeMeta: baseMetaRef.current,
+        polyline: result.base_polyline,
+      };
       store.captureSavedBaseline();
       store.setSnap({
         status: "idle",

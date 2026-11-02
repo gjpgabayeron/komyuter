@@ -207,7 +207,7 @@ The workspace is a **four-state machine** derived from (selection, draft):
 
 Pure logic lives in `lib/` and is unit-tested: `capabilities` (including `fareAccess`), `coords`, `connections`, `draft`, `merge` (three-way merge + resolution), `plottingStore`, `plottingHistory`, `overlap`, `overviewCache`, `overviewFade`, `routeColors`, `sections`, `stopShapes`, `tiles`, `workspaceGeometry`, `workspaceUiState`, `poiSearch`, `session`, `sessionExpired`, `requireAuth`, `restore`, `features/routes/conflict/mergeInputs` (workspace ↔ merge mapping), fare `format`/`validation`.
 
-**Tests:** 44 Vitest suites / 564 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
+**Tests:** 44 Vitest suites / 565 tests in `apps/admin/src/tests` (node env; `pnpm --filter admin test` reports both counts). Quality gates: `pnpm lint`, `pnpm typecheck`, `pnpm format:check`, `pnpm --filter admin test`, plus the server gates (`pnpm --filter server typecheck`, `pnpm --filter server test` — the integration suite needs the local Supabase stack + `apps/server/.env`).
 
 ## 6. Roadmap — planned & upcoming
 

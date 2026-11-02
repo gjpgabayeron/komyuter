@@ -5,8 +5,8 @@ import {
   routes as routesTable,
   directions as directionsTable,
 } from "../db/schema";
-import { conflict, notFound, validationError, versionConflict } from "./errors";
-import { requireBaseVersion } from "./version";
+import { conflict, notFound, validationError } from "./errors";
+import { requireBaseVersion, versionedWrite } from "./version";
 import { uniqueSlug } from "../domain/ids";
 import { loadDirectionFull } from "../domain/entities";
 import { actorId } from "./auth";
@@ -284,32 +284,34 @@ export async function registerRoutes(
         patch.fare_config_id = body.fare_config_id;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
-      const [updated] = await db
-        .update(routesTable)
-        .set({
-          ...patch,
-          // The stamp moves with the write, in the same statement as the
-          // precondition (ADR-0020): "this exact predecessor, or nothing".
-          version: sql`${routesTable.version} + 1`,
-          // Only the last writer moves: the creator is written once (ADR-0025).
-          ...updateAttribution(actor),
-        })
-        .where(
-          and(
-            eq(routesTable.route_id, routeId),
-            eq(routesTable.version, body.base_version),
-          ),
-        )
-        .returning();
-
-      if (!updated) {
-        const [current] = await db
-          .select({ version: routesTable.version })
-          .from(routesTable)
-          .where(eq(routesTable.route_id, routeId))
-          .limit(1);
-        throw versionConflict(current?.version ?? existing.version);
-      }
+      const updated = await versionedWrite(
+        await db
+          .update(routesTable)
+          .set({
+            ...patch,
+            // The stamp moves with the write, in the same statement as the
+            // precondition (ADR-0020): "this exact predecessor, or nothing".
+            version: sql`${routesTable.version} + 1`,
+            // Only the last writer moves: the creator is written once (ADR-0025).
+            ...updateAttribution(actor),
+          })
+          .where(
+            and(
+              eq(routesTable.route_id, routeId),
+              eq(routesTable.version, body.base_version),
+            ),
+          )
+          .returning(),
+        async () => {
+          const [current] = await db
+            .select({ version: routesTable.version })
+            .from(routesTable)
+            .where(eq(routesTable.route_id, routeId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Route ${routeId} not found`,
+      );
 
       const attribution = await loadAttributionResolver(supabase);
 
@@ -343,26 +345,26 @@ export async function registerRoutes(
       // cascade (schema.ts), so one row removal clears the route's plotted
       // directions and stops from the database. The version predicate makes
       // the delete a claim about the state the caller read (ADR-0020).
-      const [deleted] = await db
-        .delete(routesTable)
-        .where(
-          and(
-            eq(routesTable.route_id, routeId),
-            eq(routesTable.version, baseVersion),
-          ),
-        )
-        .returning({ route_id: routesTable.route_id });
-      if (!deleted) {
-        const [current] = await db
-          .select({ version: routesTable.version })
-          .from(routesTable)
-          .where(eq(routesTable.route_id, routeId))
-          .limit(1);
-        if (!current) {
-          throw notFound(`Route ${routeId} not found`);
-        }
-        throw versionConflict(current.version);
-      }
+      const deleted = await versionedWrite(
+        await db
+          .delete(routesTable)
+          .where(
+            and(
+              eq(routesTable.route_id, routeId),
+              eq(routesTable.version, baseVersion),
+            ),
+          )
+          .returning({ route_id: routesTable.route_id }),
+        async () => {
+          const [current] = await db
+            .select({ version: routesTable.version })
+            .from(routesTable)
+            .where(eq(routesTable.route_id, routeId))
+            .limit(1);
+          return current?.version ?? null;
+        },
+        `Route ${routeId} not found`,
+      );
 
       return {
         success: true,

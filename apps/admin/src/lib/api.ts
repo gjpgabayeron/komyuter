@@ -13,12 +13,20 @@ export class ApiError extends Error {
   readonly code: string;
   /** HTTP status when the failure came from an actual response. */
   readonly status?: number;
+  /** On VERSION_CONFLICT: the version the server now holds (ADR-0020). */
+  readonly currentVersion?: number;
 
-  constructor(code: string, message: string, status?: number) {
+  constructor(
+    code: string,
+    message: string,
+    status?: number,
+    currentVersion?: number,
+  ) {
     super(message);
     this.name = "ApiError";
     this.code = code;
     this.status = status;
+    this.currentVersion = currentVersion;
   }
 }
 
@@ -103,6 +111,7 @@ api.interceptors.response.use(
           body.error?.code ?? "INTERNAL",
           body.error?.message ?? "Request failed.",
           status,
+          body.error?.current_version,
         ),
       );
     }
