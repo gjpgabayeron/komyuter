@@ -32,10 +32,34 @@ import { useAuth } from "@/features/auth/auth";
 import { useCapabilities } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
 import type { DraftBase, DraftPayload, DraftSummary } from "@/lib/draft";
+import type { DraftStop } from "@/lib/plottingStore";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
-import { pathFromConnections } from "@/lib/connections";
-import type { CreateDirectionPayload } from "@/features/routes/routesApi";
+import { connectionsFromStops, pathFromConnections } from "@/lib/connections";
+import type {
+  CreateDirectionPayload,
+  DirectionEntity,
+  RouteDetail,
+} from "@/features/routes/routesApi";
 import { getRoute, snapPreview } from "@/features/routes/routesApi";
+import {
+  mergeSnapshots,
+  resolveMerge,
+  resolveMeta,
+  takePolyline,
+  type MergeChoices,
+  type MergeOutcome,
+} from "@/lib/merge";
+import {
+  anchorsToStops,
+  baseSnapshot,
+  draftSnapshot,
+  entityToDraftStop,
+  fieldsToRouteMeta,
+  polylinePair,
+  routeMetaFromRoute,
+  serverSnapshot,
+} from "@/features/routes/conflict/mergeInputs";
+import { ConflictResolverDialog } from "@/features/routes/conflict/ConflictResolverDialog";
 import { queryClient } from "@/lib/queryClient";
 import { routeKeys } from "@/lib/queryKeys";
 import { ROUTE_COLORS } from "@/features/routes/routeColors";
@@ -135,6 +159,12 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [conflict, setConflict] = useState(false);
   const [draftOffers, setDraftOffers] = useState<DraftSummary[]>([]);
+  const [conflictSession, setConflictSession] = useState<{
+    outcome: MergeOutcome;
+    route: RouteDetail;
+    direction: DirectionEntity;
+    names: Record<string, string>;
+  } | null>(null);
   const [justSaved, setJustSaved] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
@@ -342,6 +372,108 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     refreshDrafts();
   };
 
+  // --- Save Conflict (ADR-0020 §3-5, ticket #55) ---
+  const rememberNames = (
+    direction: DirectionEntity,
+    mine: readonly DraftStop[],
+  ): Record<string, string> => {
+    const names: Record<string, string> = {};
+    for (const stop of [...direction.stops, ...mine]) {
+      for (const who of [stop.created_by, stop.updated_by]) {
+        if (who) names[who.userId] = who.name;
+      }
+    }
+    return names;
+  };
+
+  const applyMerged = (
+    session: {
+      outcome: MergeOutcome;
+      route: RouteDetail;
+      direction: DirectionEntity;
+    },
+    choices: MergeChoices,
+    side: "mine" | "theirs",
+  ) => {
+    const store = usePlottingStore.getState();
+    const stops = anchorsToStops(resolveMerge(session.outcome, choices));
+    const routeMeta = fieldsToRouteMeta(
+      resolveMeta(session.outcome, choices),
+      store.routeMeta,
+    );
+    const polyline = takePolyline(session.outcome, side) ?? store.polyline;
+    const base: DraftBase = {
+      version: session.direction.version,
+      stops: session.direction.stops.map(entityToDraftStop),
+      routeMeta: routeMetaFromRoute(session.route),
+      polyline: session.direction.base_polyline,
+    };
+    baseRef.current = base;
+    baseMetaRef.current = base.routeMeta;
+
+    // The merged result becomes the Draft — still unsaved, still undoable.
+    usePlottingStore.getState().restoreDraft({
+      schemaVersion: DRAFT_SCHEMA_VERSION,
+      routeId: store.routeId,
+      directionId: store.directionId,
+      stops,
+      polyline,
+      connections: connectionsFromStops(stops, polyline),
+      history: store.history,
+      routeMeta,
+      pathStopIds: side === "mine" ? store.pathStopIds : null,
+      base,
+    });
+
+    setConflictSession(null);
+    setConflict(false);
+    refreshDrafts();
+    toast.success("Merged with the latest version — review, then save.");
+  };
+
+  /**
+   * A stale save: refetch the Direction, merge it with the Draft, and either
+   * apply a clean merge silently or open the resolver. Returns false when the
+   * Draft has no base (a pre-M2c Draft), where only the two-way choice exists.
+   */
+  const beginResolution = async (): Promise<boolean> => {
+    if (!routeId) return false;
+    const base = baseRef.current;
+    if (!base) return false;
+
+    const fresh = await queryClient.fetchQuery({
+      queryKey: routeKeys.detail(routeId),
+      queryFn: () => getRoute(routeId),
+      staleTime: 0,
+    });
+    const direction = fresh.directions[0];
+    if (!direction) return false;
+
+    const store = usePlottingStore.getState();
+    const mine = draftSnapshot(store.stops, store.routeMeta, store.polyline);
+    const theirs = serverSnapshot(fresh, direction, direction.base_polyline);
+    const outcome = mergeSnapshots(
+      baseSnapshot(base)!,
+      mine.snapshot,
+      theirs.snapshot,
+      polylinePair(mine.polyline, theirs.polyline),
+    );
+
+    const session = {
+      outcome,
+      route: fresh,
+      direction,
+      names: rememberNames(direction, store.stops),
+    };
+
+    if (outcome.conflicts.length === 0) {
+      applyMerged(session, {}, "mine");
+      return true;
+    }
+    setConflictSession(session);
+    return true;
+  };
+
   const createSave = useSaveDirectionMutation(routeId ?? "");
   const replaceSave = useReplaceDirectionMutation(directionId ?? "");
   const updateMeta = useUpdateRouteMutation(routeId ?? "");
@@ -478,10 +610,17 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       setConflict(false);
       return true;
     } catch (error) {
-      if (
-        error instanceof ApiError &&
-        (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
-      ) {
+      if (error instanceof ApiError && error.code === "VERSION_CONFLICT") {
+        const resolved = await beginResolution();
+        if (!resolved) {
+          setConflict(true);
+          toast.error(
+            "This route moved and your Draft has no base to merge from. Reload to see the latest.",
+          );
+        }
+        return false;
+      }
+      if (error instanceof ApiError && error.code === "CONFLICT") {
         setConflict(true);
         toast.error(
           "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again.",
@@ -742,6 +881,20 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         onOpenChange={setNavConfirmOpen}
         onStay={cancelLeaveNav}
         onLeaveAnyway={confirmLeaveNav}
+      />
+      <ConflictResolverDialog
+        open={conflictSession !== null}
+        outcome={conflictSession?.outcome ?? null}
+        routeLabel={conflictSession?.route.name ?? ""}
+        accountName={(accountId) => {
+          if (!accountId) return "Not recorded";
+          if (accountId === userId) return "You";
+          return conflictSession?.names[accountId] || "Another Administrator";
+        }}
+        onApply={(choices, side) => {
+          if (conflictSession) applyMerged(conflictSession, choices, side);
+        }}
+        onCancel={() => setConflictSession(null)}
       />
       <NewRouteDialog open={newRouteOpen} onOpenChange={setNewRouteOpen} />
     </RouteWorkspaceContext.Provider>

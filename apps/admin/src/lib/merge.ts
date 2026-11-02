@@ -27,6 +27,9 @@ export interface MergeAnchor {
   kind: AnchorKind;
   /** The mergeable content of the anchor (name, type, coordinates, …). */
   fields: Record<string, unknown>;
+  /** Who last wrote this side (ADR-0025 attribution). Never merged — it is
+   *  context for the plotter, not content. */
+  updatedBy?: string | null;
 }
 
 export interface MergePolyline {
@@ -49,6 +52,9 @@ export type MergeConflict =
       base: unknown;
       mine: unknown;
       theirs: unknown;
+      /** The Account ids that wrote each side, when known. */
+      mineBy?: string | null;
+      theirsBy?: string | null;
     }
   | {
       kind: "delete-modify";
@@ -104,6 +110,8 @@ function conflict(
   base: unknown,
   mine: unknown,
   theirs: unknown,
+  mineBy?: string | null,
+  theirsBy?: string | null,
 ): MergeConflict {
   return {
     kind,
@@ -113,6 +121,8 @@ function conflict(
     base,
     mine,
     theirs,
+    mineBy,
+    theirsBy,
   };
 }
 
@@ -162,7 +172,18 @@ function mergeFields(
     }
     // Both sides changed this field differently (or both added it differently).
     fields[field] = m;
-    conflicts.push(conflict("field", anchorId, field, b, m, t));
+    conflicts.push(
+      conflict(
+        "field",
+        anchorId,
+        field,
+        b,
+        m,
+        t,
+        mine.updatedBy ?? null,
+        theirs.updatedBy ?? null,
+      ),
+    );
   }
 
   return fields;
