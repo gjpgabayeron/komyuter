@@ -453,11 +453,3 @@ export function carryChoices(
   }
   return carried;
 }
-
-/** The polyline is never merged: the plotter takes one side (ADR-0020 §5). */
-export function takePolyline(
-  outcome: MergeOutcome,
-  side: "mine" | "theirs",
-): GeoLineString | null {
-  return side === "theirs" ? outcome.polyline.theirs : outcome.polyline.mine;
-}

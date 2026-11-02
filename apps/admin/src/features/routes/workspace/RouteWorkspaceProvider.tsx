@@ -46,7 +46,6 @@ import {
   carryChoices,
   resolveMerge,
   resolveMeta,
-  takePolyline,
   type MergeChoices,
   type MergeOutcome,
 } from "@/lib/merge";
@@ -62,6 +61,15 @@ import {
 } from "@/features/routes/conflict/mergeInputs";
 import { ConflictResolverDialog } from "@/features/routes/conflict/ConflictResolverDialog";
 import { DeletedDirectionDialog } from "@/features/routes/conflict/DeletedDirectionDialog";
+import {
+  buildConflictPreview,
+  listChanges,
+  mergeInvalidatesPath,
+  summarizeMerge,
+  type ChangeEntry,
+  type MergeSummary,
+} from "@/lib/conflictPreview";
+import type { MergeSnapshot } from "@/lib/merge";
 import { queryClient } from "@/lib/queryClient";
 import { routeKeys } from "@/lib/queryKeys";
 import { ROUTE_COLORS } from "@/features/routes/routeColors";
@@ -161,6 +169,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const draftDirty = usePlottingStore((s) => s.draftDirty);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const saving = usePlottingStore((s) => s.saving);
+  const conflictPreview = usePlottingStore((s) => s.conflictPreview);
 
   const [newRouteOpen, setNewRouteOpen] = useState(false);
   const [conflict, setConflict] = useState(false);
@@ -170,6 +179,11 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     route: RouteDetail;
     direction: DirectionEntity;
     names: Record<string, string>;
+    summary: MergeSummary;
+    changes: ChangeEntry[];
+    mine: MergeSnapshot;
+    theirs: MergeSnapshot;
+    base: MergeSnapshot;
   } | null>(null);
   const [deletedSession, setDeletedSession] = useState<{
     routeExists: boolean;
@@ -405,18 +419,24 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       outcome: MergeOutcome;
       route: RouteDetail;
       direction: DirectionEntity;
+      base: MergeSnapshot;
+      summary: MergeSummary;
     },
     choices: MergeChoices,
-    side: "mine" | "theirs",
+    notice?: string,
   ) => {
     lastChoicesRef.current = choices;
     const store = usePlottingStore.getState();
-    const stops = anchorsToStops(resolveMerge(session.outcome, choices));
+    const anchors = resolveMerge(session.outcome, choices);
+    const stops = anchorsToStops(anchors);
     const routeMeta = fieldsToRouteMeta(
       resolveMeta(session.outcome, choices),
       store.routeMeta,
     );
-    const polyline = takePolyline(session.outcome, side) ?? store.polyline;
+    // The polyline is derived, not a merge input: a resolved stop list with new
+    // positions makes the saved path stale, and the workspace re-snaps.
+    const pathStale = mergeInvalidatesPath(session.base, { anchors });
+    const polyline = pathStale ? null : store.polyline;
     const base: DraftBase = {
       version: session.direction.version,
       stops: session.direction.stops.map(entityToDraftStop),
@@ -436,14 +456,23 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       connections: connectionsFromStops(stops, polyline),
       history: store.history,
       routeMeta,
-      pathStopIds: side === "mine" ? store.pathStopIds : null,
+      pathStopIds: pathStale ? null : store.pathStopIds,
       base,
     });
+    if (pathStale) usePlottingStore.getState().requestSnapPreview();
 
     setConflictSession(null);
     setConflict(false);
+    usePlottingStore.getState().setConflictPreview(null);
     refreshDrafts();
-    toast.success("Merged with the latest version — review, then save.");
+    const count =
+      session.summary.total === 0
+        ? "the latest version"
+        : `${session.summary.total} ${session.summary.total === 1 ? "change" : "changes"}`;
+    toast.success(
+      notice ??
+        `Merged ${count} — ${pathStale ? "the path is re-snapping from the merged stops." : "review, then save."}`,
+    );
   };
 
   /**
@@ -491,26 +520,46 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     }
 
     const store = usePlottingStore.getState();
+    const baseSnap = baseSnapshot(base)!;
     const mine = draftSnapshot(store.stops, store.routeMeta, store.polyline);
     const theirs = serverSnapshot(fresh, direction, direction.base_polyline);
     const outcome = mergeSnapshots(
-      baseSnapshot(base)!,
+      baseSnap,
       mine.snapshot,
       theirs.snapshot,
       polylinePair(mine.polyline, theirs.polyline),
     );
+    const summary = summarizeMerge(baseSnap, mine.snapshot, theirs.snapshot);
 
     const session = {
       outcome,
       route: fresh,
       direction,
       names: rememberNames(direction, store.stops),
+      summary,
+      base: baseSnap,
+      changes: listChanges(baseSnap, mine.snapshot, theirs.snapshot, outcome),
+      mine: mine.snapshot,
+      theirs: theirs.snapshot,
     };
 
     if (outcome.conflicts.length === 0) {
-      applyMerged(session, {}, "mine");
+      applyMerged(session, {});
       return true;
     }
+
+    // The map preview is built from the same three snapshots — no second read.
+    usePlottingStore
+      .getState()
+      .setConflictPreview(
+        buildConflictPreview(
+          outcome,
+          mine.snapshot.anchors,
+          theirs.snapshot.anchors,
+          mine.polyline,
+          theirs.polyline,
+        ),
+      );
     setConflictSession(session);
     return true;
   };
@@ -906,6 +955,12 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   // change regardless — so memoizing would buy nothing today. If a
   // memoized/deep consumer ever appears, wrap the actions in useCallback and
   // the value in useMemo as a unit.
+  const onLoadLatest = (): void => {
+    setConflictSession(null);
+    usePlottingStore.getState().setConflictPreview(null);
+    setLoadLatestOpen(true);
+  };
+
   const value: RouteWorkspaceValue = {
     uiState,
     hasRoute,
@@ -925,7 +980,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     saveAll,
     restoreDraft,
     discardDraft,
-    onLoadLatest: () => setLoadLatestOpen(true),
+    onLoadLatest,
     onDismissConflict: () => setConflict(false),
   };
 
@@ -954,6 +1009,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         open={conflictSession !== null}
         outcome={conflictSession?.outcome ?? null}
         routeLabel={conflictSession?.route.name ?? ""}
+        changes={conflictSession?.changes ?? []}
+        preview={conflictPreview}
+        mine={conflictSession?.mine ?? null}
+        theirs={conflictSession?.theirs ?? null}
         initialChoices={
           conflictSession
             ? carryChoices(
@@ -967,10 +1026,13 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           if (accountId === userId) return "You";
           return conflictSession?.names[accountId] || "Another Administrator";
         }}
-        onApply={(choices, side) => {
-          if (conflictSession) applyMerged(conflictSession, choices, side);
+        onApply={(choices) => {
+          if (conflictSession) applyMerged(conflictSession, choices);
         }}
-        onCancel={() => setConflictSession(null)}
+        onCancel={() => {
+          setConflictSession(null);
+          usePlottingStore.getState().setConflictPreview(null);
+        }}
       />
       <DeletedDirectionDialog
         open={deletedSession !== null}

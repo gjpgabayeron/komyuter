@@ -76,6 +76,10 @@ _Avoid_: Working copy, pending route
 The state in which a plotter's Draft is based on a version of a Direction that the server has since replaced, so the save is refused rather than applied. "The version" here is the Direction Version. It is resolved over the ordered anchors — Stops today, Waypoints under ADR-0028 — and the descriptive fields; the polyline is never merged — one side is chosen, and the workspace re-snaps on request.
 _Avoid_: Merge conflict, stale write, overwrite
 
+**Conflicting Stop**:
+A Stop whose fields or position differ between a plotter's Draft and the Direction's current state, so the Save Conflict cannot be resolved without a decision. Both positions are previewed on the map, and the plotter chooses per field.
+_Avoid_: Duplicate stop, clashing marker, overwritten stop
+
 **Virtual Node**:
 A temporary graph node inserted per navigation request for a non-stop boarding or alighting position on a direction's polyline. Connected to the two nearest stops via board edges. Never persisted.
 _Avoid_: Virtual stop, pseudo-node

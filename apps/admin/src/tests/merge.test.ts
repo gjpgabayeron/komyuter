@@ -5,7 +5,6 @@ import {
   mergeSnapshots,
   resolveMerge,
   resolveMeta,
-  takePolyline,
   type MergeAnchor,
   type MergeSnapshot,
 } from "../lib/merge";
@@ -171,11 +170,9 @@ describe("three-way merge (ADR-0020)", () => {
     expect(outcome.anchors.map((a) => a.id)).toEqual(["c", "a", "b"]);
   });
 
-  it("never merges the polyline", () => {
+  it("carries both polylines as evidence, never as a decision", () => {
     const outcome = merge([anchor("a")], [anchor("a")], [anchor("a")]);
 
-    expect(takePolyline(outcome, "mine")).toEqual(MINE_LINE);
-    expect(takePolyline(outcome, "theirs")).toEqual(THEIR_LINE);
     expect(outcome.polyline.mine).toBe(MINE_LINE);
     expect(outcome.polyline.theirs).toBe(THEIR_LINE);
   });
