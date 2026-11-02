@@ -76,6 +76,7 @@ function RouteWorkspaceInner() {
     showSnapWarning,
     draftOffers,
     conflict,
+    conflictOwner,
     saveHalf,
     justSaved,
     draftRestored,
@@ -273,6 +274,7 @@ function RouteWorkspaceInner() {
                       restored={draftRestored}
                       drafts={draftOffers}
                       conflict={conflict}
+                      conflictOwner={conflictOwner}
                       saveHalf={saveHalf}
                       onRestoreDraft={(entry) => restoreDraft(entry)}
                       onDiscardDraft={(entry) => discardDraft(entry)}

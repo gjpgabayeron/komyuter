@@ -17,6 +17,8 @@ interface StatusBarProps {
   drafts: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
+  /** Who last wrote the Direction, when the server recorded it. */
+  conflictOwner?: string | null;
   /** Which half of the save succeeded before the conflict, when known. */
   saveHalf?: "direction" | "metadata" | null;
   onRestoreDraft: (entry: DraftSummary) => void;
@@ -45,6 +47,7 @@ export function StatusBar({
   restored,
   drafts,
   conflict,
+  conflictOwner,
   saveHalf,
   onRestoreDraft,
   onDiscardDraft,
@@ -105,7 +108,7 @@ export function StatusBar({
             <span className="text-muted-foreground">
               {saveHalf === "direction"
                 ? "Your direction was saved. The route's details changed elsewhere — your edits are still here."
-                : "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again."}
+                : `${conflictOwner ?? "Another Administrator"} edited this route. Your work is still here — open the resolver to keep both, or load the latest.`}
             </span>
           </span>
           <Button

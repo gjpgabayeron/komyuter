@@ -15,7 +15,9 @@ import type {
  * refetched the route list AND every cached route detail — the redundant
  * network traffic this model eliminates. Mutations now PATCH the caches they
  * can (detail, overview, list) from the mutation response; the server remains
- * the single source of truth (its save-time 409 guards write-write conflicts).
+ * the single source of truth, and a save based on a stale Direction Version is
+ * refused with `VERSION_CONFLICT` (ADR-0020) and resolved by the client-side
+ * merge, not by a silent overwrite.
  */
 
 function toDirection(

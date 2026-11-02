@@ -113,6 +113,8 @@ interface RouteWorkspaceValue {
   draftOffers: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
+  /** Who last wrote the Direction (ADR-0025), when recorded. */
+  conflictOwner: string | null;
   /** A save just completed — transient "Saved just now" notice. */
   justSaved: boolean;
   /** A draft was just restored — transient confirmation. */
@@ -882,6 +884,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     showSnapWarning,
     draftOffers,
     conflict,
+    conflictOwner: routeQuery.data?.directions[0]?.updated_by?.name ?? null,
     saveHalf,
     justSaved,
     draftRestored,
