@@ -76,6 +76,7 @@ function RouteWorkspaceInner() {
     showSnapWarning,
     draftOffers,
     conflict,
+    saveHalf,
     justSaved,
     draftRestored,
     openNewRoute,
@@ -272,6 +273,7 @@ function RouteWorkspaceInner() {
                       restored={draftRestored}
                       drafts={draftOffers}
                       conflict={conflict}
+                      saveHalf={saveHalf}
                       onRestoreDraft={(entry) => restoreDraft(entry)}
                       onDiscardDraft={(entry) => discardDraft(entry)}
                       onLoadLatest={onLoadLatest}

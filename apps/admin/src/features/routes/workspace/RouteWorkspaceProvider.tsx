@@ -43,6 +43,7 @@ import type {
 import { getRoute, snapPreview } from "@/features/routes/routesApi";
 import {
   mergeSnapshots,
+  carryChoices,
   resolveMerge,
   resolveMeta,
   takePolyline,
@@ -60,6 +61,7 @@ import {
   serverSnapshot,
 } from "@/features/routes/conflict/mergeInputs";
 import { ConflictResolverDialog } from "@/features/routes/conflict/ConflictResolverDialog";
+import { DeletedDirectionDialog } from "@/features/routes/conflict/DeletedDirectionDialog";
 import { queryClient } from "@/lib/queryClient";
 import { routeKeys } from "@/lib/queryKeys";
 import { ROUTE_COLORS } from "@/features/routes/routeColors";
@@ -125,6 +127,8 @@ interface RouteWorkspaceValue {
   saveAll: () => Promise<void>;
   restoreDraft: (entry: DraftSummary) => void;
   discardDraft: (entry: DraftSummary) => void;
+  /** Which half of the save succeeded before a conflict (null when neither). */
+  saveHalf: "direction" | "metadata" | null;
   onLoadLatest: () => void;
   onDismissConflict: () => void;
 }
@@ -165,6 +169,14 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     direction: DirectionEntity;
     names: Record<string, string>;
   } | null>(null);
+  const [deletedSession, setDeletedSession] = useState<{
+    routeExists: boolean;
+    routeName: string;
+  } | null>(null);
+  const [saveHalf, setSaveHalf] = useState<"direction" | "metadata" | null>(
+    null,
+  );
+  const lastChoicesRef = useRef<MergeChoices>({});
   const [justSaved, setJustSaved] = useState(false);
   const [draftRestored, setDraftRestored] = useState(false);
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
@@ -395,6 +407,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     choices: MergeChoices,
     side: "mine" | "theirs",
   ) => {
+    lastChoicesRef.current = choices;
     const store = usePlottingStore.getState();
     const stops = anchorsToStops(resolveMerge(session.outcome, choices));
     const routeMeta = fieldsToRouteMeta(
@@ -441,11 +454,27 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     const base = baseRef.current;
     if (!base) return false;
 
-    const fresh = await queryClient.fetchQuery({
-      queryKey: routeKeys.detail(routeId),
-      queryFn: () => getRoute(routeId),
-      staleTime: 0,
-    });
+    let fresh: RouteDetail;
+    try {
+      fresh = await queryClient.fetchQuery({
+        queryKey: routeKeys.detail(routeId),
+        queryFn: () => getRoute(routeId),
+        staleTime: 0,
+      });
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "NOT_FOUND") {
+        // Deletion is a conflict shape, not a terminal error (ADR-0020 risk).
+        const routeExists = (routesQuery.data ?? []).some(
+          (candidate) => candidate.route_id === routeId,
+        );
+        setDeletedSession({
+          routeExists,
+          routeName: routeQuery.data?.name ?? routeId,
+        });
+        return true;
+      }
+      throw error;
+    }
     const direction = fresh.directions[0];
     if (!direction) return false;
 
@@ -608,6 +637,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       draftWriterRef.current?.cancel();
       refreshDrafts();
       setConflict(false);
+      setSaveHalf(null);
       return true;
     } catch (error) {
       if (error instanceof ApiError && error.code === "VERSION_CONFLICT") {
@@ -803,6 +833,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       // a transient "Saved just now" confirmation (auto-dismisses).
       usePlottingStore.getState().requestFit();
       setJustSaved(true);
+      setSaveHalf(null);
     } catch (error) {
       // The metadata save can conflict just like the plotting save — surface
       // the same conflict notice in the status slot (never an unhandled
@@ -811,9 +842,11 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         error instanceof ApiError &&
         (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
       ) {
+        // The plotting half already saved; only the metadata half was refused.
+        setSaveHalf("direction");
         setConflict(true);
         toast.error(
-          "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again.",
+          "Your direction was saved. The route's details changed elsewhere — your edits are still here.",
         );
       } else {
         toast.error(error instanceof Error ? error.message : "Save failed.");
@@ -849,6 +882,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     showSnapWarning,
     draftOffers,
     conflict,
+    saveHalf,
     justSaved,
     draftRestored,
     openNewRoute: () => setNewRouteOpen(true),
@@ -886,6 +920,14 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
         open={conflictSession !== null}
         outcome={conflictSession?.outcome ?? null}
         routeLabel={conflictSession?.route.name ?? ""}
+        initialChoices={
+          conflictSession
+            ? carryChoices(
+                conflictSession.outcome.conflicts,
+                lastChoicesRef.current,
+              )
+            : {}
+        }
         accountName={(accountId) => {
           if (!accountId) return "Not recorded";
           if (accountId === userId) return "You";
@@ -895,6 +937,19 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           if (conflictSession) applyMerged(conflictSession, choices, side);
         }}
         onCancel={() => setConflictSession(null)}
+      />
+      <DeletedDirectionDialog
+        open={deletedSession !== null}
+        routeExists={deletedSession?.routeExists ?? false}
+        routeLabel={deletedSession?.routeName ?? ""}
+        onKeepDraft={() => setDeletedSession(null)}
+        onSaveAsNew={() => {
+          setDeletedSession(null);
+          usePlottingStore.getState().setDirectionId(null);
+          toast.success(
+            "Your Draft is kept — save it to create a new direction.",
+          );
+        }}
       />
       <NewRouteDialog open={newRouteOpen} onOpenChange={setNewRouteOpen} />
     </RouteWorkspaceContext.Provider>

@@ -17,6 +17,8 @@ interface StatusBarProps {
   drafts: DraftSummary[];
   /** A save conflict is active. */
   conflict: boolean;
+  /** Which half of the save succeeded before the conflict, when known. */
+  saveHalf?: "direction" | "metadata" | null;
   onRestoreDraft: (entry: DraftSummary) => void;
   onDiscardDraft: (entry: DraftSummary) => void;
   onLoadLatest: () => void;
@@ -43,6 +45,7 @@ export function StatusBar({
   restored,
   drafts,
   conflict,
+  saveHalf,
   onRestoreDraft,
   onDiscardDraft,
   onLoadLatest,
@@ -100,8 +103,9 @@ export function StatusBar({
           <span className="min-w-0 flex-1">
             <span className="text-destructive font-medium">Save conflict</span>{" "}
             <span className="text-muted-foreground">
-              Another Administrator edited this route. Your work is still here —
-              reload to see the latest, or adjust and save again.
+              {saveHalf === "direction"
+                ? "Your direction was saved. The route's details changed elsewhere — your edits are still here."
+                : "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again."}
             </span>
           </span>
           <Button

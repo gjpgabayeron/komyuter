@@ -418,6 +418,19 @@ export function resolveMeta(
   return meta;
 }
 
+/** Choices already made that still apply to a fresh set of conflicts. */
+export function carryChoices(
+  conflicts: readonly MergeConflict[],
+  previous: MergeChoices,
+): MergeChoices {
+  const carried: MergeChoices = {};
+  for (const conflict of conflicts) {
+    const choice = previous[conflict.id];
+    if (choice) carried[conflict.id] = choice;
+  }
+  return carried;
+}
+
 /** The polyline is never merged: the plotter takes one side (ADR-0020 §5). */
 export function takePolyline(
   outcome: MergeOutcome,

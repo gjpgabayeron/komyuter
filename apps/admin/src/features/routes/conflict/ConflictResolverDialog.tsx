@@ -17,6 +17,8 @@ interface ConflictResolverDialogProps {
   open: boolean;
   outcome: MergeOutcome | null;
   routeLabel: string;
+  /** Choices carried over from a previous resolution, where they still apply. */
+  initialChoices?: MergeChoices;
   /** Resolves an Account id to the name shown beside a side. */
   accountName: (userId: string | null | undefined) => string;
   onApply: (choices: MergeChoices, polyline: Side) => void;
@@ -39,18 +41,21 @@ export function ConflictResolverDialog({
   open,
   outcome,
   routeLabel,
+  initialChoices,
   accountName,
   onApply,
   onCancel,
 }: ConflictResolverDialogProps) {
-  const [choices, setChoices] = useState<MergeChoices>({});
+  const [choices, setChoices] = useState<MergeChoices>(initialChoices ?? {});
   const [polyline, setPolyline] = useState<Side | null>(null);
 
-  // A fresh conflict (a second stale save) starts with nothing preselected.
+  // A fresh conflict starts with only the choices that still apply — nothing
+  // is preselected for a decision the plotter has not made.
   useEffect(() => {
     if (!open) return;
-    setChoices({});
+    setChoices(initialChoices ?? {});
     setPolyline(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, outcome]);
 
   const conflicts = outcome?.conflicts ?? [];

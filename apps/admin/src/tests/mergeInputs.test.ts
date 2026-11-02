@@ -16,6 +16,7 @@ import {
   fieldLabel,
   fieldValue,
   fieldsToRouteMeta,
+  metaFields,
   polylinePair,
   routeMetaFromRoute,
   serverSnapshot,
@@ -158,7 +159,7 @@ describe("merge input mapping (ticket #55)", () => {
 
   it("maps Route metadata in both directions", () => {
     expect(routeMetaFromRoute(route)).toEqual(meta);
-    expect(fieldsToRouteMeta(routeMetaFromRoute(route), null)).toEqual(meta);
+    expect(fieldsToRouteMeta(metaFields(meta), null)).toEqual(meta);
     expect(fieldsToRouteMeta(null, meta)).toEqual(meta);
   });
 

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { GeoLineString } from "@komyuter/shared";
 import {
+  carryChoices,
   mergeSnapshots,
   resolveMerge,
   resolveMeta,
@@ -209,6 +210,19 @@ describe("three-way merge (ADR-0020)", () => {
     expect(
       resolveMeta(outcome, { "field:__meta__:name": "mine" }),
     ).toMatchObject({ name: "Mine" });
+  });
+
+  it("carries a previous choice forward only where it still applies", () => {
+    const outcome = merge(
+      [anchor("a", { name: "A" })],
+      [anchor("a", { name: "Mine" })],
+      [anchor("a", { name: "Theirs" })],
+    );
+    const carried = carryChoices(outcome.conflicts, {
+      "field:a:name": "theirs",
+      "field:gone:name": "mine",
+    });
+    expect(carried).toEqual({ "field:a:name": "theirs" });
   });
 
   it("keeps every id that is not in conflict", () => {
