@@ -27,7 +27,7 @@ import { useDetourStore } from "@/features/detours/detourStore";
 import type { DraftPayload } from "@/lib/draft";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
 import { pathFromConnections } from "@/lib/connections";
-import type { SaveDirectionPayload } from "@/features/routes/routesApi";
+import type { CreateDirectionPayload } from "@/features/routes/routesApi";
 import { getRoute, snapPreview } from "@/features/routes/routesApi";
 import { queryClient } from "@/lib/queryClient";
 import { routeKeys } from "@/lib/queryKeys";
@@ -333,7 +333,18 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    const payload: SaveDirectionPayload = {
+    // The Direction Version this save is based on (ADR-0020). A replace without
+    // it would be last-write-wins, so a missing version stops the save rather
+    // than guessing.
+    const currentDirection = editingId
+      ? routeQuery.data?.directions.find((d) => d.direction_id === editingId)
+      : undefined;
+    if (editingId && !currentDirection) {
+      toast.error("Reload the route before saving.");
+      return false;
+    }
+
+    const payload: CreateDirectionPayload = {
       // Auto-default base label; the server derives the return label (FR-012).
       label: `To ${saveStops[saveStops.length - 1].name}`,
       base_polyline: polyline,
@@ -346,7 +357,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = editingId
-        ? await replaceSave.mutateAsync(payload)
+        ? await replaceSave.mutateAsync({
+            ...payload,
+            base_version: currentDirection!.version,
+          })
         : await createSave.mutateAsync(payload);
       toast.success("Route plotted and saved.");
       // Reflect the persisted state in the draft and clear any pending edits
@@ -386,7 +400,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       setConflict(false);
       return true;
     } catch (error) {
-      if (error instanceof ApiError && error.code === "CONFLICT") {
+      if (
+        error instanceof ApiError &&
+        (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
+      ) {
         setConflict(true);
         toast.error(
           "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again.",
@@ -553,6 +570,7 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           color: meta.color,
           is_active: meta.isActive,
           fare_config_id: meta.fareConfigId,
+          base_version: current.version,
         });
         usePlottingStore.getState().setRouteMeta({
           name: updated.name,
@@ -572,7 +590,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       // The metadata save can conflict just like the plotting save — surface
       // the same conflict notice in the status slot (never an unhandled
       // rejection that silently skips it).
-      if (error instanceof ApiError && error.code === "CONFLICT") {
+      if (
+        error instanceof ApiError &&
+        (error.code === "CONFLICT" || error.code === "VERSION_CONFLICT")
+      ) {
         setConflict(true);
         toast.error(
           "Another Administrator edited this route. Your work is still here — reload to see the latest, or adjust and save again.",

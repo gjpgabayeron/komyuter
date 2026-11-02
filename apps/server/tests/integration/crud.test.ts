@@ -58,14 +58,14 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       method: "PUT",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(),
-      payload: { name: "CRUD Route Updated" },
+      payload: { name: "CRUD Route Updated", base_version: 1 },
     });
     expect(update.statusCode).toBe(200);
     expect(update.json().data.name).toBe("CRUD Route Updated");
 
     const softDelete = await app.inject({
       method: "DELETE",
-      url: `/api/admin/routes/${routeId}`,
+      url: `/api/admin/routes/${routeId}?base_version=2`,
       headers: auth(),
     });
     expect(softDelete.statusCode).toBe(200);
@@ -215,7 +215,7 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       method: "PUT",
       url: `/api/admin/directions/${directionId}`,
       headers: auth(),
-      payload: { origin_stop_id: stopId },
+      payload: { origin_stop_id: stopId, base_version: 1 },
     });
 
     const del = await app.inject({
@@ -924,7 +924,7 @@ describe("fare configuration lifecycle guards (feature 006)", () => {
       method: "PUT",
       url: `/api/admin/routes/${routeId}`,
       headers: auth(),
-      payload: { is_active: false },
+      payload: { is_active: false, base_version: 1 },
     });
     expect(deactivateRoute.statusCode).toBe(200);
 
@@ -967,7 +967,7 @@ describe("fare configuration lifecycle guards (feature 006)", () => {
       method: "PUT",
       url: `/api/admin/routes/${inactiveRouteId}`,
       headers: auth(),
-      payload: { is_active: false },
+      payload: { is_active: false, base_version: 1 },
     });
     expect(deactivateRoute.statusCode).toBe(200);
 

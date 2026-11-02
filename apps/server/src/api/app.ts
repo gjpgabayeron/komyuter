@@ -113,7 +113,11 @@ export function buildApp(deps: AppDeps): AppInstance {
     if (error instanceof ApiError) {
       reply.status(error.statusCode).send({
         success: false,
-        error: { code: error.code, message: error.message },
+        error: {
+          code: error.code,
+          message: error.message,
+          ...(error.details ?? {}),
+        },
       });
       return;
     }

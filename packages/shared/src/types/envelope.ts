@@ -6,6 +6,7 @@ export const ERROR_CODES = [
   "NOT_FOUND",
   "VALIDATION_ERROR",
   "CONFLICT",
+  "VERSION_CONFLICT",
   "INTERNAL",
 ] as const;
 

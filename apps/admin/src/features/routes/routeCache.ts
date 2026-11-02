@@ -29,6 +29,7 @@ function toDirection(
     origin_stop_id: result.origin_stop_id,
     destination_stop_id: result.destination_stop_id,
     is_active: result.is_active,
+    version: result.version,
     created_at: result.created_at,
     updated_at: result.updated_at,
     created_by: result.created_by,
@@ -100,6 +101,7 @@ export function patchRouteMeta(
         color: route.color,
         is_active: route.is_active,
         fare_config_id: route.fare_config_id,
+        version: route.version,
         updated_at: route.updated_at,
         // The writer moved with this update; the creator never does.
         created_by: route.created_by,

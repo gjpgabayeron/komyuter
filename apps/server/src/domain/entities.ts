@@ -87,6 +87,8 @@ export interface DirectionEntity {
   origin_stop_id: string | null;
   destination_stop_id: string | null;
   is_active: boolean;
+  /** Direction Version (ADR-0020): the base a plotted save sends back. */
+  version: number;
   created_at: string;
   updated_at: string;
   created_by: Attribution;
@@ -104,6 +106,7 @@ export interface DirectionSummaryEntity {
   origin_stop_id: string | null;
   destination_stop_id: string | null;
   is_active: boolean;
+  version: number;
   created_at: string;
   updated_at: string;
   created_by: Attribution;
@@ -292,6 +295,7 @@ export async function loadDirectionSummary(
       origin_stop_id: directionsTable.origin_stop_id,
       destination_stop_id: directionsTable.destination_stop_id,
       is_active: directionsTable.is_active,
+      version: directionsTable.version,
       created_at: directionsTable.created_at,
       updated_at: directionsTable.updated_at,
       created_by: directionsTable.created_by,

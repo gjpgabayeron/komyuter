@@ -165,6 +165,8 @@ export const routes = pgTable(
         onDelete: "set null",
       },
     ),
+    /** Route Version (ADR-0020): the stamp a metadata save is based on. */
+    version: integer("version").notNull().default(1),
     ...timestamps,
     ...attribution,
   },
@@ -184,6 +186,8 @@ export const directions = pgTable(
     destination_stop_id: text("destination_stop_id"),
     direction_kind: directionKind("direction_kind").notNull().default("base"),
     is_active: boolean("is_active").notNull().default(true),
+    /** Direction Version (ADR-0020): the stamp a plotted save is based on. */
+    version: integer("version").notNull().default(1),
     ...timestamps,
     ...attribution,
   },

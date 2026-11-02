@@ -1,4 +1,4 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import { createDirectionSchema, updateDirectionSchema } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
 import {
@@ -7,7 +7,8 @@ import {
   stops as stopsTable,
 } from "../db/schema";
 import { asLineStringFromGeoJSON, asPointFromGeoJSON } from "../db/queries";
-import { conflict, notFound, validationError } from "./errors";
+import { conflict, notFound, validationError, versionConflict } from "./errors";
+import { requireBaseVersion } from "./version";
 import { uuidId } from "../domain/ids";
 import type { Db } from "../config/db";
 import type { DirectionEntity } from "../domain/entities";
@@ -40,6 +41,7 @@ function toDirectionPayload(direction: DirectionEntity) {
     origin_stop_id: direction.origin_stop_id,
     destination_stop_id: direction.destination_stop_id,
     is_active: direction.is_active,
+    version: direction.version,
     created_at: direction.created_at,
     updated_at: direction.updated_at,
     created_by: direction.created_by,
@@ -59,6 +61,9 @@ async function persistPlottedPair(
   input: {
     routeId: string;
     baseId: string | null;
+    /** The Direction Version the save is based on (ADR-0020). Required when
+     *  `baseId` is set: a replace with no base would be last-write-wins. */
+    baseVersion?: number;
     base: PlotBaseInput;
     createMode: boolean;
     /** The guard's Account id — stamped onto the direction and every stop it
@@ -92,15 +97,39 @@ async function persistPlottedPair(
     ) as unknown as string;
 
     if (input.baseId) {
-      await tx
+      if (input.baseVersion === undefined) {
+        throw new Error(
+          "persistPlottedPair: baseVersion is required when baseId is set",
+        );
+      }
+      // The compare-and-swap is the FIRST write of the transaction, so a stale
+      // save aborts before any stop is deleted or the sibling is re-derived.
+      const [cas] = await tx
         .update(directionsTable)
         .set({
           label: input.base.label,
           base_polyline: baseGeometry,
           direction_kind: "base",
+          version: sql`${directionsTable.version} + 1`,
           ...updateAttribution(input.actorId),
         })
-        .where(eq(directionsTable.direction_id, baseId));
+        .where(
+          and(
+            eq(directionsTable.direction_id, baseId),
+            eq(directionsTable.version, input.baseVersion),
+          ),
+        )
+        .returning({ version: directionsTable.version });
+
+      if (!cas) {
+        const [current] = await tx
+          .select({ version: directionsTable.version })
+          .from(directionsTable)
+          .where(eq(directionsTable.direction_id, baseId))
+          .limit(1);
+        throw versionConflict(current?.version ?? 0);
+      }
+
       await tx.delete(stopsTable).where(eq(stopsTable.direction_id, baseId));
     } else {
       await tx
@@ -168,6 +197,9 @@ async function persistPlottedPair(
           label: derived.label,
           base_polyline: returnGeometry,
           direction_kind: "return",
+          // The return is rewritten by this save, so its stamp moves too. It is
+          // never a client-held base — the workspace edits the base direction.
+          version: sql`${directionsTable.version} + 1`,
           ...updateAttribution(input.actorId),
         })
         .where(eq(directionsTable.direction_id, returnId));
@@ -384,17 +416,31 @@ export async function registerDirections(
       const body = request.body;
       const actor = actorId(request);
 
+      if (body.base_version === undefined) {
+        throw validationError("base_version is required");
+      }
+
       const [existing] = await db
         .select({
           direction_id: directionsTable.direction_id,
           route_id: directionsTable.route_id,
           label: directionsTable.label,
+          direction_kind: directionsTable.direction_kind,
         })
         .from(directionsTable)
         .where(eq(directionsTable.direction_id, directionId))
         .limit(1);
       if (!existing) {
         throw notFound(`Direction ${directionId} not found`);
+      }
+
+      // The return is derived from the base on every save (ADR-0011); saving
+      // it as a base would swap both kinds and re-derive the pair from the
+      // wrong side. The workspace never does this — the API must refuse it.
+      if (existing.direction_kind === "return") {
+        throw conflict(
+          `Direction ${directionId} is the derived return; plot the base direction instead`,
+        );
       }
 
       if (body.stops !== undefined && body.stops.length === 0) {
@@ -411,6 +457,7 @@ export async function registerDirections(
         const { baseId, returnId } = await persistPlottedPair(db, {
           routeId: existing.route_id,
           baseId: directionId,
+          baseVersion: body.base_version,
           base: {
             label: body.label ?? existing.label,
             polyline: body.base_polyline,
@@ -445,14 +492,30 @@ export async function registerDirections(
         patch.destination_stop_id = body.destination_stop_id;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 
-      await db
+      const [updatedRow] = await db
         .update(directionsTable)
         .set({
           ...patch,
+          version: sql`${directionsTable.version} + 1`,
           // Only the last writer moves: the creator is written once (ADR-0025).
           ...updateAttribution(actor),
         })
-        .where(eq(directionsTable.direction_id, directionId));
+        .where(
+          and(
+            eq(directionsTable.direction_id, directionId),
+            eq(directionsTable.version, body.base_version),
+          ),
+        )
+        .returning({ version: directionsTable.version });
+
+      if (!updatedRow) {
+        const [current] = await db
+          .select({ version: directionsTable.version })
+          .from(directionsTable)
+          .where(eq(directionsTable.direction_id, directionId))
+          .limit(1);
+        throw versionConflict(current?.version ?? 0);
+      }
 
       const updated = await loadDirectionFull(
         db,
@@ -468,21 +531,34 @@ export async function registerDirections(
     { config: { permission: "ROUTES_EDIT" } },
     async (request) => {
       const { directionId } = request.params as { directionId: string };
-
-      const [existing] = await db
-        .select({ direction_id: directionsTable.direction_id })
-        .from(directionsTable)
-        .where(eq(directionsTable.direction_id, directionId))
-        .limit(1);
-      if (!existing) {
-        throw notFound(`Direction ${directionId} not found`);
-      }
+      const baseVersion = requireBaseVersion(request.query);
 
       const [updated] = await db
         .update(directionsTable)
-        .set({ is_active: false, ...updateAttribution(actorId(request)) })
-        .where(eq(directionsTable.direction_id, directionId))
+        .set({
+          is_active: false,
+          version: sql`${directionsTable.version} + 1`,
+          ...updateAttribution(actorId(request)),
+        })
+        .where(
+          and(
+            eq(directionsTable.direction_id, directionId),
+            eq(directionsTable.version, baseVersion),
+          ),
+        )
         .returning();
+
+      if (!updated) {
+        const [current] = await db
+          .select({ version: directionsTable.version })
+          .from(directionsTable)
+          .where(eq(directionsTable.direction_id, directionId))
+          .limit(1);
+        if (!current) {
+          throw notFound(`Direction ${directionId} not found`);
+        }
+        throw versionConflict(current.version);
+      }
 
       return {
         success: true,

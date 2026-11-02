@@ -184,7 +184,10 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteMutation.mutateAsync(deleteTarget.route_id);
+      await deleteMutation.mutateAsync({
+        routeId: deleteTarget.route_id,
+        baseVersion: deleteTarget.version,
+      });
       if (deleteTarget.route_id === routeId) {
         usePlottingStore.getState().openRoute(null);
       }

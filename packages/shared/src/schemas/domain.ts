@@ -40,6 +40,10 @@ export const createRouteSchema = z.object({
 
 export const updateRouteSchema = createRouteSchema.partial().extend({
   is_active: z.boolean().optional(),
+  /** The Route Version the save is based on (ADR-0020). Optional in the
+   *  schema so body validation cannot outrank the Permission check; the
+   *  handler refuses a save without it. */
+  base_version: z.number().int().min(1).optional(),
 });
 
 /** A detour stop input — same shape as a base stop input, scoped to its
@@ -101,6 +105,9 @@ export const createDirectionSchema = z.object({
 
 export const updateDirectionSchema = createDirectionSchema.partial().extend({
   is_active: z.boolean().optional(),
+  /** The Direction Version the save is based on (ADR-0020). Optional in the
+   *  schema; the handler refuses a save without it. */
+  base_version: z.number().int().min(1).optional(),
 });
 
 export const updateStopSchema = createStopSchema.partial().extend({
