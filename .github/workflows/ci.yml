@@ -126,15 +126,11 @@ jobs:
       - name: Install Railway CLI 5.64.0
         run: npm install -g @railway/cli@5.64.0
 
-      - name: Link the staging environment
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
-        run: >-
-          railway link
-          --project 7fcd6734-d77e-4bb3-b0f0-4d39aef20fdc
-          --environment staging
-          --service komyuter
-          --json
+      # Do not add a `railway link` step. `railway link` enumerates workspaces
+      # before it consults RAILWAY_TOKEN, and a project token cannot enumerate
+      # workspaces, so the step fails with Unauthorized even for a valid token.
+      # `railway config plan` resolves the project and environment from the
+      # token itself (see src/commands/config/runner.rs).
 
       # The gate. Source and platform must agree on the merged commit; exit 2 means
       # the platform carries something source does not, and that fails the job.
@@ -237,15 +233,9 @@ jobs:
       - name: Install Railway CLI 5.64.0
         run: npm install -g @railway/cli@5.64.0
 
-      - name: Link the production environment
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PRODUCTION }}
-        run: >-
-          railway link
-          --project 7fcd6734-d77e-4bb3-b0f0-4d39aef20fdc
-          --environment production
-          --service komyuter
-          --json
+      # See the staging job: `railway link` cannot be used with a project token.
+      # `railway config plan` resolves the project and environment from the
+      # token itself, so there is no link step here.
 
       - name: Plan the merged configuration (push gate)
         if: github.event_name == 'push'

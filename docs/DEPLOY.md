@@ -590,6 +590,11 @@ is gated on the repository variable `RAILWAY_PRODUCTION_READY == 'true'`, uses t
 `main`, against the base branch's file). Until #75/#82 the production job is skipped. After go-live, set
 the variable and add `iac-drift-production` to the required checks on `main`.
 
+**The jobs do not run `railway link`.** A Railway project token cannot enumerate workspaces, which
+`railway link` does before it consults the token, so a link step fails with `Unauthorized` even for a
+valid token. `railway config plan` resolves the project and environment from `RAILWAY_TOKEN` itself; that
+is the supported CI path.
+
 Neither token is read-only: a Railway project token can apply as well as plan. Rotate it like a deploy
 credential.
 
