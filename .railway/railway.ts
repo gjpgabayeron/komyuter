@@ -86,7 +86,10 @@ export default defineRailway((ctx) => {
       // (docs/DEPLOY.md §3.3).
       ipv6EgressEnabled: true,
       // A crash loop is reported rather than restarted forever (ADR-0022 §5.2).
-      restartPolicyType: "ON_FAILURE",
+      // Do not set restartPolicyType here: Railway's effective default is
+      // ON_FAILURE, but the stored service config reports the default as null,
+      // so an explicit "ON_FAILURE" plans as permanent drift. The effective
+      // policy is still ON_FAILURE; the bounded retry count stays explicit.
       restartPolicyMaxRetries: 5,
       limitOverride: {
         containers: { cpu: 4, memoryBytes: 4000000000 },

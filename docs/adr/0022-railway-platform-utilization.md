@@ -310,3 +310,7 @@ not reverse, the decisions above.
   exists (ticket #75). `EXPECTED_SUPABASE_PROJECT_REF` is `preserve()`d on production so no fake ref can
   be planned; the operator sets it before the first deploy. The production drift job in CI is gated on
   the repository variable `RAILWAY_PRODUCTION_READY` until then.
+- **Restart policy type is the platform default.** `.railway/railway.ts` deliberately omits
+  `restartPolicyType`: Railway's effective default is `ON_FAILURE`, but the stored service config
+  reports the default as `null`, so an explicit `"ON_FAILURE"` plans as permanent drift. The effective
+  policy remains ON_FAILURE (5.2), and `restartPolicyMaxRetries: 5` stays explicit.
