@@ -1,4 +1,4 @@
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import type { Attribution, GeoLineString, GeoPoint } from "@komyuter/shared";
 import type { Db } from "../config/db";
 import {
@@ -67,10 +67,10 @@ export interface DetourStopEntity {
 export interface RestrictionEntity {
   restriction_id: string;
   direction_id: string;
+  detour_id: string | null;
   from_coord_index: number;
   to_coord_index: number;
-  reason: string;
-  affects: string;
+  kind: string;
   note: string | null;
   is_active: boolean;
   created_at: string;
@@ -198,6 +198,41 @@ export async function loadDetours(
   }));
 }
 
+/** A Stop of the Direction by id, whether base or detour-owned. */
+export async function loadDirectionStopLocation(
+  db: Db,
+  directionId: string,
+  stopId: string,
+): Promise<GeoPoint | null> {
+  const [baseStop] = await db
+    .select({ location: asGeoJSON(stopsTable.location) })
+    .from(stopsTable)
+    .where(
+      and(
+        eq(stopsTable.stop_id, stopId),
+        eq(stopsTable.direction_id, directionId),
+      ),
+    )
+    .limit(1);
+  if (baseStop) return baseStop.location as unknown as GeoPoint;
+
+  const [detourStop] = await db
+    .select({ location: asGeoJSON(detourStopsTable.location) })
+    .from(detourStopsTable)
+    .innerJoin(
+      detoursTable,
+      eq(detourStopsTable.detour_id, detoursTable.detour_id),
+    )
+    .where(
+      and(
+        eq(detourStopsTable.detour_stop_id, stopId),
+        eq(detoursTable.direction_id, directionId),
+      ),
+    )
+    .limit(1);
+  return detourStop ? (detourStop.location as unknown as GeoPoint) : null;
+}
+
 /** Detour stops for a set of detours, grouped by detour_id in stop order. */
 export async function loadDetourStopsByDetour(
   db: Db,
@@ -258,10 +293,10 @@ export async function loadRestrictions(
     .select({
       restriction_id: restrictionsTable.restriction_id,
       direction_id: restrictionsTable.direction_id,
+      detour_id: restrictionsTable.detour_id,
       from_coord_index: restrictionsTable.from_coord_index,
       to_coord_index: restrictionsTable.to_coord_index,
-      reason: restrictionsTable.reason,
-      affects: restrictionsTable.affects,
+      kind: restrictionsTable.kind,
       note: restrictionsTable.note,
       is_active: restrictionsTable.is_active,
       created_at: restrictionsTable.created_at,

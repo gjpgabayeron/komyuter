@@ -91,10 +91,10 @@ export interface ExportRows {
   restrictionRows: Array<{
     restriction_id: string;
     direction_id: string;
+    detour_id: string | null;
     from_coord_index: number;
     to_coord_index: number;
-    reason: ExportRestriction["reason"];
-    affects: ExportRestriction["affects"];
+    kind: ExportRestriction["kind"];
     note: string | null;
   }>;
 }
@@ -180,10 +180,10 @@ export function buildExportDataset(
     const list = restrictionsByDirection.get(restriction.direction_id) ?? [];
     list.push({
       restriction_id: restriction.restriction_id,
+      detour_id: restriction.detour_id,
       from_coord_index: restriction.from_coord_index,
       to_coord_index: restriction.to_coord_index,
-      reason: restriction.reason,
-      affects: restriction.affects,
+      kind: restriction.kind,
       note: restriction.note,
     });
     restrictionsByDirection.set(restriction.direction_id, list);
@@ -318,10 +318,10 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
       .select({
         restriction_id: restrictionsTable.restriction_id,
         direction_id: restrictionsTable.direction_id,
+        detour_id: restrictionsTable.detour_id,
         from_coord_index: restrictionsTable.from_coord_index,
         to_coord_index: restrictionsTable.to_coord_index,
-        reason: restrictionsTable.reason,
-        affects: restrictionsTable.affects,
+        kind: restrictionsTable.kind,
         note: restrictionsTable.note,
       })
       .from(restrictionsTable),

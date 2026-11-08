@@ -328,28 +328,32 @@ export function detourDraftKey(userId: string, directionId: string): string {
   return `${DETOUR_DRAFT_KEY_PREFIX}.${userId}.${directionId}`;
 }
 
-export function saveDetourDraft<T>(
+/** A saved detour's own draft key, so switching detours cannot overwrite it. */
+export function detourDraftKeyFor(
   userId: string,
   directionId: string,
+  detourId: string,
+): string {
+  return `${detourDraftKey(userId, directionId)}.${detourId}`;
+}
+
+function writeDetourDraft<T>(
+  key: string,
+  directionId: string,
   payload: T,
-  storage: StorageLike = defaultStorage(),
+  storage: StorageLike,
 ): void {
   storage.setItem(
-    detourDraftKey(userId, directionId),
+    key,
     JSON.stringify({ savedAt: Date.now(), directionId, detour: payload }),
   );
 }
 
-/** Loads the Account's detour draft honouring the 24 h TTL; expired or corrupt
- *  drafts are dropped and never surfaced (same contract as the plotting
- *  draft, FR-014). Returns null when absent. */
-export function loadDetourDraft<T>(
-  userId: string,
-  directionId: string,
-  storage: StorageLike = defaultStorage(),
-  now = Date.now(),
+function readDetourDraft<T>(
+  key: string,
+  storage: StorageLike,
+  now: number,
 ): T | null {
-  const key = detourDraftKey(userId, directionId);
   const raw = storage.getItem(key);
   if (!raw) return null;
   try {
@@ -368,12 +372,79 @@ export function loadDetourDraft<T>(
   }
 }
 
+export function saveDetourDraft<T>(
+  userId: string,
+  directionId: string,
+  payload: T,
+  storage: StorageLike = defaultStorage(),
+): void {
+  writeDetourDraft(
+    detourDraftKey(userId, directionId),
+    directionId,
+    payload,
+    storage,
+  );
+}
+
+/** Saves a draft under a saved detour's own key. */
+export function saveDetourDraftFor<T>(
+  userId: string,
+  directionId: string,
+  detourId: string,
+  payload: T,
+  storage: StorageLike = defaultStorage(),
+): void {
+  writeDetourDraft(
+    detourDraftKeyFor(userId, directionId, detourId),
+    directionId,
+    payload,
+    storage,
+  );
+}
+
+/** Loads the Account's detour draft honouring the 24 h TTL; expired or corrupt
+ *  drafts are dropped and never surfaced (same contract as the plotting
+ *  draft, FR-014). Returns null when absent. */
+export function loadDetourDraft<T>(
+  userId: string,
+  directionId: string,
+  storage: StorageLike = defaultStorage(),
+  now = Date.now(),
+): T | null {
+  return readDetourDraft(detourDraftKey(userId, directionId), storage, now);
+}
+
+/** Loads a saved detour's own draft. */
+export function loadDetourDraftFor<T>(
+  userId: string,
+  directionId: string,
+  detourId: string,
+  storage: StorageLike = defaultStorage(),
+  now = Date.now(),
+): T | null {
+  return readDetourDraft(
+    detourDraftKeyFor(userId, directionId, detourId),
+    storage,
+    now,
+  );
+}
+
 export function clearDetourDraft(
   userId: string,
   directionId: string,
   storage: StorageLike = defaultStorage(),
 ): void {
   storage.removeItem(detourDraftKey(userId, directionId));
+}
+
+/** Clears a saved detour's own draft. */
+export function clearDetourDraftFor(
+  userId: string,
+  directionId: string,
+  detourId: string,
+  storage: StorageLike = defaultStorage(),
+): void {
+  storage.removeItem(detourDraftKeyFor(userId, directionId, detourId));
 }
 
 /**

@@ -26,7 +26,7 @@ restating the milestone name.
 | **M2a**  | Authorization core                 | Roles, Permissions, Super Admin, grant-subset guard                                                           | M1         |
 | **M2b**  | User-management surfaces           | Account lifecycle, attribution, session revocation, read-only workspace                                       | M2a        |
 | **M2c**  | Collaboration safety               | Version stamp, per-user drafts, three-way merge with a resolver                                               | M1         |
-| **M3**   | v1 — complete route modeling       | `R2` triggers, `R3` no-stop segments, `R5` shared fare rule                                                   | M2a        |
+| **M3**   | v1 — complete route modeling       | `R3` loading restrictions, `R5` shared fare rule, route header + detour switcher                              | M2a        |
 | **M4**   | Reliable CI and CD                 | Merge to `dev` → staging, merge to `main` → production behind approval, migration gate, IaC, rollback runbook | M3         |
 | **M5**   | v1.1 — plotting power and polish   | `R6`, `R7`, `R8`, `FR-004`, power-editor features                                                             | M4         |
 | **M6**   | Sandbox playground                 | Algorithms in `@komyuter/shared` behind a real navigation endpoint                                            | M5         |
@@ -49,7 +49,8 @@ The sequence is not a preference — four edges are hard, and the rest are track
   honesty and accountability, not dataset growth. They gate neither M3 nor the plotters.
 - **M3 depends on M2a** for Accounts only; the route-modeling work itself is independent of M2b and
   M2c.
-- **M4 depends on M3** because the migration gate needs a schema change to gate, and `R2` is the first
+- **M4 depends on M3** because the migration gate needs a schema change to gate, and `0015` (restriction
+  kind) is the first
   one to arrive after M1.
 - **M5 and M6 depend on M4** in that their releases are expected to travel the pipeline rather than be
   deployed by hand.
@@ -166,17 +167,22 @@ on different routes keep their own drafts across a reload.
 
 **Deliverables.**
 
-- `R2` — detour conditional triggers: `active_timeframes` and `condition` in the shared types and
-  schemas, in `api/detours.ts`, plus request-time active-detour resolution (ADR-0012).
-- `R3` — no-stop loading and unloading segments over `R1`'s editor: a polyline index range marked
-  `Restriction.affects = both` with `reason = no_stopping_zone`.
+- `R3` — loading restrictions over `R1`'s editor: a polyline index range with one kind
+  (`no_loading`, `no_unloading`, or `both`).
 - `R5` — extract the LTFRB fare rule into `@komyuter/shared` as `fareCalculator`, and rewire the admin
   fare validators and the mobile app onto it.
+- The route header and detour switcher (ADR-0033): 48 px shell header, route and branch popovers,
+  detour management moved out of the bottom-left card.
 - The `v1.0.0` release itself.
 
 **Exit criterion.** Every entity in the domain model — routes, directions, stops, detours, detour stops,
-restrictions, fare configs — can be created, edited and removed from the admin UI; `R2`'s schema change
-is applied to production through the M1 migration path; tag `v1.0.0` exists and is deployed.
+restrictions, fare configs — can be created, edited and removed from the admin UI; the restriction-kind
+migration is applied to **staging** through the M1 migration path; tag `v1.0.0` exists and staging is
+deployed.
+
+**Status (2026-11-03).** Code complete on `feat/m3-complete-route-modeling`: R1, R3, R4, R5 and ADR-0033
+land there, with shared/server/admin suites green. Applying migrations `0014`–`0016` to staging,
+promoting `dev` → `main`, and tagging `v1.0.0` remain release actions.
 
 ## M4 — Reliable CI and CD
 

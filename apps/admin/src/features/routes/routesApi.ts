@@ -4,6 +4,8 @@ import type {
   GeoLineString,
   GeoPoint,
   OverviewRouteEntity,
+  Restriction,
+  RestrictionKind,
   SnappedPath,
   StopType,
 } from "@komyuter/shared";
@@ -332,5 +334,58 @@ export async function deleteDetour(
   const { data } = await api.delete<{ detour_id: string }>(
     `/api/admin/detours/${detourId}`,
   );
+  return data;
+}
+
+/** A restriction's writable fields. `from`/`to` are base-polyline indices. */
+export interface SaveRestrictionPayload {
+  from_coord_index: number;
+  to_coord_index: number;
+  kind: RestrictionKind;
+  note?: string | null;
+}
+
+export type UpdateRestrictionPayload = Partial<SaveRestrictionPayload> & {
+  is_active?: boolean;
+};
+
+export async function listRestrictions(
+  directionId: string,
+): Promise<Restriction[]> {
+  const { data } = await api.get<Restriction[]>(
+    `/api/admin/directions/${directionId}/restrictions`,
+  );
+  return data;
+}
+
+export async function createRestriction(
+  directionId: string,
+  payload: SaveRestrictionPayload,
+): Promise<Restriction> {
+  const { data } = await api.post<Restriction>(
+    `/api/admin/directions/${directionId}/restrictions`,
+    payload,
+  );
+  return data;
+}
+
+export async function updateRestriction(
+  restrictionId: string,
+  patch: UpdateRestrictionPayload,
+): Promise<Restriction> {
+  const { data } = await api.put<Restriction>(
+    `/api/admin/restrictions/${restrictionId}`,
+    patch,
+  );
+  return data;
+}
+
+export async function deactivateRestriction(
+  restrictionId: string,
+): Promise<{ restriction_id: string; is_active: boolean }> {
+  const { data } = await api.delete<{
+    restriction_id: string;
+    is_active: boolean;
+  }>(`/api/admin/restrictions/${restrictionId}`);
   return data;
 }

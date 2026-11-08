@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SaveIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { usePlottingStore } from "@/lib/plottingStore";
+import { clearSelection } from "@/lib/selection";
 import { RouteMap } from "@/features/routes/RouteMap";
 import { MapProvider } from "react-map-gl/maplibre";
 import { RouteList } from "@/features/routes/RouteList";
@@ -15,8 +16,11 @@ import { PlotActionBar } from "@/features/routes/PlotActionBar";
 import { ReadOnlyPlate } from "@/features/routes/ReadOnlyPlate";
 import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
-import { DetourSidebar } from "@/features/detours/DetourSidebar";
 import { DetourLayer } from "@/features/detours/DetourLayer";
+import { RestrictionLayer } from "@/features/restrictions/RestrictionLayer";
+import { useRestrictionStore } from "@/features/restrictions/restrictionStore";
+import { RestrictionList } from "@/features/restrictions/RestrictionList";
+import { RestrictionPanel } from "@/features/restrictions/RestrictionPanel";
 import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
 import { SearchResultsPanel } from "@/features/routes/search/SearchResultsPanel";
 import { plateSlotsFor } from "@/features/routes/workspace/plateSlots";
@@ -103,8 +107,36 @@ function RouteWorkspaceInner() {
   // and gets a status plate where the plotting tools would be (ticket #47).
   const access = useWorkspaceAccess();
 
-  const directionOpen = usePlottingStore((s) => s.directionId !== null);
+  const detourSaving = useDetourStore((s) => s.saving);
   const detourOpen = useDetourStore((s) => s.open);
+  const editDetourId = useDetourStore((s) => s.editDetourId);
+  const restrictionEditing = useRestrictionStore((s) => s.editing);
+  const restrictionSaving = useRestrictionStore((s) => s.saving);
+  const routeId = usePlottingStore((s) => s.routeId);
+
+  useEffect(() => {
+    useRestrictionStore.getState().exit();
+    return () => {
+      useRestrictionStore.getState().exit();
+    };
+  }, [routeId]);
+
+  // Restriction editing follows the focused path. Switching alternatives or
+  // returning to Main must re-scope the editor instead of leaving markers and
+  // ranges attached to the previously focused alternative.
+  useEffect(() => {
+    const store = useRestrictionStore.getState();
+    if (!store.editing) return;
+    if (detourOpen) {
+      if (editDetourId) {
+        if (store.detourId !== editDetourId) store.enter(editDetourId);
+      } else {
+        store.exit();
+      }
+    } else if (store.detourId !== null) {
+      store.enter(null);
+    }
+  }, [detourOpen, editDetourId]);
   // A search session owns the right column while it lasts: results when the
   // answer is ambiguous, nothing when a single hit is being shown on the map.
   const searchActive = usePlottingStore((s) => s.searchActive);
@@ -127,17 +159,19 @@ function RouteWorkspaceInner() {
     () =>
       deriveWorkspaceLayout({
         state: uiState,
-        rightPlate: slots.right === "properties",
+        rightPlate:
+          uiState === "focus" ||
+          restrictionEditing ||
+          slots.right === "properties",
         contextPlate: slots.context === "search",
       }),
-    [uiState, slots.right, slots.context],
+    [uiState, slots.right, slots.context, restrictionEditing],
   );
 
   useHotkeys("mod+s", () => void saveAll(), {
-    // The detour editor owns SAVE while it is open (its panel has the
-    // buttons); the base-route save stays silent so mod+s never saves the
-    // wrong thing mid-detour (review follow-up).
-    enabled: hasRoute && !saving && !detourOpen && access.shortcuts.save,
+    // The detour half is folded into saveAll now, so the universal shortcut
+    // must stay available while an alternative route is open.
+    enabled: hasRoute && !saving && access.shortcuts.save,
     preventDefault: true,
   });
 
@@ -188,6 +222,10 @@ function RouteWorkspaceInner() {
       // Esc first leaves the detour editor (draft preserved for the restore
       // offer); the base-route editor's close flows are untouched.
       if (useDetourStore.getState().open) {
+        if (usePlottingStore.getState().selection.type === "stop") {
+          usePlottingStore.getState().setSelection(clearSelection);
+          return;
+        }
         useDetourStore.getState().close();
         return;
       }
@@ -219,7 +257,8 @@ function RouteWorkspaceInner() {
               {(uiState === "overview" || uiState === "focus") && (
                 <RouteOverviewLayer padding={FOCUS_LAYOUT.padding} />
               )}
-              <DetourLayer />
+              {detourOpen && <DetourLayer />}
+              <RestrictionLayer />
             </RouteMap>
           </main>
 
@@ -231,16 +270,29 @@ function RouteWorkspaceInner() {
             left={
               <div className="flex h-full w-full flex-col">
                 <div className="min-h-0 flex-1 overflow-hidden">
-                  <RouteList
-                    onCreateRoute={openNewRoute}
-                    onCloseEdit={requestCloseEdit}
-                  />
+                  {restrictionEditing ? (
+                    <RestrictionList />
+                  ) : (
+                    <RouteList
+                      onCreateRoute={openNewRoute}
+                      onCloseEdit={requestCloseEdit}
+                    />
+                  )}
                 </div>
-                {directionOpen && !access.readOnly && <DetourSidebar />}
               </div>
             }
-            right={slots.right === "properties" ? <PropertiesPanel /> : null}
-            context={uiState === "edit" ? <SearchResultsPanel /> : null}
+            right={
+              restrictionEditing ? (
+                <RestrictionPanel />
+              ) : uiState === "focus" || slots.right === "properties" ? (
+                <PropertiesPanel />
+              ) : null
+            }
+            context={
+              uiState === "edit" && !restrictionEditing ? (
+                <SearchResultsPanel />
+              ) : null
+            }
             empty={
               <EmptyState
                 onCreateRoute={openNewRoute}
@@ -249,7 +301,7 @@ function RouteWorkspaceInner() {
             }
             chrome={
               hasRoute ? (
-                <div className="flex h-full flex-col justify-between py-3">
+                <div className="flex h-full flex-col justify-between py-2">
                   <div
                     className={cn(
                       "flex w-full items-start gap-2 pr-3",
@@ -261,7 +313,7 @@ function RouteWorkspaceInner() {
                     {/* A place search spends the gated Mapbox token, so the
                         pill is absent without MAPBOX_GEOSERVICES — the map
                         itself keeps working. */}
-                    {access.showPlaceSearch && (
+                    {access.showPlaceSearch && !restrictionEditing && (
                       <PoiSearchBar
                         scopePadding={SEARCH_LAYOUT.padding}
                         shortcutEnabled={!anyDialogOpen}
@@ -302,12 +354,16 @@ function RouteWorkspaceInner() {
                     ) : (
                       <ReadOnlyPlate />
                     )}
-                    {access.showSave && showSave && !detourOpen && (
+                    {access.showSave && showSave && (
                       <Button
                         size="icon"
                         onClick={() => void saveAll()}
-                        disabled={saving}
-                        aria-label={saving ? "Saving changes" : "Save changes"}
+                        disabled={saving || detourSaving || restrictionSaving}
+                        aria-label={
+                          saving || detourSaving || restrictionSaving
+                            ? "Saving changes"
+                            : "Save changes"
+                        }
                       >
                         <SaveIcon />
                       </Button>

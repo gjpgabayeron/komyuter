@@ -582,6 +582,9 @@ importers:
       typescript:
         specifier: 5.5.4
         version: 5.5.4
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@24.19.2)(lightningcss@1.33.0)(supports-color@8.1.1)(terser@5.51.2)
 
   packages/typescript-config: {}
 

@@ -1,4 +1,5 @@
 import type { StopShape } from "@/lib/stopShapes";
+import type { RestrictionKind } from "@komyuter/shared";
 
 /** Signboard green-blue — the brand's primary plate colour (DESIGN.md). */
 export const SIGNBOARD_BLUE = "#1B6DB2";
@@ -43,6 +44,26 @@ export function detourColorFor(detourId: string): string {
 /** Signal amber — the LIVE detour composition (entry/exit/loop) while the
  *  editor is open; transient, never persisted. */
 export const DETOUR_DRAFT_COLOR = "#D97706";
+
+/** Restriction bands are kind-coded: loading, unloading, and both must read
+ *  apart at a glance. Signal amber, teal, and violet also stay distinct from
+ *  the route palette and the detour palette. */
+export const RESTRICTION_KIND_COLORS: Record<RestrictionKind, string> = {
+  no_loading: "#D97706",
+  no_unloading: "#0F766E",
+  both: "#7C3AED",
+};
+
+/** Dark ink on the amber fill, white on the darker fills (DESIGN.md). */
+export const RESTRICTION_KIND_TEXT: Record<RestrictionKind, string> = {
+  no_loading: "#201A10",
+  no_unloading: "#FFFFFF",
+  both: "#FFFFFF",
+};
+
+export function restrictionColorFor(kind: RestrictionKind): string {
+  return RESTRICTION_KIND_COLORS[kind];
+}
 
 /** Dash pattern marking every detour line as an alternative to the solid
  *  base route, so a switched-off detour is still legibly a detour. */

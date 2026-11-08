@@ -257,8 +257,7 @@ describe("Attribution on detours, restrictions and fare configs (ADR-0025)", () 
       payload: {
         from_coord_index: 0,
         to_coord_index: 1,
-        reason: "no_stopping_zone",
-        affects: "boarding",
+        kind: "no_loading",
       },
     });
     expect(created.statusCode).toBe(201);
@@ -276,7 +275,7 @@ describe("Attribution on detours, restrictions and fare configs (ADR-0025)", () 
       method: "PUT",
       url: `/api/admin/restrictions/${restrictionId}`,
       headers: auth(plotterToken),
-      payload: { affects: "both" },
+      payload: { kind: "both" },
     });
     expect(updated.statusCode).toBe(200);
     expect(updated.json().data.created_by).toEqual({
@@ -420,8 +419,7 @@ describe("Attribution on detours, restrictions and fare configs (ADR-0025)", () 
       payload: {
         from_coord_index: 0,
         to_coord_index: 1,
-        reason: "no_stopping_zone",
-        affects: "boarding",
+        kind: "no_loading",
       },
     });
 

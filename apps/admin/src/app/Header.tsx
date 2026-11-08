@@ -1,7 +1,8 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { KeyRound, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { BrandMark } from "@/components/shared/BrandMark";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -19,6 +20,16 @@ import { getDisplayName, getInitials } from "@/features/auth/session";
 import { getSectionByPath } from "@/lib/sections";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { useRouteQuery } from "@/features/routes/useRouteQueries";
+import { getWorkspaceBridge } from "@/lib/workspaceBridge";
+import { RouteHeader } from "./RouteHeader";
+
+function HeaderSlash() {
+  return (
+    <span aria-hidden className="text-muted-foreground/40 shrink-0 select-none">
+      /
+    </span>
+  );
+}
 
 export function Header() {
   const { pathname, search } = useLocation();
@@ -26,12 +37,14 @@ export function Header() {
   const { user, signOut } = useAuth();
   const section = getSectionByPath(pathname);
 
-  // Breadcrumb: the plotting page reflects the route being edited.
+  // Breadcrumb: the plotting page reflects the route being edited or focused.
   const routeId = usePlottingStore((s) => s.routeId);
-  const routeQuery = useRouteQuery(routeId);
+  const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
+  const displayRouteId = routeId ?? focusedRouteId;
+  const routeQuery = useRouteQuery(displayRouteId);
   const title =
     section?.id === "routes"
-      ? routeId !== null
+      ? displayRouteId !== null
         ? `Route › ${routeQuery.data?.name ?? "…"}`
         : "Route"
       : (section?.label ?? "Komyuter");
@@ -51,13 +64,37 @@ export function Header() {
   };
 
   return (
-    <header className="bg-background flex h-14 shrink-0 items-center justify-between border-b px-4 lg:px-6">
-      <h1
-        className="text-foreground text-base font-semibold tracking-tight"
-        aria-live="polite"
-      >
-        {title}
-      </h1>
+    <header className="bg-background flex h-12 shrink-0 items-center justify-between border-b pr-6 pl-4">
+      <div className="flex min-w-0 items-center gap-2">
+        <Link
+          to="/"
+          aria-label="Komyuter home"
+          className="flex shrink-0 items-center"
+        >
+          <BrandMark markOnly />
+        </Link>
+        <HeaderSlash />
+        {section?.id === "routes" ? (
+          <>
+            <h1 className="sr-only">{title}</h1>
+            <button
+              type="button"
+              onClick={() => getWorkspaceBridge()?.goOverview()}
+              className="text-muted-foreground hover:text-foreground shrink-0 text-sm"
+            >
+              Routes
+            </button>
+            <RouteHeader />
+          </>
+        ) : (
+          <h1
+            className="text-foreground text-base font-semibold tracking-tight"
+            aria-live="polite"
+          >
+            {title}
+          </h1>
+        )}
+      </div>
       <div className="flex items-center gap-2">
         {user ? (
           <DropdownMenu>

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import { GitBranch, Merge } from "lucide-react";
+import { GitBranch, Merge, X } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import Map, { Marker } from "react-map-gl/maplibre";
+import Map, { Marker, Popup } from "react-map-gl/maplibre";
 import { baseMapStyleFor, ILOILO_CITY } from "@/lib/tiles";
 import { resolveConnectingLine } from "@/lib/coords";
 import { pathFromConnections } from "@/lib/connections";
@@ -33,6 +33,10 @@ import {
   SIGNBOARD_BLUE,
 } from "./map/constants";
 import { useDetourStore } from "@/features/detours/detourStore";
+import { splitBaseForDetour } from "@/features/detours/detourSplit";
+import { useDetourPreviewStore } from "@/features/detours/detourPreviewStore";
+import { useRestrictionStore } from "@/features/restrictions/restrictionStore";
+import { nearestVertexIndex } from "@/features/restrictions/restrictionHelpers";
 import {
   useDetourEditing,
   useWorkspaceAccess,
@@ -103,13 +107,17 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
   // Detour stops are first-class stops while the detour editor is open: the
   // same marker plates as base stops, draggable, clickable → property panel.
   const detourOpen = useDetourStore((s) => s.open);
+  const restrictionEditing = useRestrictionStore((s) => s.editing);
   const detourStops = useDetourStore((s) => s.detourStops);
   const selectedDetourStopId = useDetourStore((s) => s.selectedDetourStopId);
   const detourEntry = useDetourStore((s) => s.entry);
   const detourExit = useDetourStore((s) => s.exit);
-  const hiddenDetourIds = useDetourStore((s) => s.hiddenDetourIds);
-  // Saved detours' STOPS are visible while the workshop is closed (the tool is
-  // inactive) — gated by the layers → markers toggle, like their lines.
+  const detourPreview = useDetourPreviewStore((s) => s.preview);
+  const hideDetourPreview = useDetourPreviewStore((s) => s.hide);
+  const detourSplit = useMemo(() => {
+    if (!detourOpen || !detourEntry || !detourExit || !polyline) return null;
+    return splitBaseForDetour(polyline, detourEntry, detourExit);
+  }, [detourOpen, detourEntry, detourExit, polyline]);
   const openDirectionId = usePlottingStore((s) => s.directionId);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const { data: savedDetours } = useDetoursQuery(openDirectionId);
@@ -123,6 +131,33 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
     // search resolved to is still the answer, and a click on the map should not
     // erase it. Only the popup's own dismiss (× / `onClose`) drops the marker.
     setPoiSelection(null);
+    // A restriction range is being picked: the next two map clicks choose
+    // base-polyline vertices, and no other tool may consume them.
+    const restriction = useRestrictionStore.getState();
+    if (restriction.editing) {
+      // Restriction mode reuses the toolbar tool: Select chooses a saved band
+      // (handled by RestrictionLayer), Add starts/re-ranges a range and the
+      // next two map clicks choose its endpoints.
+      if (tool === "add") {
+        if (restriction.mode !== "picking") restriction.startNew();
+        if (openDirection) {
+          const rangeLine =
+            restriction.detourId === null
+              ? openDirection.base_polyline
+              : (savedDetours?.find(
+                  (detour) => detour.detour_id === restriction.detourId,
+                )?.detour_polyline ??
+                useDetourStore.getState().loop ??
+                openDirection.base_polyline);
+          const index = nearestVertexIndex(
+            [event.lngLat.lng, event.lngLat.lat],
+            rangeLine,
+          );
+          if (index !== null) useRestrictionStore.getState().pick(index);
+        }
+      }
+      return;
+    }
     // While the detour editor is open the map taps belong to it (entry/exit/
     // waypoint placement) — the base-route tooling steps aside entirely.
     // Guard on `open`, not `mode` (a future idle-but-open state must not
@@ -134,8 +169,11 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
         useDetourStore
           .getState()
           .handleMapClick([event.lngLat.lng, event.lngLat.lat]);
-      } else {
-        useDetourStore.getState().close();
+      } else if (tool === "select") {
+        // A stray map tap may clear the selected stop, but it must NEVER
+        // drop the focused alternative: the detour stays open until Back,
+        // Esc, or another branch is chosen.
+        setSelection(clearSelection);
       }
       return;
     }
@@ -157,12 +195,21 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
 
   const handleStopClick = (stopId: string) => {
     if (routeId === null) return;
+    // A base stop selected from the merged detour list opens the base stop
+    // editor while the detour draft stays live. Clear the detour-stop
+    // selection so the rail has one clear subject.
+    useDetourStore.getState().selectDetourStop(null);
     setSelection(selectStop(stopId));
   };
 
   // Read-only (ticket #47): stops are selection targets, never draggable —
   // a drag is a stop edit, and nothing on this surface may write.
-  const canDrag = routeId !== null && tool === "select" && !readOnly;
+  const canDrag =
+    routeId !== null &&
+    tool === "select" &&
+    !readOnly &&
+    !detourOpen &&
+    !restrictionEditing;
 
   // Keep a visible connecting line between stops (FR-006): the committed
   // road-snapped draft is drawn separately; before any path exists a
@@ -277,13 +324,86 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
         <PoiFocuser padding={padding} />
         <PoiCandidatesLayer />
         <PoiPopup />
+        {!detourOpen && detourPreview && (
+          <Popup
+            longitude={detourPreview.longitude}
+            latitude={detourPreview.latitude}
+            anchor="bottom"
+            offset={22}
+            closeButton={false}
+            closeOnClick={false}
+            maxWidth="16rem"
+            onClose={hideDetourPreview}
+          >
+            <div className="flex w-56 flex-col gap-1.5 p-0.5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-foreground truncate text-sm font-semibold">
+                    {detourPreview.detour.label}
+                  </p>
+                  <p className="text-muted-foreground text-xs leading-snug">
+                    {detourPreview.detour.is_active ? "Active" : "Inactive"} ·{" "}
+                    {detourPreview.detour.detour_stops.length} stops
+                    {detourPreview.detour.additional_distance_meters !== null
+                      ? ` · +${Math.round(
+                          detourPreview.detour.additional_distance_meters,
+                        )} m`
+                      : ""}
+                  </p>
+                  {detourPreview.detour.commuter_instruction && (
+                    <p className="text-muted-foreground text-[11px] leading-snug">
+                      {detourPreview.detour.commuter_instruction}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  aria-label="Dismiss alternative route details"
+                  onClick={hideDetourPreview}
+                  className="text-muted-foreground hover:text-foreground -mt-0.5 -mr-0.5 shrink-0 rounded-sm p-0.5"
+                >
+                  <X className="size-3.5" />
+                </button>
+              </div>
+              {detourEditing ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!openDirection) return;
+                    hideDetourPreview();
+                    setSelection(clearSelection);
+                    useDetourStore.getState().openEdit(
+                      detourPreview.detour,
+                      buildDetourTarget(
+                        openDirection,
+                        routeMeta?.name ?? "Route",
+                        savedDetours?.length ?? 0,
+                        (directionStops ?? []).map((s) => ({
+                          stop_id: s.stop_id,
+                          name: s.name,
+                          location: s.location.coordinates,
+                        })),
+                      ),
+                    );
+                  }}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-1 rounded-sm px-2 py-1.5 text-xs font-semibold"
+                >
+                  Edit alternative route
+                </button>
+              ) : (
+                <p className="text-muted-foreground text-[11px]">Read-only</p>
+              )}
+            </div>
+          </Popup>
+        )}
         <BasemapController />
         <PerspectiveController />
         <RouteLines
           draft={layers.routes ? polyline : null}
-          connecting={layers.routes ? connectingLine : null}
+          connecting={layers.routes && !detourSplit ? connectingLine : null}
           color={routeColor ?? DRAFT_LINE}
           routeId={routeId}
+          detourSplit={detourSplit}
         />
         {poi && (
           <Marker longitude={poi[0]} latitude={poi[1]}>
@@ -332,7 +452,13 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
                 moveStop(stop.id, [event.lngLat.lng, event.lngLat.lat])
               }
             >
-              <div className="relative flex flex-col items-center">
+              <div
+                className={
+                  restrictionEditing
+                    ? "pointer-events-none relative flex flex-col items-center"
+                    : "relative flex flex-col items-center"
+                }
+              >
                 <button
                   type="button"
                   aria-label={`Stop ${index + 1}: ${stop.name} (${STOP_TYPE_LABELS[stop.type]})`}
@@ -458,6 +584,7 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
                     aria-label={`Detour stop ${index + 1}: ${stop.name} (${STOP_TYPE_LABELS[stop.type]})`}
                     onClick={(event) => {
                       event.stopPropagation();
+                      setSelection(clearSelection);
                       useDetourStore.getState().selectDetourStop(stop.id);
                     }}
                     style={{
@@ -469,7 +596,7 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
                       // Distinct from base stops: HOLLOW, dashed outline so a
                       // detour stop never reads as a main-route stop even at
                       // the same type colour (FR-012).
-                      "flex size-7 items-center justify-center border-2 border-dashed text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
+                      "flex size-7 items-center justify-center border-2 text-xs font-bold tabular-nums ring-2 ring-white transition-colors",
                       SHAPE_CLASS[shape.shape],
                       selected &&
                         "outline-foreground outline-2 outline-offset-1",
@@ -492,122 +619,6 @@ export function RouteMap({ className, children, padding }: RouteMapProps) {
               </Marker>
             );
           })}
-        {!detourOpen &&
-          layers.detourStops &&
-          (savedDetours ?? [])
-            .filter(
-              (detour) =>
-                layers.detours && !hiddenDetourIds.includes(detour.detour_id),
-            )
-            .flatMap((detour) =>
-              detour.detour_stops.map((stop, index) => {
-                const shape = getStopShape(stop.type);
-                // Same chip either way: the read-only workspace keeps the
-                // detour stop legible on the map and only loses the control
-                // that would open the editor.
-                const chipStyle = {
-                  backgroundColor: "#ffffff",
-                  borderColor: shape.color,
-                  color: shape.color,
-                };
-                const chipClass = [
-                  "flex size-6 items-center justify-center border-2 border-dashed text-[10px] font-bold tabular-nums ring-2 ring-white/70",
-                  SHAPE_CLASS[shape.shape],
-                ].join(" ");
-                return (
-                  <Marker
-                    key={`${detour.detour_id}:${stop.detour_stop_id}`}
-                    longitude={stop.location.coordinates[0]}
-                    latitude={stop.location.coordinates[1]}
-                  >
-                    <div className="relative flex flex-col items-center">
-                      {detourEditing ? (
-                        <button
-                          type="button"
-                          aria-label={`Focus ${detour.label}, detour stop ${index + 1}: ${stop.name}`}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            if (!openDirection) return;
-                            useDetourStore.getState().openEdit(
-                              detour,
-                              buildDetourTarget(
-                                openDirection,
-                                routeMeta?.name ?? "Route",
-                                savedDetours?.length ?? 0,
-                                (directionStops ?? []).map((s) => ({
-                                  stop_id: s.stop_id,
-                                  name: s.name,
-                                  location: s.location.coordinates,
-                                })),
-                              ),
-                            );
-                            useDetourStore
-                              .getState()
-                              .selectDetourStop(stop.detour_stop_id);
-                          }}
-                          style={chipStyle}
-                          className={`${chipClass} cursor-pointer`}
-                        >
-                          {index + 1}
-                        </button>
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          style={chipStyle}
-                          className={chipClass}
-                        >
-                          {index + 1}
-                        </span>
-                      )}
-                      {layers.detourStopLabels && (
-                        <span className="absolute top-full mt-0.5 max-w-28 truncate rounded-xs border border-[#1B6DB2] bg-white px-1 text-[11px] leading-4 font-medium text-[#1B6DB2]">
-                          {stop.name}
-                        </span>
-                      )}
-                    </div>
-                  </Marker>
-                );
-              }),
-            )}
-        {!detourOpen &&
-          layers.detourNodes &&
-          (savedDetours ?? [])
-            .filter(
-              (detour) =>
-                detour.is_active &&
-                layers.detours &&
-                !hiddenDetourIds.includes(detour.detour_id),
-            )
-            .flatMap((detour) => [
-              <Marker
-                key={`${detour.detour_id}:split`}
-                longitude={detour.entry.coordinates[0]}
-                latitude={detour.entry.coordinates[1]}
-              >
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  aria-label={`${detour.label} split node`}
-                  className="pointer-events-none flex size-5 items-center justify-center rounded-full border-2 border-white bg-[#C98100]/80 text-white ring-2 ring-white/60"
-                >
-                  <GitBranch className="size-3" />
-                </button>
-              </Marker>,
-              <Marker
-                key={`${detour.detour_id}:merge`}
-                longitude={detour.exit.coordinates[0]}
-                latitude={detour.exit.coordinates[1]}
-              >
-                <button
-                  type="button"
-                  tabIndex={-1}
-                  aria-label={`${detour.label} merge node`}
-                  className="pointer-events-none flex size-5 items-center justify-center rounded-full border-2 border-white bg-[#0F172A]/80 text-white ring-2 ring-white/60"
-                >
-                  <Merge className="size-3" />
-                </button>
-              </Marker>,
-            ])}
         {children}
       </Map>
     </div>

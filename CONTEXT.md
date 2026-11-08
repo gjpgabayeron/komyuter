@@ -57,11 +57,11 @@ One element of navigation output: walk, board, ride, alight, or transfer.
 _Avoid_: Route segment, trip segment, segment
 
 **Detour**:
-A demand-triggered, direction-specific loop that departs from and returns to a route's base polyline, serving stops not reachable on the base path.
+A direction-specific alternative loop that departs from and returns to a route's base polyline, serving stops not reachable on the base path.
 _Avoid_: Detour segment
 
 **Restriction**:
-A portion of a route's polyline where boarding or alighting is not permitted. Affects boarding-point eligibility only; never part of the transit graph.
+A portion of a route's polyline where loading or unloading is not permitted, typed `no_loading`, `no_unloading`, or `both`. Affects boarding-point eligibility only; never part of the transit graph.
 _Avoid_: Restricted segment, no-stopping zone
 
 **Direction**:

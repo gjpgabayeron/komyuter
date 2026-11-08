@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { geoPointSchema, geoLineStringSchema } from "./geometry";
-import {
-  stopTypeSchema,
-  restrictionReasonSchema,
-  restrictionAffectsSchema,
-} from "./domain";
+import { stopTypeSchema, restrictionKindSchema } from "./domain";
 import {
   EXPORT_SCHEMA_VERSION,
   EXPORT_COORDINATE_ORDER,
@@ -23,10 +19,10 @@ export const exportFareConfigurationSchema = z.object({
 
 export const exportRestrictionSchema = z.object({
   restriction_id: z.string().min(1),
+  detour_id: z.string().nullable(),
   from_coord_index: z.number().int().min(0),
   to_coord_index: z.number().int().min(0),
-  reason: restrictionReasonSchema,
-  affects: restrictionAffectsSchema,
+  kind: restrictionKindSchema,
   note: z.string().nullable(),
 });
 

@@ -29,8 +29,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isStopSelected, selectStop } from "@/lib/selection";
+import { isStopSelected, clearSelection, selectStop } from "@/lib/selection";
 import { usePlottingStore } from "@/lib/plottingStore";
+import { projectPointOnPolyline } from "@/lib/coords";
 import { getStopShape, type StopShape } from "@/lib/stopShapes";
 import { SHAPE_CLASS } from "./map/constants";
 import { pathFromConnections } from "@/lib/connections";
@@ -68,6 +69,22 @@ const SHAPE_CHIP: Record<StopShape, string> = {
   diamond: "rotate-45 rounded-[2px]",
 };
 
+function DetourDivider({ label }: { label: string }) {
+  return (
+    <div
+      role="separator"
+      aria-label={label}
+      className="flex items-center gap-2 px-1 py-1.5"
+    >
+      <span className="bg-border h-px flex-1" />
+      <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
+        {label}
+      </span>
+      <span className="bg-border h-px flex-1" />
+    </div>
+  );
+}
+
 /**
  * Floating navigation overlay (FR-002). Two views:
  * - Route list (no route selected): searchable, filterable rows with status +
@@ -92,6 +109,10 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const stops = usePlottingStore((s) => s.stops);
   const detourOpen = useDetourStore((s) => s.open);
   const detourStops = useDetourStore((s) => s.detourStops);
+  const detourEntry = useDetourStore((s) => s.entry);
+  const detourExit = useDetourStore((s) => s.exit);
+  const detourTarget = useDetourStore((s) => s.target);
+  const selectedDetourStopId = useDetourStore((s) => s.selectedDetourStopId);
   const selectDetourStop = useDetourStore((s) => s.selectDetourStop);
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const setRouteMeta = usePlottingStore((s) => s.setRouteMeta);
@@ -221,6 +242,151 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
   const empty =
     !routesQuery.isLoading && !routesQuery.isError && routes.length === 0;
 
+  // While a detour is open the base chain and its detour stops share one list:
+  // stops before the split, the detour section, base stops inside the replaced
+  // span (marked), then the stops after the merge. The split/merge are points
+  // on the base polyline, so classify stops by their projection rather than by
+  // chain index alone.
+  const detourSections = useMemo(() => {
+    if (!detourOpen) return { before: [], after: [] };
+    const positioned = stops.map((stop, index) => ({
+      stop,
+      index,
+      projection: detourTarget
+        ? projectPointOnPolyline(
+            stop.location,
+            detourTarget.basePolyline.coordinates,
+            Number.POSITIVE_INFINITY,
+          )
+        : null,
+    }));
+    const entry = detourEntry;
+    const exit = detourExit;
+    if (!entry || !exit) {
+      return { before: positioned, after: [] };
+    }
+    const beforeEntry = (item: (typeof positioned)[number]) =>
+      item.projection !== null &&
+      (item.projection.index < entry.index ||
+        (item.projection.index === entry.index &&
+          item.projection.fraction <= entry.fraction));
+    const afterExit = (item: (typeof positioned)[number]) =>
+      item.projection === null ||
+      item.projection.index > exit.index ||
+      (item.projection.index === exit.index &&
+        item.projection.fraction >= exit.fraction);
+    return {
+      before: positioned.filter(beforeEntry),
+      after: positioned.filter(afterExit),
+    };
+  }, [detourOpen, detourEntry, detourExit, detourTarget, stops]);
+
+  const renderDetourBaseStop = (
+    item: (typeof detourSections.before)[number],
+  ) => {
+    const { stop, index } = item;
+    const shape = getStopShape(stop.type);
+    const selected = isStopSelected(selection, stop.id);
+    return (
+      <button
+        key={stop.id}
+        type="button"
+        onClick={() => {
+          selectDetourStop(null);
+          setSelection(selectStop(stop.id));
+        }}
+        aria-label={`Select ${stop.name}`}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-lg border px-1.5 py-1.5 text-left transition-colors",
+          selected
+            ? "border-primary/50 bg-primary/5"
+            : "hover:bg-muted border-transparent",
+        )}
+      >
+        <span
+          className={cn(
+            "flex size-5 shrink-0 items-center justify-center border-2 border-white text-[11px] font-bold tabular-nums ring-1 ring-black/10",
+            SHAPE_CHIP[shape.shape],
+            selected && "outline-foreground outline-2 outline-offset-1",
+          )}
+          style={{
+            backgroundColor: shape.color,
+            color: stop.type === "waiting_area" ? "#201A10" : "#ffffff",
+          }}
+        >
+          {shape.shape === "diamond" ? (
+            <span className="-rotate-45">{index + 1}</span>
+          ) : (
+            index + 1
+          )}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="text-foreground block truncate text-sm">
+            {stop.name}
+          </span>
+        </span>
+        <Badge
+          className="h-4 shrink-0 border px-1 text-[11px] font-medium"
+          style={{
+            backgroundColor: shape.color,
+            borderColor: shape.color,
+            color: stop.type === "waiting_area" ? "#201A10" : "#ffffff",
+          }}
+        >
+          {STOP_TYPE_LABELS[stop.type]}
+        </Badge>
+      </button>
+    );
+  };
+
+  const renderDetourStop = (
+    stop: (typeof detourStops)[number],
+    index: number,
+  ) => {
+    const shape = getStopShape(stop.type);
+    const selected = selectedDetourStopId === stop.id;
+    return (
+      <button
+        key={stop.id}
+        type="button"
+        onClick={() => {
+          selectDetourStop(stop.id);
+          setSelection(clearSelection);
+        }}
+        aria-label={`Detour stop ${index + 1}: ${stop.name}`}
+        className={cn(
+          "flex w-full items-center gap-1.5 rounded-sm border px-1.5 py-1 text-left transition-colors",
+          selected
+            ? "border-primary/50 bg-primary/5"
+            : "hover:bg-muted border-transparent",
+        )}
+      >
+        <span
+          aria-hidden
+          style={{
+            backgroundColor: "#ffffff",
+            borderColor: shape.color,
+            color: shape.color,
+          }}
+          className={cn(
+            "flex size-5 shrink-0 items-center justify-center border-2 text-[10px] font-bold",
+            SHAPE_CLASS[shape.shape],
+          )}
+        >
+          {shape.shape === "diamond" ? (
+            <span className="-rotate-45">{index + 1}</span>
+          ) : (
+            index + 1
+          )}
+        </span>
+        <span className="min-w-0 flex-1 truncate text-xs">{stop.name}</span>
+        <span className="text-muted-foreground/70 shrink-0 text-[10px]">
+          {STOP_TYPE_LABELS[stop.type]}
+        </span>
+      </button>
+    );
+  };
+
   return (
     <>
       {detail ? (
@@ -238,8 +404,14 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                 aria-label="Back to routes"
                 onClick={() => {
                   // Focused on a detour? Back returns to the MAIN route first;
-                  // a second press leaves the workspace as usual.
+                  // a second press leaves the workspace as usual. If a base
+                  // stop was opened from the merged list, Back first clears
+                  // that selection and returns to the detour editor.
                   if (useDetourStore.getState().open) {
+                    if (usePlottingStore.getState().selection.type === "stop") {
+                      usePlottingStore.getState().setSelection(clearSelection);
+                      return;
+                    }
                     useDetourStore.getState().close();
                     return;
                   }
@@ -254,7 +426,17 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
               </button>
               <div className="min-w-0 flex-1">
                 <h2 className="text-foreground truncate text-sm font-semibold">
-                  {routeQuery.data?.name ?? "Route"}
+                  {routeQuery.isPending ? (
+                    <span
+                      role="status"
+                      aria-label="Loading route"
+                      className="bg-muted block h-4 w-32 animate-pulse rounded-sm motion-reduce:animate-none"
+                    />
+                  ) : routeQuery.isError ? (
+                    "Route unavailable"
+                  ) : (
+                    (routeQuery.data?.name ?? "Route")
+                  )}
                 </h2>
                 <div className="flex items-center gap-1.5">
                   {routeQuery.data?.short_name && (
@@ -296,54 +478,47 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                 <>
                   <div className="flex shrink-0 items-center justify-between px-1 pb-1">
                     <span className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
-                      Detour stops
+                      Stops
                     </span>
-                    <span className="text-muted-foreground text-xs tabular-nums">
-                      {detourStops.length}
+                    <span className="flex items-center gap-1.5">
+                      {closedLoop && (
+                        <span
+                          className="rounded-sm border border-[#1B6DB2]/40 bg-[#1B6DB2]/10 px-1.5 text-[10px] leading-4 font-medium text-[#1B6DB2]"
+                          title="Last stop connects back to the first — circular route"
+                        >
+                          Loop
+                        </span>
+                      )}
+                      <span className="text-muted-foreground text-xs tabular-nums">
+                        {stops.length}
+                      </span>
                     </span>
                   </div>
-                  {detourStops.length === 0 ? (
-                    <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
-                      <p className="text-sm font-medium">No detour stops yet</p>
-                      <p className="text-muted-foreground max-w-52 text-xs">
-                        With the Add tool active, click the map along the path
-                        between the split and merge nodes to add stops.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
-                      {detourStops.map((stop, index) => (
-                        <button
-                          type="button"
-                          key={stop.id}
-                          onClick={() => selectDetourStop(stop.id)}
-                          aria-label={`Detour stop ${index + 1}: ${stop.name}`}
-                          className="flex w-full items-center gap-1.5 rounded-sm border border-dashed border-[#1B6DB2]/40 px-1.5 py-1 text-left"
-                        >
-                          <span
-                            aria-hidden
-                            style={{
-                              backgroundColor: "#ffffff",
-                              borderColor: getStopShape(stop.type).color,
-                              color: getStopShape(stop.type).color,
-                            }}
-                            className={cn(
-                              "flex size-5 shrink-0 items-center justify-center border-2 border-dashed text-[10px] font-bold",
-                              SHAPE_CLASS[getStopShape(stop.type).shape],
-                            )}
-                          >
-                            {index + 1}
-                          </span>
-                          <span className="min-w-0 flex-1 truncate text-xs">
-                            {stop.name}
-                          </span>
-                          <span className="text-muted-foreground/70 shrink-0 text-[10px]">
-                            {STOP_TYPE_LABELS[stop.type]}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  <div className="overlay-scrollbar -mr-2 min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-2">
+                    {detourSections.before.map((item) =>
+                      renderDetourBaseStop(item),
+                    )}
+                    <DetourDivider label="Detour starts" />
+                    {detourStops.length === 0 ? (
+                      <div className="flex flex-col items-center gap-1.5 px-2 py-6 text-center">
+                        <p className="text-sm font-medium">
+                          No detour stops yet
+                        </p>
+                        <p className="text-muted-foreground max-w-52 text-xs">
+                          With the Add tool active, click the map along the path
+                          between the split and merge nodes to add stops.
+                        </p>
+                      </div>
+                    ) : (
+                      detourStops.map((stop, index) =>
+                        renderDetourStop(stop, index),
+                      )
+                    )}
+                    <DetourDivider label="Detour ends" />
+                    {detourSections.after.map((item) =>
+                      renderDetourBaseStop(item),
+                    )}
+                  </div>
                 </>
               ) : (
                 <>
@@ -375,7 +550,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
                       </p>
                     </div>
                   ) : (
-                    <div className="overlay-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto">
+                    <div className="overlay-scrollbar -mr-2 min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-2">
                       {stops.map((stop, index) => {
                         const selected = isStopSelected(selection, stop.id);
                         const shape = getStopShape(stop.type);
@@ -612,7 +787,7 @@ export function RouteList({ onCreateRoute, onCloseEdit }: RouteListProps) {
             )}
 
             {/* List / states */}
-            <div className="overlay-scrollbar mt-1.5 min-h-0 flex-1 space-y-1 overflow-y-auto">
+            <div className="overlay-scrollbar mt-1.5 -mr-2 min-h-0 flex-1 space-y-1 overflow-y-auto pr-2">
               {routesQuery.isLoading && (
                 <>
                   <Skeleton className="h-12 w-full" />

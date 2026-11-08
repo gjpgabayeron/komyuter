@@ -1,5 +1,5 @@
 import type { GeoPoint, GeoLineString } from "./geometry";
-import type { StopType, RestrictionReason, RestrictionAffects } from "./domain";
+import type { StopType, RestrictionKind } from "./domain";
 
 export const EXPORT_SCHEMA_VERSION = "1.1";
 export const EXPORT_COORDINATE_ORDER = "lng_lat";
@@ -17,10 +17,10 @@ export interface ExportFareConfiguration {
 
 export interface ExportRestriction {
   restriction_id: string;
+  detour_id: string | null;
   from_coord_index: number;
   to_coord_index: number;
-  reason: RestrictionReason;
-  affects: RestrictionAffects;
+  kind: RestrictionKind;
   note: string | null;
 }
 

@@ -2,18 +2,17 @@ import { useMemo } from "react";
 import { Pencil, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { usePlottingStore } from "@/lib/plottingStore";
-import { readOverviewCache } from "@/lib/overviewCache";
+import { DetailRow, DetailSection } from "@/components/shared/DetailList";
 import { Plate } from "@/components/shared/Plate";
-import { SectionLabel } from "@/components/shared/SectionLabel";
+import { readOverviewCache } from "@/lib/overviewCache";
+import { usePlottingStore } from "@/lib/plottingStore";
 import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
 import { useRoutesQuery } from "../useRouteQueries";
 
 /**
  * The focus plate (T2/T12) — a read-only peek at a route picked from the
- * map, in the right column. Never enters edit mode; "Edit route" is the
- * single entry point. Data comes from the already-loaded route list + the
- * overview cache — no extra network fetch, so the plate appears instantly.
+ * map. The whole surface is the standard details UI; Edit route is the single
+ * entry point and lives outside the scrolling details.
  */
 export function FocusPlate({ routeId }: { routeId: string }) {
   const { readOnly } = useWorkspaceAccess();
@@ -35,48 +34,46 @@ export function FocusPlate({ routeId }: { routeId: string }) {
         padded="md"
         className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-y-0 border-r-0"
       >
-        <header className="flex shrink-0 items-center justify-between gap-2">
-          <SectionLabel as="span">Route</SectionLabel>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            aria-label="Close focus plate"
-            onClick={() => setFocusedRouteId(null)}
-          >
-            <X className="size-3.5" />
-          </Button>
-        </header>
-        <h2 className="font-display text-foreground mt-1 truncate text-base font-semibold">
-          {route?.name ?? "…"}
-        </h2>
-        <div className="mt-0.5 flex items-center gap-1.5">
-          {route?.short_name && (
-            <span className="text-muted-foreground text-xs">
-              {route.short_name}
-            </span>
-          )}
-          {route && (
-            <Badge
-              variant={route.is_active ? "default" : "outline"}
-              className="h-4 px-1 text-[10px] font-medium"
+        <header className="flex shrink-0 items-start justify-between gap-2 border-b pb-3">
+          <div className="min-w-0">
+            <h2 className="font-display text-foreground truncate text-base font-semibold">
+              {route?.name ?? "…"}
+            </h2>
+            <p className="text-muted-foreground mt-0.5 truncate text-xs">
+              {route?.short_name ?? "Route"}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-1">
+            {route && (
+              <Badge
+                variant={route.is_active ? "default" : "outline"}
+                className="h-4 px-1 text-[10px] font-medium"
+              >
+                {route.is_active ? "Active" : "Inactive"}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              aria-label="Close focus plate"
+              onClick={() => setFocusedRouteId(null)}
             >
-              {route.is_active ? "Active" : "Inactive"}
-            </Badge>
-          )}
+              <X className="size-3.5" />
+            </Button>
+          </div>
+        </header>
+
+        <div className="overlay-scrollbar mt-3 -mr-3 min-h-0 flex-1 overflow-y-auto pr-3">
+          <DetailSection className="mt-0 border-t-0 pt-0">
+            <DetailRow label="Stops">{stopCount ?? "—"}</DetailRow>
+            <DetailRow label="Directions">
+              {route?.direction_count ?? "—"}
+            </DetailRow>
+          </DetailSection>
         </div>
-        <dl className="mt-3 space-y-1.5 text-sm">
-          <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground text-xs">Stops</dt>
-            <dd className="tabular-nums">{stopCount ?? "—"}</dd>
-          </div>
-          <div className="flex items-center justify-between">
-            <dt className="text-muted-foreground text-xs">Directions</dt>
-            <dd className="tabular-nums">{route?.direction_count ?? "—"}</dd>
-          </div>
-        </dl>
-        {/* Read-only: the peek stays a peek — no Edit route entry point. */}
+
         {!readOnly && (
-          <div className="mt-auto pt-4">
+          <div className="shrink-0 pt-3">
             <Button
               autoFocus
               className="w-full"

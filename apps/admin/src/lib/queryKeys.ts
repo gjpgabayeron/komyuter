@@ -21,4 +21,6 @@ export const routeKeys = {
     ["directions", directionId, "detours"] as const,
   detour: (directionId: string, detourId: string) =>
     ["directions", directionId, "detours", detourId] as const,
+  restrictions: (directionId: string) =>
+    ["directions", directionId, "restrictions"] as const,
 };

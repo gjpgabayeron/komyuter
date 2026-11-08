@@ -1,6 +1,13 @@
-import { Layers, MousePointer2, Plus, Redo2, Undo2 } from "lucide-react";
+import {
+  Ban,
+  Layers,
+  MousePointer2,
+  Plus,
+  Redo2,
+  Route,
+  Undo2,
+} from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
@@ -8,6 +15,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePlottingStore, type BaseMapStyle } from "@/lib/plottingStore";
+import { useRestrictionStore } from "@/features/restrictions/restrictionStore";
+import { useDetourStore } from "@/features/detours/detourStore";
 import { canRedo, canUndo } from "@/lib/plottingHistory";
 import { cn } from "@/lib/utils";
 import { Plate } from "@/components/shared/Plate";
@@ -38,11 +47,13 @@ function IconAction({
   label,
   onClick,
   disabled,
+  selected,
   children,
 }: {
   label: string;
   onClick?: () => void;
   disabled?: boolean;
+  selected?: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -55,9 +66,11 @@ function IconAction({
             onClick={onClick}
             disabled={disabled}
             aria-label={label}
+            aria-pressed={selected}
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon-sm" }),
               "text-muted-foreground hover:text-foreground data-disabled:pointer-events-none",
+              selected && "bg-primary/10 text-primary hover:bg-primary/15",
             )}
           >
             {children}
@@ -66,6 +79,15 @@ function IconAction({
       />
       <TooltipContent side="top">{label}</TooltipContent>
     </Tooltip>
+  );
+}
+
+function ToolbarDivider() {
+  return (
+    <span
+      aria-hidden="true"
+      className="bg-border mx-1.5 h-5 w-px shrink-0 self-center"
+    />
   );
 }
 
@@ -258,20 +280,63 @@ function LayerToggles() {
 function ToolToggle({ disabled }: { disabled: boolean }) {
   const tool = usePlottingStore((s) => s.tool);
   const setTool = usePlottingStore((s) => s.setTool);
+  const restrictionEditing = useRestrictionStore((s) => s.editing);
+  const startNew = useRestrictionStore((s) => s.startNew);
 
-  const button = (active: boolean) =>
-    cn(
-      "flex size-7 items-center justify-center rounded-[3px] transition-colors",
-      active
-        ? "bg-primary text-primary-foreground"
-        : "text-muted-foreground hover:text-foreground",
-      disabled && "pointer-events-none opacity-40",
-    );
+  const selectLabel = restrictionEditing
+    ? "Select restriction"
+    : "Select stops";
+  const addLabel = restrictionEditing ? "Add restriction" : "Add stops";
 
   return (
     <div
       role="group"
-      aria-label="Edit tool"
+      aria-label={restrictionEditing ? "Restriction tool" : "Edit tool"}
+      className="flex items-center gap-0.5"
+    >
+      <IconAction
+        label={selectLabel}
+        onClick={() => setTool("select")}
+        disabled={disabled}
+        selected={tool === "select"}
+      >
+        <MousePointer2 className="size-3.5" />
+      </IconAction>
+      <IconAction
+        label={addLabel}
+        onClick={() => {
+          setTool("add");
+          if (restrictionEditing) startNew();
+        }}
+        disabled={disabled}
+        selected={tool === "add"}
+      >
+        <Plus className="size-3.5" />
+      </IconAction>
+    </div>
+  );
+}
+
+function EditorModeToggle() {
+  const editing = useRestrictionStore((s) => s.editing);
+  const enter = useRestrictionStore((s) => s.enter);
+  const exit = useRestrictionStore((s) => s.exit);
+  const saving = usePlottingStore((s) => s.saving);
+  const restrictionSaving = useRestrictionStore((s) => s.saving);
+  const detourOpen = useDetourStore((s) => s.open);
+  const editDetourId = useDetourStore((s) => s.editDetourId);
+  const modeLocked = saving || restrictionSaving;
+  const restrictionBlocked = !editing && detourOpen && editDetourId === null;
+
+  const modeButton = cn(
+    "flex size-7 items-center justify-center rounded-[3px] transition-colors",
+    "disabled:cursor-not-allowed disabled:opacity-40",
+  );
+
+  return (
+    <div
+      role="group"
+      aria-label="Editor mode"
       className="bg-muted flex items-center rounded-lg p-0.5"
     >
       <Tooltip>
@@ -280,16 +345,27 @@ function ToolToggle({ disabled }: { disabled: boolean }) {
             <button
               {...props}
               type="button"
-              aria-label="Select stops"
-              aria-pressed={tool === "select"}
-              onClick={() => setTool("select")}
-              className={button(tool === "select")}
+              aria-label="Plot mode"
+              aria-pressed={!editing}
+              disabled={modeLocked}
+              onClick={() => {
+                if (editing) {
+                  usePlottingStore.getState().setTool("select");
+                  exit();
+                }
+              }}
+              className={cn(
+                modeButton,
+                !editing
+                  ? "bg-background text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
             >
-              <MousePointer2 className="size-3.5" />
+              <Route className="size-3.5" />
             </button>
           )}
         />
-        <TooltipContent side="top">Select stops (drag to move)</TooltipContent>
+        <TooltipContent side="top">Plot mode</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger
@@ -297,16 +373,27 @@ function ToolToggle({ disabled }: { disabled: boolean }) {
             <button
               {...props}
               type="button"
-              aria-label="Add stops"
-              aria-pressed={tool === "add"}
-              onClick={() => setTool("add")}
-              className={button(tool === "add")}
+              aria-label="Restrictions mode"
+              aria-pressed={editing}
+              disabled={modeLocked || restrictionBlocked}
+              onClick={() => {
+                if (!editing) {
+                  usePlottingStore.getState().setTool("select");
+                  enter(detourOpen ? editDetourId : null);
+                }
+              }}
+              className={cn(
+                modeButton,
+                editing
+                  ? "bg-background text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
             >
-              <Plus className="size-3.5" />
+              <Ban className="size-3.5" />
             </button>
           )}
         />
-        <TooltipContent side="top">Add stops (click the map)</TooltipContent>
+        <TooltipContent side="top">Restrictions mode</TooltipContent>
       </Tooltip>
     </div>
   );
@@ -314,24 +401,26 @@ function ToolToggle({ disabled }: { disabled: boolean }) {
 
 /**
  * Centered floating icon-only action bar below the map (FR-019) — Figma-style:
- * each action is a recognizable icon with a tooltip, and the Select/Add tool
- * toggle shows the active edit tool (no separate mode chip — the toggle
- * itself is the indicator). Everything locks while a save is in flight; the
- * dedicated Save button (right of the bar) owns persistence.
+ * each action is a recognizable icon with a tooltip; the Select/Add tool toggle
+ * shows the active edit tool, and the Plot/Restrictions segmented switch owns
+ * the editor mode. Everything locks while a save is in flight; the dedicated
+ * Save button (right of the bar) owns persistence.
  */
 export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
   const saving = usePlottingStore((s) => s.saving);
   const history = usePlottingStore((s) => s.history);
+  const restrictionEditing = useRestrictionStore((s) => s.editing);
+  const restrictionSaving = useRestrictionStore((s) => s.saving);
 
-  const undoReady = canUndo(history) && !saving;
-  const redoReady = canRedo(history) && !saving;
+  const undoReady = canUndo(history) && !saving && !restrictionEditing;
+  const redoReady = canRedo(history) && !saving && !restrictionEditing;
 
   return (
     <TooltipProvider>
       <Plate className="flex items-center gap-0.5 rounded-[4px] px-1.5 py-1">
-        <ToolToggle disabled={saving} />
+        <ToolToggle disabled={saving || restrictionSaving} />
 
-        <Separator orientation="vertical" className="mx-1 h-5" />
+        <ToolbarDivider />
 
         <IconAction label="Undo" onClick={onUndo} disabled={!undoReady}>
           <Undo2 className="size-3.5" />
@@ -340,7 +429,11 @@ export function PlotActionBar({ onUndo, onRedo }: PlotActionBarProps) {
           <Redo2 className="size-3.5" />
         </IconAction>
 
-        <Separator orientation="vertical" className="mx-1 h-5" />
+        <ToolbarDivider />
+
+        <EditorModeToggle />
+
+        <ToolbarDivider />
 
         <LayerToggles />
       </Plate>

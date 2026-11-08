@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
 import type { FareConfigDetail, FareConfigListItem } from "./api";
+import { formatPeso } from "./format";
+import { farePreviewRows } from "./preview";
 import {
   useCreateFareConfig,
   useFareConfigsQuery,
@@ -162,6 +164,11 @@ export function FareConfigForm({
     value: FareConfigFormValues[K],
   ) => setValues((prev) => ({ ...prev, [key]: value }));
 
+  // Exact LTFRB totals for the values currently typed. `null` while a field is
+  // invalid or mid-typing, so the table never shows a fare that could not be
+  // saved.
+  const preview = farePreviewRows(values);
+
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       setValues(LTFRB_DEFAULTS);
@@ -301,6 +308,41 @@ export function FareConfigForm({
                 onChange={(value) => set("senior_discount_pct", value)}
               />
             </div>
+
+            {preview ? (
+              <div className="rounded-md border p-3">
+                <p className="text-xs font-medium">Sample fares</p>
+                <p className="text-muted-foreground mt-0.5 text-[11px]">
+                  Exact totals from this configuration, before saving.
+                </p>
+                <table className="mt-2 w-full text-xs tabular-nums">
+                  <thead>
+                    <tr className="text-muted-foreground text-left">
+                      <th className="font-medium">Distance</th>
+                      <th className="text-right font-medium">Regular</th>
+                      <th className="text-right font-medium">Student</th>
+                      <th className="text-right font-medium">Senior / PWD</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {preview.map((row) => (
+                      <tr key={row.distanceKm} className="border-t">
+                        <td className="py-1">{row.distanceKm} km</td>
+                        <td className="py-1 text-right">
+                          {formatPeso(row.regular)}
+                        </td>
+                        <td className="py-1 text-right">
+                          {formatPeso(row.student)}
+                        </td>
+                        <td className="py-1 text-right">
+                          {formatPeso(row.senior)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
 
             {config ? (
               <div className="flex items-center justify-between gap-4 rounded-md border p-3">

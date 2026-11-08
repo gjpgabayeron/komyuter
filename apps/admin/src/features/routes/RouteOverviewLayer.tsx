@@ -466,10 +466,12 @@ export function RouteOverviewLayer({
         color: String(feature.properties.color ?? "#1B6DB2"),
       });
     };
+    let lineClickHandled = false;
     const onClick = (event: MapLayerMouseEvent) => {
       const feature = event.features?.[0];
       const routeId = feature?.properties?.routeId;
       if (typeof routeId !== "string" || !feature) return;
+      lineClickHandled = true;
       setFocusedRouteId(routeId);
       const overview = overviewRoutesRef.current.find(
         (route) => route.routeId === routeId,
@@ -477,6 +479,13 @@ export function RouteOverviewLayer({
       if (overview) fitToOverview(map, overview, padding);
     };
     const onMapClick = (event: MapMouseEvent) => {
+      // The layer click and the map click both fire for a line. Let the layer
+      // handler win so focus is never set and then immediately cleared by a
+      // miss in this second hit-test.
+      if (lineClickHandled) {
+        lineClickHandled = false;
+        return;
+      }
       const hits = map.queryRenderedFeatures(event.point, {
         layers: OVERVIEW_LAYERS,
       });

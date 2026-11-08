@@ -339,12 +339,14 @@
         "restriction_id",
         "from_coord_index",
         "to_coord_index",
-        "reason",
-        "affects"
+        "kind"
       ],
       "properties": {
         "restriction_id": {
           "type": "string"
+        },
+        "detour_id": {
+          "type": ["string", "null"]
         },
         "from_coord_index": {
           "type": "integer",
@@ -354,11 +356,8 @@
           "type": "integer",
           "minimum": 0
         },
-        "reason": {
-          "enum": ["no_stopping_zone", "contraflow", "pedestrian_hostile"]
-        },
-        "affects": {
-          "enum": ["boarding", "alighting", "both"]
+        "kind": {
+          "enum": ["no_loading", "no_unloading", "both"]
         },
         "note": {
           "type": ["string", "null"]

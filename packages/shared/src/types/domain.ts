@@ -7,19 +7,12 @@ export const STOP_TYPE_VALUES = [
 ] as const;
 export type StopType = (typeof STOP_TYPE_VALUES)[number];
 
-export const RESTRICTION_REASON_VALUES = [
-  "no_stopping_zone",
-  "contraflow",
-  "pedestrian_hostile",
-] as const;
-export type RestrictionReason = (typeof RESTRICTION_REASON_VALUES)[number];
-
-export const RESTRICTION_AFFECTS_VALUES = [
-  "boarding",
-  "alighting",
+export const RESTRICTION_KIND_VALUES = [
+  "no_loading",
+  "no_unloading",
   "both",
 ] as const;
-export type RestrictionAffects = (typeof RESTRICTION_AFFECTS_VALUES)[number];
+export type RestrictionKind = (typeof RESTRICTION_KIND_VALUES)[number];
 
 /**
  * An Account named as the creator or the last writer of an entity (ADR-0025).
@@ -125,10 +118,11 @@ export interface DetourStop {
 export interface Restriction {
   restriction_id: string;
   direction_id: string;
+  /** Null = Main route; otherwise the alternative route that owns the range. */
+  detour_id: string | null;
   from_coord_index: number;
   to_coord_index: number;
-  reason: RestrictionReason;
-  affects: RestrictionAffects;
+  kind: RestrictionKind;
   note: string | null;
   is_active: boolean;
   created_at: string;
