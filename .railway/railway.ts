@@ -38,8 +38,8 @@ export default defineRailway(() => {
       // push does not rebuild and redeploy the API (ADR-0022 §5.3). Every
       // workspace manifest is listed — `apps/mobile`'s included — because the
       // Dockerfile's dependency layer COPYs all of them, and
-      // `supabase/migrations/**` is there because the image carries the chain
-      // the pre-deploy step will apply.
+      // `supabase/migrations/**` and `deploy/**` are there because the image
+      // carries the chain and the guarded pre-deploy runner the step executes.
       watchPatterns: [
         "Dockerfile",
         ".dockerignore",
@@ -54,6 +54,7 @@ export default defineRailway(() => {
         "packages/shared/**",
         "packages/ui/**",
         "supabase/migrations/**",
+        "deploy/**",
       ],
     },
 
@@ -61,10 +62,12 @@ export default defineRailway(() => {
     // Postgres — which is what a platform health check requires (ADR-0022 §5.1).
     healthcheck: "/api/status",
 
-    // Empty today: the guarded migration step is a later ticket, and
-    // docs/DEPLOY.md §3.4 records why the command this project documented
-    // cannot run on the platform as an argv with no shell.
-    preDeploy: [],
+    // The guarded migration runner the image carries (deploy/pre-deploy.mjs).
+    // It refuses to run unless RAILWAY_ENVIRONMENT_NAME, EXPECTED_ENVIRONMENT and
+    // EXPECTED_SUPABASE_PROJECT_REF agree, then applies the chain before the new
+    // container serves traffic (ADR-0022 §3.1). A failure fails the deployment;
+    // the previous healthy container keeps serving (docs/DEPLOY.md §3.4).
+    preDeploy: ["/app/deploy/pre-deploy.mjs"],
 
     // Singapore, one replica. The nearest platform region to Iloilo City and
     // the same region in both environments, so a latency difference between
@@ -78,6 +81,9 @@ export default defineRailway(() => {
       limitOverride: {
         containers: { cpu: 4, memoryBytes: 4000000000 },
       },
+      // The migration step gets 300s before the platform fails the deployment;
+      // the chain takes well under that (ADR-0022 §3.1).
+      preDeployTimeoutSeconds: 300,
       // Staging only. Production must not sleep: a cold start adds seconds to
       // the first request (ADR-0022 §8.2).
       sleepApplication: true,
@@ -87,14 +93,19 @@ export default defineRailway(() => {
     // Railway owns those. `ADMIN_ORIGINS` must match this hostname.
     domains: ["komyuter.gjpgabayeron.dev"],
 
-    // Shape only: every variable is preserved rather than written, so no value
-    // enters source (ADR-0022 §2.4). `ADMIN_EMAIL` and `ADMIN_PASSWORD` are
-    // absent on purpose — they are not service variables at all, because the
-    // running server never reads them (ADR-0022 §9).
+    // Secrets are preserved rather than written, so no value enters source
+    // (ADR-0022 §2.4). The two EXPECTED_* guards are the pre-deploy runner's
+    // environment and project-ref checks (deploy/pre-deploy.mjs); neither is a
+    // secret, so both are literals. RAILWAY_ENVIRONMENT_NAME is absent because
+    // the platform injects it. `ADMIN_EMAIL` and `ADMIN_PASSWORD` are absent on
+    // purpose — they are not service variables at all, because the running
+    // server never reads them (ADR-0022 §9).
     env: {
       ADMIN_ORIGINS: preserve(),
       ALLOW_DEV_CREDENTIAL: preserve(),
       DATABASE_URL: preserve(),
+      EXPECTED_ENVIRONMENT: "staging",
+      EXPECTED_SUPABASE_PROJECT_REF: "prmccdmsqtywprmfaluf",
       MAPBOX_SECRET_TOKEN: preserve(),
       NODE_ENV: preserve(),
       PORT: preserve(),
