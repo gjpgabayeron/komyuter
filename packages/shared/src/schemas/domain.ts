@@ -7,15 +7,9 @@ export const stopTypeSchema = z.enum([
   "waiting_area",
 ]);
 
-export const restrictionReasonSchema = z.enum([
-  "no_stopping_zone",
-  "contraflow",
-  "pedestrian_hostile",
-]);
-
-export const restrictionAffectsSchema = z.enum([
-  "boarding",
-  "alighting",
+export const restrictionKindSchema = z.enum([
+  "no_loading",
+  "no_unloading",
   "both",
 ]);
 
@@ -139,8 +133,8 @@ export const updateDetourSchema = createDetourSchema.partial().extend({
 export const createRestrictionSchema = z.object({
   from_coord_index: z.number().int().min(0),
   to_coord_index: z.number().int().min(0),
-  reason: restrictionReasonSchema,
-  affects: restrictionAffectsSchema,
+  kind: restrictionKindSchema,
+  detour_id: z.string().nullable().optional(),
   note: z.string().nullable().optional(),
 });
 

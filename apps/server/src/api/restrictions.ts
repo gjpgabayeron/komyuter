@@ -12,7 +12,7 @@ import { notFound } from "./errors";
 import { uuidId } from "../domain/ids";
 import {
   assertRestrictionIndexRange,
-  loadBasePolyline,
+  loadRestrictionPolyline,
 } from "../domain/validation";
 import { loadRestrictions } from "../domain/entities";
 import { actorId } from "./auth";
@@ -73,7 +73,11 @@ export async function registerRestrictions(
         throw notFound(`Direction ${directionId} not found`);
       }
 
-      const basePolyline = await loadBasePolyline(db, directionId);
+      const basePolyline = await loadRestrictionPolyline(
+        db,
+        directionId,
+        body.detour_id ?? null,
+      );
       assertRestrictionIndexRange(
         body.from_coord_index,
         body.to_coord_index,
@@ -86,10 +90,10 @@ export async function registerRestrictions(
         .values({
           restriction_id: restrictionId,
           direction_id: directionId,
+          detour_id: body.detour_id ?? null,
           from_coord_index: body.from_coord_index,
           to_coord_index: body.to_coord_index,
-          reason: body.reason,
-          affects: body.affects,
+          kind: body.kind,
           note: body.note ?? null,
           // A create is both the first and the last write (ADR-0025 §3).
           ...createAttribution(actor),
@@ -103,10 +107,10 @@ export async function registerRestrictions(
         data: {
           restriction_id: inserted.restriction_id,
           direction_id: inserted.direction_id,
+          detour_id: inserted.detour_id,
           from_coord_index: inserted.from_coord_index,
           to_coord_index: inserted.to_coord_index,
-          reason: inserted.reason,
-          affects: inserted.affects,
+          kind: inserted.kind,
           note: inserted.note,
           is_active: inserted.is_active,
           created_at: iso(inserted.created_at),
@@ -141,9 +145,16 @@ export async function registerRestrictions(
 
       if (
         body.from_coord_index !== undefined ||
-        body.to_coord_index !== undefined
+        body.to_coord_index !== undefined ||
+        body.detour_id !== undefined
       ) {
-        const basePolyline = await loadBasePolyline(db, existing.direction_id);
+        const nextDetourId =
+          body.detour_id === undefined ? existing.detour_id : body.detour_id;
+        const basePolyline = await loadRestrictionPolyline(
+          db,
+          existing.direction_id,
+          nextDetourId,
+        );
         assertRestrictionIndexRange(
           body.from_coord_index ?? existing.from_coord_index,
           body.to_coord_index ?? existing.to_coord_index,
@@ -152,12 +163,12 @@ export async function registerRestrictions(
       }
 
       const patch: Record<string, unknown> = {};
+      if (body.detour_id !== undefined) patch.detour_id = body.detour_id;
       if (body.from_coord_index !== undefined)
         patch.from_coord_index = body.from_coord_index;
       if (body.to_coord_index !== undefined)
         patch.to_coord_index = body.to_coord_index;
-      if (body.reason !== undefined) patch.reason = body.reason;
-      if (body.affects !== undefined) patch.affects = body.affects;
+      if (body.kind !== undefined) patch.kind = body.kind;
       if (body.note !== undefined) patch.note = body.note;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
 

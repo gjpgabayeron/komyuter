@@ -109,8 +109,7 @@ describe("createRestrictionSchema", () => {
     const result = createRestrictionSchema.safeParse({
       from_coord_index: 0,
       to_coord_index: 3,
-      reason: "no_stopping_zone",
-      affects: "boarding",
+      kind: "no_loading",
     });
     expect(result.success).toBe(true);
   });
@@ -120,19 +119,17 @@ describe("createRestrictionSchema", () => {
       createRestrictionSchema.safeParse({
         from_coord_index: -1,
         to_coord_index: 3,
-        reason: "no_stopping_zone",
-        affects: "boarding",
+        kind: "no_loading",
       }).success,
     ).toBe(false);
   });
 
-  it("rejects an unknown reason", () => {
+  it("rejects an unknown kind", () => {
     expect(
       createRestrictionSchema.safeParse({
         from_coord_index: 0,
         to_coord_index: 3,
-        reason: "flood",
-        affects: "boarding",
+        kind: "flood",
       }).success,
     ).toBe(false);
   });

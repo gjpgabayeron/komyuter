@@ -189,8 +189,7 @@ const WORKSPACE_WRITES: Refusal[] = [
     body: {
       from_coord_index: 0,
       to_coord_index: 1,
-      reason: "contraflow",
-      affects: "both",
+      kind: "both",
     },
     permission: "ROUTES_EDIT",
   },

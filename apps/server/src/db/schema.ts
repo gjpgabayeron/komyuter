@@ -25,15 +25,9 @@ export const stopType = pgEnum("stop_type", [
  *  so clients always load the base first. */
 export const directionKind = pgEnum("direction_kind", ["base", "return"]);
 
-export const restrictionReason = pgEnum("restriction_reason", [
-  "no_stopping_zone",
-  "contraflow",
-  "pedestrian_hostile",
-]);
-
-export const restrictionAffects = pgEnum("restriction_affects", [
-  "boarding",
-  "alighting",
+export const restrictionKind = pgEnum("restriction_kind", [
+  "no_loading",
+  "no_unloading",
   "both",
 ]);
 
@@ -290,10 +284,12 @@ export const restrictions = pgTable(
     direction_id: text("direction_id")
       .notNull()
       .references(() => directions.direction_id, { onDelete: "cascade" }),
+    detour_id: text("detour_id").references(() => detours.detour_id, {
+      onDelete: "cascade",
+    }),
     from_coord_index: integer("from_coord_index").notNull(),
     to_coord_index: integer("to_coord_index").notNull(),
-    reason: restrictionReason("reason").notNull(),
-    affects: restrictionAffects("affects").notNull(),
+    kind: restrictionKind("kind").notNull(),
     note: text("note"),
     is_active: boolean("is_active").notNull().default(true),
     ...timestamps,

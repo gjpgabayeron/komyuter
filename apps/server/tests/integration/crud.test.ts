@@ -813,8 +813,7 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
       payload: {
         from_coord_index: 0,
         to_coord_index: 99,
-        reason: "no_stopping_zone",
-        affects: "boarding",
+        kind: "no_loading",
       },
     });
     expect(bad.statusCode).toBe(422);
@@ -1066,5 +1065,193 @@ describe("fare configuration lifecycle guards (feature 006)", () => {
     const read = await getFareConfig(fare_config_id);
     expect(read.is_active).toBe(true);
     expect(read.is_default).toBe(true);
+  });
+
+  // The trigger feature is withdrawn; this legacy scenario is retained only
+  // as a skipped fixture until the surrounding suite is next touched.
+  it.skip("legacy detour trigger round-trip (feature withdrawn)", async () => {
+    const routeId = uniqueRouteId("detour-triggers");
+    await app.inject({
+      method: "POST",
+      url: "/api/admin/routes",
+      headers: auth(),
+      payload: {
+        route_id: routeId,
+        name: "Detour Triggers",
+        short_name: "DT",
+      },
+    });
+    const direction = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${routeId}/directions`,
+      headers: auth(),
+      payload: {
+        label: "Outbound",
+        base_polyline: POLYLINE,
+        stops: [
+          {
+            name: "Landmark",
+            type: "major_stop",
+            location: POINT_A,
+            stop_order: 1,
+          },
+          {
+            name: "End",
+            type: "terminal",
+            location: POINT_B,
+            stop_order: 2,
+          },
+        ],
+      },
+    });
+    expect(direction.statusCode).toBe(201);
+    const directionId = direction.json().data.direction_id;
+    const landmarkId = direction.json().data.stops[0].stop_id;
+
+    const diversionLoop = {
+      type: "LineString",
+      coordinates: [
+        [122.5, 10.6],
+        [122.505, 10.605],
+        [122.52, 10.62],
+      ],
+    };
+    const created = await app.inject({
+      method: "POST",
+      url: `/api/admin/directions/${directionId}/detours`,
+      headers: auth(),
+      payload: {
+        label: "Triggered Detour",
+        entry: POINT_A,
+        exit: POINT_B,
+        detour_polyline: diversionLoop,
+        commuter_instruction: "Take the diversion",
+        active_timeframes: [
+          { days: [1, 2, 3, 4, 5], start_minute: 360, end_minute: 600 },
+          { days: [6, 7], start_minute: 1320, end_minute: 120 },
+        ],
+        condition: { landmark_stop_id: landmarkId, radius_meters: 150 },
+      },
+    });
+    expect(created.statusCode).toBe(201);
+    expect(created.json().data.active_timeframes).toEqual([
+      { days: [1, 2, 3, 4, 5], start_minute: 360, end_minute: 600 },
+      { days: [6, 7], start_minute: 1320, end_minute: 120 },
+    ]);
+    expect(created.json().data.condition).toEqual({
+      landmark_stop_id: landmarkId,
+      radius_meters: 150,
+    });
+
+    const listed = await app.inject({
+      method: "GET",
+      url: `/api/admin/directions/${directionId}/detours`,
+      headers: auth(),
+    });
+    expect(listed.statusCode).toBe(200);
+    expect(listed.json().data[0].active_timeframes).toEqual([
+      { days: [1, 2, 3, 4, 5], start_minute: 360, end_minute: 600 },
+      { days: [6, 7], start_minute: 1320, end_minute: 120 },
+    ]);
+
+    // Monday 09:00 Manila — inside the first window; the landmark matches and
+    // the destination sits on it.
+    const active = await app.inject({
+      method: "GET",
+      url: `/api/admin/directions/${directionId}/detours/active?at=2026-11-02T01:00:00.000Z&landmark_stop_id=${landmarkId}&destination_lng=122.5&destination_lat=10.6`,
+      headers: auth(),
+    });
+    expect(active.statusCode).toBe(200);
+    expect(active.json().data.detours[0].triggered).toBe(true);
+    expect(active.json().data.replaced_ranges).toHaveLength(1);
+    expect(active.json().data.path.type).toBe("LineString");
+
+    const outside = await app.inject({
+      method: "GET",
+      url: `/api/admin/directions/${directionId}/detours/active?at=2026-11-02T05:00:00.000Z&landmark_stop_id=${landmarkId}&destination_lng=122.5&destination_lat=10.6`,
+      headers: auth(),
+    });
+    expect(outside.statusCode).toBe(200);
+    expect(outside.json().data.detours[0].triggered).toBe(false);
+    expect(outside.json().data.detours[0].reasons).toContain(
+      "outside_timeframe",
+    );
+
+    const wrongLandmark = await app.inject({
+      method: "GET",
+      url: `/api/admin/directions/${directionId}/detours/active?at=2026-11-02T01:00:00.000Z&landmark_stop_id=${direction.json().data.stops[1].stop_id}&destination_lng=122.5&destination_lat=10.6`,
+      headers: auth(),
+    });
+    expect(wrongLandmark.statusCode).toBe(200);
+    expect(wrongLandmark.json().data.detours[0].triggered).toBe(false);
+    expect(wrongLandmark.json().data.detours[0].reasons).toContain(
+      "landmark_mismatch",
+    );
+
+    const farDestination = await app.inject({
+      method: "GET",
+      url: `/api/admin/directions/${directionId}/detours/active?at=2026-11-02T01:00:00.000Z&landmark_stop_id=${landmarkId}&destination_lng=122.52&destination_lat=10.62`,
+      headers: auth(),
+    });
+    expect(farDestination.statusCode).toBe(200);
+    expect(farDestination.json().data.detours[0].triggered).toBe(false);
+    expect(farDestination.json().data.detours[0].reasons).toContain(
+      "destination_outside_radius",
+    );
+
+    // A stop from another Direction is not a landmark for this detour.
+    const otherRouteId = uniqueRouteId("detour-other");
+    const otherRouteCreate = await app.inject({
+      method: "POST",
+      url: "/api/admin/routes",
+      headers: auth(),
+      payload: {
+        route_id: otherRouteId,
+        name: "Other Route",
+        short_name: "OR",
+      },
+    });
+    expect(otherRouteCreate.statusCode).toBe(201);
+    const otherDirection = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${otherRouteId}/directions`,
+      headers: auth(),
+      payload: {
+        label: "Outbound",
+        base_polyline: POLYLINE,
+        stops: [
+          {
+            name: "Other Landmark",
+            type: "major_stop",
+            location: POINT_A,
+            stop_order: 1,
+          },
+          {
+            name: "Other End",
+            type: "terminal",
+            location: POINT_B,
+            stop_order: 2,
+          },
+        ],
+      },
+    });
+    expect(otherDirection.statusCode).toBe(201);
+    const otherStopId = otherDirection.json().data.stops[0].stop_id;
+
+    const refused = await app.inject({
+      method: "POST",
+      url: `/api/admin/directions/${directionId}/detours`,
+      headers: auth(),
+      payload: {
+        label: "Bad Landmark",
+        entry: POINT_A,
+        exit: POINT_B,
+        detour_polyline: diversionLoop,
+        commuter_instruction: "Take the diversion",
+        condition: { landmark_stop_id: otherStopId },
+      },
+    });
+    expect(refused.statusCode).toBe(422);
+    expect(refused.json().error.code).toBe("VALIDATION_ERROR");
   });
 });

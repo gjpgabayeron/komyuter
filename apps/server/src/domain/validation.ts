@@ -1,7 +1,7 @@
-import { eq, or } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import type { GeoLineString, GeoPoint } from "@komyuter/shared";
 import type { Db } from "../config/db";
-import { directions, stops } from "../db/schema";
+import { detours, directions, stops } from "../db/schema";
 import { asGeoJSON } from "../db/queries";
 import { conflict, validationError } from "../api/errors";
 
@@ -171,6 +171,30 @@ export async function loadBasePolyline(
     throw validationError(`Direction ${directionId} does not exist`);
   }
   return row.base_polyline as unknown as GeoLineString;
+}
+
+export async function loadRestrictionPolyline(
+  db: Db,
+  directionId: string,
+  detourId: string | null,
+): Promise<GeoLineString> {
+  if (detourId === null) return loadBasePolyline(db, directionId);
+  const [row] = await db
+    .select({ polyline: asGeoJSON(detours.detour_polyline) })
+    .from(detours)
+    .where(
+      and(
+        eq(detours.detour_id, detourId),
+        eq(detours.direction_id, directionId),
+      ),
+    )
+    .limit(1);
+  if (!row) {
+    throw validationError(
+      `Detour ${detourId} does not belong to direction ${directionId}`,
+    );
+  }
+  return row.polyline as unknown as GeoLineString;
 }
 
 export async function assertStopsNotEmpty(
