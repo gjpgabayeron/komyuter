@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "bootstrap:owner": "tsx src/scripts/bootstrap-owner.ts",
     "promote:owner": "tsx src/scripts/promote-owner.ts",
-    "import:dataset": "tsx src/scripts/import-dataset.ts"
+    "import:dataset": "tsx src/scripts/import-dataset.ts",
+    "export:dataset": "tsx src/scripts/export-dataset.ts"
   },
   "dependencies": {
     "@fastify/cors": "^10.1.0",
