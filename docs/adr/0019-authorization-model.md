@@ -1,0 +1,194 @@
+# ADR-0019: Authorization model — Roles as data, Super Admin as ownership (DECIDED)
+
+- **Status**: DECIDED — the direction is agreed and recorded; implementation spans milestones **M2a**
+  and **M2b**. Amended 2026-10-30 (M2a) to reconcile §5 with §6 — see the amendment at the end.
+- **Date**: 2026-10-08
+- **Supersedes/refines**: refines **ADR-0006** (Supabase Auth — admin-gated CRUD) by replacing binary
+  admin membership with Roles and Permissions. Supersedes the glossary's definition of **Administrator**
+  as "the sole human actor" — it is no longer a term for a person. It also **supersedes the RBAC
+  direction recorded in `docs/SECURITY.md` §6.2** (2026-08): this ADR keeps that section's substance and
+  corrects four of its points, and §6.2 now carries the delta table and stands as the historical record.
+
+## Context
+
+Authorization today is binary. `admin_users` is a single-column table (`user_id uuid`, primary key),
+given a foreign key to `auth.users.id` by `supabase/migrations/0002_admin_users_auth_fk.sql`, and
+`isAdminUserId` in `apps/server/src/api/auth.ts` is documented as "_the_ single authorization rule
+(FR-011 / US4)… no duplicate inline lookups". The guard validates the bearer token with Supabase, then
+asks one question: is this user present in `admin_users`?
+
+Two consequences shape this decision.
+
+**Membership is all-or-nothing.** Every authenticated Account can do everything — including hard-deleting
+a Route, which cascades to its directions and stops, and editing fare configuration. Nothing records who
+did it either, so a dataset plotted by several people has no provenance.
+
+**The project needs more than one kind of actor.** The milestone plan calls for a single owner, a few
+people plotting routes to grow the seed dataset, and a read-only audience for review — and the
+authorization rule has to stay in one place, not be duplicated between the server and the UI.
+
+Constraints that bound the design:
+
+- **Single region, one tenant** (ADR-0010). There is no resource scoping to express — no per-route or
+  per-direction permissions are meaningful when one team owns one dataset.
+- **Shared, never reimplemented.** Permission logic must exist once, and the UI must consume the server's
+  answer rather than compute its own.
+- The admin SPA is not a trust boundary; anything the UI hides must also be refused server-side.
+
+## Decision
+
+1. **Authorization is Roles and Permissions, enforced server-side.** A **Role** is a named, ordered set
+   of **Permissions**; an Account holds exactly one Role.
+2. **Permission constants are declared once in `@komyuter/shared`.** Each is written as an explicit
+   `1 << n` (never positional, so inserting a Permission cannot renumber its neighbours), and that list
+   is the source of truth; the capability module and the stored encoding are **derived** from it. The
+   initial set is **inherited from `docs/SECURITY.md` §6.2 rather than invented here**: `ROUTES_EDIT`,
+   `FARES_EDIT`, `EXPORT_DATASET`, `MAPBOX_GEOSERVICES` and `ADMIN_MANAGE`. §6.2's `ADMINISTRATOR`
+   "bypass everything" bit is dropped — unrestricted _data_ access is expressed by holding every
+   Permission (the seeded Administrator Role), and the powers that cannot be delegated are expressed by
+   Super Admin ownership (point 5) instead of by a bit any Administrator could grant.
+3. **A Role's Permissions are stored as one integer, typed `bigint`.** Not `integer`: per-resource CRUD
+   across the domain — routes, directions, stops, detours, detour stops, restrictions, fare configs,
+   Accounts, Roles, dataset export, dataset import, security events — reaches 48 bits before any system
+   permission, and Postgres `integer` is 32-bit signed. In JavaScript the arithmetic uses `BigInt`,
+   because `<<` on a `number` is 32-bit and wraps silently. (`docs/SECURITY.md` §6.2 had already
+   anticipated this encoding as `1n << n`; the width argument above is what fixes it.)
+4. **A Role is data, not code.** The Super Admin creates, renames, reorders and deletes Roles from the
+   dashboard; no Role is hard-coded.
+5. **Super Admin is an immutable ownership property, not a Role.** Exactly one Account is the owner. It
+   cannot be demoted, deactivated, deleted or edited by anyone — including itself. It is the **ceiling**
+   for Role management: its effective Permission set is every declared Permission regardless of the Role
+   it holds, and only it may create, change or assign a Role at the top position. This makes the lockout
+   invariant structural rather than a rule someone must remember to check, and it answers "who may manage
+   Roles?" without recursion.
+6. **The hierarchy rule is grant-subset.** An Account may only create or edit a Role whose Permissions
+   are a **subset of its own**, and may not modify or assign any Role at or above its own position.
+   Position is presentation order; the subset rule is what closes privilege escalation. This applies to
+   every role manager, not only the owner: `ADMIN_MANAGE` is a Permission, so a holder composes Roles
+   strictly below its own position and strictly within its own set.
+7. **Enforcement lives at the existing single seam.** The membership lookup grows into
+   `loadAdminAccount`, which resolves the Role and effective set once per request; `requirePermission`
+   enforces the route's declared Permission at the same seam. `GET /api/admin/me` returns the Account's
+   effective Permission set, which the admin UI consumes to hide and disable controls. The UI's use of
+   that set is an affordance, never the authorization boundary.
+8. **Provisioning is invite-only.** Accounts are created by the owner (email plus a temporary password,
+   through the service-role key). There is no self-signup and no approval queue.
+9. **A read-only Account gets an honest surface.** Because a Role may lack write Permissions, the
+   workspace degrades fully: map, selection and pan keep working, while every mutating affordance is
+   absent rather than failing on save.
+
+## Alternatives considered
+
+- **Fixed Roles in code** (an enum of Administrator / Plotter / Viewer). The least work, and rejected
+  because the milestone asks for Roles the Super Admin composes — the point is that adding a Role is
+  data entry, not a release.
+- **Per-Account capability grants, with no Role rows.** Maximum flexibility, rejected: it multiplies UI
+  surface and error surface at this population size, and it makes "what may a Plotter do?" unanswerable
+  as a single artefact.
+- **The literal Discord model in full** — multiple Roles per Account, per-resource overwrites, and a
+  positional hierarchy. Considered seriously and largely rejected. Per-resource overwrites exist because
+  a guild has thousands of channels with different rules; this project is single-tenant (ADR-0010), so
+  there is no resource to overwrite. Multiple Roles per Account is redundant when the intended Roles
+  nest, and costs a join table plus union resolution. What was **kept** is the useful half: Permissions
+  as the unit, and grant-subset as the escalation guard.
+- **Bitfields on Accounts instead of Roles.** Rejected: a handful of Role rows is fine to decode in
+  application code, but per-Account bitfields would turn "who can delete routes?" into a bitwise AND
+  that cannot use an index and cannot be read in a query result.
+- **Client-side gating only.** Rejected outright — the SPA is not a trust boundary.
+
+## Consequences
+
+- **Positive**: one place to ask "may this Account do this?"; one artefact that answers "what may this
+  Role do?"; the owner-lockout invariant becomes structural; a read-only audience becomes possible
+  without a second application; and attribution gives the seed dataset provenance.
+- **Trade-off**: a Roles table, a Permission module and a role-management surface must exist before a
+  single groupmate can plot. That work is M2a and M2b, and it is deliberately sequenced before the
+  route-modeling milestone — the dataset grows through other people, so it needs them first.
+- **Risk**: **the integer width is a real ceiling.** If per-resource CRUD is granted as Permissions, the
+  usable `bigint` range is nearer than it looks. Grow the Permission list deliberately, and treat the
+  encoding as a data format with a compatibility story.
+- **Risk**: `BigInt` is not JSON-serialisable. The API must carry Permissions across the wire as an array
+  of names (or a decimal string) rather than as a raw number. Settle this in M2a rather than discovering
+  it at the first `JSON.stringify`.
+- **Risk**: skipping the grant-subset rule lets an Account mint a Role carrying a Permission it does not
+  hold and widen its own access. The rule is the security property, not the ordering.
+
+## Non-goals (explicit)
+
+- No per-resource, per-route or per-direction permissions (ADR-0010, single tenant).
+- No multiple Roles per Account.
+- No approval or publish workflow, and no four-eyes gate on writes.
+- No change to how Supabase Auth issues or validates tokens (ADR-0006); this ADR governs only what an
+  authenticated Account may do.
+- No OAuth, SSO, or commuter-side identity — the commuter app stays anonymous with optional sign-in
+  (ADR-0006).
+
+## Amendment — 2026-10-30 (M2a)
+
+§5 originally said the Super Admin was "the only Account that may create, edit, reorder or delete
+Roles". That contradicted §6's grant-subset rule and made M2a's exit criterion untestable: if the only
+role manager holds every Permission, "granting a Permission the creator lacks" can never occur. The
+resolution keeps §6 and narrows §5's exclusivity to the ceiling:
+
+- **Role management is a Permission, not an ownership property.** A holder of `ADMIN_MANAGE` may create,
+  edit, delete or assign a Role strictly below its own Role Position and strictly within its own
+  Permission set. The Super Admin is the ceiling: only it may manage a Role at the top position.
+- **The Super Admin's effective set is every declared Permission, independent of its Role.** The Role
+  shown for it is descriptive. A Permission added later cannot lock the owner out, and editing the
+  seeded Administrator Role cannot weaken it.
+- **Positions are compared, not just displayed.** "At or above its own position" is the boundary; an
+  Account cannot edit or assign its own Role.
+- **Transit reads stay open; the access model does not.** Any Account may read routes, directions,
+  stops, detours, restrictions and fare configurations — a Viewer must be able to open the workspace.
+  `EXPORT_DATASET` gates whole-dataset egress and `MAPBOX_GEOSERVICES` gates the token-spending proxy.
+  Roles and Accounts are the exception: reads and writes both require `ADMIN_MANAGE`, because the list
+  is itself the access model.
+- **Assignment is checked on both sides of the move.** An actor may move an Account only when the target
+  Role _and_ the Account's current Role are strictly below the actor's position, and both Permission
+  sets are subsets of the actor's. Nobody may change their own Role.
+- **Deleting a Role is refused while Accounts hold it** (`409 CONFLICT`), preserving "every Account holds
+  exactly one Role".
+
+The first two points are vocabulary as well as policy and are reflected in `CONTEXT.md`.
+
+## Amendment — 2026-10-31 (M2b)
+
+M2b builds the surfaces and the lifecycle on top of M2a's model. It settles six points the ADR left
+open, and one contradiction in the milestone wording.
+
+1. **Accounts are deactivated, never deleted.** `admin_users.is_active` is the lifecycle flag; the
+   identity and the Role are kept. Reactivation restores the same Role. Deletion is not a dashboard
+   action, so Attribution's foreign keys stay valid (ADR-0025).
+2. **Revocation is the guard's next-request refusal, not a token operation.** `supabase-js` 2.117.3
+   exposes only `admin.signOut(jwt, scope)` — there is no by-user-id session revocation, and a Supabase
+   JWT cannot be un-issued. Revocation is therefore what the seam already does: `loadAdminAccount` runs
+   on every request, an inactive Account is refused with `403 ACCOUNT_DEACTIVATED`, and sign-in refuses
+   it with the same unified denial as a wrong password. No identity ban is used: it would create a
+   second, drift-prone notion of "active" for a project whose Data API is closed anyway.
+3. **A Role change is not a revocation.** Because the Role is re-read per request, the change applies on
+   the next request with no new sign-in. This resolves the M2b deliverable — which asked for revocation
+   "on Role change" — in favour of the exit criterion — which requires the change to take effect without
+   one. The milestone wording is corrected rather than the behaviour.
+4. **Temporary passwords are server-generated and must be replaced.** Creating an Account or forcing a
+   reset issues a generated password, shown to the manager once. `admin_users.must_change_password` then
+   holds the Account on a forced change; while it is set the guard admits only `GET /api/admin/me` and
+   `POST /api/auth/password`, with `403 PASSWORD_CHANGE_REQUIRED`. The allowlist is declared per route,
+   not matched by URL, so a new route cannot silently bypass the gate.
+5. **Force reset is delegated within reach and never on oneself.** An `ADMIN_MANAGE` holder may reset an
+   Account whose current Role sits strictly below its own position and within its own Permission set —
+   the same reach as assigning that Role — and may not reset itself, which uses the ordinary
+   change-password flow. The replacement password sets the flag, so the target's live session is refused
+   at its next request. The owner is unreachable by anyone, and cannot reset itself, so its credential
+   is changed only through the self-service flow.
+6. **The last-owner lockout guard is structural, not a count.** The `protect_super_admin` trigger gains
+   `is_active`, so no caller can deactivate the owner. No "last `ADMIN_MANAGE` holder" query is needed:
+   the owner's effective set is every declared Permission, so an Account manager always exists. The
+   guard is the same invariant §5 already relies on, extended to the new lifecycle flag.
+
+§9's read-only surface is also widened from the workspace to the dashboard. One capability module
+derives every affordance from the effective set: the workspace keeps its layout and shows values
+read-only; the Fares page keeps its table and loses its mutations; the Export and Accounts entries are
+absent without their Permission; place search is absent without `MAPBOX_GEOSERVICES`. Every hidden
+affordance still has a server refusal behind it — the UI remains an affordance, never the boundary.
+
+Attribution is recorded separately in **ADR-0025**.

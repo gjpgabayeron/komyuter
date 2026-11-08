@@ -1,0 +1,299 @@
+import { customType } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import {
+  bigint,
+  boolean,
+  integer,
+  numeric,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  index,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+
+export const stopType = pgEnum("stop_type", [
+  "terminal",
+  "major_stop",
+  "waiting_area",
+]);
+
+/** Which direction of the pair a row is: the admin-plotted base or the
+ *  auto-derived return (ADR-0011). Used to order directions deterministically
+ *  so clients always load the base first. */
+export const directionKind = pgEnum("direction_kind", ["base", "return"]);
+
+export const restrictionKind = pgEnum("restriction_kind", [
+  "no_loading",
+  "no_unloading",
+  "both",
+]);
+
+const pointGeometry = customType<{ data: string; driverData: string }>({
+  dataType() {
+    return "geometry(Point,4326)";
+  },
+});
+
+const lineStringGeometry = customType<{ data: string; driverData: string }>({
+  dataType() {
+    return "geometry(LineString,4326)";
+  },
+});
+
+const timestamps = {
+  created_at: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updated_at: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+};
+
+/**
+ * Attribution (ADR-0025): the Account that created the row and the Account that
+ * last wrote it. Both are Account references with `ON DELETE SET NULL`, and
+ * both are null on rows that predate the columns — nothing is backfilled, so a
+ * null is "not recorded" rather than "the owner". The server stamps them from
+ * the resolved guard identity; no handler takes an actor from request input.
+ */
+const attribution = {
+  created_by: uuid("created_by").references(() => adminUsers.user_id, {
+    onDelete: "set null",
+  }),
+  updated_by: uuid("updated_by").references(() => adminUsers.user_id, {
+    onDelete: "set null",
+  }),
+};
+
+/**
+ * A Role is a named, ordered set of Permissions (ADR-0019). The Permission set
+ * is one `bigint` bitmask derived from `@komyuter/shared`'s catalogue; the
+ * column is `bigint` rather than `integer` because the list is expected to
+ * pass 32 bits long before it passes 64.
+ */
+export const roles = pgTable(
+  "roles",
+  {
+    role_id: text("role_id").primaryKey(),
+    name: text("name").notNull(),
+    position: integer("position").notNull(),
+    permissions: bigint("permissions", { mode: "bigint" })
+      .notNull()
+      .default(0n),
+    ...timestamps,
+  },
+  (table) => [
+    uniqueIndex("roles_name_unique").on(table.name),
+    uniqueIndex("roles_position_unique").on(table.position),
+  ],
+);
+
+export const adminUsers = pgTable("admin_users", {
+  user_id: uuid("user_id").primaryKey(),
+  role_id: text("role_id")
+    .notNull()
+    .references(() => roles.role_id, { onDelete: "restrict" }),
+  is_super_admin: boolean("is_super_admin").notNull().default(false),
+  /** The Account lifecycle flag — Accounts are deactivated, never deleted. */
+  is_active: boolean("is_active").notNull().default(true),
+  /**
+   * Forced Password Change: set while a Temporary Password is still in place,
+   * cleared when the Account replaces it (ADR-0019 §4, migration 0009).
+   */
+  must_change_password: boolean("must_change_password")
+    .notNull()
+    .default(false),
+});
+
+export const fareConfigs = pgTable(
+  "fare_configs",
+  {
+    fare_config_id: text("fare_config_id").primaryKey(),
+    label: text("label").notNull(),
+    base_fare: numeric("base_fare", { precision: 10, scale: 2 })
+      .notNull()
+      .default("13.00"),
+    base_distance_km: numeric("base_distance_km", {
+      precision: 10,
+      scale: 2,
+    })
+      .notNull()
+      .default("4.00"),
+    rate_per_km: numeric("rate_per_km", { precision: 10, scale: 2 })
+      .notNull()
+      .default("1.80"),
+    student_discount_pct: numeric("student_discount_pct", {
+      precision: 5,
+      scale: 2,
+    })
+      .notNull()
+      .default("20"),
+    senior_discount_pct: numeric("senior_discount_pct", {
+      precision: 5,
+      scale: 2,
+    })
+      .notNull()
+      .default("20"),
+    is_default: boolean("is_default").notNull().default(false),
+    is_active: boolean("is_active").notNull().default(true),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [index("fare_configs_is_default_idx").on(table.is_default)],
+);
+
+export const routes = pgTable(
+  "routes",
+  {
+    route_id: text("route_id").primaryKey(),
+    name: text("name").notNull(),
+    short_name: text("short_name").notNull(),
+    color: text("color"),
+    is_active: boolean("is_active").notNull().default(true),
+    fare_config_id: text("fare_config_id").references(
+      () => fareConfigs.fare_config_id,
+      {
+        onDelete: "set null",
+      },
+    ),
+    /** Route Version (ADR-0020): the stamp a metadata save is based on. */
+    version: integer("version").notNull().default(1),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [index("routes_fare_config_id_idx").on(table.fare_config_id)],
+);
+
+export const directions = pgTable(
+  "directions",
+  {
+    direction_id: text("direction_id").primaryKey(),
+    route_id: text("route_id")
+      .notNull()
+      .references(() => routes.route_id, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    base_polyline: lineStringGeometry("base_polyline").notNull(),
+    origin_stop_id: text("origin_stop_id"),
+    destination_stop_id: text("destination_stop_id"),
+    direction_kind: directionKind("direction_kind").notNull().default("base"),
+    is_active: boolean("is_active").notNull().default(true),
+    /** Direction Version (ADR-0020): the stamp a plotted save is based on. */
+    version: integer("version").notNull().default(1),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [
+    index("directions_route_id_idx").on(table.route_id),
+    index("directions_origin_stop_id_idx").on(table.origin_stop_id),
+    index("directions_destination_stop_id_idx").on(table.destination_stop_id),
+  ],
+);
+
+export const stops = pgTable(
+  "stops",
+  {
+    stop_id: text("stop_id").primaryKey(),
+    direction_id: text("direction_id")
+      .notNull()
+      .references(() => directions.direction_id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    stop_order: integer("stop_order").notNull(),
+    type: stopType("type").notNull(),
+    location: pointGeometry("location").notNull(),
+    /** On a return stop: the base stop it mirrors (ADR-0031 §4). Null on a
+     *  base stop. */
+    derived_from_stop_id: text("derived_from_stop_id"),
+    is_guaranteed_service: boolean("is_guaranteed_service")
+      .notNull()
+      .default(true),
+    ar_marker_enabled: boolean("ar_marker_enabled").notNull().default(true),
+    landmark_hint: text("landmark_hint"),
+    notes: text("notes"),
+    is_active: boolean("is_active").notNull().default(true),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [
+    index("stops_direction_id_stop_order_idx").on(
+      table.direction_id,
+      table.stop_order,
+    ),
+    index("stops_location_gist").using("gist", sql`location`),
+  ],
+);
+
+export const detours = pgTable(
+  "detours",
+  {
+    detour_id: text("detour_id").primaryKey(),
+    direction_id: text("direction_id")
+      .notNull()
+      .references(() => directions.direction_id, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    entry: pointGeometry("entry").notNull(),
+    exit: pointGeometry("exit").notNull(),
+    detour_polyline: lineStringGeometry("detour_polyline").notNull(),
+    additional_distance_meters: integer("additional_distance_meters"),
+    commuter_instruction: text("commuter_instruction").notNull(),
+    driver_instruction: text("driver_instruction"),
+    is_active: boolean("is_active").notNull().default(true),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [index("detours_direction_id_idx").on(table.direction_id)],
+);
+
+/** Detour stops (product decision, 2026-08-27): points created by the detour
+ *  tool are REAL stops with full base-stop parity, scoped to their detour
+ *  only. Ordered by stop_order; the detour's route is
+ *  entry(base) → detour_stops → exit(base). Cascade with the detour. */
+export const detourStops = pgTable(
+  "detour_stops",
+  {
+    detour_stop_id: text("detour_stop_id").primaryKey(),
+    detour_id: text("detour_id")
+      .notNull()
+      .references(() => detours.detour_id, { onDelete: "cascade" }),
+    stop_order: integer("stop_order").notNull(),
+    name: text("name").notNull(),
+    location: pointGeometry("location").notNull(),
+    type: stopType("type").notNull().default("waiting_area"),
+    is_guaranteed_service: boolean("is_guaranteed_service")
+      .notNull()
+      .default(false),
+    landmark_hint: text("landmark_hint"),
+    notes: text("notes"),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [
+    uniqueIndex("detour_stops_detour_id_order_idx").on(
+      table.detour_id,
+      table.stop_order,
+    ),
+  ],
+);
+
+export const restrictions = pgTable(
+  "restrictions",
+  {
+    restriction_id: text("restriction_id").primaryKey(),
+    direction_id: text("direction_id")
+      .notNull()
+      .references(() => directions.direction_id, { onDelete: "cascade" }),
+    detour_id: text("detour_id").references(() => detours.detour_id, {
+      onDelete: "cascade",
+    }),
+    from_coord_index: integer("from_coord_index").notNull(),
+    to_coord_index: integer("to_coord_index").notNull(),
+    kind: restrictionKind("kind").notNull(),
+    note: text("note"),
+    is_active: boolean("is_active").notNull().default(true),
+    ...timestamps,
+    ...attribution,
+  },
+  (table) => [index("restrictions_direction_id_idx").on(table.direction_id)],
+);

@@ -2,51 +2,79 @@
 
 ## Repo state: what actually exists
 
-- This repo is the stock `create-turbo` "with-vite-react" starter (single commit). Only these exist:
-  - `apps/web` — React 18 + Vite 5 + TS app
-  - `packages/ui` (`@repo/ui`), `packages/eslint-config` (`@repo/eslint-config`), `packages/typescript-config` (`@repo/typescript-config`)
-- The root `*.md` docs (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **design documents** for the target thesis system (Expo mobile app, admin dashboard, Fastify server, PostGIS, Supabase Auth). Those apps/packages, plus `supabase/`, `.github/`, `.env.example` do **not exist yet**. Do not treat the docs' repo-structure sections as current reality. (`docs/adr/` and `CONTEXT.md` DO exist — they hold the design decisions and glossary.)
-- Design decisions are recorded in `docs/adr/0001-…md` and the glossary in `CONTEXT.md`. The root design docs have been reconciled with those decisions; where a doc still disagrees, the ADR wins.
+- This repo started as the `create-turbo` "with-vite-react" starter. It now also contains the admin dashboard, backend, and shared packages:
+  - `apps/admin` — React 18 + Vite 5 + TS admin dashboard (MapLibre GL, zustand, React Query)
+  - `apps/server` — Fastify v5 admin API (`@komyuter/server`), TDD'd against the local Supabase stack
+  - `apps/mobile` — Expo app (from a later starter import)
+  - `packages/ui` (`@repo/ui`), `packages/typescript-config` (`@repo/typescript-config`), `packages/shared` (`@komyuter/shared`)
+- **Which document to trust.** Design decisions live in `docs/adr/0001-…md`, and **the ADR wins wherever any other document disagrees**. The glossary is `CONTEXT.md` (repo root); the canonical project principles are `docs/PRINCIPLES.md`; the milestone plan (order, deliverables, exit criteria) is `docs/ROADMAP.md` (reference milestone ids such as `M2a` rather than restating them); the admin surface as built is `docs/ADMIN.md`.
+- `specs/` holds the **completed** per-feature specifications, frozen as design and history documents — read them for the reasoning behind shipped work, but do not add new ones (new work starts as a GitHub issue; see **Agent skills** below). The most recent is `specs/012-alternative-route-plotting/plan.md`.
+- The design docs for the target thesis system (`OVERVIEW.md`, `TECHSTACK.md`, `SCHEMA.md`, `SUMMARY.md`, `BACKEND.md`) are **not** a current file map, and the code contradicts them in places. Four were **archived on 2026-10-08** into `docs/archive/` (`OVERVIEW.md`, `SUMMARY.md`, `SCHEMA.md`, `TECHSTACK.md`) with provenance headers. `docs/BACKEND.md` deliberately stays put: it is the conceptual reference for the routing/AR/trust layers still to be built, and `docs/DEVIATIONS.md` cites it by line number. For the backend, trust the code and `specs/001-local-supabase-backend/`.
 - Historically the docs contradicted each other and the config; resolved now:
-  - Backend framework: **Fastify v5** (ADR-0004). `SUMMARY.md`'s Express references are superseded.
-  - pnpm: docs claim 9+/10.12+; root `package.json` pins `"packageManager": "pnpm@8.15.6"`. Trust package.json.
-  - `SUMMARY.md` claims Husky/commitlint/lint-staged, Vitest tests, CI workflows, docker-compose — none are configured.
+  - Backend framework: **Fastify v5** (ADR-0004). `docs/archive/SUMMARY.md`'s Express references are superseded.
+  - pnpm: **12.11.2**. Root `package.json` pins `"packageManager": "pnpm@12.11.2"` and `pnpm-lock.yaml` is lockfileVersion 9. `docs/archive/{SUMMARY,TECHSTACK}.md` still name 8.15.6 and are superseded. Run pnpm through `corepack` (`corepack pnpm …`) so the pin is honoured rather than whatever is on `PATH` — a pnpm 12 against the old v6 lockfile rewrote `packageManager` and the lockfile on any invocation.
+  - `docs/archive/SUMMARY.md` claims Husky/commitlint/lint-staged, CI workflows, docker-compose — lint-staged/commitlint/Husky ARE configured and CI exists (`.github/workflows/ci.yml`); docker-compose is not.
+  - Deployments: nothing is hosted yet and no deployment automation exists. `docs/ROADMAP.md` **M1** is the staging deploy and **M4** the CI/CD milestone; `docs/adr/0018-deployment-topology.md` is the agreed topology.
 
 ## Commands
 
 - `pnpm dev` / `pnpm build` — turbo pipelines across all packages (see `turbo.json`).
 - `pnpm lint` — **single root ESLint 9 flat config** (`eslint.config.mjs`); runs `eslint .` repo-wide. Per-package lint scripts were removed; eslint lives only at root.
-- `pnpm typecheck` — `tsc --noEmit` on both `packages/ui` and `apps/web` (UI has no build script, so this is its only type gate).
-- `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five root design docs are in `.prettierignore`.
-- **There is no test task.** No test runner installed; `turbo.json` defines no `test`. Do not invent a `pnpm test`.
+- `pnpm typecheck` — `tsc --noEmit` on `packages/ui`, `apps/admin`, `apps/mobile`, `apps/server`, and `packages/shared`. (The `apps/web` starter app was removed from the repo in commit `c9bf984`; no config may reference it.)
+- `pnpm format` — prettier `--write` on `**/*.{ts,tsx,md}`; `pnpm format:check` is the check-only variant used by CI. Config in `.prettierrc.json` (semicolons, double quotes). The five design docs are in `.prettierignore` — four under `docs/archive/` plus `docs/BACKEND.md`. Keep those paths in step with any further move, or `format:check` starts policing historical documents that were never Prettier-clean.
+- **Tests**: `pnpm test` runs `turbo run test`. Two suites:
+  - `apps/admin` (`pnpm --filter admin test`) — 42 files / 535 tests, pure node-env helpers (plotting + detour stores, coords, draft, geometry, capabilities, the auth endings, the Accounts lifecycle and filter). Hermetic, ~10 s, no database. **This is what CI runs.**
+  - `apps/server` (`pnpm --filter server test`) — unit + integration. The integration half drops and recreates `komyuter_test` and needs the local Supabase stack up plus `apps/server/.env`; it is local-only.
+- CI (`.github/workflows/ci.yml`) runs `format:check`, `lint`, `typecheck`, the **admin test suite**, and `build`, in that order. Server tests are a local pre-merge obligation, so a server-side regression can merge green — see `docs/ROADMAP.md` (M4) where that gap is recorded as a known risk.
 - Hooks: `.husky/pre-commit` runs lint-staged (`eslint` + `prettier --check` on staged files, no auto-fix) and a warn-only branch-name check; `.husky/commit-msg` enforces conventional commits via commitlint (`commitlint.config.cjs`, scopes are warn-level).
 - Install with pnpm (workspace deps use `workspace:*`); `.npmrc` sets `auto-install-peers = true`.
+
+## Agent skills
+
+The engineering workflow is driven by skills. Installed here: `grilling`, `domain-modeling`, `codebase-design`, `code-review`, `improve-codebase-architecture`, `handoff`. The issue-workflow skills (`to-spec`, `to-tickets`, `triage`) are not installed yet; install them before relying on an issue-driven flow. Their per-repo configuration lives in `docs/agents/` and is already in place.
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues, driven by the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: the glossary is `CONTEXT.md` at the repo root (not `GLOSSARY.md`), decisions are `docs/adr/`, principles are `docs/PRINCIPLES.md`. See `docs/agents/domain.md`.
+
+## Documentation scope
+
+Documentation here carries **intent, not implementation**. The recorded decision is `docs/adr/0023-documentation-scope.md`.
+
+- **Write why, not how.** Record decisions and rationale (`docs/adr/`), rules and conventions (this file), glossary terms (`CONTEXT.md`), principles (`docs/PRINCIPLES.md`), plans and exit criteria (`docs/ROADMAP.md`), and setup and operation (`docs/DEPLOY.md`). Do not restate what the source, the schemas or the tests already say: a prose copy of a type or a call graph is a second source of truth that drifts silently and is authoritative for nothing.
+- **Answer "how does this work today?" by reading the code and its tests.** There is no wiki and no implementation-described-in-prose surface; creating one is the failure mode this rule exists to prevent.
+- **Authority ladder** (decreasing): `docs/adr/` → this file → the code and its tests → prose documents. A new prose document is justified only when it carries something the ladder above it does not.
+- **Records and citations are exempt from pruning.** `docs/archive/`, `docs/thesis/` and `specs/` are dated records, and the documents cited **by line number** from elsewhere (`docs/BACKEND.md`, `docs/SECURITY.md`, `docs/DEVIATIONS.md`) are citable material — editing above a cited line breaks the citation. Leave them as written.
+- **Prefer a Mermaid diagram** where a runtime flow or a data model is clearer to see than to read.
 
 ## Conventions that matter
 
 - TS is strict via shared `@repo/typescript-config` (`strict: true`). Extend it; don't redefine tsconfigs from scratch.
-- ESLint is a **single root flat config** (`eslint.config.mjs`): `@eslint/js` + `typescript-eslint` (non-type-aware), react-hooks/react-refresh rules, browser globals for `apps/web` + `packages/ui`, node globals for config files. `@repo/eslint-config` and all `.eslintrc.*` files were removed — do not recreate them.
-- **Spatial data — coordinate order `[longitude, latitude]` everywhere** (GeoJSON, PostGIS `ST_MakePoint`, Mapbox GL). Leaflet is the only `[lat, lng]` exception; convert at the admin boundary via the single tested converter module in `apps/admin` (ADR-0007). Docs call this the single most dangerous pitfall — a swapped pair puts stops in the ocean.
+- ESLint is a **single root flat config** (`eslint.config.mjs`): `@eslint/js` + `typescript-eslint` (non-type-aware), react-hooks/react-refresh rules, browser globals for `packages/ui` + `apps/admin`, node globals for config files. `@repo/eslint-config` and all `.eslintrc.*` files were removed — do not recreate them.
+- **Spatial data — coordinate order `[longitude, latitude]` everywhere** (GeoJSON, PostGIS `ST_MakePoint`, MapLibre/Mapbox GL). `[lng, lat]` is the sole format in the admin UI — MapLibre consumes it natively, so there is **no conversion layer** (ADR-0013 supersedes ADR-0007's old Leaflet exception, which never shipped a converter). Docs call this the single most dangerous pitfall — a swapped pair puts stops in the ocean.
 - For meter-based PostGIS math, always cast `::geography`; raw geometry returns degrees.
-- Fare is the LTFRB formula (`base_fare + max(0, dist_km - base_dist_km) × rate_per_km`; defaults ₱13 / 4km / ₱1.80, 20% student/senior). Planned shared package `@komyuter/shared` owns `fareCalculator` + shared types — reuse, never reimplement. The **displayed** fare is always the exact per-leg total; the Dijkstra **internal** cost is base-on-board + marginal ₱1.80/km (ADR-0001). Don't "fix" the internal cost into per-edge LTFRB — it's deliberate.
+- Fare is the LTFRB formula (`base_fare + max(0, dist_km - base_distance_km) × rate_per_km`; defaults ₱13 / 4km / ₱1.80, 20% student/senior). `@komyuter/shared` owns the shared types and zod schemas; the rule itself is still to be extracted into it as `fareCalculator` (roadmap `R5`, delivered in `docs/ROADMAP.md` **M3**) — reuse, never reimplement. The **displayed** fare is always the exact per-leg total; the Dijkstra **internal** cost is base-on-board + marginal ₱1.80/km (ADR-0001). Don't "fix" the internal cost into per-edge LTFRB — it's deliberate.
 - Routes are modeled as two **directions**, each with its own polyline and ordered stop list (`stop_{stopId}_direction_{directionId}` nodes). Never reverse one polyline for the return trip (ADR-0008).
 - Hail-and-ride boarding at non-stop positions uses request-time **virtual nodes + board edges**; they never persist and never enter the graph cache.
 - Normalization is per-edge-type (distance/walk/fare/transfer pools), clamped to [0,1]; transfer-edge distance = 0 (ADR-0002).
-- Trust scoring (MHD) is **informational only** — never a Dijkstra weight (panel constraint). Trace validity uses a max-speed discriminator (10–45 km/h), not average speed (ADR-0003).
+- Trust scoring (MHD) is **informational only** — never a Dijkstra weight (panel constraint). Trace validity uses a max-speed discriminator (10–45 km/h), not average speed (ADR-0003). No `traces` table, endpoint or shared types exist yet, so calibration data cannot be collected until the mobile app ships.
 - **No ETA anywhere** — navigation output is distances, fare, transfers, walk distance only (ADR-0009).
 - AR is location-based Geo-AR (expo-camera + expo-sensors), only during walking/transfer segments — never during rides, never ARCore/ARKit.
-- Authentication is Supabase Auth: admin-gated CRUD, commuter app anonymous with optional sign-in (ADR-0006). No DIY JWT.
+- Authentication is Supabase Auth: admin-gated CRUD, commuter app anonymous with optional sign-in (ADR-0006). No DIY JWT. Authorization is **Roles + Permissions** (ADR-0019), implemented for **M2a**: `admin_users.role_id` plus the `is_super_admin` ownership property; the Permission catalogue and pure policy live in `packages/shared/src/authorization.ts`; `loadAdminAccount` / `requirePermission` in `apps/server/src/api/auth.ts` are the single seam. Mutating routes declare `config.permission`, transit reads stay open to any Account, and Roles/Accounts (reads included) require `ADMIN_MANAGE`. The Super Admin's effective set is every declared Permission, and a DB trigger refuses its demotion, deactivation, deletion or Role change (the `PUT /accounts/:userId/status` route refuses the same before it writes). The capability module the SPA reads that set through is `apps/admin/src/lib/capabilities.ts` (five questions, one Permission each), with `useCapabilities()` / `useWorkspaceAccess()` in `apps/admin/src/features/auth/useCapabilities.ts` as the thin hook over `useAuth()` — pure and unit-tested, never a second authorization computation. The Read-only Workspace and the Account lifecycle landed in **M2b**, and dashboard-wide degradation closes that milestone: the capability module now governs the whole dashboard, not only the workspace. `lib/sections.ts` declares one Permission per navigation entry and `visibleSections()` filters the rail by asking the capability module (Overview, Routes and Fares open to every Account; Export needs `EXPORT_DATASET`; Accounts needs `ADMIN_MANAGE`); `app/SectionGuard.tsx` applies the same answer to the URL, so a guarded address typed directly renders the not-found surface rather than an empty page or a 403 plate; and the Fares page keeps its table while `fareAccess()` removes every mutating control without `FARES_EDIT`. No page re-derives any of it.
+- **Forced Password Change (M2b)** is the guard's third question, after "is there an Account" and "is it active": while `admin_users.must_change_password` is set, `createAdminAuthGuard` refuses every admin route with `403 PASSWORD_CHANGE_REQUIRED` except the ones whose route config declares `passwordChangeAllowed` — today only `GET /api/admin/me` and `POST /api/auth/password`. `GET /api/auth/me` sits outside the admin guard entirely and is reachable for the same reason: it answers identity only (id, email, name), never the Account's Permissions or flags. The allowlist is **per route, never URL matching**, so a route added later cannot inherit the bypass by looking like one that has it. Sign-in is still allowed for such an Account (the flag is not a denial); the SPA's `RequireAuth` routes it to `/change-password`. **Replacing a password ends every session the Account holds** at the identity provider (verified against the installed stack), so `POST /api/auth/password` re-authenticates the current password, replaces it, clears the flag, and answers with a fresh session — the SPA stores that token before re-reading `/me`, or a successful change would look like an expired session. Signing out other devices is consequently a property of the identity provider here, not of Komyuter.
 - Documented API envelope: `{ success, data | error }`. Commit messages: `type(scope): description` (enforced by commitlint).
+- **Server (`apps/server`) quality gates**: `pnpm --filter server typecheck` and `pnpm --filter server test` must pass before commit. Tests are written FIRST per `specs/001-local-supabase-backend/tasks.md` (TDD: red before implementation).
+- **Refusal codes that are not `401`.** `401` means the token is gone, and the SPA answers it by clearing the token and ending the session — so a refusal that must _keep_ the session uses its own code at `403`: `ACCOUNT_DEACTIVATED` (access revoked) and `PASSWORD_CHANGE_REQUIRED` (the Account is still signed in and is being held on the change screen). Both are in the shared `ERROR_CODES` union and both are classified in `apps/admin/src/lib/api.ts`; a new refusal of this kind needs the same treatment rather than a bare `FORBIDDEN`.
+- **Server conventions**: Fastify v5 with `@fastify/type-provider-zod` (zod schemas from `@komyuter/shared`); drizzle-orm against Postgres/PostGIS; a single injectable `buildApp({ db, supabase })` with `AppDeps`/`AppInstance` types in `apps/server/src/api/app.ts`; admin routes registered under `/api/admin` with the Supabase auth guard and the route-level Permission hook; responses always use the `{ success, data | error }` envelope (error codes in `src/api/errors.ts`, handled centrally in `app.ts`). Geometry write/read goes through `src/db/queries.ts` (`ST_GeomFromGeoJSON` / `ST_AsGeoJSON`); entity validation lives in `src/domain/validation.ts`; the export assembler is `src/domain/export.ts`; Role/Account DTOs are assembled in `src/domain/authorization.ts`. `.env` is gitignored and auto-loaded by `src/config/env.ts` (guard is idempotent when tests pre-load it).
+- Numeric columns in drizzle are string mode (no `mode: "number"` option in drizzle-orm 0.36.x) — convert with `Number()` at the handler layer.
+- **Concurrent plotting is not safe yet.** The direction/route save path is a blind overwrite with no version precondition, and the conflict message in the workspace claims a check the server does not perform. Two people on one Direction lose work silently until `docs/ROADMAP.md` **M2c** / `docs/adr/0020-concurrent-plotting-safety.md` land.
 
 ## Design Context
 
 - **PRODUCT.md** (repo root) and **DESIGN.md** (repo root) hold the product's strategic and visual systems. Load both before any UI work; DESIGN.md wins on visual decisions, PRODUCT.md wins on strategic/voice decisions.
 - Register: **product**. Commuter app + admin dashboard share one world: **The Route Sign** (flat enamel sign-plate grammar, pure white ground, signboard green-blue + signal amber, ≤4px corners, no shadows).
 - Surface briefs live in `.impeccable/surfaces/` per app; the first surface (commuter app) brief is at `apps/mobile/.impeccable/surfaces/apps-mobile.md`.
-
-<!-- SPECKIT START -->
-
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
-
-<!-- SPECKIT END -->

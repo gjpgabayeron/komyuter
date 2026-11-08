@@ -1,0 +1,7681 @@
+[
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.52877,
+          "lat": 10.56353
+        },
+        "destination": {
+          "lng": 122.44913,
+          "lat": 10.7892
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_23",
+          "direction_id": "route_23-1",
+          "stop_ids": ["stop_245", "stop_246", "stop_247", "stop_248"]
+        },
+        {
+          "route_id": "route_25",
+          "direction_id": "route_25-1",
+          "stop_ids": ["stop_248", "stop_125"]
+        },
+        {
+          "route_id": "route_12",
+          "direction_id": "route_12-1",
+          "stop_ids": ["stop_125", "stop_107"]
+        },
+        {
+          "route_id": "route_10",
+          "direction_id": "route_10-1",
+          "stop_ids": ["stop_107", "stop_106", "stop_114"]
+        },
+        {
+          "route_id": "route_12",
+          "direction_id": "route_12-1",
+          "stop_ids": ["stop_114", "stop_131", "stop_130"]
+        },
+        {
+          "route_id": "route_22",
+          "direction_id": "route_22-1",
+          "stop_ids": ["stop_130", "stop_232", "stop_214"]
+        },
+        {
+          "route_id": "route_20",
+          "direction_id": "route_20-1",
+          "stop_ids": ["stop_214", "stop_79"]
+        },
+        {
+          "route_id": "route_24",
+          "direction_id": "route_24-1",
+          "stop_ids": ["stop_79", "stop_255"]
+        }
+      ],
+      "transfers": 7,
+      "walk_m": 0,
+      "distance_km": 83.08,
+      "fare": {
+        "total": 201.61,
+        "legs": [13, 30.27, 22.99, 13, 19.92, 49.14, 26.05, 27.24],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.52877,
+          "lat": 10.56353
+        },
+        "destination": {
+          "lng": 122.44913,
+          "lat": 10.7892
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_245|stop_246"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_23",
+          "direction_id": "route_23-1",
+          "stop_ids": [
+            "stop_245",
+            "stop_244",
+            "stop_243",
+            "stop_242",
+            "stop_241",
+            "stop_240",
+            "stop_207"
+          ]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_207", "stop_208", "stop_209", "stop_210"]
+        },
+        {
+          "route_id": "route_20",
+          "direction_id": "route_20-1",
+          "stop_ids": [
+            "stop_210",
+            "stop_52",
+            "stop_211",
+            "stop_212",
+            "stop_213",
+            "stop_79"
+          ]
+        },
+        {
+          "route_id": "route_24",
+          "direction_id": "route_24-1",
+          "stop_ids": ["stop_79", "stop_255"]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 81.619,
+      "fare": {
+        "total": 172.51,
+        "legs": [61.95, 13, 70.32, 27.24],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.5541,
+          "lat": 10.65338
+        },
+        "destination": {
+          "lng": 122.63767,
+          "lat": 10.71493
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_15",
+          "direction_id": "route_15-1",
+          "stop_ids": ["stop_157", "stop_116"]
+        },
+        {
+          "route_id": "route_11",
+          "direction_id": "route_11-1",
+          "stop_ids": ["stop_116", "stop_44"]
+        },
+        {
+          "route_id": "route_4",
+          "direction_id": "route_4-1",
+          "stop_ids": ["stop_44", "stop_43"]
+        },
+        {
+          "route_id": "route_5",
+          "direction_id": "route_5-1",
+          "stop_ids": ["stop_43", "stop_52"]
+        },
+        {
+          "route_id": "route_20",
+          "direction_id": "route_20-1",
+          "stop_ids": ["stop_52", "stop_211", "stop_212", "stop_213", "stop_79"]
+        },
+        {
+          "route_id": "route_8",
+          "direction_id": "route_8-1",
+          "stop_ids": ["stop_79", "stop_80"]
+        },
+        {
+          "route_id": "route_20",
+          "direction_id": "route_20-1",
+          "stop_ids": [
+            "stop_80",
+            "stop_219",
+            "stop_220",
+            "stop_221",
+            "stop_222"
+          ]
+        }
+      ],
+      "transfers": 6,
+      "walk_m": 0,
+      "distance_km": 110.85,
+      "fare": {
+        "total": 251.1,
+        "legs": [36.89, 58.41, 13, 46.23, 52.72, 13, 30.85],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.5541,
+          "lat": 10.65338
+        },
+        "destination": {
+          "lng": 122.63767,
+          "lat": 10.71493
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_116|stop_157"
+      }
+    },
+    "expected_output": {
+      "found": false
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.61083,
+          "lat": 10.83136
+        },
+        "destination": {
+          "lng": 122.45336,
+          "lat": 10.79965
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_16",
+          "direction_id": "route_16-1",
+          "stop_ids": ["stop_171", "stop_170", "stop_40"]
+        },
+        {
+          "route_id": "route_11",
+          "direction_id": "route_11-1",
+          "stop_ids": ["stop_40", "stop_118", "stop_116"]
+        },
+        {
+          "route_id": "route_14",
+          "direction_id": "route_14-1",
+          "stop_ids": ["stop_116", "stop_16"]
+        },
+        {
+          "route_id": "route_1",
+          "direction_id": "route_1-1",
+          "stop_ids": ["stop_16", "stop_17"]
+        },
+        {
+          "route_id": "route_17",
+          "direction_id": "route_17-1",
+          "stop_ids": ["stop_17", "stop_186", "stop_185", "stop_31", "stop_184"]
+        }
+      ],
+      "transfers": 4,
+      "walk_m": 0,
+      "distance_km": 64.743,
+      "fare": {
+        "total": 153.54,
+        "legs": [24.16, 13, 36.53, 13, 66.85],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.61083,
+          "lat": 10.83136
+        },
+        "destination": {
+          "lng": 122.45336,
+          "lat": 10.79965
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_170|stop_171"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_16",
+          "direction_id": "route_16-1",
+          "stop_ids": ["stop_171", "stop_172", "stop_39"]
+        },
+        {
+          "route_id": "route_3",
+          "direction_id": "route_3-1",
+          "stop_ids": ["stop_39", "stop_40"]
+        },
+        {
+          "route_id": "route_11",
+          "direction_id": "route_11-1",
+          "stop_ids": ["stop_40", "stop_118", "stop_116"]
+        },
+        {
+          "route_id": "route_14",
+          "direction_id": "route_14-1",
+          "stop_ids": ["stop_116", "stop_16"]
+        },
+        {
+          "route_id": "route_1",
+          "direction_id": "route_1-1",
+          "stop_ids": ["stop_16", "stop_17"]
+        },
+        {
+          "route_id": "route_17",
+          "direction_id": "route_17-1",
+          "stop_ids": ["stop_17", "stop_186", "stop_185", "stop_31", "stop_184"]
+        }
+      ],
+      "transfers": 5,
+      "walk_m": 0,
+      "distance_km": 67.347,
+      "fare": {
+        "total": 169.61,
+        "legs": [27.23, 13, 13, 36.53, 13, 66.85],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.45036,
+          "lat": 10.64068
+        },
+        "destination": {
+          "lng": 122.63233,
+          "lat": 10.70068
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_22",
+          "direction_id": "route_22-1",
+          "stop_ids": ["stop_236", "stop_72"]
+        },
+        {
+          "route_id": "route_7",
+          "direction_id": "route_7-1",
+          "stop_ids": ["stop_72", "stop_71", "stop_1"]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_1", "stop_210"]
+        },
+        {
+          "route_id": "route_20",
+          "direction_id": "route_20-1",
+          "stop_ids": ["stop_210", "stop_52", "stop_211"]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 103.945,
+      "fare": {
+        "total": 210.29,
+        "legs": [47.48, 65.7, 50.79, 46.32],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.45036,
+          "lat": 10.64068
+        },
+        "destination": {
+          "lng": 122.63233,
+          "lat": 10.70068
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_236|stop_72"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_22",
+          "direction_id": "route_22-1",
+          "stop_ids": ["stop_236", "stop_172"]
+        },
+        {
+          "route_id": "route_16",
+          "direction_id": "route_16-1",
+          "stop_ids": ["stop_172", "stop_39"]
+        },
+        {
+          "route_id": "route_3",
+          "direction_id": "route_3-1",
+          "stop_ids": ["stop_39", "stop_40"]
+        },
+        {
+          "route_id": "route_16",
+          "direction_id": "route_16-1",
+          "stop_ids": ["stop_40", "stop_169", "stop_168"]
+        },
+        {
+          "route_id": "route_28",
+          "direction_id": "route_28-1",
+          "stop_ids": ["stop_168", "stop_293", "stop_294", "stop_210"]
+        },
+        {
+          "route_id": "route_20",
+          "direction_id": "route_20-1",
+          "stop_ids": ["stop_210", "stop_52", "stop_211"]
+        }
+      ],
+      "transfers": 5,
+      "walk_m": 0,
+      "distance_km": 100.562,
+      "fare": {
+        "total": 221.39,
+        "legs": [56.7, 25.41, 13, 23.49, 56.47, 46.32],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.61634,
+          "lat": 10.82755
+        },
+        "destination": {
+          "lng": 122.44229,
+          "lat": 10.62632
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_14",
+          "direction_id": "route_14-1",
+          "stop_ids": ["stop_150", "stop_149", "stop_148"]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_148", "stop_117"]
+        },
+        {
+          "route_id": "route_11",
+          "direction_id": "route_11-1",
+          "stop_ids": ["stop_117", "stop_40"]
+        },
+        {
+          "route_id": "route_3",
+          "direction_id": "route_3-1",
+          "stop_ids": ["stop_40", "stop_39"]
+        },
+        {
+          "route_id": "route_16",
+          "direction_id": "route_16-1",
+          "stop_ids": ["stop_39", "stop_173", "stop_129"]
+        },
+        {
+          "route_id": "route_12",
+          "direction_id": "route_12-1",
+          "stop_ids": ["stop_129", "stop_130", "stop_131"]
+        }
+      ],
+      "transfers": 5,
+      "walk_m": 0,
+      "distance_km": 58.057,
+      "fare": {
+        "total": 156.3,
+        "legs": [13, 23.93, 13, 13, 80.37, 13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.61634,
+          "lat": 10.82755
+        },
+        "destination": {
+          "lng": 122.44229,
+          "lat": 10.62632
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_149|stop_150"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_14",
+          "direction_id": "route_14-1",
+          "stop_ids": ["stop_150", "stop_34"]
+        },
+        {
+          "route_id": "route_3",
+          "direction_id": "route_3-1",
+          "stop_ids": ["stop_34", "stop_33", "stop_22", "stop_32"]
+        },
+        {
+          "route_id": "route_12",
+          "direction_id": "route_12-1",
+          "stop_ids": [
+            "stop_32",
+            "stop_127",
+            "stop_128",
+            "stop_129",
+            "stop_130",
+            "stop_131"
+          ]
+        }
+      ],
+      "transfers": 2,
+      "walk_m": 0,
+      "distance_km": 69.016,
+      "fare": {
+        "total": 141.63,
+        "legs": [27.73, 65.07, 48.83],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.42589,
+          "lat": 10.62369
+        },
+        "destination": {
+          "lng": 122.4265,
+          "lat": 10.6265
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_2",
+          "direction_id": "route_2-1",
+          "stop_ids": ["stop_24", "stop_25", "stop_26", "stop_23"]
+        },
+        {
+          "route_id": "route_1",
+          "direction_id": "route_1-1",
+          "stop_ids": ["stop_23", "stop_22"]
+        },
+        {
+          "route_id": "route_3",
+          "direction_id": "route_3-1",
+          "stop_ids": ["stop_22", "stop_32"]
+        },
+        {
+          "route_id": "route_12",
+          "direction_id": "route_12-1",
+          "stop_ids": ["stop_32", "stop_127"]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 43.834,
+      "fare": {
+        "total": 107.94,
+        "legs": [17.38, 13, 34.17, 43.39],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.42589,
+          "lat": 10.62369
+        },
+        "destination": {
+          "lng": 122.4265,
+          "lat": 10.6265
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_24|stop_25"
+      }
+    },
+    "expected_output": {
+      "found": false
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.42661,
+          "lat": 10.77956
+        },
+        "destination": {
+          "lng": 122.56234,
+          "lat": 10.64324
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_207", "stop_3"]
+        },
+        {
+          "route_id": "route_7",
+          "direction_id": "route_7-1",
+          "stop_ids": ["stop_3", "stop_45"]
+        },
+        {
+          "route_id": "route_5",
+          "direction_id": "route_5-1",
+          "stop_ids": ["stop_45", "stop_54"]
+        },
+        {
+          "route_id": "route_15",
+          "direction_id": "route_15-1",
+          "stop_ids": [
+            "stop_54",
+            "stop_162",
+            "stop_161",
+            "stop_160",
+            "stop_159"
+          ]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 67.612,
+      "fare": {
+        "total": 144.9,
+        "legs": [47.79, 16.56, 46.46, 34.09],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.42661,
+          "lat": 10.77956
+        },
+        "destination": {
+          "lng": 122.56234,
+          "lat": 10.64324
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_207|stop_3"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_207", "stop_208", "stop_209", "stop_210"]
+        },
+        {
+          "route_id": "route_28",
+          "direction_id": "route_28-1",
+          "stop_ids": ["stop_210", "stop_294", "stop_293", "stop_168"]
+        },
+        {
+          "route_id": "route_16",
+          "direction_id": "route_16-1",
+          "stop_ids": ["stop_168", "stop_169", "stop_40"]
+        },
+        {
+          "route_id": "route_11",
+          "direction_id": "route_11-1",
+          "stop_ids": ["stop_40", "stop_118", "stop_116"]
+        },
+        {
+          "route_id": "route_15",
+          "direction_id": "route_15-1",
+          "stop_ids": ["stop_116", "stop_158", "stop_159"]
+        }
+      ],
+      "transfers": 4,
+      "walk_m": 0,
+      "distance_km": 62.368,
+      "fare": {
+        "total": 145.38,
+        "legs": [13, 56.47, 23.49, 13, 39.42],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.45072,
+          "lat": 10.7779
+        },
+        "destination": {
+          "lng": 122.51954,
+          "lat": 10.56855
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_203", "stop_204", "stop_205", "stop_117"]
+        },
+        {
+          "route_id": "route_11",
+          "direction_id": "route_11-1",
+          "stop_ids": ["stop_117", "stop_116"]
+        },
+        {
+          "route_id": "route_14",
+          "direction_id": "route_14-1",
+          "stop_ids": ["stop_116", "stop_16"]
+        },
+        {
+          "route_id": "route_1",
+          "direction_id": "route_1-1",
+          "stop_ids": ["stop_16", "stop_15"]
+        },
+        {
+          "route_id": "route_6",
+          "direction_id": "route_6-1",
+          "stop_ids": ["stop_15", "stop_0"]
+        },
+        {
+          "route_id": "route_0",
+          "direction_id": "route_0-1",
+          "stop_ids": ["stop_0", "stop_1"]
+        }
+      ],
+      "transfers": 5,
+      "walk_m": 0,
+      "distance_km": 42.605,
+      "fare": {
+        "total": 128.76,
+        "legs": [24.85, 13, 36.53, 13, 28.38, 13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.45072,
+          "lat": 10.7779
+        },
+        "destination": {
+          "lng": 122.51954,
+          "lat": 10.56855
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_203|stop_204"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_203", "stop_62", "stop_202"]
+        },
+        {
+          "route_id": "route_26",
+          "direction_id": "route_26-1",
+          "stop_ids": ["stop_202", "stop_49"]
+        },
+        {
+          "route_id": "route_4",
+          "direction_id": "route_4-1",
+          "stop_ids": ["stop_49", "stop_1"]
+        }
+      ],
+      "transfers": 2,
+      "walk_m": 0,
+      "distance_km": 82.716,
+      "fare": {
+        "total": 166.3,
+        "legs": [97.54, 54.04, 14.72],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.51167,
+          "lat": 10.57834
+        },
+        "destination": {
+          "lng": 122.4501,
+          "lat": 10.76381
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_0",
+          "direction_id": "route_0-1",
+          "stop_ids": ["stop_2", "stop_1"]
+        },
+        {
+          "route_id": "route_4",
+          "direction_id": "route_4-1",
+          "stop_ids": ["stop_1", "stop_49"]
+        },
+        {
+          "route_id": "route_26",
+          "direction_id": "route_26-1",
+          "stop_ids": ["stop_49", "stop_202"]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_202", "stop_201", "stop_200"]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 34.921,
+      "fare": {
+        "total": 94.76,
+        "legs": [13, 14.72, 54.04, 13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.51167,
+          "lat": 10.57834
+        },
+        "destination": {
+          "lng": 122.4501,
+          "lat": 10.76381
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_1|stop_2"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_0",
+          "direction_id": "route_0-1",
+          "stop_ids": ["stop_2", "stop_3"]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_3", "stop_207", "stop_208", "stop_209", "stop_210"]
+        },
+        {
+          "route_id": "route_28",
+          "direction_id": "route_28-1",
+          "stop_ids": ["stop_210", "stop_295", "stop_199"]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_199", "stop_200"]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 38.982,
+      "fare": {
+        "total": 103.43,
+        "legs": [13, 52.59, 24.84, 13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.55347,
+          "lat": 10.75603
+        },
+        "destination": {
+          "lng": 122.47958,
+          "lat": 10.54715
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_9",
+          "direction_id": "route_9-1",
+          "stop_ids": ["stop_99", "stop_100", "stop_48"]
+        },
+        {
+          "route_id": "route_4",
+          "direction_id": "route_4-1",
+          "stop_ids": ["stop_48", "stop_43", "stop_44"]
+        }
+      ],
+      "transfers": 1,
+      "walk_m": 0,
+      "distance_km": 26.766,
+      "fare": {
+        "total": 64.19,
+        "legs": [51.19, 13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.55347,
+          "lat": 10.75603
+        },
+        "destination": {
+          "lng": 122.47958,
+          "lat": 10.54715
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_100|stop_99"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_9",
+          "direction_id": "route_9-1",
+          "stop_ids": ["stop_99", "stop_98", "stop_97", "stop_54"]
+        },
+        {
+          "route_id": "route_5",
+          "direction_id": "route_5-1",
+          "stop_ids": ["stop_54", "stop_45"]
+        },
+        {
+          "route_id": "route_4",
+          "direction_id": "route_4-1",
+          "stop_ids": ["stop_45", "stop_44"]
+        }
+      ],
+      "transfers": 2,
+      "walk_m": 0,
+      "distance_km": 28.735,
+      "fare": {
+        "total": 74.61,
+        "legs": [15.15, 46.46, 13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.5395,
+          "lat": 10.56892
+        },
+        "destination": {
+          "lng": 122.5395,
+          "lat": 10.56892
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_26",
+          "direction_id": "route_26-1",
+          "stop_ids": ["stop_274"]
+        }
+      ],
+      "transfers": 0,
+      "walk_m": 0,
+      "distance_km": 0,
+      "fare": {
+        "total": 13,
+        "legs": [13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.5395,
+          "lat": 10.56892
+        },
+        "destination": {
+          "lng": 122.5395,
+          "lat": 10.56892
+        },
+        "profile": "balanced",
+        "restricted_segment_id": null
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_26",
+          "direction_id": "route_26-1",
+          "stop_ids": ["stop_274"]
+        }
+      ],
+      "transfers": 0,
+      "walk_m": 0,
+      "distance_km": 0,
+      "fare": {
+        "total": 13,
+        "legs": [13],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "route_optimization",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.52125,
+          "lat": 10.5699
+        },
+        "destination": {
+          "lng": 122.52548,
+          "lat": 10.55701
+        },
+        "profile": "balanced"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_0",
+          "direction_id": "route_0-1",
+          "stop_ids": ["stop_8", "stop_5", "stop_4", "stop_3"]
+        },
+        {
+          "route_id": "route_19",
+          "direction_id": "route_19-1",
+          "stop_ids": ["stop_3", "stop_207"]
+        },
+        {
+          "route_id": "route_23",
+          "direction_id": "route_23-1",
+          "stop_ids": ["stop_207", "stop_239", "stop_238"]
+        }
+      ],
+      "transfers": 2,
+      "walk_m": 0,
+      "distance_km": 54.163,
+      "fare": {
+        "total": 116.15,
+        "legs": [13, 47.79, 55.36],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "detour_pathfinding",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "origin": {
+          "lng": 122.52125,
+          "lat": 10.5699
+        },
+        "destination": {
+          "lng": 122.52548,
+          "lat": 10.55701
+        },
+        "profile": "balanced",
+        "restricted_segment_id": "stop_5|stop_8"
+      }
+    },
+    "expected_output": {
+      "found": true,
+      "legs": [
+        {
+          "route_id": "route_8",
+          "direction_id": "route_8-1",
+          "stop_ids": ["stop_8", "stop_48"]
+        },
+        {
+          "route_id": "route_4",
+          "direction_id": "route_4-1",
+          "stop_ids": ["stop_48", "stop_43", "stop_44"]
+        },
+        {
+          "route_id": "route_10",
+          "direction_id": "route_10-1",
+          "stop_ids": ["stop_44", "stop_104", "stop_105"]
+        },
+        {
+          "route_id": "route_23",
+          "direction_id": "route_23-1",
+          "stop_ids": ["stop_105", "stop_237", "stop_238"]
+        }
+      ],
+      "transfers": 3,
+      "walk_m": 0,
+      "distance_km": 47.337,
+      "fare": {
+        "total": 112.82,
+        "legs": [14.93, 13, 41.46, 43.43],
+        "discounted": false
+      }
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5212709,
+          "lat": 10.5593
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.52118,
+        "lat": 10.5593
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5117609,
+          "lat": 10.57834
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.51171,
+        "lat": 10.5783
+      },
+      "distance_m": 7.797
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5140609,
+          "lat": 10.58872
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.514,
+        "lat": 10.58868
+      },
+      "distance_m": 7.923
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5215809,
+          "lat": 10.57273
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.52157,
+        "lat": 10.57275
+      },
+      "distance_m": 2.675
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5213409,
+          "lat": 10.5699
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.52127,
+        "lat": 10.56986
+      },
+      "distance_m": 9.017
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5188609,
+          "lat": 10.57723
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.51882,
+        "lat": 10.57718
+      },
+      "distance_m": 6.892
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5305309,
+          "lat": 10.57933
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.53049,
+        "lat": 10.57938
+      },
+      "distance_m": 6.882
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_0-1",
+        "point": {
+          "lng": 122.5466109,
+          "lat": 10.58207
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_0-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_0-1",
+      "position_on_polyline": {
+        "lng": 122.54652,
+        "lat": 10.58206
+      },
+      "distance_m": 9.917
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.47571090000001,
+          "lat": 10.66287
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.47563,
+        "lat": 10.66285
+      },
+      "distance_m": 9.58
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.4764309,
+          "lat": 10.66029
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.47634,
+        "lat": 10.66029
+      },
+      "distance_m": 9.933
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.47204090000001,
+          "lat": 10.66171
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.47203,
+        "lat": 10.66168
+      },
+      "distance_m": 3.106
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.46922090000001,
+          "lat": 10.657
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.46915,
+        "lat": 10.65704
+      },
+      "distance_m": 8.562
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.4672109,
+          "lat": 10.65789
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.4672,
+        "lat": 10.65786
+      },
+      "distance_m": 4.081
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.46250090000001,
+          "lat": 10.65478
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.46247,
+        "lat": 10.65482
+      },
+      "distance_m": 5.54
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.4573709,
+          "lat": 10.6525
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.45737,
+        "lat": 10.65252
+      },
+      "distance_m": 1.775
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.46223090000001,
+          "lat": 10.66024
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.46214,
+        "lat": 10.66023
+      },
+      "distance_m": 9.905
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_1-1",
+        "point": {
+          "lng": 122.4627509,
+          "lat": 10.65346
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_1-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_1-1",
+      "position_on_polyline": {
+        "lng": 122.46266,
+        "lat": 10.65346
+      },
+      "distance_m": 9.933
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_2-1",
+        "point": {
+          "lng": 122.4259809,
+          "lat": 10.62369
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_2-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_2-1",
+      "position_on_polyline": {
+        "lng": 122.42589,
+        "lat": 10.62369
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_2-1",
+        "point": {
+          "lng": 122.4248809,
+          "lat": 10.63852
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_2-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_2-1",
+      "position_on_polyline": {
+        "lng": 122.42488,
+        "lat": 10.63852
+      },
+      "distance_m": 0.068
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_2-1",
+        "point": {
+          "lng": 122.5268909,
+          "lat": 10.56963
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_2-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_2-1",
+      "position_on_polyline": {
+        "lng": 122.5268,
+        "lat": 10.56963
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_2-1",
+        "point": {
+          "lng": 122.4322409,
+          "lat": 10.6449
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_2-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_2-1",
+      "position_on_polyline": {
+        "lng": 122.43223,
+        "lat": 10.64492
+      },
+      "distance_m": 2.727
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_2-1",
+        "point": {
+          "lng": 122.4300609,
+          "lat": 10.64558
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_2-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_2-1",
+      "position_on_polyline": {
+        "lng": 122.43003,
+        "lat": 10.64554
+      },
+      "distance_m": 6.197
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-1",
+        "point": {
+          "lng": 122.5320409,
+          "lat": 10.78416
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-1",
+      "position_on_polyline": {
+        "lng": 122.53195,
+        "lat": 10.78416
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-1",
+        "point": {
+          "lng": 122.5141509,
+          "lat": 10.78385
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-1",
+      "position_on_polyline": {
+        "lng": 122.5141,
+        "lat": 10.78389
+      },
+      "distance_m": 7.769
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-1",
+        "point": {
+          "lng": 122.5212009,
+          "lat": 10.78094
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-1",
+      "position_on_polyline": {
+        "lng": 122.5212,
+        "lat": 10.78093
+      },
+      "distance_m": 1.07
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-1",
+        "point": {
+          "lng": 122.52786090000001,
+          "lat": 10.78584
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-1",
+      "position_on_polyline": {
+        "lng": 122.52782,
+        "lat": 10.7858
+      },
+      "distance_m": 6.546
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-2",
+        "point": {
+          "lng": 122.53369090000001,
+          "lat": 10.78011
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-2",
+      "position_on_polyline": {
+        "lng": 122.5336,
+        "lat": 10.78011
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-2",
+        "point": {
+          "lng": 122.5360009,
+          "lat": 10.77883
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-2",
+      "position_on_polyline": {
+        "lng": 122.53591,
+        "lat": 10.77883
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-2",
+        "point": {
+          "lng": 122.5309709,
+          "lat": 10.7799
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-2",
+      "position_on_polyline": {
+        "lng": 122.53088,
+        "lat": 10.7799
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-2",
+        "point": {
+          "lng": 122.5124009,
+          "lat": 10.77965
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-2",
+      "position_on_polyline": {
+        "lng": 122.5124,
+        "lat": 10.77966
+      },
+      "distance_m": 1.465
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-2",
+        "point": {
+          "lng": 122.5208209,
+          "lat": 10.79208
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-2",
+      "position_on_polyline": {
+        "lng": 122.52073,
+        "lat": 10.79208
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_3-2",
+        "point": {
+          "lng": 122.52209090000001,
+          "lat": 10.78919
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_3-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_3-2",
+      "position_on_polyline": {
+        "lng": 122.52207,
+        "lat": 10.78915
+      },
+      "distance_m": 4.544
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_4-1",
+        "point": {
+          "lng": 122.4936509,
+          "lat": 10.54812
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_4-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_4-1",
+      "position_on_polyline": {
+        "lng": 122.49356,
+        "lat": 10.54812
+      },
+      "distance_m": 9.937
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_4-1",
+        "point": {
+          "lng": 122.4800309,
+          "lat": 10.53914
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_4-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_4-1",
+      "position_on_polyline": {
+        "lng": 122.48003,
+        "lat": 10.53916
+      },
+      "distance_m": 2.255
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_4-1",
+        "point": {
+          "lng": 122.4770809,
+          "lat": 10.53898
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_4-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_4-1",
+      "position_on_polyline": {
+        "lng": 122.47703,
+        "lat": 10.53895
+      },
+      "distance_m": 5.967
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_4-1",
+        "point": {
+          "lng": 122.4789109,
+          "lat": 10.53584
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_4-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_4-1",
+      "position_on_polyline": {
+        "lng": 122.47883,
+        "lat": 10.53587
+      },
+      "distance_m": 9.427
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_4-1",
+        "point": {
+          "lng": 122.48605090000001,
+          "lat": 10.53865
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_4-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_4-1",
+      "position_on_polyline": {
+        "lng": 122.48601,
+        "lat": 10.5387
+      },
+      "distance_m": 6.672
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_4-1",
+        "point": {
+          "lng": 122.4834209,
+          "lat": 10.54734
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_4-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_4-1",
+      "position_on_polyline": {
+        "lng": 122.4834,
+        "lat": 10.54738
+      },
+      "distance_m": 5.087
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.4206309,
+          "lat": 10.62961
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.42058,
+        "lat": 10.62966
+      },
+      "distance_m": 7.254
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.51927090000001,
+          "lat": 10.73319
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.51918,
+        "lat": 10.73319
+      },
+      "distance_m": 9.931
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.5218809,
+          "lat": 10.73692
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.52179,
+        "lat": 10.73692
+      },
+      "distance_m": 9.931
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.5123909,
+          "lat": 10.7374
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.51239,
+        "lat": 10.7374
+      },
+      "distance_m": 0.511
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.51399090000001,
+          "lat": 10.73888
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.51398,
+        "lat": 10.73891
+      },
+      "distance_m": 4.009
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.5224109,
+          "lat": 10.74253
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.52232,
+        "lat": 10.74253
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.5137509,
+          "lat": 10.74889
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.51372,
+        "lat": 10.74885
+      },
+      "distance_m": 5.946
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_5-1",
+        "point": {
+          "lng": 122.5097209,
+          "lat": 10.74598
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_5-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_5-1",
+      "position_on_polyline": {
+        "lng": 122.50969,
+        "lat": 10.74602
+      },
+      "distance_m": 5.882
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.6946109,
+          "lat": 10.81503
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.69452,
+        "lat": 10.81503
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.6824709,
+          "lat": 10.8199
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.6824,
+        "lat": 10.81986
+      },
+      "distance_m": 8.919
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.67373090000001,
+          "lat": 10.83156
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.67368,
+        "lat": 10.83152
+      },
+      "distance_m": 7.559
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.6749709,
+          "lat": 10.83007
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.67495,
+        "lat": 10.83005
+      },
+      "distance_m": 3.222
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.6684609,
+          "lat": 10.82066
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.66845,
+        "lat": 10.82069
+      },
+      "distance_m": 3.775
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.6682309,
+          "lat": 10.81099
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.66823,
+        "lat": 10.811
+      },
+      "distance_m": 1.16
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_6-1",
+        "point": {
+          "lng": 122.6862809,
+          "lat": 10.81288
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_6-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_6-1",
+      "position_on_polyline": {
+        "lng": 122.68619,
+        "lat": 10.81288
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_7-1",
+        "point": {
+          "lng": 122.42068090000001,
+          "lat": 10.83975
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_7-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_7-1",
+      "position_on_polyline": {
+        "lng": 122.42063,
+        "lat": 10.8398
+      },
+      "distance_m": 7.162
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_7-1",
+        "point": {
+          "lng": 122.4233009,
+          "lat": 10.85112
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_7-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_7-1",
+      "position_on_polyline": {
+        "lng": 122.42328,
+        "lat": 10.85108
+      },
+      "distance_m": 5.337
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_7-1",
+        "point": {
+          "lng": 122.41876090000001,
+          "lat": 10.86043
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_7-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_7-1",
+      "position_on_polyline": {
+        "lng": 122.41867,
+        "lat": 10.86041
+      },
+      "distance_m": 9.773
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_7-1",
+        "point": {
+          "lng": 122.5058309,
+          "lat": 10.58469
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_7-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_7-1",
+      "position_on_polyline": {
+        "lng": 122.50574,
+        "lat": 10.58469
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_7-1",
+        "point": {
+          "lng": 122.4182109,
+          "lat": 10.85612
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_7-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_7-1",
+      "position_on_polyline": {
+        "lng": 122.41817,
+        "lat": 10.85617
+      },
+      "distance_m": 6.69
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-1",
+        "point": {
+          "lng": 122.52281090000001,
+          "lat": 10.71876
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-1",
+      "position_on_polyline": {
+        "lng": 122.52276,
+        "lat": 10.71871
+      },
+      "distance_m": 7.179
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-1",
+        "point": {
+          "lng": 122.5326709,
+          "lat": 10.71061
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-1",
+      "position_on_polyline": {
+        "lng": 122.53259,
+        "lat": 10.71059
+      },
+      "distance_m": 9.6
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-1",
+        "point": {
+          "lng": 122.53516090000001,
+          "lat": 10.69471
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-1",
+      "position_on_polyline": {
+        "lng": 122.53507,
+        "lat": 10.69471
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-1",
+        "point": {
+          "lng": 122.51510090000001,
+          "lat": 10.71345
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-1",
+      "position_on_polyline": {
+        "lng": 122.51508,
+        "lat": 10.71341
+      },
+      "distance_m": 4.691
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-1",
+        "point": {
+          "lng": 122.4858809,
+          "lat": 10.54048
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-1",
+      "position_on_polyline": {
+        "lng": 122.48584,
+        "lat": 10.54052
+      },
+      "distance_m": 6.41
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-2",
+        "point": {
+          "lng": 122.4988409,
+          "lat": 10.69777
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-2",
+      "position_on_polyline": {
+        "lng": 122.49875,
+        "lat": 10.69777
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-2",
+        "point": {
+          "lng": 122.4950309,
+          "lat": 10.70357
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-2",
+      "position_on_polyline": {
+        "lng": 122.49494,
+        "lat": 10.70355
+      },
+      "distance_m": 9.751
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-2",
+        "point": {
+          "lng": 122.4997209,
+          "lat": 10.71066
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-2",
+      "position_on_polyline": {
+        "lng": 122.49963,
+        "lat": 10.71066
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-2",
+        "point": {
+          "lng": 122.52889090000001,
+          "lat": 10.70375
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-2",
+      "position_on_polyline": {
+        "lng": 122.52883,
+        "lat": 10.70371
+      },
+      "distance_m": 8.208
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-2",
+        "point": {
+          "lng": 122.5266409,
+          "lat": 10.70083
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-2",
+      "position_on_polyline": {
+        "lng": 122.52658,
+        "lat": 10.70087
+      },
+      "distance_m": 8.496
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_8-2",
+        "point": {
+          "lng": 122.5271609,
+          "lat": 10.71429
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_8-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_8-2",
+      "position_on_polyline": {
+        "lng": 122.52711,
+        "lat": 10.71424
+      },
+      "distance_m": 7.29
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5661309,
+          "lat": 10.73505
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.56604,
+        "lat": 10.73505
+      },
+      "distance_m": 9.931
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5547809,
+          "lat": 10.75314
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.55473,
+        "lat": 10.7531
+      },
+      "distance_m": 7.687
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5539009,
+          "lat": 10.74856
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.55388,
+        "lat": 10.74852
+      },
+      "distance_m": 5.345
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5479809,
+          "lat": 10.75928
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.54796,
+        "lat": 10.75924
+      },
+      "distance_m": 5.065
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5500209,
+          "lat": 10.75428
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.55,
+        "lat": 10.75432
+      },
+      "distance_m": 4.464
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5577409,
+          "lat": 10.75108
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.55772,
+        "lat": 10.75112
+      },
+      "distance_m": 5.327
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_9-1",
+        "point": {
+          "lng": 122.5710409,
+          "lat": 10.75988
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_9-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_9-1",
+      "position_on_polyline": {
+        "lng": 122.57095,
+        "lat": 10.75988
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.4796709,
+          "lat": 10.54715
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.47958,
+        "lat": 10.54715
+      },
+      "distance_m": 9.937
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.4092909,
+          "lat": 10.70624
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.40925,
+        "lat": 10.70619
+      },
+      "distance_m": 6.801
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.4207209,
+          "lat": 10.70306
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.42067,
+        "lat": 10.70301
+      },
+      "distance_m": 7.382
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.4261709,
+          "lat": 10.6954
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.42616,
+        "lat": 10.69543
+      },
+      "distance_m": 4.139
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.4264909,
+          "lat": 10.69951
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.4264,
+        "lat": 10.69951
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.42503090000001,
+          "lat": 10.69556
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.42494,
+        "lat": 10.69556
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-1",
+        "point": {
+          "lng": 122.42243090000001,
+          "lat": 10.69039
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-1",
+      "position_on_polyline": {
+        "lng": 122.42242,
+        "lat": 10.69042
+      },
+      "distance_m": 4.209
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-2",
+        "point": {
+          "lng": 122.6865109,
+          "lat": 10.81179
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-2",
+      "position_on_polyline": {
+        "lng": 122.68642,
+        "lat": 10.81179
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-2",
+        "point": {
+          "lng": 122.41500090000001,
+          "lat": 10.70097
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-2",
+      "position_on_polyline": {
+        "lng": 122.41499,
+        "lat": 10.701
+      },
+      "distance_m": 3.462
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-2",
+        "point": {
+          "lng": 122.4229309,
+          "lat": 10.69947
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-2",
+      "position_on_polyline": {
+        "lng": 122.42293,
+        "lat": 10.69947
+      },
+      "distance_m": 0.114
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-2",
+        "point": {
+          "lng": 122.4243009,
+          "lat": 10.68978
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-2",
+      "position_on_polyline": {
+        "lng": 122.42422,
+        "lat": 10.68981
+      },
+      "distance_m": 9.441
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-2",
+        "point": {
+          "lng": 122.4272809,
+          "lat": 10.6959
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-2",
+      "position_on_polyline": {
+        "lng": 122.42719,
+        "lat": 10.6959
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_10-2",
+        "point": {
+          "lng": 122.4113809,
+          "lat": 10.70872
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_10-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_10-2",
+      "position_on_polyline": {
+        "lng": 122.4113,
+        "lat": 10.70869
+      },
+      "distance_m": 9.173
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_11-1",
+        "point": {
+          "lng": 122.5197509,
+          "lat": 10.79879
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_11-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_11-1",
+      "position_on_polyline": {
+        "lng": 122.51969,
+        "lat": 10.79883
+      },
+      "distance_m": 7.923
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_11-1",
+        "point": {
+          "lng": 122.5213509,
+          "lat": 10.79746
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_11-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_11-1",
+      "position_on_polyline": {
+        "lng": 122.52129,
+        "lat": 10.79742
+      },
+      "distance_m": 8.14
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_11-1",
+        "point": {
+          "lng": 122.52831090000001,
+          "lat": 10.7923
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_11-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_11-1",
+      "position_on_polyline": {
+        "lng": 122.52823,
+        "lat": 10.79227
+      },
+      "distance_m": 9.11
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_11-1",
+        "point": {
+          "lng": 122.5604209,
+          "lat": 10.74447
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_11-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_11-1",
+      "position_on_polyline": {
+        "lng": 122.56033,
+        "lat": 10.74447
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_11-1",
+        "point": {
+          "lng": 122.5291009,
+          "lat": 10.79297
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_11-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_11-1",
+      "position_on_polyline": {
+        "lng": 122.52904,
+        "lat": 10.79301
+      },
+      "distance_m": 8.259
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_11-1",
+        "point": {
+          "lng": 122.5416909,
+          "lat": 10.80002
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_11-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_11-1",
+      "position_on_polyline": {
+        "lng": 122.5416,
+        "lat": 10.8
+      },
+      "distance_m": 9.718
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-1",
+        "point": {
+          "lng": 122.5297609,
+          "lat": 10.78471
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-1",
+      "position_on_polyline": {
+        "lng": 122.52967,
+        "lat": 10.78471
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-1",
+        "point": {
+          "lng": 122.4180109,
+          "lat": 10.61999
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-1",
+      "position_on_polyline": {
+        "lng": 122.41794,
+        "lat": 10.62003
+      },
+      "distance_m": 8.502
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-1",
+        "point": {
+          "lng": 122.4270709,
+          "lat": 10.61839
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-1",
+      "position_on_polyline": {
+        "lng": 122.42707,
+        "lat": 10.61838
+      },
+      "distance_m": 1.394
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-1",
+        "point": {
+          "lng": 122.4423809,
+          "lat": 10.62632
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-1",
+      "position_on_polyline": {
+        "lng": 122.44229,
+        "lat": 10.62632
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-1",
+        "point": {
+          "lng": 122.4363409,
+          "lat": 10.63601
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-1",
+      "position_on_polyline": {
+        "lng": 122.43625,
+        "lat": 10.63601
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-1",
+        "point": {
+          "lng": 122.4465709,
+          "lat": 10.64926
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-1",
+      "position_on_polyline": {
+        "lng": 122.44653,
+        "lat": 10.64931
+      },
+      "distance_m": 6.821
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-2",
+        "point": {
+          "lng": 122.4411509,
+          "lat": 10.64557
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-2",
+      "position_on_polyline": {
+        "lng": 122.44111,
+        "lat": 10.64562
+      },
+      "distance_m": 6.729
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-2",
+        "point": {
+          "lng": 122.4387209,
+          "lat": 10.64369
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-2",
+      "position_on_polyline": {
+        "lng": 122.43869,
+        "lat": 10.64373
+      },
+      "distance_m": 5.816
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-2",
+        "point": {
+          "lng": 122.43255090000001,
+          "lat": 10.63573
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-2",
+      "position_on_polyline": {
+        "lng": 122.43255,
+        "lat": 10.63574
+      },
+      "distance_m": 0.745
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-2",
+        "point": {
+          "lng": 122.4391009,
+          "lat": 10.6248
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-2",
+      "position_on_polyline": {
+        "lng": 122.43908,
+        "lat": 10.62483
+      },
+      "distance_m": 4.237
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-2",
+        "point": {
+          "lng": 122.42659090000001,
+          "lat": 10.6265
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-2",
+      "position_on_polyline": {
+        "lng": 122.42652,
+        "lat": 10.62654
+      },
+      "distance_m": 8.606
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_12-2",
+        "point": {
+          "lng": 122.4132709,
+          "lat": 10.61749
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_12-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_12-2",
+      "position_on_polyline": {
+        "lng": 122.41325,
+        "lat": 10.61753
+      },
+      "distance_m": 4.698
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.4705709,
+          "lat": 10.58638
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.47049,
+        "lat": 10.5864
+      },
+      "distance_m": 9.572
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.4768909,
+          "lat": 10.5862
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.47682,
+        "lat": 10.58624
+      },
+      "distance_m": 9.006
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.4701409,
+          "lat": 10.58967
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.47013,
+        "lat": 10.58964
+      },
+      "distance_m": 3.662
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.4778909,
+          "lat": 10.58665
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.47784,
+        "lat": 10.5867
+      },
+      "distance_m": 7.266
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.4746209,
+          "lat": 10.58876
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.47457,
+        "lat": 10.58881
+      },
+      "distance_m": 7.184
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.46984090000001,
+          "lat": 10.58302
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.46981,
+        "lat": 10.58298
+      },
+      "distance_m": 6.188
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_13-1",
+        "point": {
+          "lng": 122.4756309,
+          "lat": 10.57849
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_13-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_13-1",
+      "position_on_polyline": {
+        "lng": 122.47554,
+        "lat": 10.57849
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.6171609,
+          "lat": 10.8225
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.61716,
+        "lat": 10.82249
+      },
+      "distance_m": 1.393
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.6075909,
+          "lat": 10.82474
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.60759,
+        "lat": 10.82473
+      },
+      "distance_m": 1.506
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.6059209,
+          "lat": 10.82297
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.60584,
+        "lat": 10.823
+      },
+      "distance_m": 9.472
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.60939090000001,
+          "lat": 10.82447
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.60939,
+        "lat": 10.82446
+      },
+      "distance_m": 1.648
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.6164309,
+          "lat": 10.82755
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.61636,
+        "lat": 10.82759
+      },
+      "distance_m": 8.625
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.6072709,
+          "lat": 10.82214
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.60725,
+        "lat": 10.82218
+      },
+      "distance_m": 4.579
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-1",
+        "point": {
+          "lng": 122.6123409,
+          "lat": 10.82545
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-1",
+      "position_on_polyline": {
+        "lng": 122.61234,
+        "lat": 10.82547
+      },
+      "distance_m": 2.199
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-2",
+        "point": {
+          "lng": 122.5253809,
+          "lat": 10.80611
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-2",
+      "position_on_polyline": {
+        "lng": 122.52529,
+        "lat": 10.80611
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-2",
+        "point": {
+          "lng": 122.61503090000001,
+          "lat": 10.83476
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-2",
+      "position_on_polyline": {
+        "lng": 122.61494,
+        "lat": 10.83476
+      },
+      "distance_m": 9.927
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-2",
+        "point": {
+          "lng": 122.61485090000001,
+          "lat": 10.82601
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-2",
+      "position_on_polyline": {
+        "lng": 122.61476,
+        "lat": 10.82601
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-2",
+        "point": {
+          "lng": 122.6189509,
+          "lat": 10.83189
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-2",
+      "position_on_polyline": {
+        "lng": 122.61886,
+        "lat": 10.83189
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_14-2",
+        "point": {
+          "lng": 122.60894090000001,
+          "lat": 10.83241
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_14-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_14-2",
+      "position_on_polyline": {
+        "lng": 122.60885,
+        "lat": 10.8324
+      },
+      "distance_m": 9.912
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_15-1",
+        "point": {
+          "lng": 122.5456109,
+          "lat": 10.65453
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_15-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_15-1",
+      "position_on_polyline": {
+        "lng": 122.54558,
+        "lat": 10.65457
+      },
+      "distance_m": 5.985
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_15-1",
+        "point": {
+          "lng": 122.5708309,
+          "lat": 10.65273
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_15-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_15-1",
+      "position_on_polyline": {
+        "lng": 122.57074,
+        "lat": 10.65273
+      },
+      "distance_m": 9.933
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_15-1",
+        "point": {
+          "lng": 122.5674309,
+          "lat": 10.64894
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_15-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_15-1",
+      "position_on_polyline": {
+        "lng": 122.56741,
+        "lat": 10.64896
+      },
+      "distance_m": 3.759
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_15-1",
+        "point": {
+          "lng": 122.57165090000001,
+          "lat": 10.65736
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_15-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_15-1",
+      "position_on_polyline": {
+        "lng": 122.57156,
+        "lat": 10.65738
+      },
+      "distance_m": 9.758
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_16-1",
+        "point": {
+          "lng": 122.48547090000001,
+          "lat": 10.54081
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_16-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_16-1",
+      "position_on_polyline": {
+        "lng": 122.48539,
+        "lat": 10.54084
+      },
+      "distance_m": 9.323
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_16-1",
+        "point": {
+          "lng": 122.5975809,
+          "lat": 10.83326
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_16-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_16-1",
+      "position_on_polyline": {
+        "lng": 122.59749,
+        "lat": 10.83326
+      },
+      "distance_m": 9.927
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_16-1",
+        "point": {
+          "lng": 122.6028409,
+          "lat": 10.82365
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_16-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_16-1",
+      "position_on_polyline": {
+        "lng": 122.6028,
+        "lat": 10.8237
+      },
+      "distance_m": 6.919
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_16-1",
+        "point": {
+          "lng": 122.6106309,
+          "lat": 10.84047
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_16-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_16-1",
+      "position_on_polyline": {
+        "lng": 122.61054,
+        "lat": 10.84047
+      },
+      "distance_m": 9.922
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_16-1",
+        "point": {
+          "lng": 122.6013409,
+          "lat": 10.84377
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_16-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_16-1",
+      "position_on_polyline": {
+        "lng": 122.60125,
+        "lat": 10.84377
+      },
+      "distance_m": 9.927
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_16-1",
+        "point": {
+          "lng": 122.59547090000001,
+          "lat": 10.84276
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_16-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_16-1",
+      "position_on_polyline": {
+        "lng": 122.59546,
+        "lat": 10.84279
+      },
+      "distance_m": 3.963
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_17-1",
+        "point": {
+          "lng": 122.4401509,
+          "lat": 10.809
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_17-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_17-1",
+      "position_on_polyline": {
+        "lng": 122.44007,
+        "lat": 10.80903
+      },
+      "distance_m": 9.163
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_17-1",
+        "point": {
+          "lng": 122.4369709,
+          "lat": 10.81864
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_17-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_17-1",
+      "position_on_polyline": {
+        "lng": 122.43697,
+        "lat": 10.81863
+      },
+      "distance_m": 1.323
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_17-1",
+        "point": {
+          "lng": 122.4394109,
+          "lat": 10.82432
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_17-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_17-1",
+      "position_on_polyline": {
+        "lng": 122.43934,
+        "lat": 10.82428
+      },
+      "distance_m": 8.824
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_17-1",
+        "point": {
+          "lng": 122.4366609,
+          "lat": 10.81176
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_17-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_17-1",
+      "position_on_polyline": {
+        "lng": 122.43664,
+        "lat": 10.8118
+      },
+      "distance_m": 4.441
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_17-1",
+        "point": {
+          "lng": 122.4534509,
+          "lat": 10.79965
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_17-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_17-1",
+      "position_on_polyline": {
+        "lng": 122.45345,
+        "lat": 10.79963
+      },
+      "distance_m": 1.953
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_17-1",
+        "point": {
+          "lng": 122.4453709,
+          "lat": 10.79229
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_17-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_17-1",
+      "position_on_polyline": {
+        "lng": 122.44537,
+        "lat": 10.79229
+      },
+      "distance_m": 0.317
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-1",
+        "point": {
+          "lng": 122.4890809,
+          "lat": 10.76479
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-1",
+      "position_on_polyline": {
+        "lng": 122.48899,
+        "lat": 10.76479
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-1",
+        "point": {
+          "lng": 122.48059090000001,
+          "lat": 10.77461
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-1",
+      "position_on_polyline": {
+        "lng": 122.48058,
+        "lat": 10.77464
+      },
+      "distance_m": 4.124
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-1",
+        "point": {
+          "lng": 122.48959090000001,
+          "lat": 10.77796
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-1",
+      "position_on_polyline": {
+        "lng": 122.48953,
+        "lat": 10.778
+      },
+      "distance_m": 7.959
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-1",
+        "point": {
+          "lng": 122.4869609,
+          "lat": 10.79241
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-1",
+      "position_on_polyline": {
+        "lng": 122.48688,
+        "lat": 10.79239
+      },
+      "distance_m": 9.571
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-1",
+        "point": {
+          "lng": 122.5372509,
+          "lat": 10.79579
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-1",
+      "position_on_polyline": {
+        "lng": 122.53716,
+        "lat": 10.79579
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.4837909,
+          "lat": 10.79751
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.48379,
+        "lat": 10.79751
+      },
+      "distance_m": 0.325
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.4837009,
+          "lat": 10.79764
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.4837,
+        "lat": 10.79764
+      },
+      "distance_m": 0.349
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.54676090000001,
+          "lat": 10.57965
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.54668,
+        "lat": 10.57967
+      },
+      "distance_m": 9.664
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.4914309,
+          "lat": 10.78777
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.49142,
+        "lat": 10.7878
+      },
+      "distance_m": 2.966
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.4903809,
+          "lat": 10.779
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.49029,
+        "lat": 10.779
+      },
+      "distance_m": 9.929
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.48802090000001,
+          "lat": 10.76767
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.48793,
+        "lat": 10.76767
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_18-2",
+        "point": {
+          "lng": 122.4813609,
+          "lat": 10.76233
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_18-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_18-2",
+      "position_on_polyline": {
+        "lng": 122.48135,
+        "lat": 10.76236
+      },
+      "distance_m": 3.064
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-1",
+        "point": {
+          "lng": 122.4380209,
+          "lat": 10.75145
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-1",
+      "position_on_polyline": {
+        "lng": 122.43802,
+        "lat": 10.75145
+      },
+      "distance_m": 0.366
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-1",
+        "point": {
+          "lng": 122.4416309,
+          "lat": 10.75383
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-1",
+      "position_on_polyline": {
+        "lng": 122.44158,
+        "lat": 10.75387
+      },
+      "distance_m": 7.595
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-1",
+        "point": {
+          "lng": 122.4434809,
+          "lat": 10.77599
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-1",
+      "position_on_polyline": {
+        "lng": 122.44348,
+        "lat": 10.77601
+      },
+      "distance_m": 2.369
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-1",
+        "point": {
+          "lng": 122.4450209,
+          "lat": 10.78138
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-1",
+      "position_on_polyline": {
+        "lng": 122.445,
+        "lat": 10.78134
+      },
+      "distance_m": 5.183
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-1",
+        "point": {
+          "lng": 122.4267009,
+          "lat": 10.77956
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-1",
+      "position_on_polyline": {
+        "lng": 122.42663,
+        "lat": 10.77953
+      },
+      "distance_m": 9.057
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-1",
+        "point": {
+          "lng": 122.4442909,
+          "lat": 10.78081
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-1",
+      "position_on_polyline": {
+        "lng": 122.44424,
+        "lat": 10.78087
+      },
+      "distance_m": 8.649
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-2",
+        "point": {
+          "lng": 122.51963090000001,
+          "lat": 10.56855
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-2",
+      "position_on_polyline": {
+        "lng": 122.51954,
+        "lat": 10.56855
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-2",
+        "point": {
+          "lng": 122.4285909,
+          "lat": 10.77543
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-2",
+      "position_on_polyline": {
+        "lng": 122.42858,
+        "lat": 10.7754
+      },
+      "distance_m": 3.584
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-2",
+        "point": {
+          "lng": 122.4312409,
+          "lat": 10.78415
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-2",
+      "position_on_polyline": {
+        "lng": 122.43124,
+        "lat": 10.78417
+      },
+      "distance_m": 2.229
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-2",
+        "point": {
+          "lng": 122.4399909,
+          "lat": 10.77766
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-2",
+      "position_on_polyline": {
+        "lng": 122.43999,
+        "lat": 10.77768
+      },
+      "distance_m": 2.388
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_19-2",
+        "point": {
+          "lng": 122.45019090000001,
+          "lat": 10.76381
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_19-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_19-2",
+      "position_on_polyline": {
+        "lng": 122.45023,
+        "lat": 10.76382
+      },
+      "distance_m": 4.447
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.6324209,
+          "lat": 10.70068
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.63233,
+        "lat": 10.70068
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.6295609,
+          "lat": 10.69487
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.62947,
+        "lat": 10.69487
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.6284309,
+          "lat": 10.69608
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.62841,
+        "lat": 10.69612
+      },
+      "distance_m": 5.185
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.6251609,
+          "lat": 10.69539
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.62515,
+        "lat": 10.69542
+      },
+      "distance_m": 3.709
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.5334909,
+          "lat": 10.70757
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.53349,
+        "lat": 10.70757
+      },
+      "distance_m": 0.351
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.6399409,
+          "lat": 10.70621
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.63985,
+        "lat": 10.70621
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_20-1",
+        "point": {
+          "lng": 122.6377609,
+          "lat": 10.71493
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_20-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_20-1",
+      "position_on_polyline": {
+        "lng": 122.63767,
+        "lat": 10.71493
+      },
+      "distance_m": 9.931
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.67825090000001,
+          "lat": 10.63584
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.67816,
+        "lat": 10.63584
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.68004090000001,
+          "lat": 10.64166
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.68003,
+        "lat": 10.64164
+      },
+      "distance_m": 2.62
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.6867009,
+          "lat": 10.63987
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.68668,
+        "lat": 10.63991
+      },
+      "distance_m": 5.151
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.6964509,
+          "lat": 10.64568
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.69645,
+        "lat": 10.64566
+      },
+      "distance_m": 2.012
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.7062409,
+          "lat": 10.64369
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.70615,
+        "lat": 10.64369
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.6995509,
+          "lat": 10.64926
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.69951,
+        "lat": 10.64922
+      },
+      "distance_m": 6.422
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_21-1",
+        "point": {
+          "lng": 122.7094409,
+          "lat": 10.6412
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_21-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_21-1",
+      "position_on_polyline": {
+        "lng": 122.70935,
+        "lat": 10.6412
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-1",
+        "point": {
+          "lng": 122.43506090000001,
+          "lat": 10.60642
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-1",
+      "position_on_polyline": {
+        "lng": 122.43504,
+        "lat": 10.60645
+      },
+      "distance_m": 4.239
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-1",
+        "point": {
+          "lng": 122.4345409,
+          "lat": 10.61601
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-1",
+      "position_on_polyline": {
+        "lng": 122.43453,
+        "lat": 10.61604
+      },
+      "distance_m": 3.849
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-1",
+        "point": {
+          "lng": 122.4443909,
+          "lat": 10.61967
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-1",
+      "position_on_polyline": {
+        "lng": 122.44438,
+        "lat": 10.6197
+      },
+      "distance_m": 3.266
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-1",
+        "point": {
+          "lng": 122.4448509,
+          "lat": 10.63135
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-1",
+      "position_on_polyline": {
+        "lng": 122.44481,
+        "lat": 10.6313
+      },
+      "distance_m": 7.046
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-1",
+        "point": {
+          "lng": 122.4504509,
+          "lat": 10.64068
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-1",
+      "position_on_polyline": {
+        "lng": 122.4504,
+        "lat": 10.64072
+      },
+      "distance_m": 7.804
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-2",
+        "point": {
+          "lng": 122.4285709,
+          "lat": 10.84782
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-2",
+      "position_on_polyline": {
+        "lng": 122.42848,
+        "lat": 10.84781
+      },
+      "distance_m": 9.874
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-2",
+        "point": {
+          "lng": 122.4535109,
+          "lat": 10.62279
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-2",
+      "position_on_polyline": {
+        "lng": 122.45342,
+        "lat": 10.62279
+      },
+      "distance_m": 9.934
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_22-2",
+        "point": {
+          "lng": 122.43644090000001,
+          "lat": 10.61543
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_22-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_22-2",
+      "position_on_polyline": {
+        "lng": 122.43636,
+        "lat": 10.61545
+      },
+      "distance_m": 9.531
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.5255709,
+          "lat": 10.55701
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.52548,
+        "lat": 10.55701
+      },
+      "distance_m": 9.937
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.5218909,
+          "lat": 10.56273
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.52188,
+        "lat": 10.56271
+      },
+      "distance_m": 2.673
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.53762090000001,
+          "lat": 10.55909
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.53762,
+        "lat": 10.55908
+      },
+      "distance_m": 0.977
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.5288609,
+          "lat": 10.56353
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.52884,
+        "lat": 10.5635
+      },
+      "distance_m": 4.24
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.51958090000001,
+          "lat": 10.55253
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.51952,
+        "lat": 10.55257
+      },
+      "distance_m": 8.459
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.5274009,
+          "lat": 10.56252
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.52733,
+        "lat": 10.56255
+      },
+      "distance_m": 9.073
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_23-1",
+        "point": {
+          "lng": 122.52307090000001,
+          "lat": 10.56154
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_23-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_23-1",
+      "position_on_polyline": {
+        "lng": 122.52302,
+        "lat": 10.56159
+      },
+      "distance_m": 7.368
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_24-1",
+        "point": {
+          "lng": 122.4403909,
+          "lat": 10.7831
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_24-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_24-1",
+      "position_on_polyline": {
+        "lng": 122.44037,
+        "lat": 10.78314
+      },
+      "distance_m": 4.617
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_24-1",
+        "point": {
+          "lng": 122.4499009,
+          "lat": 10.79362
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_24-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_24-1",
+      "position_on_polyline": {
+        "lng": 122.4499,
+        "lat": 10.7936
+      },
+      "distance_m": 1.86
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_24-1",
+        "point": {
+          "lng": 122.4541809,
+          "lat": 10.77561
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_24-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_24-1",
+      "position_on_polyline": {
+        "lng": 122.45414,
+        "lat": 10.77566
+      },
+      "distance_m": 7.064
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_24-1",
+        "point": {
+          "lng": 122.4543709,
+          "lat": 10.78381
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_24-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_24-1",
+      "position_on_polyline": {
+        "lng": 122.45431,
+        "lat": 10.78377
+      },
+      "distance_m": 8.323
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_24-1",
+        "point": {
+          "lng": 122.4487209,
+          "lat": 10.76717
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_24-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_24-1",
+      "position_on_polyline": {
+        "lng": 122.44863,
+        "lat": 10.76717
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-1",
+        "point": {
+          "lng": 122.6441509,
+          "lat": 10.6757
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-1",
+      "position_on_polyline": {
+        "lng": 122.64422,
+        "lat": 10.6757
+      },
+      "distance_m": 7.648
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-1",
+        "point": {
+          "lng": 122.64431090000001,
+          "lat": 10.67565
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-1",
+      "position_on_polyline": {
+        "lng": 122.64424,
+        "lat": 10.67569
+      },
+      "distance_m": 8.723
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-1",
+        "point": {
+          "lng": 122.6387509,
+          "lat": 10.69078
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-1",
+      "position_on_polyline": {
+        "lng": 122.6387,
+        "lat": 10.69074
+      },
+      "distance_m": 7.658
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-1",
+        "point": {
+          "lng": 122.52392090000001,
+          "lat": 10.5616
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-1",
+      "position_on_polyline": {
+        "lng": 122.52387,
+        "lat": 10.56164
+      },
+      "distance_m": 7.657
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-1",
+        "point": {
+          "lng": 122.6219809,
+          "lat": 10.69457
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-1",
+      "position_on_polyline": {
+        "lng": 122.62196,
+        "lat": 10.69453
+      },
+      "distance_m": 4.875
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-1",
+        "point": {
+          "lng": 122.6213409,
+          "lat": 10.69621
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-1",
+      "position_on_polyline": {
+        "lng": 122.62133,
+        "lat": 10.69619
+      },
+      "distance_m": 2.74
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-2",
+        "point": {
+          "lng": 122.62439090000001,
+          "lat": 10.69535
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-2",
+      "position_on_polyline": {
+        "lng": 122.6243,
+        "lat": 10.69535
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-2",
+        "point": {
+          "lng": 122.62797090000001,
+          "lat": 10.68886
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-2",
+      "position_on_polyline": {
+        "lng": 122.62788,
+        "lat": 10.68886
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-2",
+        "point": {
+          "lng": 122.6314309,
+          "lat": 10.68934
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-2",
+      "position_on_polyline": {
+        "lng": 122.63134,
+        "lat": 10.68934
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-2",
+        "point": {
+          "lng": 122.6444609,
+          "lat": 10.68399
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-2",
+      "position_on_polyline": {
+        "lng": 122.64437,
+        "lat": 10.68399
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_25-2",
+        "point": {
+          "lng": 122.6463509,
+          "lat": 10.67933
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_25-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_25-2",
+      "position_on_polyline": {
+        "lng": 122.64626,
+        "lat": 10.67933
+      },
+      "distance_m": 9.933
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-1",
+        "point": {
+          "lng": 122.53959090000001,
+          "lat": 10.56892
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-1",
+      "position_on_polyline": {
+        "lng": 122.53957,
+        "lat": 10.56888
+      },
+      "distance_m": 4.559
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-1",
+        "point": {
+          "lng": 122.5367209,
+          "lat": 10.57517
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-1",
+      "position_on_polyline": {
+        "lng": 122.53667,
+        "lat": 10.57513
+      },
+      "distance_m": 7.711
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-1",
+        "point": {
+          "lng": 122.5404309,
+          "lat": 10.57667
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-1",
+      "position_on_polyline": {
+        "lng": 122.54034,
+        "lat": 10.57667
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-1",
+        "point": {
+          "lng": 122.5465709,
+          "lat": 10.57914
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-1",
+      "position_on_polyline": {
+        "lng": 122.54653,
+        "lat": 10.5791
+      },
+      "distance_m": 6.361
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-1",
+        "point": {
+          "lng": 122.56167090000001,
+          "lat": 10.57251
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-1",
+      "position_on_polyline": {
+        "lng": 122.56162,
+        "lat": 10.57247
+      },
+      "distance_m": 7.708
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-1",
+        "point": {
+          "lng": 122.58248090000001,
+          "lat": 10.55525
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-1",
+      "position_on_polyline": {
+        "lng": 122.58245,
+        "lat": 10.55529
+      },
+      "distance_m": 5.968
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.59184090000001,
+          "lat": 10.56216
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.59175,
+        "lat": 10.56216
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.5733809,
+          "lat": 10.56175
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.57335,
+        "lat": 10.56171
+      },
+      "distance_m": 5.842
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.5695109,
+          "lat": 10.56304
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.56942,
+        "lat": 10.56304
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.5523709,
+          "lat": 10.57439
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.55237,
+        "lat": 10.57437
+      },
+      "distance_m": 2.001
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.5400209,
+          "lat": 10.58532
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.53993,
+        "lat": 10.58532
+      },
+      "distance_m": 9.925
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.4579609,
+          "lat": 10.79211
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.45788,
+        "lat": 10.79208
+      },
+      "distance_m": 9.294
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_26-2",
+        "point": {
+          "lng": 122.5435509,
+          "lat": 10.56691
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_26-2"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_26-2",
+      "position_on_polyline": {
+        "lng": 122.54346,
+        "lat": 10.56691
+      },
+      "distance_m": 9.936
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.54609090000001,
+          "lat": 10.75449
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.54606,
+        "lat": 10.75445
+      },
+      "distance_m": 6.073
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.5070409,
+          "lat": 10.60522
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.50702,
+        "lat": 10.60518
+      },
+      "distance_m": 5.243
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.51233090000001,
+          "lat": 10.60199
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.51224,
+        "lat": 10.60199
+      },
+      "distance_m": 9.935
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.44813090000001,
+          "lat": 10.78365
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.44805,
+        "lat": 10.78362
+      },
+      "distance_m": 9.381
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.5037909,
+          "lat": 10.60522
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.5037,
+        "lat": 10.60522
+      },
+      "distance_m": 9.935
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.49939090000001,
+          "lat": 10.6136
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.49932,
+        "lat": 10.61356
+      },
+      "distance_m": 8.829
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.4997209,
+          "lat": 10.61082
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.49964,
+        "lat": 10.61085
+      },
+      "distance_m": 9.267
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.4934509,
+          "lat": 10.60092
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.49337,
+        "lat": 10.60095
+      },
+      "distance_m": 9.416
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_27-1",
+        "point": {
+          "lng": 122.4895609,
+          "lat": 10.59582
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_27-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_27-1",
+      "position_on_polyline": {
+        "lng": 122.4895,
+        "lat": 10.59586
+      },
+      "distance_m": 7.95
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.5934809,
+          "lat": 10.82861
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.59339,
+        "lat": 10.82861
+      },
+      "distance_m": 9.928
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.4045909,
+          "lat": 10.77115
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.40458,
+        "lat": 10.77118
+      },
+      "distance_m": 2.937
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.3977709,
+          "lat": 10.76362
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.39776,
+        "lat": 10.76365
+      },
+      "distance_m": 3.496
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.3965409,
+          "lat": 10.76673
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.39653,
+        "lat": 10.76671
+      },
+      "distance_m": 2.777
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.3951409,
+          "lat": 10.76377
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.39514,
+        "lat": 10.76375
+      },
+      "distance_m": 2.112
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.4030609,
+          "lat": 10.75581
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.40297,
+        "lat": 10.75581
+      },
+      "distance_m": 9.93
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.39561090000001,
+          "lat": 10.76036
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.39561,
+        "lat": 10.76037
+      },
+      "distance_m": 1.318
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_28-1",
+        "point": {
+          "lng": 122.3926509,
+          "lat": 10.76828
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_28-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_28-1",
+      "position_on_polyline": {
+        "lng": 122.39265,
+        "lat": 10.76829
+      },
+      "distance_m": 0.742
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_29-1",
+        "point": {
+          "lng": 122.6802809,
+          "lat": 10.54141
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_29-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_29-1",
+      "position_on_polyline": {
+        "lng": 122.68021,
+        "lat": 10.54145
+      },
+      "distance_m": 8.655
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_29-1",
+        "point": {
+          "lng": 122.6689209,
+          "lat": 10.53251
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_29-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_29-1",
+      "position_on_polyline": {
+        "lng": 122.66892,
+        "lat": 10.53252
+      },
+      "distance_m": 0.925
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_29-1",
+        "point": {
+          "lng": 122.6749209,
+          "lat": 10.525
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_29-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_29-1",
+      "position_on_polyline": {
+        "lng": 122.67483,
+        "lat": 10.525
+      },
+      "distance_m": 9.938
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_29-1",
+        "point": {
+          "lng": 122.6760809,
+          "lat": 10.5264
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_29-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_29-1",
+      "position_on_polyline": {
+        "lng": 122.67599,
+        "lat": 10.5264
+      },
+      "distance_m": 9.932
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_29-1",
+        "point": {
+          "lng": 122.6786909,
+          "lat": 10.51621
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_29-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_29-1",
+      "position_on_polyline": {
+        "lng": 122.6786,
+        "lat": 10.51621
+      },
+      "distance_m": 9.938
+    }
+  },
+  {
+    "input": {
+      "workload_id": "polyline_snapping",
+      "graph": {
+        "scale": "baseline",
+        "seed": 2337
+      },
+      "request": {
+        "direction_id": "route_29-1",
+        "point": {
+          "lng": 122.6749109,
+          "lat": 10.53073
+        },
+        "tolerance_m": 30,
+        "candidate_direction_ids": ["route_29-1"]
+      }
+    },
+    "expected_output": {
+      "direction_id": "route_29-1",
+      "position_on_polyline": {
+        "lng": 122.67482,
+        "lat": 10.53073
+      },
+      "distance_m": 9.937
+    }
+  }
+]

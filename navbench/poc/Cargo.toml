@@ -1,0 +1,12 @@
+[package]
+name = "navbench-poc"
+version = "0.1.0"
+edition = "2021"
+
+# Working PoC of the future internal navigation service (contracts/navigation-api.md).
+# Depends on the canonical model crate (navbench_rust) so the PoC and the harness
+# share the SAME parity-verified routing code — no drifting copy.
+[dependencies]
+navbench_rust = { path = "../rust" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

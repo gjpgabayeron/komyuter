@@ -54,10 +54,9 @@ SELECT ST_Length(route.polyline::geography);
 | GeoJSON standard         | **longitude, latitude** | **[122.5621, 10.7202]**           |
 | PostGIS `ST_MakePoint()` | **longitude, latitude** | `ST_MakePoint(122.5621, 10.7202)` |
 | Google Maps URL          | latitude, longitude     | `@10.7202,122.5621`               |
-| Leaflet.js               | latitude, longitude     | `L.latLng(10.7202, 122.5621)`     |
-| Mapbox GL                | **longitude, latitude** | `[122.5621, 10.7202]`             |
+| MapLibre GL JS           | **longitude, latitude** | `[122.5621, 10.7202]`             |
 
-**Rule:** Everything in your backend must use `[longitude, latitude]` because GeoJSON, PostGIS, and Mapbox all expect this. Leaflet (admin dashboard) is the odd one out — handle conversion at its boundary.
+**Rule:** Everything uses `[longitude, latitude]` because GeoJSON, PostGIS, and the map renderer (MapLibre GL JS) all consume it natively. There is no conversion at any boundary.
 
 ### Spatial Indexing
 
@@ -100,8 +99,8 @@ GeoJSON is a standardized JSON format for encoding geographic features. It's wha
 ### Storage and Retrieval Flow
 
 ```
-Admin draws polyline on Leaflet map
-  ↓ (Leaflet outputs GeoJSON — already [lng, lat])
+Admin draws polyline on MapLibre map
+  ↓ (renders GeoJSON natively [lng, lat])
 POST /api/routes with GeoJSON in request body
   ↓
 Backend calls ST_GeomFromGeoJSON(geojson_string)
@@ -113,7 +112,7 @@ On retrieval: ST_AsGeoJSON(polyline) → returns GeoJSON string
 Mobile app renders with Mapbox (expects [lng, lat] ✓)
 ```
 
-This pipeline is clean because GeoJSON, PostGIS, and Mapbox all agree on `[lng, lat]`. Only Leaflet's `[lat, lng]` needs conversion at the admin boundary.
+This pipeline is clean because GeoJSON, PostGIS, and MapLibre all agree on `[lng, lat]`; the admin map consumes it natively, so no conversion is needed.
 
 ---
 
@@ -540,7 +539,7 @@ The `GET /api/graph/status` endpoint exposes graph statistics (node count, edge 
 ## Summary — How It All Connects
 
 ```
-Admin draws routes + places stops (GeoJSON — Leaflet lat/lng converted via the admin boundary module)
+Admin draws routes + places stops (GeoJSON — native [lng, lat], no conversion)
   ↓
 PostGIS stores spatial data (LINESTRING, POINT, SRID 4326)
   ↓

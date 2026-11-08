@@ -1,0 +1,742 @@
+{
+  "id": "c4df2817-d7ee-4fe2-ab09-4c64dea8eb07",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.admin_users": {
+      "name": "admin_users",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.detours": {
+      "name": "detours",
+      "schema": "",
+      "columns": {
+        "detour_id": {
+          "name": "detour_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "direction_id": {
+          "name": "direction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "entry": {
+          "name": "entry",
+          "type": "geometry(Point,4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "exit": {
+          "name": "exit",
+          "type": "geometry(Point,4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detour_polyline": {
+          "name": "detour_polyline",
+          "type": "geometry(LineString,4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "additional_distance_meters": {
+          "name": "additional_distance_meters",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "commuter_instruction": {
+          "name": "commuter_instruction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "driver_instruction": {
+          "name": "driver_instruction",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notable_stops": {
+          "name": "notable_stops",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "detours_direction_id_idx": {
+          "name": "detours_direction_id_idx",
+          "columns": [
+            {
+              "expression": "direction_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "detours_direction_id_directions_direction_id_fk": {
+          "name": "detours_direction_id_directions_direction_id_fk",
+          "tableFrom": "detours",
+          "tableTo": "directions",
+          "columnsFrom": ["direction_id"],
+          "columnsTo": ["direction_id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.directions": {
+      "name": "directions",
+      "schema": "",
+      "columns": {
+        "direction_id": {
+          "name": "direction_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "route_id": {
+          "name": "route_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_polyline": {
+          "name": "base_polyline",
+          "type": "geometry(LineString,4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin_stop_id": {
+          "name": "origin_stop_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "destination_stop_id": {
+          "name": "destination_stop_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "directions_route_id_idx": {
+          "name": "directions_route_id_idx",
+          "columns": [
+            {
+              "expression": "route_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "directions_origin_stop_id_idx": {
+          "name": "directions_origin_stop_id_idx",
+          "columns": [
+            {
+              "expression": "origin_stop_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "directions_destination_stop_id_idx": {
+          "name": "directions_destination_stop_id_idx",
+          "columns": [
+            {
+              "expression": "destination_stop_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "directions_route_id_routes_route_id_fk": {
+          "name": "directions_route_id_routes_route_id_fk",
+          "tableFrom": "directions",
+          "tableTo": "routes",
+          "columnsFrom": ["route_id"],
+          "columnsTo": ["route_id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.fare_configs": {
+      "name": "fare_configs",
+      "schema": "",
+      "columns": {
+        "fare_config_id": {
+          "name": "fare_config_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "base_fare": {
+          "name": "base_fare",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'13.00'"
+        },
+        "base_distance_km": {
+          "name": "base_distance_km",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'4.00'"
+        },
+        "rate_per_km": {
+          "name": "rate_per_km",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'1.80'"
+        },
+        "student_discount_pct": {
+          "name": "student_discount_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'20'"
+        },
+        "senior_discount_pct": {
+          "name": "senior_discount_pct",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'20'"
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "fare_configs_is_default_idx": {
+          "name": "fare_configs_is_default_idx",
+          "columns": [
+            {
+              "expression": "is_default",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.restrictions": {
+      "name": "restrictions",
+      "schema": "",
+      "columns": {
+        "restriction_id": {
+          "name": "restriction_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "direction_id": {
+          "name": "direction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "from_coord_index": {
+          "name": "from_coord_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "to_coord_index": {
+          "name": "to_coord_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason": {
+          "name": "reason",
+          "type": "restriction_reason",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "affects": {
+          "name": "affects",
+          "type": "restriction_affects",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "restrictions_direction_id_idx": {
+          "name": "restrictions_direction_id_idx",
+          "columns": [
+            {
+              "expression": "direction_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "restrictions_direction_id_directions_direction_id_fk": {
+          "name": "restrictions_direction_id_directions_direction_id_fk",
+          "tableFrom": "restrictions",
+          "tableTo": "directions",
+          "columnsFrom": ["direction_id"],
+          "columnsTo": ["direction_id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.routes": {
+      "name": "routes",
+      "schema": "",
+      "columns": {
+        "route_id": {
+          "name": "route_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "short_name": {
+          "name": "short_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "fare_config_id": {
+          "name": "fare_config_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "routes_fare_config_id_idx": {
+          "name": "routes_fare_config_id_idx",
+          "columns": [
+            {
+              "expression": "fare_config_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "routes_fare_config_id_fare_configs_fare_config_id_fk": {
+          "name": "routes_fare_config_id_fare_configs_fare_config_id_fk",
+          "tableFrom": "routes",
+          "tableTo": "fare_configs",
+          "columnsFrom": ["fare_config_id"],
+          "columnsTo": ["fare_config_id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.stops": {
+      "name": "stops",
+      "schema": "",
+      "columns": {
+        "stop_id": {
+          "name": "stop_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "direction_id": {
+          "name": "direction_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stop_order": {
+          "name": "stop_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "stop_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "geometry(Point,4326)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_guaranteed_service": {
+          "name": "is_guaranteed_service",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "ar_marker_enabled": {
+          "name": "ar_marker_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "landmark_hint": {
+          "name": "landmark_hint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "notes": {
+          "name": "notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "stops_direction_id_stop_order_idx": {
+          "name": "stops_direction_id_stop_order_idx",
+          "columns": [
+            {
+              "expression": "direction_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "stop_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "stops_location_gist": {
+          "name": "stops_location_gist",
+          "columns": [
+            {
+              "expression": "location",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gist",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "stops_direction_id_directions_direction_id_fk": {
+          "name": "stops_direction_id_directions_direction_id_fk",
+          "tableFrom": "stops",
+          "tableTo": "directions",
+          "columnsFrom": ["direction_id"],
+          "columnsTo": ["direction_id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.restriction_affects": {
+      "name": "restriction_affects",
+      "schema": "public",
+      "values": ["boarding", "alighting", "both"]
+    },
+    "public.restriction_reason": {
+      "name": "restriction_reason",
+      "schema": "public",
+      "values": ["no_stopping_zone", "contraflow", "pedestrian_hostile"]
+    },
+    "public.stop_type": {
+      "name": "stop_type",
+      "schema": "public",
+      "values": ["terminal", "major_stop", "waiting_area"]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

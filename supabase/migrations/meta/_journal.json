@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1785521535953,
+      "tag": "0001_hard_roland_deschain",
+      "breakpoints": true
+    }
+  ]
+}

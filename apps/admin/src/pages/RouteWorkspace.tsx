@@ -1,0 +1,396 @@
+import { useEffect, useMemo } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { SaveIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { usePlottingStore } from "@/lib/plottingStore";
+import { clearSelection } from "@/lib/selection";
+import { RouteMap } from "@/features/routes/RouteMap";
+import { MapProvider } from "react-map-gl/maplibre";
+import { RouteList } from "@/features/routes/RouteList";
+import { RouteOverviewLayer } from "@/features/routes/RouteOverviewLayer";
+import { PoiSearchBar } from "@/features/routes/PoiSearchBar";
+import { EmptyState } from "@/features/routes/EmptyState";
+import { NarrowWindowGate } from "@/features/routes/NarrowWindowGate";
+import { PlotActionBar } from "@/features/routes/PlotActionBar";
+import { ReadOnlyPlate } from "@/features/routes/ReadOnlyPlate";
+import { useWorkspaceAccess } from "@/features/auth/useCapabilities";
+import { useDetourStore } from "@/features/detours/detourStore";
+import { DetourLayer } from "@/features/detours/DetourLayer";
+import { RestrictionLayer } from "@/features/restrictions/RestrictionLayer";
+import { useRestrictionStore } from "@/features/restrictions/restrictionStore";
+import { RestrictionList } from "@/features/restrictions/RestrictionList";
+import { RestrictionPanel } from "@/features/restrictions/RestrictionPanel";
+import { PropertiesPanel } from "@/features/routes/PropertiesPanel";
+import { SearchResultsPanel } from "@/features/routes/search/SearchResultsPanel";
+import { plateSlotsFor } from "@/features/routes/workspace/plateSlots";
+import { deriveWorkspaceLayout } from "@/features/routes/workspace/geometry";
+import { StatusBar } from "@/features/routes/StatusBar";
+import { WorkspaceColumns } from "@/features/routes/workspace/WorkspaceColumns";
+import {
+  REVEAL_DURATION_MS,
+  REVEAL_EASING_CSS,
+} from "@/features/routes/workspace/motion";
+import {
+  RouteWorkspaceProvider,
+  useRouteWorkspace,
+} from "@/features/routes/workspace/RouteWorkspaceProvider";
+
+/** The focus layout a clicked route is framed into (overview → focus). */
+const FOCUS_LAYOUT = deriveWorkspaceLayout({
+  state: "focus",
+  rightPlate: true,
+});
+
+/** The edit+search layout every answer is scoped and framed against. */
+const SEARCH_LAYOUT = deriveWorkspaceLayout({
+  state: "edit",
+  rightPlate: false,
+  contextPlate: true,
+});
+
+const SNAP_WARNING_COPY: Record<string, string> = {
+  no_token:
+    "Road following is off — showing a straight line. Add a public Mapbox token (MAPBOX_TOKEN) to enable it.",
+  upstream_error:
+    "Road following is unavailable right now — showing a straight line. Place another stop to retry.",
+};
+
+/**
+ * The Route Workspace — a three-column, four-state orchestrator (ADR-0014).
+ * The orchestration (route queries, four-state derivation, draft/undo/redo/
+ * save/conflict lifecycle, navigation guards, styled dialogs) lives in
+ * `RouteWorkspaceProvider`; this page is the thin assembly that renders the
+ * map backdrop and the per-state columns around it:
+ *
+ *   empty    → map + EmptyState veil
+ *   overview → RouteList + map (+ overview layer)
+ *   focus    → RouteList + map + FocusPlate (right column)
+ *   edit     → RouteList(stops) + map + PropertiesPanel + plot action bar
+ *
+ * The map never remounts (SC-002); the provider owns all behavior.
+ */
+function RouteWorkspaceInner() {
+  const {
+    uiState,
+    hasRoute,
+    showSave,
+    saving,
+    snap,
+    showSnapWarning,
+    draftOffers,
+    conflict,
+    conflictOwner,
+    saveHalf,
+    justSaved,
+    draftRestored,
+    openNewRoute,
+    anyDialogOpen,
+    requestCloseEdit,
+    saveAll,
+    restoreDraft,
+    discardDraft,
+    onLoadLatest,
+    onDismissConflict,
+  } = useRouteWorkspace();
+
+  // Child dialogs (route delete, stop delete) are detected via the DOM — any
+  // open role=dialog/alertdialog owns Esc. (The provider's own dialogs are
+  // covered by the reactive `anyDialogOpen` from the hook.)
+  const childDialogOpen = () =>
+    document.querySelector(
+      '[role="dialog"], [role="alertdialog"], [role="menu"]',
+    ) !== null;
+
+  // Everything this page offers comes from the Account's effective set: a
+  // read-only Account keeps the layout, the map, the lists and the selection,
+  // and gets a status plate where the plotting tools would be (ticket #47).
+  const access = useWorkspaceAccess();
+
+  const detourSaving = useDetourStore((s) => s.saving);
+  const detourOpen = useDetourStore((s) => s.open);
+  const editDetourId = useDetourStore((s) => s.editDetourId);
+  const restrictionEditing = useRestrictionStore((s) => s.editing);
+  const restrictionSaving = useRestrictionStore((s) => s.saving);
+  const routeId = usePlottingStore((s) => s.routeId);
+
+  useEffect(() => {
+    useRestrictionStore.getState().exit();
+    return () => {
+      useRestrictionStore.getState().exit();
+    };
+  }, [routeId]);
+
+  // Restriction editing follows the focused path. Switching alternatives or
+  // returning to Main must re-scope the editor instead of leaving markers and
+  // ranges attached to the previously focused alternative.
+  useEffect(() => {
+    const store = useRestrictionStore.getState();
+    if (!store.editing) return;
+    if (detourOpen) {
+      if (editDetourId) {
+        if (store.detourId !== editDetourId) store.enter(editDetourId);
+      } else {
+        store.exit();
+      }
+    } else if (store.detourId !== null) {
+      store.enter(null);
+    }
+  }, [detourOpen, editDetourId]);
+  // A search session owns the right column while it lasts: results when the
+  // answer is ambiguous, nothing when a single hit is being shown on the map.
+  const searchActive = usePlottingStore((s) => s.searchActive);
+  const poiCandidates = usePlottingStore((s) => s.poiCandidates);
+  const poiStatus = usePlottingStore((s) => s.poiStatus);
+  const poiLoading = usePlottingStore((s) => s.poiLoading);
+  // Which plate lives where is a rule, not a condition buried in JSX: results
+  // take the context column while a search has something to say, properties
+  // yield for the session, and a confident hit opens neither (ADR-0024).
+  const slots = plateSlotsFor({
+    searchActive,
+    loading: poiLoading,
+    candidateCount: poiCandidates.length,
+    hasStatus: poiStatus !== null,
+  });
+
+  // One derivation feeds the grid, the camera padding and the search scope
+  // (ADR-0024). The page owns it so the three consumers cannot disagree.
+  const layout = useMemo(
+    () =>
+      deriveWorkspaceLayout({
+        state: uiState,
+        rightPlate:
+          uiState === "focus" ||
+          restrictionEditing ||
+          slots.right === "properties",
+        contextPlate: slots.context === "search",
+      }),
+    [uiState, slots.right, slots.context, restrictionEditing],
+  );
+
+  useHotkeys("mod+s", () => void saveAll(), {
+    // The detour half is folded into saveAll now, so the universal shortcut
+    // must stay available while an alternative route is open.
+    enabled: hasRoute && !saving && access.shortcuts.save,
+    preventDefault: true,
+  });
+
+  // Undo/redo: the detour editor owns the shortcuts while it is open, the
+  // plotting draft otherwise (FR-013/FR-019/FR-020).
+  useHotkeys(
+    "mod+z",
+    () => {
+      const detour = useDetourStore.getState();
+      if (detour.open) detour.undo();
+      else usePlottingStore.getState().undo();
+    },
+    {
+      enabled: hasRoute && !saving && access.shortcuts.undo,
+      preventDefault: true,
+    },
+  );
+  useHotkeys(
+    "mod+shift+z",
+    () => {
+      const detour = useDetourStore.getState();
+      if (detour.open) detour.redo();
+      else usePlottingStore.getState().redo();
+    },
+    {
+      enabled: hasRoute && !saving && access.shortcuts.redo,
+      preventDefault: true,
+    },
+  );
+
+  // Keyboard contract (FR-008): Esc dismisses the focus plate (T6) or leaves
+  // the editor back to focus (T5, styled confirm when dirty). Typing inside a
+  // form field keeps Esc for its native purpose (blur / close a popover) —
+  // never steps the workspace back.
+  const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
+  useHotkeys(
+    "esc",
+    () => {
+      if (childDialogOpen()) return;
+      const el = document.activeElement;
+      if (
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLTextAreaElement ||
+        el instanceof HTMLSelectElement
+      ) {
+        return;
+      }
+      // Esc first leaves the detour editor (draft preserved for the restore
+      // offer); the base-route editor's close flows are untouched.
+      if (useDetourStore.getState().open) {
+        if (usePlottingStore.getState().selection.type === "stop") {
+          usePlottingStore.getState().setSelection(clearSelection);
+          return;
+        }
+        useDetourStore.getState().close();
+        return;
+      }
+      // A live search session closes before the workspace steps back: the
+      // results plate is the surface the admin is looking at (ADR-0024). The
+      // pill's own Esc handles the case where the field still has focus.
+      if (usePlottingStore.getState().searchActive) {
+        usePlottingStore.getState().clearSearchSession();
+        return;
+      }
+      if (hasRoute) {
+        requestCloseEdit();
+      } else if (focusedRouteId !== null) {
+        usePlottingStore.getState().setFocusedRouteId(null);
+      }
+    },
+    { enabled: !anyDialogOpen },
+  );
+
+  return (
+    <MapProvider>
+      <div className="relative h-full w-full overflow-hidden">
+        <NarrowWindowGate layout={layout}>
+          {/* The map is the full-bleed backdrop behind the grid (ADR-0015):
+              it spans the whole workspace and never resizes or remounts, so
+              the plates float over a consistent, seamless canvas. */}
+          <main aria-label="Route map" className="absolute inset-0">
+            <RouteMap className="h-full w-full" padding={layout.padding}>
+              {(uiState === "overview" || uiState === "focus") && (
+                <RouteOverviewLayer padding={FOCUS_LAYOUT.padding} />
+              )}
+              {detourOpen && <DetourLayer />}
+              <RestrictionLayer />
+            </RouteMap>
+          </main>
+
+          {/* Three-column shell over the map: content-adaptive plates in
+              tracks + a transparent center track hosting the chrome. */}
+          <WorkspaceColumns
+            mode={uiState}
+            layout={layout}
+            left={
+              <div className="flex h-full w-full flex-col">
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  {restrictionEditing ? (
+                    <RestrictionList />
+                  ) : (
+                    <RouteList
+                      onCreateRoute={openNewRoute}
+                      onCloseEdit={requestCloseEdit}
+                    />
+                  )}
+                </div>
+              </div>
+            }
+            right={
+              restrictionEditing ? (
+                <RestrictionPanel />
+              ) : uiState === "focus" || slots.right === "properties" ? (
+                <PropertiesPanel />
+              ) : null
+            }
+            context={
+              uiState === "edit" && !restrictionEditing ? (
+                <SearchResultsPanel />
+              ) : null
+            }
+            empty={
+              <EmptyState
+                onCreateRoute={openNewRoute}
+                readOnly={access.readOnly}
+              />
+            }
+            chrome={
+              hasRoute ? (
+                <div className="flex h-full flex-col justify-between py-2">
+                  <div
+                    className={cn(
+                      "flex w-full items-start gap-2 pr-3",
+                      access.showPlaceSearch
+                        ? "justify-between"
+                        : "justify-end",
+                    )}
+                  >
+                    {/* A place search spends the gated Mapbox token, so the
+                        pill is absent without MAPBOX_GEOSERVICES — the map
+                        itself keeps working. */}
+                    {access.showPlaceSearch && !restrictionEditing && (
+                      <PoiSearchBar
+                        scopePadding={SEARCH_LAYOUT.padding}
+                        shortcutEnabled={!anyDialogOpen}
+                      />
+                    )}
+                    <StatusBar
+                      dirty={showSave}
+                      saving={saving}
+                      justSaved={justSaved}
+                      restored={draftRestored}
+                      drafts={draftOffers}
+                      conflict={conflict}
+                      conflictOwner={conflictOwner}
+                      saveHalf={saveHalf}
+                      onRestoreDraft={(entry) => restoreDraft(entry)}
+                      onDiscardDraft={(entry) => discardDraft(entry)}
+                      onLoadLatest={onLoadLatest}
+                      onDismissConflict={onDismissConflict}
+                    />
+                  </div>
+                  {/* The toolbar stays centred in the map the admin can see.
+                      While results are docked on the left, that centre moves
+                      right by half the plate's width; the toolbar travels with
+                      the same 180 ms snap, so the reveal reads as one motion. */}
+                  <div
+                    className="pointer-events-auto z-30 flex items-center justify-center gap-2 transition-transform motion-reduce:transition-none"
+                    style={{
+                      transform: `translateX(${layout.chromeOffset}px)`,
+                      transitionDuration: `${REVEAL_DURATION_MS}ms`,
+                      transitionTimingFunction: REVEAL_EASING_CSS,
+                    }}
+                  >
+                    {access.showPlotActionBar ? (
+                      <PlotActionBar
+                        onUndo={() => usePlottingStore.getState().undo()}
+                        onRedo={() => usePlottingStore.getState().redo()}
+                      />
+                    ) : (
+                      <ReadOnlyPlate />
+                    )}
+                    {access.showSave && showSave && (
+                      <Button
+                        size="icon"
+                        onClick={() => void saveAll()}
+                        disabled={saving || detourSaving || restrictionSaving}
+                        aria-label={
+                          saving || detourSaving || restrictionSaving
+                            ? "Saving changes"
+                            : "Save changes"
+                        }
+                      >
+                        <SaveIcon />
+                      </Button>
+                    )}
+                  </div>
+                  {showSnapWarning && snap.warning && (
+                    <div
+                      role="status"
+                      className="border-warning/60 bg-warning text-foreground pointer-events-auto absolute bottom-16 left-1/2 z-30 w-max max-w-sm -translate-x-1/2 rounded-lg border px-3 py-1.5 text-xs"
+                    >
+                      {SNAP_WARNING_COPY[snap.warning] ?? snap.warning}
+                    </div>
+                  )}
+                </div>
+              ) : null
+            }
+          />
+        </NarrowWindowGate>
+      </div>
+    </MapProvider>
+  );
+}
+
+export default function RouteWorkspace() {
+  return (
+    <RouteWorkspaceProvider>
+      <RouteWorkspaceInner />
+    </RouteWorkspaceProvider>
+  );
+}
