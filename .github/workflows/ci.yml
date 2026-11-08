@@ -58,5 +58,10 @@ jobs:
       - name: Test (admin)
         run: pnpm --filter admin test
 
+      # The shared package's pure analysis suites (fareCalculator and the
+      # detour resolver) are hermetic; run them alongside the admin suite.
+      - name: Test (shared)
+        run: pnpm --filter @komyuter/shared test
+
       - name: Build
         run: pnpm build
