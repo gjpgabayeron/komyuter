@@ -279,3 +279,34 @@ None of them is a reason to revisit the decisions above; each has a prepared fal
    visible as `"sleepApplication": true` in its config), so 8.2's staging saving applies as written. The
    same check confirmed the region decision — the deployment record carries
    `regions: asia-southeast1-eqsg3a`.
+
+## M4 implementation notes (2026-11-08)
+
+These record what the M4 pipeline implemented and what remains a live measurement. They refine, and do
+not reverse, the decisions above.
+
+- **Verification gap 1 — approval vs pre-deploy ordering — is still open.** The first production
+  deployment is the measurement: compare the pre-deploy step's timestamp with the approval in
+  `railway deployment list`. The accepted policy is to **let the schema move before the container is
+  released**, because `preDeployCommand` is the platform's native lifecycle step, and to require
+  expand/contract migrations: add and backfill first, enforce later, drop only after the old image is
+  gone. Approval gates the container, not the schema. If the measurement shows the opposite ordering,
+  that is the safer outcome and needs no code change; record it here.
+- **Verification gap 2 — per-environment `source.branch` — is answered: one authoring file can express
+  it.** `defineRailway`'s program receives a `RailwayContext` with `isEnvironment(name)` and
+  `environment`, so `.railway/railway.ts` branches on `ctx.isEnvironment("production")` for the branch
+  (`main`/`dev`), custom domain (`komyuter.gjpgabayeron.dev`/`komyuter-dev.gjpgabayeron.dev`),
+  `ADMIN_ORIGINS`, the `EXPECTED_*` guards and App Sleeping. The rest of the shape is identical. The
+  fallback in §2.3 is therefore not needed. **Deployment approval is not expressible in the authoring
+  schema**: it stays a platform-side setting, and `railway config plan` cannot detect approval drift.
+- **The pre-deploy command form is implemented as an executable in the image**, not as `${{DATABASE_URL}}`
+  interpolation: `preDeploy: ["/app/deploy/pre-deploy.mjs"]` with `preDeployTimeoutSeconds: 300`. The
+  runner requires `DATABASE_URL`, `RAILWAY_ENVIRONMENT_NAME`, `EXPECTED_ENVIRONMENT` and
+  `EXPECTED_SUPABASE_PROJECT_REF`; it derives the Supabase project ref from a direct host or the
+  session-pooler username and refuses a mismatch. It is unit-tested in CI. A live staging rehearsal and
+  the first production deploy remain the confirming measurements.
+- **Production is declared but not provisioned.** The production service is authored in the same file
+  and is created by a reviewed `railway config plan --environment production` once its Supabase project
+  exists (ticket #75). `EXPECTED_SUPABASE_PROJECT_REF` is `preserve()`d on production so no fake ref can
+  be planned; the operator sets it before the first deploy. The production drift job in CI is gated on
+  the repository variable `RAILWAY_PRODUCTION_READY` until then.

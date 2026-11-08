@@ -55,6 +55,13 @@ and handed to M4. M1's exit criterion is **met**: a second person signed in as t
 a route end to end, and the staging dataset holds the result — 1 route, 2 directions, 22 stops, none of
 which this project's own checks created.
 
+**M4 status (2026-11-08).** The pipeline is code-complete on `feat/m4-cicd`: `.railway/railway.ts`
+describes both environments with `ctx.isEnvironment`, the guarded pre-deploy runner is in the image and
+wired into the service, the CI drift job distinguishes base-branch drift from a pull request's intended
+plan, and the dataset import/export scripts and rollback runbook are in place. The **production data
+plane is not provisioned** (ticket #75), so the production service, the seed (#80), the first production
+deploy (#82) and both staging drills (#81) remain live steps. No release tag is cut in M4.
+
 ## What the image contains
 
 | Path                    | What it is                                                               |
@@ -355,10 +362,17 @@ at container boot. Railway's `deploy.preDeployCommand` is that step: it runs in 
 phase, it is not boot, and a failure fails the deployment instead of shipping a new container against an
 old schema (ADR-0022 §3).
 
-**Deferred to M4, with the mechanism now characterised.** The image side is in place: the runtime carries
-the Supabase CLI (`supabase` on `PATH`, pinned by `ARG SUPABASE_CLI_VERSION`) and the chain at
-`/app/supabase/migrations`, which is where the CLI looks by default from the image's working directory, so
-no `--workdir` is needed (ADR-0022 verification gap 3, answered).
+**Implemented in M4.** The runtime image carries `deploy/pre-deploy.mjs` (the guarded runner) and the
+chain at `/app/supabase/migrations`, and the IaC sets
+`preDeploy: ["/app/deploy/pre-deploy.mjs"]` with `preDeployTimeoutSeconds: 300`. The runner requires
+`DATABASE_URL`, `RAILWAY_ENVIRONMENT_NAME`, `EXPECTED_ENVIRONMENT` and `EXPECTED_SUPABASE_PROJECT_REF`,
+derives the Supabase project ref from a direct host or the session-pooler username, refuses a mismatch,
+and only then runs `supabase migration list` and `supabase db push`. It is unit-tested in CI; the live
+staging rehearsal is the remaining confirmation.
+
+For M1 it was left **empty** and the chain was applied by hand, which is what §1 already does. The table
+below records why the earlier command form could not be used and why the image-owned executable is the
+replacement.
 
 What does **not** work is the command this section previously documented. Each row below was measured
 against the platform rather than assumed:
@@ -370,12 +384,8 @@ against the platform rather than assumed:
 | `… --db-url ${{DATABASE_URL}}`                    | Accepted by validation; substitution unconfirmed                                                                                                                    |
 | `SUPABASE_DB_URL` instead of `--db-url`           | **Dead end** — the CLI ignores it (`Cannot find project ref. Have you run supabase link?`)                                                                          |
 
-So `deploy.preDeployCommand` is left **empty** for M1 and the chain is applied by hand, which is what §1
-already does. M4 owns this step in any case, and it should choose between confirming that
-`${{DATABASE_URL}}` is substituted by making one deployment and wrapping the command in a script shipped
-in the image (`sh /app/deploy/pre-deploy.sh`), whose shell semantics do not depend on platform
-interpolation. Leaving the step empty keeps the service deployable rather than failing every deployment at
-a step that cannot yet work.
+So `deploy.preDeployCommand` was left **empty** for M1 and the chain was applied by hand, which is what §1
+already does. M4 replaced that with the image-owned executable above.
 
 Two properties of the eventual step are settled, and are worth carrying forward:
 
@@ -571,6 +581,30 @@ attaches `komyuter.gjpgabayeron.dev` — the same hostname staging is leaving he
 `ADMIN_ORIGINS` to `https://komyuter.gjpgabayeron.dev`. Running this cutover first is what makes that
 hostname available with no overlap between the two environments.
 
+### 3.10 Production IaC and the production drift job
+
+The authoring file is the same for both environments. `ctx.isEnvironment("production")` selects:
+
+- `source.branch = main` (staging: `dev`), with `checkSuites` on in both;
+- the bare `komyuter.gjpgabayeron.dev` custom domain (staging: `komyuter-dev.gjpgabayeron.dev`);
+- `ADMIN_ORIGINS` matching that domain;
+- `EXPECTED_ENVIRONMENT=production` (staging: `staging`);
+- App Sleeping off (staging: on).
+
+`EXPECTED_SUPABASE_PROJECT_REF` is `preserve()`d on production, so no fake project ref enters source. The
+operator sets it, along with the other production variables, before the first deploy. The production
+service is declared but not applied until #75 creates the Supabase project. Run
+`railway config plan --environment production` first and treat a create-only plan as the reviewed change.
+
+CI has two drift jobs. `iac-drift` covers staging on every push and pull request. `iac-drift-production`
+is gated on the repository variable `RAILWAY_PRODUCTION_READY == 'true'`, uses the
+`RAILWAY_TOKEN_PRODUCTION` secret, and plans production on pushes to `main` (and on pull requests into
+`main`, against the base branch's file). Until #75/#82 the production job is skipped. After go-live, set
+the variable and add `iac-drift-production` to the required checks on `main`.
+
+Neither token is read-only: a Railway project token can apply as well as plan. Rotate it like a deploy
+credential.
+
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
 A second person opens the deployed URL, signs in as the owner Account, and plots a route end to end; the
@@ -582,10 +616,10 @@ refused.
 - **Rollback automation.** The procedure is `docs/ROLLBACK.md`, deliberately operator-driven: the
   three recovery paths are chosen on evidence (the boot provenance line, the deployment list, the
   migration history) that the platform does not hold in a form a button could read. **IaC adoption**
-  (`.railway/railway.ts`) and the pipeline form of merge→staging are the rest of M4;
-  `docs/adr/0022-railway-platform-utilization.md` §2 decides _when_ configuration moves into source, and
-  refuses `railway.json`/`railway.toml` outright — the format cannot be adopted by a new service and
-  stops being read on 2026-12-01.
+  (`.railway/railway.ts`) and the pipeline form of merge→staging are implemented on `feat/m4-cicd`; the
+  live production service, the seed and both drills remain M4's closing steps.
+  `docs/adr/0022-railway-platform-utilization.md` §2 refuses `railway.json`/`railway.toml` outright —
+  the format cannot be adopted by a new service and stops being read on 2026-12-01.
 - **A claim that either rollback drill has been performed.** `docs/ROLLBACK.md` designs two staging
   drills and dates neither: its exercise log is empty until someone runs them.
 - **CDN caching.** One origin serves the SPA and `/api/*`, so edge caching would cache API responses.

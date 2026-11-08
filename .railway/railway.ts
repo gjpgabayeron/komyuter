@@ -3,26 +3,33 @@ import { defineRailway, github, preserve, project, service } from "railway/iac";
 /**
  * Configuration as code for the `komyuter` Railway project (ADR-0022 §2).
  *
- * This file describes the staging service **as it already is**. The shape was
- * imported from the live environment, so `railway config plan` is the check
- * that source and platform agree: a clean plan, no unexpected deletions. It is
- * deliberately behaviour-preserving; the pipeline changes arrive in later
- * tickets.
+ * One authoring file describes both long-lived environments. The program runs
+ * once per linked environment, so `ctx.isEnvironment("production")` is the only
+ * place the two differ: the branch, the custom domain, the origin allow-list,
+ * the EXPECTED_* guards and App Sleeping. The image and the service shape are
+ * the same, which is what lets a Release be promoted rather than rebuilt
+ * (ADR-0018 §2).
  *
  * **Shape only, never values.** Secrets stay in Railway and are imported through
- * `preserve()` (ADR-0022 §2.4), so this file records no secret, no Railway UUID
- * and no generated service domain.
+ * `preserve()` (ADR-0022 §2.4), so this file records no secret and no generated
+ * service domain. `railway.json` and `railway.toml` are never used — the format
+ * cannot be adopted by a new service and stops being read on 2026-12-01
+ * (ADR-0022 §2.2).
  *
- * `railway.json` and `railway.toml` are never used — the format cannot be
- * adopted by a new service and stops being read on 2026-12-01 (ADR-0022 §2.2).
+ * Staging already exists. Production is declared here but is not provisioned
+ * until ticket #75 creates its data plane; `railway config plan --environment
+ * production` is the reviewed create, and `railway config apply` is not run
+ * until that plan is approved.
  */
-export default defineRailway(() => {
+export default defineRailway((ctx) => {
+  const production = ctx.isEnvironment("production");
+
   const komyuter = service("komyuter", {
     // Staging tracks `dev`; production tracks `main`. The branch is per
     // environment, not per service (ADR-0021 §2-3). `checkSuites` refuses a
     // commit whose CI pipeline is red (ADR-0022 §5.4).
     source: github("gjpgabayeron/komyuter", {
-      branch: "dev",
+      branch: production ? "main" : "dev",
       checkSuites: true,
     }),
 
@@ -86,10 +93,10 @@ export default defineRailway(() => {
       preDeployTimeoutSeconds: 300,
       // Staging only. Production must not sleep: a cold start adds seconds to
       // the first request (ADR-0022 §8.2).
-      sleepApplication: true,
+      sleepApplication: !production,
     },
 
-    // The one custom domain on staging. No generated domain is recorded:
+    // The custom domain per environment. No generated domain is recorded:
     // Railway owns those. `ADMIN_ORIGINS` must match this hostname.
     //
     // Staging moved to `komyuter-dev` so the bare `komyuter.gjpgabayeron.dev`
@@ -97,8 +104,13 @@ export default defineRailway(() => {
     // and is not expressible here: add the new domain and its DNS record first,
     // wait for the certificate, verify a sign-in on the new hostname, and only
     // then drop the old origin from `ADMIN_ORIGINS` — otherwise there is a
-    // window with no working origin. The cutover procedure is docs/DEPLOY.md.
-    domains: ["komyuter-dev.gjpgabayeron.dev"],
+    // window with no working origin. The cutover procedure is docs/DEPLOY.md
+    // §3.9.
+    domains: [
+      production
+        ? "komyuter.gjpgabayeron.dev"
+        : "komyuter-dev.gjpgabayeron.dev",
+    ],
 
     // Secrets are preserved rather than written, so no value enters source
     // (ADR-0022 §2.4). `ADMIN_ORIGINS` is a literal, not preserved, because it
@@ -111,11 +123,18 @@ export default defineRailway(() => {
     // they are not service variables at all, because the running server never
     // reads them (ADR-0022 §9).
     env: {
-      ADMIN_ORIGINS: "https://komyuter-dev.gjpgabayeron.dev",
+      ADMIN_ORIGINS: production
+        ? "https://komyuter.gjpgabayeron.dev"
+        : "https://komyuter-dev.gjpgabayeron.dev",
       ALLOW_DEV_CREDENTIAL: preserve(),
       DATABASE_URL: preserve(),
-      EXPECTED_ENVIRONMENT: "staging",
-      EXPECTED_SUPABASE_PROJECT_REF: "prmccdmsqtywprmfaluf",
+      EXPECTED_ENVIRONMENT: production ? "production" : "staging",
+      // The production project ref arrives with #75, before the first deploy.
+      // It is preserved rather than written so no fake ref can be planned into
+      // the service; the pre-deploy runner refuses to run without it.
+      EXPECTED_SUPABASE_PROJECT_REF: production
+        ? preserve()
+        : "prmccdmsqtywprmfaluf",
       MAPBOX_SECRET_TOKEN: preserve(),
       NODE_ENV: preserve(),
       PORT: preserve(),
