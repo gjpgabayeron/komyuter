@@ -2,7 +2,9 @@
 
 This is the **manual** form of the deploy: milestone **M1** in `docs/ROADMAP.md`. M4 turns the same
 steps into a pipeline (merge to `dev` → staging, merge to `main` → production, migration gate, rollback
-runbook). The topology and its rationale are decided in `docs/adr/0018-deployment-topology.md`, the
+runbook). **When any of it goes wrong, stop here and read `docs/ROLLBACK.md`** — the recovery procedure,
+the verification checklist and the two drill designs live there, and they are not repeated below. The
+topology and its rationale are decided in `docs/adr/0018-deployment-topology.md`, the
 branch, environment and Supabase-project mapping in
 `docs/adr/0021-branching-and-environments.md`, and which platform primitives implement it in
 `docs/adr/0022-railway-platform-utilization.md`; this file is the procedure.
@@ -395,6 +397,28 @@ supabase db push --db-url "<this environment's DATABASE_URL>"
 A _local_ URL needs `?sslmode=disable` while a Cloud URL needs TLS; see
 [Local rehearsal](#local-rehearsal).
 
+#### The expand/contract rule
+
+Every migration the pre-deploy step applies must be readable by **the image that is currently
+serving**, because that step can move the schema before the container matching it has replaced the
+previous one. Two facts make this the normal case rather than an edge:
+
+- **The step may run before production's approval gate.** The ordering is still unmeasured (ADR-0022,
+  verification gap 1), so an unapproved production deployment may already have migrated the schema
+  while the previous production image keeps serving it.
+- **A failed deployment never undoes an applied migration.** The previous container serves until
+  something replaces it, against whatever the failed attempt left behind.
+
+So a change to anything the running image touches is never one migration. It is four phases: **add
+and backfill first, enforce later, and drop the old shape only in a release after the image that
+stopped using it.** Adding a nullable column is safe for an old image; adding a `NOT NULL`, validating a
+constraint, or dropping a column is not. `NOT VALID` now and `VALIDATE CONSTRAINT` later is how the
+enforce step is deferred when it cannot wait for its own release.
+
+The rule is mandatory, not stylistic — it is what makes Path A and Path C in `docs/ROLLBACK.md` clean.
+That file also carries the rest of the recovery procedure, including why a migration that has been
+applied is never edited.
+
 ### 3.5 Cost and notification
 
 - Set a workspace **soft** limit (email alert) and **hard** limit (spend cap) before the first deploy.
@@ -555,10 +579,15 @@ refused.
 
 ## Deliberately not here
 
-- **Rollback** and **IaC adoption** are M4's, along with the pipeline form of merge→staging.
+- **Rollback automation.** The procedure is `docs/ROLLBACK.md`, deliberately operator-driven: the
+  three recovery paths are chosen on evidence (the boot provenance line, the deployment list, the
+  migration history) that the platform does not hold in a form a button could read. **IaC adoption**
+  (`.railway/railway.ts`) and the pipeline form of merge→staging are the rest of M4;
   `docs/adr/0022-railway-platform-utilization.md` §2 decides _when_ configuration moves into source, and
   refuses `railway.json`/`railway.toml` outright — the format cannot be adopted by a new service and
   stops being read on 2026-12-01.
+- **A claim that either rollback drill has been performed.** `docs/ROLLBACK.md` designs two staging
+  drills and dates neither: its exercise log is empty until someone runs them.
 - **CDN caching.** One origin serves the SPA and `/api/*`, so edge caching would cache API responses.
   This is the one platform feature that is actively unsafe in this topology (ADR-0022, non-goals).
 - **Buckets, volumes, WAF Under Attack Mode, static outbound IP and shared variables** are each refused,
