@@ -3,7 +3,7 @@ version: 1
 slug: "apps-admin-route-page"
 primary_target: "apps/admin"
 related_targets: []
-status: "spec — not implemented"
+status: "implemented (search state); header revamp M3"
 supersedes_frame: "Route Page Search State Layout (Figma, node 120:2)"
 ---
 
@@ -32,12 +32,19 @@ anchor, the results and the map visible at once.
 
 ## Geometry
 
-Design width 1536 → workspace **1488** (48 rail), header 56, workspace height 679. Gutter 0; each
+Design width 1536 → workspace **1488** (48 rail), header 48, workspace height 679. Gutter 0; each
 column carries a **12px inset** (`p-3`) so plates read as floating, per ADR-0015 §2.
 
 ```
-| 256 stops | 320 context (revealable) | minmax(0,1fr) map | 336 properties (edit only) |
+| 280 stops | 280 context (revealable) | minmax(0,1fr) map | 280 properties (edit only) |
 ```
+
+As built (M3): the shell header is 48 px, spans the full page width above the
+rail, and carries the K mark, section crumb, route chip and (in edit) branch
+chip separated by `/`. The rail begins below the header. Alternative-route
+management moved out of the left column into the branch popover (ADR-0033); the
+detour card is gone. The route name and branch chip use a pulse skeleton while
+the route detail resolves.
 
 Refined at implementation (#24): the context column is an **overlay panel** anchored to the free
 region's left edge, not a fourth grid track. A track would reflow the transparent centre and shift
