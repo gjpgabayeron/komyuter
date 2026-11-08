@@ -52,6 +52,12 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # The IaC authoring file is TypeScript but belongs to no workspace
+      # package's tsconfig. The drift jobs evaluate it; this keeps a type error
+      # from reaching that evaluation.
+      - name: Typecheck the Railway authoring file
+        run: pnpm exec tsc --noEmit --strict --module ESNext --moduleResolution Bundler --target ES2022 --skipLibCheck .railway/railway.ts
+
       # Hermetic subset: apps/admin's suite runs in the node environment with no
       # database. apps/server's integration half needs a live Supabase stack, so it
       # stays a local pre-merge obligation rather than a CI step.

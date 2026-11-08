@@ -85,6 +85,9 @@ export default defineRailway((ctx) => {
       // The direct Supabase host is IPv6-only; this service needs IPv6 egress
       // (docs/DEPLOY.md §3.3).
       ipv6EgressEnabled: true,
+      // A crash loop is reported rather than restarted forever (ADR-0022 §5.2).
+      restartPolicyType: "ON_FAILURE",
+      restartPolicyMaxRetries: 5,
       limitOverride: {
         containers: { cpu: 4, memoryBytes: 4000000000 },
       },
@@ -107,9 +110,12 @@ export default defineRailway((ctx) => {
     // window with no working origin. The cutover procedure is docs/DEPLOY.md
     // §3.9.
     domains: [
-      production
-        ? "komyuter.gjpgabayeron.dev"
-        : "komyuter-dev.gjpgabayeron.dev",
+      {
+        domain: production
+          ? "komyuter.gjpgabayeron.dev"
+          : "komyuter-dev.gjpgabayeron.dev",
+        port: 8080,
+      },
     ],
 
     // Secrets are preserved rather than written, so no value enters source
@@ -126,7 +132,7 @@ export default defineRailway((ctx) => {
       ADMIN_ORIGINS: production
         ? "https://komyuter.gjpgabayeron.dev"
         : "https://komyuter-dev.gjpgabayeron.dev",
-      ALLOW_DEV_CREDENTIAL: preserve(),
+      ALLOW_DEV_CREDENTIAL: "false",
       DATABASE_URL: preserve(),
       EXPECTED_ENVIRONMENT: production ? "production" : "staging",
       // The production project ref arrives with #75, before the first deploy.
@@ -136,14 +142,15 @@ export default defineRailway((ctx) => {
         ? preserve()
         : "prmccdmsqtywprmfaluf",
       MAPBOX_SECRET_TOKEN: preserve(),
-      NODE_ENV: preserve(),
-      PORT: preserve(),
+      NODE_ENV: "production",
+      PORT: "8080",
       SUPABASE_SERVICE_ROLE_KEY: preserve(),
       SUPABASE_URL: preserve(),
     },
   });
 
   return project("komyuter", {
+    environments: ["staging", "production"],
     resources: [komyuter],
   });
 });
