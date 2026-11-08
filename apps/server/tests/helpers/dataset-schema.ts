@@ -1,28 +1,20 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { resolve, dirname } from "node:path";
+import { exportDatasetSchema } from "@komyuter/shared";
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const schemaPath = resolve(
-  currentDir,
-  "../../../../specs/001-local-supabase-backend/contracts/export-dataset.schema.json",
-);
-
-let cachedValidate: ReturnType<Ajv["compile"]> | undefined;
-
+/**
+ * Validates the export against the **live** contract — the shared zod schema the
+ * server assembles the document from — not the frozen `specs/001` JSON document.
+ * That file records v1.1 as designed, and the export has moved on (v1.2 carries
+ * the full Working Set: direction kind, return-stop identity, notes, AR markers
+ * and soft-delete flags). A test pinned to the frozen file would refuse every
+ * field added since, which is the opposite of what a contract test is for.
+ */
 export function validateDatasetAgainstSchema(dataset: unknown): string[] {
-  if (!cachedValidate) {
-    const ajv = new Ajv({ allErrors: true });
-    addFormats(ajv);
-    const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
-    cachedValidate = ajv.compile(schema);
-  }
-  cachedValidate(dataset);
-  return (
-    cachedValidate.errors?.map((e) => `${e.instancePath} ${e.message}`) ?? []
-  );
+  const result = exportDatasetSchema.safeParse(dataset);
+  if (result.success) return [];
+  return result.error.issues.map((issue) => {
+    const path = issue.path.length > 0 ? issue.path.join(".") : "(root)";
+    return `${path} ${issue.message}`;
+  });
 }
 
 export function assertDatasetValid(dataset: unknown): void {

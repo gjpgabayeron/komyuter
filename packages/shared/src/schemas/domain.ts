@@ -7,6 +7,10 @@ export const stopTypeSchema = z.enum([
   "waiting_area",
 ]);
 
+/** Which direction of the pair a row is: the admin-plotted base or the
+ *  auto-derived return (ADR-0011). */
+export const directionKindSchema = z.enum(["base", "return"]);
+
 export const restrictionKindSchema = z.enum([
   "no_loading",
   "no_unloading",
