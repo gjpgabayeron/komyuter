@@ -41,6 +41,9 @@ export default tseslint.config(
       "**/public/**",
       "apps/mobile/.expo/**",
       "navbench/**",
+      // Railway IaC authoring file: a build-time program, not workspace source,
+      // and outside every tsconfig here (ADR-0022 §2).
+      ".railway/**",
       "pnpm-lock.yaml",
     ],
   },
