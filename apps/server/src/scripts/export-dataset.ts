@@ -19,12 +19,15 @@ import { assembleExportDataset } from "../domain/export";
  * logs the connection string.
  */
 export function parseExportArgs(argv: string[]): { out: string } {
+  // pnpm forwards a literal `--` separator; the import tool already ignores it
+  // and the two operator commands should accept the same invocation shape.
+  const args = argv[0] === "--" ? argv.slice(1) : argv;
   let out: string | undefined;
 
-  for (let index = 0; index < argv.length; index += 1) {
-    const argument = argv[index];
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index];
     if (argument === "--out") {
-      out = argv[index + 1];
+      out = args[index + 1];
       index += 1;
     } else if (argument.startsWith("--out=")) {
       out = argument.slice("--out=".length);

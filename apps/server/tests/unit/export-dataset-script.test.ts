@@ -14,6 +14,12 @@ describe("parseExportArgs", () => {
     });
   });
 
+  it("ignores the -- separator pnpm forwards", () => {
+    expect(parseExportArgs(["--", "--out", "staging.json"])).toEqual({
+      out: "staging.json",
+    });
+  });
+
   it("refuses a missing --out", () => {
     expect(() => parseExportArgs([])).toThrow(/--out/);
     expect(() => parseExportArgs(["--out", "  "])).toThrow(/--out/);
