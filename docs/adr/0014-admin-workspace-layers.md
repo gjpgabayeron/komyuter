@@ -30,6 +30,13 @@ The workspace **respects the admin's persisted `sidebarMode` preference**. Per t
 
 The rail is a **full-height rail** (top-to-bottom): it stretches the full page height as the consistent visual anchor on the left of the interface, and the footer sits at the bottom of that column. (A brief 2026-08-16 intermediate version made it content-height; that was reversed the same day per the admin's preference for a stable full-height anchor.)
 
+**Amended 2026-11-04 — full-width shell header.** The shell header is a 48 px
+bar spanning the full page width above the rail; the rail now begins below the
+header and is full-height within the content row. The K mark lives in the
+header (the rail no longer renders `BrandMark`), the section and route crumbs
+are separated by `/`, and the route/branch chips live in the header. The
+workspace columns and its four states are unchanged.
+
 The map-width gate (`NarrowWindowGate`) passes `railW = 0` — the workspace already sits right of the rail — so the gate absorbs only the real expanded-rail case.
 
 ## Non-goals

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { PanelLeft } from "lucide-react";
-import { BrandMark } from "@/components/shared/BrandMark";
 import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,7 +14,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -91,11 +89,6 @@ export function NavRail({ onHoverChange }: NavRailProps) {
         if (sidebarMode === "hover") onHoverChange(false);
       }}
     >
-      <SidebarHeader>
-        <div className="flex items-center overflow-hidden px-2 py-1">
-          <BrandMark compact={collapsed} />
-        </div>
-      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>

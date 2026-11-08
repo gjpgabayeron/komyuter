@@ -34,6 +34,7 @@ export function AppShell() {
           Skip to content
         </a>
         <ConnectionBanner online={online} />
+        <Header />
         <div className="relative flex min-h-0 flex-1">
           <NavRail onHoverChange={setHoverOpen} />
           <SidebarInset
@@ -49,7 +50,6 @@ export function AppShell() {
                 : "md:pl-(--sidebar-width-icon)",
             )}
           >
-            <Header />
             <div
               id="main-content"
               tabIndex={-1}
