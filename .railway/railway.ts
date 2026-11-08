@@ -91,17 +91,27 @@ export default defineRailway(() => {
 
     // The one custom domain on staging. No generated domain is recorded:
     // Railway owns those. `ADMIN_ORIGINS` must match this hostname.
-    domains: ["komyuter.gjpgabayeron.dev"],
+    //
+    // Staging moved to `komyuter-dev` so the bare `komyuter.gjpgabayeron.dev`
+    // is free for production at go-live (ticket #79). Operational order matters
+    // and is not expressible here: add the new domain and its DNS record first,
+    // wait for the certificate, verify a sign-in on the new hostname, and only
+    // then drop the old origin from `ADMIN_ORIGINS` — otherwise there is a
+    // window with no working origin. The cutover procedure is docs/DEPLOY.md.
+    domains: ["komyuter-dev.gjpgabayeron.dev"],
 
     // Secrets are preserved rather than written, so no value enters source
-    // (ADR-0022 §2.4). The two EXPECTED_* guards are the pre-deploy runner's
-    // environment and project-ref checks (deploy/pre-deploy.mjs); neither is a
-    // secret, so both are literals. RAILWAY_ENVIRONMENT_NAME is absent because
-    // the platform injects it. `ADMIN_EMAIL` and `ADMIN_PASSWORD` are absent on
-    // purpose — they are not service variables at all, because the running
-    // server never reads them (ADR-0022 §9).
+    // (ADR-0022 §2.4). `ADMIN_ORIGINS` is a literal, not preserved, because it
+    // is not a secret and must track the custom domain above — the origin guard
+    // refuses any request whose `Origin` is not allow-listed (ADR-0021). The
+    // two EXPECTED_* guards are the pre-deploy runner's environment and
+    // project-ref checks (deploy/pre-deploy.mjs); neither is a secret, so both
+    // are literals. RAILWAY_ENVIRONMENT_NAME is absent because the platform
+    // injects it. `ADMIN_EMAIL` and `ADMIN_PASSWORD` are absent on purpose —
+    // they are not service variables at all, because the running server never
+    // reads them (ADR-0022 §9).
     env: {
-      ADMIN_ORIGINS: preserve(),
+      ADMIN_ORIGINS: "https://komyuter-dev.gjpgabayeron.dev",
       ALLOW_DEV_CREDENTIAL: preserve(),
       DATABASE_URL: preserve(),
       EXPECTED_ENVIRONMENT: "staging",

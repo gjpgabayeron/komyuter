@@ -503,6 +503,50 @@ address got an ordinary failure.
   is still limited to five attempts per window. Whether to key on a prefix, lengthen the window, or move the
   state to a shared store is ADR-0005's decision, not this document's.
 
+### 3.9 Domain cutover — staging moves to `komyuter-dev`, production takes the bare domain
+
+This is a **procedure, not a record**: it has not been performed. Staging is currently on
+`komyuter.gjpgabayeron.dev`, and M4 (ticket #79) moves it to `komyuter-dev.gjpgabayeron.dev` so the
+**bare** `komyuter.gjpgabayeron.dev` is free for **production** at go-live. The IaC file already carries
+the destination (`domains: ["komyuter-dev.gjpgabayeron.dev"]`, with `ADMIN_ORIGINS` a literal matching it),
+but the platform and DNS are only correct once this sequence has been run.
+
+The order is load-bearing: a sign-in on the new hostname must be verified **before** the old origin is
+removed from `ADMIN_ORIGINS`, or there is a window in which no origin works and the site is down.
+
+1. **Add the new domain and its DNS record first.** Attach `komyuter-dev.gjpgabayeron.dev` to the staging
+   service **in the dashboard**, then at the DNS provider add the `CNAME` Railway shows for it. The
+   dashboard is required here rather than optional: Railway cannot _register_ a new custom domain from
+   configuration — `railway config plan` against a domain that is not yet attached refuses with
+   `Custom-domain registration is not supported by Railway configuration … Add … in the dashboard, then
+run railway config pull`. So attach it in the dashboard (or via `railway domain`), and only then does
+   the authoring file's `domains: ["komyuter-dev.gjpgabayeron.dev"]` line describe a domain that exists.
+   **Do not** detach the old domain yet — both stay attached during the cutover so the old hostname
+   keeps serving.
+
+2. **Wait for the certificate.** Railway only issues the TLS certificate once the `CNAME` resolves to the
+   service. Poll until the new hostname answers over HTTPS without a certificate warning; this wait is
+   the human-only step the ticket records, and nothing in this repository can shorten it.
+
+3. **Temporarily allow both origins.** While both hostnames are live, `ADMIN_ORIGINS` must name **both**
+   so a sign-in works from either: `https://komyuter.gjpgabayeron.dev,https://komyuter-dev.gjpgabayeron.dev`.
+   Set this as a Railway variable for the duration of the cutover, ahead of step 4.
+
+4. **Verify sign-in on the new hostname.** A **second person**, not only the operator, opens
+   `https://komyuter-dev.gjpgabayeron.dev`, signs in as the owner Account, and plots a route end to end
+   (the M1 exit-criterion check, §4). This is the gate: if it fails, stop and fix the origin or the
+   certificate before going further.
+
+5. **Remove the old origin, then the old domain.** Only once step 4 has passed: set `ADMIN_ORIGINS` to the
+   single value `https://komyuter-dev.gjpgabayeron.dev` (the literal the IaC file now carries), detach
+   `komyuter.gjpgabayeron.dev` from the staging service, and confirm `railway config plan` against staging
+   is clean. The bare domain is now free and stays unattached until production claims it at go-live.
+
+**Production takes the bare domain at go-live.** When the production service is created (ticket #75), it
+attaches `komyuter.gjpgabayeron.dev` — the same hostname staging is leaving here — and sets
+`ADMIN_ORIGINS` to `https://komyuter.gjpgabayeron.dev`. Running this cutover first is what makes that
+hostname available with no overlap between the two environments.
+
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
 A second person opens the deployed URL, signs in as the owner Account, and plots a route end to end; the
