@@ -208,7 +208,7 @@ promoting `dev` → `main`, and tagging `v1.0.0` remain release actions.
 shell work, including the migration step; `railway config plan` reports no drift; a deliberately broken
 migration is rolled back using the runbook.
 
-**Status (2026-11-08).** Code complete on `feat/m4-cicd`: `.railway/railway.ts` covers both environments
+**Code status (2026-11-08; M4 not closed).** Code complete on `feat/m4-cicd`: `.railway/railway.ts` covers both environments
 with `ctx.isEnvironment`, the guarded pre-deploy runner is in the image and wired into the service, the
 staging drift check is in CI with a gated production counterpart, and the import/export scripts, domain
 cutover procedure and rollback runbook are present. The production data plane (#75), the seed (#80), the

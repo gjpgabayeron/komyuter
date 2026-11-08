@@ -9,6 +9,9 @@ branch, environment and Supabase-project mapping in
 `docs/adr/0021-branching-and-environments.md`, and which platform primitives implement it in
 `docs/adr/0022-railway-platform-utilization.md`; this file is the procedure.
 
+The pipeline form implemented by M4 is §3.10; the manual sequence below remains the initial-provisioning
+procedure, and the seed procedure is §3.11.
+
 The shape of the deployment is **one service on one origin**: a single image runs the Fastify API,
 which also serves the built admin SPA from the same origin via `@fastify/static`. Nothing about the
 SPA is configured at run time, so the same image serves staging and production.
@@ -409,25 +412,10 @@ A _local_ URL needs `?sslmode=disable` while a Cloud URL needs TLS; see
 
 #### The expand/contract rule
 
-Every migration the pre-deploy step applies must be readable by **the image that is currently
-serving**, because that step can move the schema before the container matching it has replaced the
-previous one. Two facts make this the normal case rather than an edge:
-
-- **The step may run before production's approval gate.** The ordering is still unmeasured (ADR-0022,
-  verification gap 1), so an unapproved production deployment may already have migrated the schema
-  while the previous production image keeps serving it.
-- **A failed deployment never undoes an applied migration.** The previous container serves until
-  something replaces it, against whatever the failed attempt left behind.
-
-So a change to anything the running image touches is never one migration. It is four phases: **add
-and backfill first, enforce later, and drop the old shape only in a release after the image that
-stopped using it.** Adding a nullable column is safe for an old image; adding a `NOT NULL`, validating a
-constraint, or dropping a column is not. `NOT VALID` now and `VALIDATE CONSTRAINT` later is how the
-enforce step is deferred when it cannot wait for its own release.
-
-The rule is mandatory, not stylistic — it is what makes Path A and Path C in `docs/ROLLBACK.md` clean.
-That file also carries the rest of the recovery procedure, including why a migration that has been
-applied is never edited.
+See `docs/ROLLBACK.md` §The expand/contract rule. It is mandatory because the pre-deploy step may move
+the schema before the matching image is released, and a failed deployment never undoes an applied
+migration. The canonical statement of the four phases lives in the runbook; this section does not restate
+it.
 
 ### 3.5 Cost and notification
 
@@ -604,6 +592,36 @@ the variable and add `iac-drift-production` to the required checks on `main`.
 
 Neither token is read-only: a Railway project token can apply as well as plan. Rotate it like a deploy
 credential.
+
+### 3.11 Seed production from staging (ticket #80)
+
+The seed is one-way and refuses a non-empty target. Run it before the first production deploy, from a
+checkout that has the repository (the scripts need `tsx`, which is deliberately absent from the image).
+
+1. **Export staging.** Either call `GET /api/admin/export/dataset` with an `EXPORT_DATASET` token, or run
+   the operator script against the staging `DATABASE_URL`:
+
+   ```bash
+   DATABASE_URL="<staging session-pooler URL>" \
+     pnpm --filter server export:dataset -- --out staging.json
+   ```
+
+2. **Import into production.** Point `DATABASE_URL` at the production session pooler and name the
+   production owner Account. The importer resolves that Account in the target database, refuses if the
+   target already holds routes, and writes in one transaction:
+
+   ```bash
+   DATABASE_URL="<production session-pooler URL>" \
+     pnpm --filter server import:dataset -- \
+       --file staging.json --owner-email owner@example.com
+   ```
+
+3. **What survives.** Entity ids, `direction_kind`, `derived_from_stop_id`, `is_active` on every
+   soft-deletable entity, `ar_marker_enabled`, and notes. Attribution is recorded against the named
+   owner; no staging auth identity or Account is copied.
+
+4. **Verify.** Compare the import's per-table counts with `/api/status` after the first production
+   deploy. Record the export timestamp, the owner email and the counts in the milestone record.
 
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
