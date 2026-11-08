@@ -63,5 +63,13 @@ jobs:
       - name: Test (shared)
         run: pnpm --filter @komyuter/shared test
 
+      # The pre-deploy migration runner (ADR-0022 §3). Hermetic like the others:
+      # the suite stands a stub Supabase CLI in for the real one, so it needs no
+      # database and no network. It is in CI rather than only local because a bug
+      # here is a *failed production deployment* — the one class of defect that
+      # cannot be caught by exercising the running app.
+      - name: Test (pre-deploy runner)
+        run: node --test deploy/pre-deploy.test.mjs
+
       - name: Build
         run: pnpm build
