@@ -10,6 +10,4 @@ export * from "./detourStore";
 export * from "./DetourGroup";
 export * from "./DetourStopGroup";
 export * from "./DetourLayer";
-export * from "./DetourList";
-export * from "./DetourSidebar";
 export * from "./target";

@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { usePlottingStore } from "@/lib/plottingStore";
-import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
-import { useFareConfigsQuery } from "@/features/fares/queries";
-import { cn } from "@/lib/utils";
+import { DetailRow, DetailSection } from "@/components/shared/DetailList";
 import { SectionLabel } from "@/components/shared/SectionLabel";
+import { formatDistance, polylineDistanceMeters } from "@/lib/coords";
+import { usePlottingStore } from "@/lib/plottingStore";
+import { useFareConfigsQuery } from "@/features/fares/queries";
 import { formatAttributionName } from "../attribution";
-import { formatTimestamp } from "../format";
 import { FareConfigSelect } from "../FareConfigSelect";
-import { ReadOnlyValue } from "./ReadOnlyValue";
+import { formatTimestamp } from "../format";
 import { DEFAULT_ROUTE_COLOR, isValidHexColor } from "../routeColors";
 import { useRouteQuery } from "../useRouteQueries";
 
@@ -21,18 +19,14 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
   const setRouteMeta = usePlottingStore((s) => s.setRouteMeta);
   const saving = usePlottingStore((s) => s.saving);
   const fareQuery = useFareConfigsQuery();
-  const [unit, setUnit] = useState<"m" | "km">("m");
 
   const route = routeQuery.data;
-  // The direction this workspace plots is the route's base direction; its
-  // attribution is shown beside the route's own (ADR-0025).
   const baseDirection = route?.directions[0] ?? null;
 
   const [hexText, setHexText] = useState(
     routeMeta?.color ?? DEFAULT_ROUTE_COLOR,
   );
 
-  // Initialize the metadata draft from the loaded route (once).
   useEffect(() => {
     if (!route || usePlottingStore.getState().routeMeta !== null) return;
     setRouteMeta({
@@ -44,7 +38,6 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
     });
   }, [route, route?.route_id, setRouteMeta]);
 
-  // Keep the hex text in sync with the live draft colour.
   useEffect(() => {
     setHexText(routeMeta?.color ?? DEFAULT_ROUTE_COLOR);
   }, [routeMeta?.color]);
@@ -55,26 +48,28 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
       ?.label ?? null;
 
   return (
-    <section className="border-t pt-3">
-      <div className="flex items-center justify-between gap-2">
-        <SectionLabel>Route</SectionLabel>
-        {route && (
-          <Badge
-            variant={route.is_active ? "default" : "outline"}
-            className="h-4 px-1 text-[10px] font-medium"
-          >
-            {route.is_active ? "Active" : "Inactive"}
-          </Badge>
-        )}
-      </div>
-
-      <div className="mt-2.5 space-y-3.5">
-        {readOnly ? (
-          <ReadOnlyValue
-            label="Route name"
-            value={route?.name ?? routeMeta?.name ?? "—"}
-          />
-        ) : (
+    <section>
+      {readOnly ? (
+        <DetailSection className="mt-2">
+          <DetailRow label="Route name">{route?.name ?? "—"}</DetailRow>
+          <DetailRow label="Route code">{route?.short_name ?? "—"}</DetailRow>
+          <DetailRow label="Colour">
+            <span className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden
+                className="border-border size-3 shrink-0 rounded-[3px] border"
+                style={{ backgroundColor: route?.color ?? "transparent" }}
+              />
+              <span className="font-mono">{route?.color ?? "—"}</span>
+            </span>
+          </DetailRow>
+          <DetailRow label="Fare config">
+            {fareLabel ??
+              (route?.fare_config_id ? route.fare_config_id : "None")}
+          </DetailRow>
+        </DetailSection>
+      ) : (
+        <div className="mt-2.5 space-y-3.5">
           <div className="space-y-1.5">
             <SectionLabel>Route name</SectionLabel>
             <Input
@@ -86,13 +81,6 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
               className="h-8"
             />
           </div>
-        )}
-        {readOnly ? (
-          <ReadOnlyValue
-            label="Route code"
-            value={route?.short_name ?? routeMeta?.shortName ?? "—"}
-          />
-        ) : (
           <div className="space-y-1.5">
             <SectionLabel>Route code</SectionLabel>
             <Input
@@ -106,22 +94,6 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
               className="h-8"
             />
           </div>
-        )}
-        {readOnly ? (
-          <div className="space-y-1.5">
-            <SectionLabel>Colour</SectionLabel>
-            <div className="flex items-center gap-1.5">
-              <span
-                aria-hidden
-                className="border-border size-5 shrink-0 rounded-[3px] border"
-                style={{ backgroundColor: route?.color ?? "transparent" }}
-              />
-              <span className="font-mono text-sm tabular-nums">
-                {route?.color ?? "—"}
-              </span>
-            </div>
-          </div>
-        ) : (
           <div className="space-y-1.5">
             <SectionLabel>Colour</SectionLabel>
             <div className="flex items-center gap-1.5">
@@ -162,16 +134,6 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
               </p>
             )}
           </div>
-        )}
-        {readOnly ? (
-          <ReadOnlyValue
-            label="Fare config"
-            value={
-              fareLabel ??
-              (route?.fare_config_id ? route.fare_config_id : "None")
-            }
-          />
-        ) : (
           <div className="space-y-1.5">
             <SectionLabel>Fare config</SectionLabel>
             <FareConfigSelect
@@ -179,92 +141,50 @@ export function RouteGroup({ readOnly = false }: { readOnly?: boolean }) {
               onChange={(fareConfigId) => setRouteMeta({ fareConfigId })}
               disabled={saving}
             />
-            {fareLabel && (
-              <p className="text-muted-foreground text-xs">{fareLabel}</p>
+          </div>
+        </div>
+      )}
+
+      <DetailSection>
+        <DetailRow label="Distance">
+          {distance !== null ? formatDistance(distance, "m") : "—"}
+        </DetailRow>
+        {route && (
+          <>
+            <DetailRow label="Last updated">
+              {formatTimestamp(route.updated_at)}
+            </DetailRow>
+            {route.created_by && (
+              <DetailRow label="Created by">
+                {formatAttributionName(route.created_by)}
+              </DetailRow>
             )}
-          </div>
+            {route.updated_by && (
+              <DetailRow label="Last written by">
+                {formatAttributionName(route.updated_by)}
+              </DetailRow>
+            )}
+          </>
         )}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <SectionLabel>Distance</SectionLabel>
-            <div
-              role="group"
-              aria-label="Distance unit"
-              className="bg-muted flex items-center rounded-lg p-0.5"
-            >
-              {(["m", "km"] as const).map((u) => (
-                <button
-                  key={u}
-                  type="button"
-                  aria-pressed={unit === u}
-                  onClick={() => setUnit(u)}
-                  className={cn(
-                    "rounded-[3px] px-1.5 py-0.5 text-[11px] font-medium",
-                    unit === u
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {u}
-                </button>
-              ))}
-            </div>
-          </div>
-          <p className="text-sm tabular-nums">
-            {distance !== null ? formatDistance(distance, unit) : "—"}
-            <span className="text-muted-foreground text-xs">
-              {" "}
-              (from plotted path)
-            </span>
-          </p>
-        </div>
-        <div className="space-y-1.5">
-          <SectionLabel>Last updated</SectionLabel>
-          <p className="text-sm tabular-nums">
-            {route ? formatTimestamp(route.updated_at) : "—"}
-          </p>
-        </div>
-        <dl className="space-y-1 text-xs">
-          <div className="flex items-center justify-between gap-2">
-            <dt className="text-muted-foreground">Created by</dt>
-            <dd className="truncate">
-              {route ? formatAttributionName(route.created_by) : "—"}
-            </dd>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <dt className="text-muted-foreground">Last written by</dt>
-            <dd className="truncate">
-              {route ? formatAttributionName(route.updated_by) : "—"}
-            </dd>
-          </div>
-        </dl>
-      </div>
+      </DetailSection>
 
       {baseDirection && (
-        <div className="mt-4 space-y-1.5 border-t pt-3">
-          <SectionLabel>Direction</SectionLabel>
-          <p className="truncate text-sm">{baseDirection.label}</p>
-          <dl className="space-y-1 text-xs">
-            <div className="flex items-center justify-between gap-2">
-              <dt className="text-muted-foreground">Created by</dt>
-              <dd className="truncate">
-                {formatAttributionName(baseDirection.created_by)}
-              </dd>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <dt className="text-muted-foreground">Last written by</dt>
-              <dd className="truncate">
-                {formatAttributionName(baseDirection.updated_by)}
-              </dd>
-            </div>
-            <div className="flex items-center justify-between gap-2">
-              <dt className="text-muted-foreground">Last updated</dt>
-              <dd className="tabular-nums">
-                {formatTimestamp(baseDirection.updated_at)}
-              </dd>
-            </div>
-          </dl>
-        </div>
+        <DetailSection title="Direction">
+          <DetailRow label="Label">{baseDirection.label}</DetailRow>
+          {baseDirection.created_by && (
+            <DetailRow label="Created by">
+              {formatAttributionName(baseDirection.created_by)}
+            </DetailRow>
+          )}
+          {baseDirection.updated_by && (
+            <DetailRow label="Last written by">
+              {formatAttributionName(baseDirection.updated_by)}
+            </DetailRow>
+          )}
+          <DetailRow label="Last updated">
+            {formatTimestamp(baseDirection.updated_at)}
+          </DetailRow>
+        </DetailSection>
       )}
     </section>
   );

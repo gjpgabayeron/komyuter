@@ -8,7 +8,13 @@ import {
   useDrawWhenReady,
 } from "@/lib/mapLayers";
 import { fadeLineLayers, fadeOutLayers } from "@/lib/overviewFade";
-import { DRAFT_FADE_OUT_MS, DRAFT_LINE, PREVIEW_LINE } from "./constants";
+import {
+  DETOUR_DASH,
+  DRAFT_FADE_OUT_MS,
+  DRAFT_LINE,
+  PREVIEW_LINE,
+} from "./constants";
+import type { DetourBaseSplit } from "@/features/detours/detourSplit";
 
 /**
  * Imperatively draws the route lines straight onto the map via the raw
@@ -19,7 +25,7 @@ import { DRAFT_FADE_OUT_MS, DRAFT_LINE, PREVIEW_LINE } from "./constants";
  */
 interface RouteLineFeature {
   type: "Feature";
-  properties: { kind: "draft" | "connecting"; color: string };
+  properties: { kind: "draft" | "connecting" | "replaced"; color: string };
   geometry: GeoLineString;
 }
 
@@ -28,11 +34,13 @@ export const RouteLines = memo(function RouteLines({
   connecting,
   color,
   routeId,
+  detourSplit,
 }: {
   draft: GeoLineString | null;
   connecting: GeoLineString | null;
   color: string;
   routeId: string | null;
+  detourSplit?: DetourBaseSplit | null;
 }) {
   const map = useMap().current?.getMap();
   // Crossfade bookkeeping for the draft line: keep the CURRENT draft in a ref
@@ -115,9 +123,48 @@ export const RouteLines = memo(function RouteLines({
     };
   }, [map, draft]);
 
+  const buildFeatures = (): RouteLineFeature[] => {
+    const features: RouteLineFeature[] = [];
+    if (detourSplit) {
+      if (detourSplit.before) {
+        features.push({
+          type: "Feature",
+          properties: { kind: "draft", color },
+          geometry: detourSplit.before,
+        });
+      }
+      if (detourSplit.after) {
+        features.push({
+          type: "Feature",
+          properties: { kind: "draft", color },
+          geometry: detourSplit.after,
+        });
+      }
+      features.push({
+        type: "Feature",
+        properties: { kind: "replaced", color },
+        geometry: detourSplit.replaced,
+      });
+    } else if (draft) {
+      features.push({
+        type: "Feature",
+        properties: { kind: "draft", color },
+        geometry: draft,
+      });
+    }
+    if (connecting) {
+      features.push({
+        type: "Feature",
+        properties: { kind: "connecting", color: PREVIEW_LINE },
+        geometry: connecting,
+      });
+    }
+    return features;
+  };
+
   useDrawWhenReady(
     map,
-    [draft, connecting, color],
+    [draft, connecting, color, detourSplit],
     () => {
       if (!map) return false;
       ensureGeoJsonSource(map, "route-lines");
@@ -135,6 +182,14 @@ export const RouteLines = memo(function RouteLines({
           color: ["coalesce", ["get", "color"], DRAFT_LINE],
           width: 4,
         }),
+        lineLayerSpec("route-line-replaced", {
+          source: "route-lines",
+          filter: ["==", ["get", "kind"], "replaced"],
+          color: ["coalesce", ["get", "color"], DRAFT_LINE],
+          width: 4,
+          dasharray: [...DETOUR_DASH],
+          opacity: 0.45,
+        }),
       ];
       for (const layer of layers) {
         if (!map.getLayer(layer.id)) map.addLayer(layer);
@@ -142,25 +197,10 @@ export const RouteLines = memo(function RouteLines({
       return true;
     },
     () => {
-      const features: RouteLineFeature[] = [];
-      if (draft) {
-        features.push({
-          type: "Feature",
-          properties: { kind: "draft", color },
-          geometry: draft,
-        });
-      }
-      if (connecting) {
-        features.push({
-          type: "Feature",
-          properties: { kind: "connecting", color: PREVIEW_LINE },
-          geometry: connecting,
-        });
-      }
       // Content-based signature INCLUDING coordinates: a drag that keeps the
       // same vertex count still redraws (perf-audit review fix).
       return JSON.stringify(
-        features.map((f) => [
+        buildFeatures().map((f) => [
           f.properties.kind,
           f.properties.color,
           f.geometry.coordinates,
@@ -168,27 +208,12 @@ export const RouteLines = memo(function RouteLines({
       );
     },
     () => {
-      const features: RouteLineFeature[] = [];
-      if (draft) {
-        features.push({
-          type: "Feature",
-          properties: { kind: "draft", color },
-          geometry: draft,
-        });
-      }
-      if (connecting) {
-        features.push({
-          type: "Feature",
-          properties: { kind: "connecting", color: PREVIEW_LINE },
-          geometry: connecting,
-        });
-      }
       // While a draft fade-out runs, keep the previous geometry pinned so the
       // line can fade out instead of being cut by an empty source update.
       if (draftFadeOutRef.current) return;
-      setSourceData(map!, "route-lines", features);
+      setSourceData(map!, "route-lines", buildFeatures());
     },
-    ["route-line-draft", "route-line-connecting"],
+    ["route-line-draft", "route-line-connecting", "route-line-replaced"],
   );
 
   return null;

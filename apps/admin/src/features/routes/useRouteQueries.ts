@@ -18,16 +18,23 @@ import type {
   RouteDetail,
   RouteSummary,
   SaveDetourPayload,
+  SaveRestrictionPayload,
   CreateDirectionPayload,
   ReplaceDirectionPayload,
   StopEntity,
   UpdateDetourPayload,
+  UpdateRestrictionPayload,
 } from "./routesApi";
+import type { Restriction } from "@komyuter/shared";
 import {
   createDetour,
+  createRestriction,
   createRoute,
+  deactivateRestriction,
+  deleteDetour,
   deleteRoute,
   listDetours,
+  listRestrictions,
   listOverview,
   getDirectionStops,
   getRoute,
@@ -35,8 +42,8 @@ import {
   listRoutes,
   replaceDirection,
   saveDirection,
-  deleteDetour,
   updateDetour,
+  updateRestriction,
   updateRoute,
 } from "./routesApi";
 
@@ -267,6 +274,71 @@ export function useDeleteDetourMutation(directionId: string) {
         queryKey: routeKeys.detour(directionId, detourId),
       });
       toast.success("Detour deleted.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+/** A direction's restrictions (boarding/alighting rules over an index range). */
+export function useRestrictionsQuery(directionId: string | null) {
+  return useQuery<Restriction[]>({
+    queryKey: routeKeys.restrictions(directionId ?? ""),
+    queryFn: () => listRestrictions(directionId as string),
+    enabled: directionId !== null,
+    gcTime: 5 * 60_000,
+  });
+}
+
+/** Create a restriction for a direction; invalidates the list. */
+export function useCreateRestrictionMutation(directionId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: SaveRestrictionPayload) =>
+      createRestriction(directionId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: routeKeys.restrictions(directionId),
+      });
+      toast.success("Restriction saved.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+/** Update a restriction's range, kind, note or active state. */
+export function useUpdateRestrictionMutation(directionId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (args: {
+      restrictionId: string;
+      patch: UpdateRestrictionPayload;
+    }) => updateRestriction(args.restrictionId, args.patch),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: routeKeys.restrictions(directionId),
+      });
+      toast.success("Restriction updated.");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+}
+
+/** Soft-deactivate a restriction (the server never hard-deletes it). */
+export function useDeactivateRestrictionMutation(directionId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (restrictionId: string) => deactivateRestriction(restrictionId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: routeKeys.restrictions(directionId),
+      });
+      toast.success("Restriction deactivated.");
     },
     onError: (error: Error) => {
       toast.error(error.message);

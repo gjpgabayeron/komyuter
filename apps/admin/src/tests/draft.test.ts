@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GeoLineString } from "@komyuter/shared";
 import {
   clearDetourDraft,
+  clearDetourDraftFor,
   clearDraft,
   createDebouncedDraftWriter,
   detourDraftKey,
@@ -12,8 +13,10 @@ import {
   legacyDraftKey,
   listDrafts,
   loadDetourDraft,
+  loadDetourDraftFor,
   loadDraft,
   saveDetourDraft,
+  saveDetourDraftFor,
   saveDraft,
   type DraftDraft,
   type DraftPayload,
@@ -302,6 +305,24 @@ describe("detour drafts (US4)", () => {
     expect(loadDetourDraft(USER, "d1", storage)).toBeNull();
     expect(loadDetourDraft<{ label: string }>(OTHER, "d1", storage)).toEqual({
       label: "Theirs",
+    });
+  });
+
+  it("keeps each saved detour's draft apart", () => {
+    saveDetourDraftFor(USER, "d1", "det-a", { label: "A" }, storage);
+    saveDetourDraftFor(USER, "d1", "det-b", { label: "B" }, storage);
+
+    expect(loadDetourDraftFor(USER, "d1", "det-a", storage)).toEqual({
+      label: "A",
+    });
+    expect(loadDetourDraftFor(USER, "d1", "det-b", storage)).toEqual({
+      label: "B",
+    });
+
+    clearDetourDraftFor(USER, "d1", "det-a", storage);
+    expect(loadDetourDraftFor(USER, "d1", "det-a", storage)).toBeNull();
+    expect(loadDetourDraftFor(USER, "d1", "det-b", storage)).toEqual({
+      label: "B",
     });
   });
 });

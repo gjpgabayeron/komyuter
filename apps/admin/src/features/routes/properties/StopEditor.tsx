@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { StopType } from "@komyuter/shared";
 import {
@@ -10,54 +9,25 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { usePlottingStore } from "@/lib/plottingStore";
 import { pathFromConnections } from "@/lib/connections";
 import { cn } from "@/lib/utils";
 import { SectionLabel } from "@/components/shared/SectionLabel";
 import { STOP_TYPE_LABELS } from "../stopLabels";
-import { formatAttributionName } from "../attribution";
 import { ConnectionSelect } from "./ConnectionSelect";
 import { STOP_TYPES, type StopShape } from "./types";
 
 /** Context-aware editable fields, grouped like a Figma properties panel. */
 export function StopEditor({
   stop,
-  index,
   disabled,
 }: {
   stop: StopShape;
-  index: number;
   disabled: boolean;
 }) {
   const updateStop = usePlottingStore((s) => s.updateStop);
   const setType = (type: StopType) => updateStop(stop.id, { type });
-
-  const [lng, lat] = stop.location;
-  const [lngText, setLngText] = useState(String(lng));
-  const [latText, setLatText] = useState(String(lat));
-
-  // Keep the coordinate fields in sync when the marker is dragged.
-  useEffect(() => {
-    setLngText(String(lng));
-    setLatText(String(lat));
-  }, [lng, lat]);
-
-  const applyLng = (value: string) => {
-    setLngText(value);
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) {
-      updateStop(stop.id, { location: [parsed, stop.location[1]] });
-    }
-  };
-  const applyLat = (value: string) => {
-    setLatText(value);
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) {
-      updateStop(stop.id, { location: [stop.location[0], parsed] });
-    }
-  };
 
   const showGuaranteed = stop.type !== "waiting_area";
 
@@ -155,44 +125,6 @@ export function StopEditor({
         </DropdownMenu>
       </div>
 
-      <div className="space-y-1.5">
-        <SectionLabel>Position</SectionLabel>
-        <div className="grid grid-cols-2 gap-1.5">
-          <div className="space-y-1">
-            <Label
-              htmlFor={`stop-${stop.id}-lng`}
-              className="text-muted-foreground text-[11px]"
-            >
-              Longitude
-            </Label>
-            <Input
-              id={`stop-${stop.id}-lng`}
-              value={lngText}
-              onChange={(event) => applyLng(event.target.value)}
-              inputMode="decimal"
-              disabled={disabled}
-              className="h-8 tabular-nums"
-            />
-          </div>
-          <div className="space-y-1">
-            <Label
-              htmlFor={`stop-${stop.id}-lat`}
-              className="text-muted-foreground text-[11px]"
-            >
-              Latitude
-            </Label>
-            <Input
-              id={`stop-${stop.id}-lat`}
-              value={latText}
-              onChange={(event) => applyLat(event.target.value)}
-              inputMode="decimal"
-              disabled={disabled}
-              className="h-8 tabular-nums"
-            />
-          </div>
-        </div>
-      </div>
-
       {/* Linked-chain neighbours, editable via dropdowns — the chain stays in
           sync with placement order (single-mode plotting). */}
       <div className="space-y-1.5">
@@ -263,27 +195,6 @@ export function StopEditor({
           className="h-8"
         />
       </div>
-
-      {stop.type === "waiting_area" && (
-        <p className="bg-muted text-muted-foreground rounded-lg px-2 py-1.5 text-xs">
-          Hail-and-ride point — commuters flag the jeepney here. Stop{" "}
-          {index + 1} of {usePlottingStore.getState().stops.length}.
-        </p>
-      )}
-
-      {/* Read-only provenance: who created this stop and who wrote it last
-          (ADR-0025). Absent on a stop added in this session — the server has
-          not observed a write for it yet. */}
-      <dl className="space-y-1 border-t pt-3 text-xs">
-        <div className="flex items-center justify-between gap-2">
-          <dt className="text-muted-foreground">Created by</dt>
-          <dd className="truncate">{formatAttributionName(stop.created_by)}</dd>
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <dt className="text-muted-foreground">Last written by</dt>
-          <dd className="truncate">{formatAttributionName(stop.updated_by)}</dd>
-        </div>
-      </dl>
     </div>
   );
 }

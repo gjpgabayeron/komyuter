@@ -1,5 +1,10 @@
-import type { CoordinatePair, GeoLineString, GeoPoint } from "@komyuter/shared";
-import type { Attribution, StopType } from "@komyuter/shared";
+import type {
+  Attribution,
+  CoordinatePair,
+  GeoLineString,
+  GeoPoint,
+  StopType,
+} from "@komyuter/shared";
 import { create } from "zustand";
 import type {
   DetourEntity,
@@ -110,6 +115,7 @@ export interface DetourSnapshot {
   label: string;
   commuterInstruction: string;
   driverInstruction: string;
+  isActive: boolean;
   additionalDistanceMeters: number | null;
 }
 
@@ -157,9 +163,12 @@ export interface DetourState {
   label: string;
   commuterInstruction: string;
   driverInstruction: string;
+  isActive: boolean;
   additionalDistanceMeters: number | null;
   /** Inline save-gate / server (SC-014) feedback, shown in the editor. */
   lastError: string | null;
+  /** True while a detour save is in flight (universal Save). */
+  saving: boolean;
   /** Set when an edit of a saved detour is in progress. */
   editDetourId: string | null;
   /** The saved detour being edited — diff baseline for patch saves. */
@@ -198,6 +207,8 @@ export interface DetourState {
   setLabel: (label: string) => void;
   setCommuterInstruction: (instruction: string) => void;
   setDriverInstruction: (instruction: string) => void;
+  setActive: (isActive: boolean) => void;
+  setSaving: (saving: boolean) => void;
   setLastError: (message: string | null) => void;
   /** Late-binds the direction's stops once the dedicated stops query lands
    *  (the editor can open before stops load; composing needs them). */
@@ -231,8 +242,10 @@ const IDLE_STATE = {
   label: "",
   commuterInstruction: "",
   driverInstruction: "",
+  isActive: true,
   additionalDistanceMeters: null,
   lastError: null,
+  saving: false,
   editDetourId: null,
   editBaseline: null,
   baselineDetourCount: 0,
@@ -290,6 +303,7 @@ function toSnapshot(state: DetourState): DetourSnapshot {
     label: state.label,
     commuterInstruction: state.commuterInstruction,
     driverInstruction: state.driverInstruction,
+    isActive: state.isActive,
     additionalDistanceMeters: state.additionalDistanceMeters,
   };
 }
@@ -357,6 +371,7 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
           label: detour.label,
           commuterInstruction: detour.commuter_instruction,
           driverInstruction: detour.driver_instruction ?? "",
+          isActive: detour.is_active,
           additionalDistanceMeters: detour.additional_distance_meters,
         });
       },
@@ -571,6 +586,12 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
         recordHistory();
         set({ driverInstruction });
       },
+      setActive: (isActive) => {
+        if (isActive === get().isActive) return;
+        recordHistory();
+        set({ isActive });
+      },
+      setSaving: (saving) => set({ saving }),
       setLastError: (lastError) => set({ lastError }),
 
       setTargetStops: (stops) => {
@@ -633,6 +654,7 @@ export function createDetourStore(snapFn: LoopSnapper = snapToLoop) {
           label: draft.label,
           commuterInstruction: draft.commuterInstruction,
           driverInstruction: draft.driverInstruction,
+          isActive: draft.isActive ?? true,
           additionalDistanceMeters: draft.additionalDistanceMeters,
           editDetourId: draft.editDetourId,
           baselineDetourCount: draft.baselineDetourCount,

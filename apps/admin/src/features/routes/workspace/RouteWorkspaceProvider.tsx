@@ -7,9 +7,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ApiError } from "@/lib/api";
+import { registerWorkspaceBridge } from "@/lib/workspaceBridge";
 import {
   bindSnapFetcher,
   cancelPendingSnap,
@@ -31,6 +32,9 @@ import { writesDraft } from "@/lib/capabilities";
 import { useAuth } from "@/features/auth/auth";
 import { useCapabilities } from "@/features/auth/useCapabilities";
 import { useDetourStore } from "@/features/detours/detourStore";
+import { useDetourSave } from "@/features/detours/useDetourSave";
+import { useRestrictionStore } from "@/features/restrictions/restrictionStore";
+import { useRestrictionSave } from "@/features/restrictions/useRestrictionSave";
 import type { DraftBase, DraftPayload, DraftSummary } from "@/lib/draft";
 import type { DraftStop } from "@/lib/plottingStore";
 import { pathCoversStops, pathEndsOnStops } from "@/lib/coords";
@@ -132,7 +136,7 @@ interface RouteWorkspaceValue {
   /** True while a workspace-owned dialog is open (Esc defers to it). */
   anyDialogOpen: boolean;
   /** Esc / Back — leave the editor (styled confirm when dirty). */
-  requestCloseEdit: () => void;
+  requestCloseEdit: (after?: () => void) => void;
   /** Single consolidated save: plotting draft then route metadata. */
   saveAll: () => Promise<void>;
   restoreDraft: (entry: DraftSummary) => void;
@@ -155,6 +159,7 @@ const RouteWorkspaceContext = createContext<RouteWorkspaceValue | null>(null);
  */
 export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const { routeId: routeParam } = useParams<{ routeId: string }>();
+  const navigate = useNavigate();
   // The Draft lifecycle is a write to the admin's unsaved work, so a read-only
   // Account neither writes it nor is offered a restore (ticket #47: an existing
   // Draft is left untouched). See `lib/capabilities`.
@@ -167,6 +172,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   const focusedRouteId = usePlottingStore((s) => s.focusedRouteId);
   const snap = usePlottingStore((s) => s.snap);
   const draftDirty = usePlottingStore((s) => s.draftDirty);
+  const detourTouched = useDetourStore((s) => s.open && s.touched);
+  const restrictionDirty = useRestrictionStore((s) => s.editing && s.dirty);
+  const { saveDetour } = useDetourSave();
+  const { saveRestriction } = useRestrictionSave();
   const routeMeta = usePlottingStore((s) => s.routeMeta);
   const saving = usePlottingStore((s) => s.saving);
   const conflictPreview = usePlottingStore((s) => s.conflictPreview);
@@ -222,20 +231,30 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
    *  confirm, FR-007 — never window.confirm); clean edits snap back to a
    *  clean overview (openRoute(null) clears focus, selection, and tool — the
    *  idle slate; the draft safety net is untouched). */
-  const closeEdit = () => {
+  const closeEdit = (after?: () => void) => {
     usePlottingStore.getState().openRoute(null);
+    after?.();
   };
-  const requestCloseEdit = () => {
+  const pendingAfterLeaveRef = useRef<(() => void) | null>(null);
+  const requestCloseEdit = (after?: () => void) => {
     if (showSave) {
+      pendingAfterLeaveRef.current = after ?? null;
       setLeaveConfirmOpen(true);
       return;
     }
-    closeEdit();
+    closeEdit(after);
   };
   const confirmLeaveEdit = () => {
+    const after = pendingAfterLeaveRef.current;
+    pendingAfterLeaveRef.current = null;
     setLeaveConfirmOpen(false);
-    closeEdit();
+    closeEdit(after ?? undefined);
   };
+
+  // The bridge is registered once per navigation context; the ref keeps the
+  // latest guard (and its `showSave`) without re-registering every render.
+  const requestCloseEditRef = useRef(requestCloseEdit);
+  requestCloseEditRef.current = requestCloseEdit;
 
   // Bind the snap network call once (the store owns the debounce orchestration).
   useEffect(() => {
@@ -791,7 +810,23 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
   };
 
   const showSave =
-    routeId !== null && canWriteDraft && (draftDirty || metaDirty);
+    routeId !== null &&
+    canWriteDraft &&
+    (draftDirty || metaDirty || detourTouched || restrictionDirty);
+
+  // The shell header is outside this provider. It requests navigation through
+  // this bridge so a dirty draft always meets the same leave confirmation.
+  useEffect(() => {
+    registerWorkspaceBridge({
+      switchRoute: (nextRouteId) =>
+        requestCloseEditRef.current(() =>
+          usePlottingStore.getState().openRoute(nextRouteId),
+        ),
+      openNewRoute: () => setNewRouteOpen(true),
+      goOverview: () => requestCloseEditRef.current(() => navigate("/routes")),
+    });
+    return () => registerWorkspaceBridge(null);
+  }, [navigate]);
 
   // --- FR-014: unsaved-changes navigation guard ---
   // Dirty state read at event time (not captured in closures).
@@ -889,6 +924,11 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
     if (!canWriteDraft) return;
     usePlottingStore.getState().setSaving(true);
     try {
+      // The universal Save owns the detour half too: validate/save the open
+      // alternative first, so a route save can never leave a dirty detour
+      // silently behind.
+      if (useDetourStore.getState().open && !(await saveDetour())) return;
+      if (restrictionDirty && !(await saveRestriction())) return;
       if (draftDirty && !(await savePlot())) return;
       const meta = usePlottingStore.getState().routeMeta;
       const current = routeQuery.data;
@@ -991,7 +1031,10 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
       {/* Styled dialogs (FR-007 — never window.confirm). */}
       <LeaveConfirmDialog
         open={leaveConfirmOpen}
-        onOpenChange={setLeaveConfirmOpen}
+        onOpenChange={(open) => {
+          setLeaveConfirmOpen(open);
+          if (!open) pendingAfterLeaveRef.current = null;
+        }}
         onLeave={confirmLeaveEdit}
       />
       <LoadLatestDialog

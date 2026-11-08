@@ -166,7 +166,7 @@ export function SearchResultsPanel() {
     >
       <Plate
         padded="md"
-        className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-y-0 border-l-0 pt-[60px]"
+        className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden rounded-none border-y-0 border-l-0 pt-14"
       >
         <header className="shrink-0">
           <div className="flex items-baseline justify-between gap-2">

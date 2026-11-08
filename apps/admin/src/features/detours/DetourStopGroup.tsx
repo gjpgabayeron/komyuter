@@ -1,8 +1,10 @@
-import { X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { DetailRow, DetailSection } from "@/components/shared/DetailList";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import type { StopType } from "@komyuter/shared";
 import { STOP_TYPE_LABELS } from "@/features/routes/stopLabels";
 import { formatAttributionName } from "@/features/routes/attribution";
@@ -11,9 +13,7 @@ import { useDetourStore } from "./detourStore";
 /**
  * The DetourStopGroup — the right property-panel editor for a detour stop
  * SELECTED on the map (marker click), mirroring how a base stop opens
- * StopGroup/StopEditor: rename, type, guaranteed-service, landmark hint, and
- * notes, with the location edited by dragging the marker itself. Backing out
- * (Esc on the panel's close, or clicking the map) returns to the DetourGroup.
+ * StopGroup/StopEditor: editable fields on top, static details below.
  */
 export function DetourStopGroup() {
   const selectedId = useDetourStore((s) => s.selectedDetourStopId);
@@ -27,42 +27,14 @@ export function DetourStopGroup() {
   const updateDetourStop = useDetourStore((s) => s.updateDetourStop);
   const removeDetourStop = useDetourStore((s) => s.removeDetourStop);
   const selectDetourStop = useDetourStore((s) => s.selectDetourStop);
+  const saving = useDetourStore((s) => s.saving);
+  const [removeOpen, setRemoveOpen] = useState(false);
 
   if (!detourStop) return null;
 
   return (
-    <section aria-label="Detour stop" className="border-t pt-3">
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold">
-          Detour stop {index}
-          <span className="text-muted-foreground block truncate text-xs">
-            detour-only — not on the base route
-          </span>
-        </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          aria-label="Deselect detour stop"
-          className="text-muted-foreground size-6 shrink-0"
-          onClick={() => selectDetourStop(null)}
-        >
-          <X className="size-3.5" />
-        </Button>
-      </div>
-
-      <p className="text-muted-foreground mt-2 text-xs">
-        Location:{" "}
-        <span className="font-mono tabular-nums">
-          {[
-            detourStop.location[0].toFixed(5),
-            detourStop.location[1].toFixed(5),
-          ].join(", ")}
-        </span>{" "}
-        — drag the marker on the map to move it.
-      </p>
-
-      <div className="mt-3 space-y-2">
+    <section aria-label="Detour stop">
+      <fieldset disabled={saving} className="mt-3 space-y-2 border-0 p-0">
         <div className="space-y-1">
           <Label htmlFor="detour-stop-name" className="text-xs">
             Name
@@ -144,24 +116,27 @@ export function DetourStopGroup() {
             placeholder="Crew-only notes"
           />
         </div>
-      </div>
+      </fieldset>
 
-      {/* Read-only provenance carried from the saved detour stop (ADR-0025).
-          A stop added in this session has none yet — it reads "Not recorded". */}
-      <dl className="mt-3 space-y-1 border-t pt-3 text-xs">
-        <div className="flex items-center justify-between gap-2">
-          <dt className="text-muted-foreground">Created by</dt>
-          <dd className="truncate">
+      <DetailSection>
+        <DetailRow label="Stop number">{index}</DetailRow>
+        <DetailRow label="Longitude">
+          {detourStop.location[0].toFixed(5)}
+        </DetailRow>
+        <DetailRow label="Latitude">
+          {detourStop.location[1].toFixed(5)}
+        </DetailRow>
+        {detourStop.created_by && (
+          <DetailRow label="Created by">
             {formatAttributionName(detourStop.created_by)}
-          </dd>
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <dt className="text-muted-foreground">Last written by</dt>
-          <dd className="truncate">
+          </DetailRow>
+        )}
+        {detourStop.updated_by && (
+          <DetailRow label="Last written by">
             {formatAttributionName(detourStop.updated_by)}
-          </dd>
-        </div>
-      </dl>
+          </DetailRow>
+        )}
+      </DetailSection>
 
       <div className="mt-3 flex justify-end">
         <Button
@@ -169,14 +144,26 @@ export function DetourStopGroup() {
           variant="outline"
           size="sm"
           className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
-          onClick={() => {
-            removeDetourStop(detourStop.id);
-            selectDetourStop(null);
-          }}
+          onClick={() => setRemoveOpen(true)}
+          disabled={saving}
         >
           Remove detour stop
         </Button>
       </div>
+
+      <ConfirmDialog
+        open={removeOpen}
+        onOpenChange={setRemoveOpen}
+        title="Remove detour stop?"
+        description={`“${detourStop.name}” will be removed from this alternative route. Save the alternative route to apply the change.`}
+        confirmLabel="Remove"
+        destructive
+        onConfirm={() => {
+          removeDetourStop(detourStop.id);
+          selectDetourStop(null);
+          setRemoveOpen(false);
+        }}
+      />
     </section>
   );
 }
