@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { geoPointSchema, geoLineStringSchema } from "./geometry";
-import { stopTypeSchema, restrictionKindSchema } from "./domain";
+import {
+  stopTypeSchema,
+  restrictionKindSchema,
+  directionKindSchema,
+} from "./domain";
 import {
   EXPORT_SCHEMA_VERSION,
   EXPORT_COORDINATE_ORDER,
@@ -15,6 +19,7 @@ export const exportFareConfigurationSchema = z.object({
   student_discount_pct: z.number(),
   senior_discount_pct: z.number(),
   is_default: z.boolean(),
+  is_active: z.boolean(),
 });
 
 export const exportRestrictionSchema = z.object({
@@ -24,6 +29,7 @@ export const exportRestrictionSchema = z.object({
   to_coord_index: z.number().int().min(0),
   kind: restrictionKindSchema,
   note: z.string().nullable(),
+  is_active: z.boolean(),
 });
 
 export const exportStopSchema = z.object({
@@ -32,7 +38,11 @@ export const exportStopSchema = z.object({
   type: stopTypeSchema,
   stop_order: z.number().int().min(1),
   is_guaranteed_service: z.boolean(),
+  derived_from_stop_id: z.string().min(1).nullable(),
+  ar_marker_enabled: z.boolean(),
   landmark_hint: z.string().nullable(),
+  notes: z.string().nullable(),
+  is_active: z.boolean(),
   location: geoPointSchema,
 });
 
@@ -45,6 +55,7 @@ export const exportDetourSchema = z.object({
   additional_distance_meters: z.number().int().nullable(),
   commuter_instruction: z.string().min(1),
   driver_instruction: z.string().nullable(),
+  is_active: z.boolean(),
   detour_stops: z.array(
     z.object({
       detour_stop_id: z.string().min(1),
@@ -61,6 +72,7 @@ export const exportDetourSchema = z.object({
 
 export const exportDirectionSchema = z.object({
   direction_id: z.string().min(1),
+  direction_kind: directionKindSchema,
   label: z.string().min(1),
   is_active: z.boolean(),
   terminals: z.object({

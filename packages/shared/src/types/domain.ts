@@ -7,6 +7,11 @@ export const STOP_TYPE_VALUES = [
 ] as const;
 export type StopType = (typeof STOP_TYPE_VALUES)[number];
 
+/** Which direction of the pair a row is: the admin-plotted base or the
+ *  auto-derived return (ADR-0011). */
+export const DIRECTION_KIND_VALUES = ["base", "return"] as const;
+export type DirectionKind = (typeof DIRECTION_KIND_VALUES)[number];
+
 export const RESTRICTION_KIND_VALUES = [
   "no_loading",
   "no_unloading",

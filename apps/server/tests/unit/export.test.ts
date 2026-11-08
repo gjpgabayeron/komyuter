@@ -39,12 +39,14 @@ function fixtureRows(): ExportRows {
         student_discount_pct: "20",
         senior_discount_pct: "20",
         is_default: true,
+        is_active: true,
       },
     ],
     directionRows: [
       {
         direction_id: "dir-1",
         route_id: "calaparan-calumpang",
+        direction_kind: "base",
         label: "Outbound",
         is_active: true,
         origin_stop_id: "stop-1",
@@ -60,7 +62,11 @@ function fixtureRows(): ExportRows {
         type: "terminal",
         stop_order: 1,
         is_guaranteed_service: true,
+        derived_from_stop_id: null,
+        ar_marker_enabled: true,
         landmark_hint: "Main terminal",
+        notes: null,
+        is_active: true,
         location: POINT_A,
       },
       {
@@ -70,7 +76,11 @@ function fixtureRows(): ExportRows {
         type: "major_stop",
         stop_order: 2,
         is_guaranteed_service: true,
+        derived_from_stop_id: "stop-1",
+        ar_marker_enabled: false,
         landmark_hint: null,
+        notes: "Mirrors the base stop",
+        is_active: false,
         location: POINT_B,
       },
     ],
@@ -87,7 +97,7 @@ describe("buildExportDataset", () => {
       "2026-01-01T00:00:00.000Z",
     );
 
-    expect(dataset.schema_version).toBe("1.1");
+    expect(dataset.schema_version).toBe("1.2");
     expect(dataset.coordinate_order).toBe("lng_lat");
     expect(dataset.exported_at).toBe("2026-01-01T00:00:00.000Z");
 
@@ -136,6 +146,76 @@ describe("buildExportDataset", () => {
     const dataset = buildExportDataset(rows, "2026-01-01T00:00:00.000Z");
     expect(dataset.routes).toEqual([]);
     expect(dataset.fare_configs).toEqual([]);
+  });
+
+  it("carries the lossless fields a re-import needs", () => {
+    const dataset = buildExportDataset(
+      fixtureRows(),
+      "2026-01-01T00:00:00.000Z",
+    );
+
+    expect(dataset.fare_configs[0].is_active).toBe(true);
+
+    const direction = dataset.routes[0].directions[0];
+    expect(direction.direction_kind).toBe("base");
+
+    const [origin, destination] = direction.stops;
+    expect(origin.derived_from_stop_id).toBeNull();
+    expect(origin.ar_marker_enabled).toBe(true);
+    expect(origin.notes).toBeNull();
+    expect(origin.is_active).toBe(true);
+
+    // The return stop keeps the identity of the base stop it mirrors.
+    expect(destination.derived_from_stop_id).toBe("stop-1");
+    expect(destination.ar_marker_enabled).toBe(false);
+    expect(destination.notes).toBe("Mirrors the base stop");
+    expect(destination.is_active).toBe(false);
+  });
+
+  it("carries is_active on detours and restrictions", () => {
+    const rows = fixtureRows();
+    rows.detourRows = [
+      {
+        detour_id: "detour-1",
+        direction_id: "dir-1",
+        label: "Market bypass",
+        entry: POINT_A,
+        exit: POINT_B,
+        detour_polyline: POLYLINE,
+        additional_distance_meters: 320,
+        commuter_instruction: "Alight after the market",
+        driver_instruction: null,
+        is_active: false,
+      },
+    ];
+    rows.restrictionRows = [
+      {
+        restriction_id: "restriction-1",
+        direction_id: "dir-1",
+        detour_id: "detour-1",
+        from_coord_index: 0,
+        to_coord_index: 1,
+        kind: "no_loading",
+        note: null,
+        is_active: false,
+      },
+    ];
+
+    const dataset = buildExportDataset(rows, "2026-01-01T00:00:00.000Z");
+    const direction = dataset.routes[0].directions[0];
+    expect(direction.detours[0].is_active).toBe(false);
+    expect(direction.restrictions[0].is_active).toBe(false);
+  });
+
+  it("emits none of the withdrawn trigger fields", () => {
+    const dataset = buildExportDataset(
+      fixtureRows(),
+      "2026-01-01T00:00:00.000Z",
+    );
+    const json = JSON.stringify(dataset);
+    expect(json).not.toMatch(/"active_timeframes"/);
+    expect(json).not.toMatch(/"condition"/);
+    expect(json).not.toMatch(/"notable_stops"/);
   });
 
   it("emits no arrival-time or ETA fields anywhere in the dataset", () => {

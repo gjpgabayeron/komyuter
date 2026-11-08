@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
+import type { ExportStop } from "@komyuter/shared";
 import { buildTestApp, signInAdmin, uniqueRouteId } from "./helpers";
 import {
   assertDatasetValid,
@@ -94,7 +95,7 @@ describe("export dataset (SC-004/SC-005)", () => {
     const dataset = exportRes.json();
     assertDatasetValid(dataset);
 
-    expect(dataset.schema_version).toBe("1.1");
+    expect(dataset.schema_version).toBe("1.2");
     expect(dataset.coordinate_order).toBe("lng_lat");
     expect(dataset.routes).toBeInstanceOf(Array);
 
@@ -108,8 +109,19 @@ describe("export dataset (SC-004/SC-005)", () => {
         d.terminals.origin === originStopId,
     );
     expect(baseDir).toBeTruthy();
+    expect(baseDir.direction_kind).toBe("base");
     expect(baseDir.stops).toHaveLength(2);
     expect(baseDir.terminals.destination).toBe(destinationStopId);
+    // A base stop mirrors nothing, and carries the flags a re-import needs.
+    const baseStops = baseDir.stops as ExportStop[];
+    const derivedFrom = baseStops.map((s) => s.derived_from_stop_id);
+    const arFlags = baseStops.map((s) => s.ar_marker_enabled);
+    const noteValues = baseStops.map((s) => s.notes);
+    const activeFlags = baseStops.map((s) => s.is_active);
+    expect(derivedFrom).toEqual([null, null]);
+    expect(arFlags).toEqual([true, true]);
+    expect(noteValues).toEqual([null, null]);
+    expect(activeFlags).toEqual([true, true]);
     // Derived return: reversed geometry, auto label, terminals = its own stops
     const returnData = createDirection.json().data.return_direction;
     const returnDir = route.directions.find(
@@ -117,8 +129,14 @@ describe("export dataset (SC-004/SC-005)", () => {
         d.terminals.origin === returnData.stops[0].stop_id,
     );
     expect(returnDir).toBeTruthy();
+    expect(returnDir.direction_kind).toBe("return");
     expect(returnDir.stops).toHaveLength(2);
     expect(returnDir.terminals.destination).toBe(returnData.stops[1].stop_id);
+    // Every return stop names the base stop it mirrors (ADR-0031 §4), so a
+    // re-import rebuilds the pair instead of re-pairing it by position.
+    const returnStops = returnDir.stops as ExportStop[];
+    const mirrored = returnStops.map((s) => s.derived_from_stop_id).sort();
+    expect(mirrored).toEqual([originStopId, destinationStopId].sort());
 
     const problems = [] as string[];
     const stopIds = new Set<string>();
@@ -147,6 +165,19 @@ describe("export dataset (SC-004/SC-005)", () => {
     expect(raw).not.toMatch(/"eta"/i);
     expect(raw).not.toMatch(/"arrival"/i);
     expect(raw).not.toMatch(/"departure"/i);
+  });
+
+  it("does not emit the withdrawn trigger fields", async () => {
+    const exportRes = await app.inject({
+      method: "GET",
+      url: "/api/admin/export/dataset",
+      headers: auth(),
+    });
+    expect(exportRes.statusCode).toBe(200);
+    const raw = exportRes.body;
+    expect(raw).not.toMatch(/"active_timeframes"\s*:/);
+    expect(raw).not.toMatch(/"condition"\s*:/);
+    expect(raw).not.toMatch(/"notable_stops"\s*:/);
   });
 
   it("serves a schema-valid dataset even on a fresh database", async () => {

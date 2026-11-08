@@ -14,7 +14,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -52,6 +52,12 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      # The IaC authoring file is TypeScript but belongs to no workspace
+      # package's tsconfig. The drift jobs evaluate it; this keeps a type error
+      # from reaching that evaluation.
+      - name: Typecheck the Railway authoring file
+        run: pnpm exec tsc --noEmit --strict --module ESNext --moduleResolution Bundler --target ES2022 --skipLibCheck .railway/railway.ts
+
       # Hermetic subset: apps/admin's suite runs in the node environment with no
       # database. apps/server's integration half needs a live Supabase stack, so it
       # stays a local pre-merge obligation rather than a CI step.
@@ -63,5 +69,204 @@ jobs:
       - name: Test (shared)
         run: pnpm --filter @komyuter/shared test
 
+      # The pre-deploy migration runner (ADR-0022 §3). Hermetic like the others:
+      # the suite stands a stub Supabase CLI in for the real one, so it needs no
+      # database and no network. It is in CI rather than only local because a bug
+      # here is a *failed production deployment* — the one class of defect that
+      # cannot be caught by exercising the running app.
+      - name: Test (pre-deploy runner)
+        run: node --test deploy/pre-deploy.test.mjs
+
       - name: Build
         run: pnpm build
+
+  # Configuration drift (ADR-0022 §2, ticket #77). `railway config plan` compares
+  # `.railway/railway.ts` with the live staging project, so a dashboard edit that
+  # nobody wrote into source becomes visible, and an *intended* IaC change does not
+  # fail every pull request that makes one.
+  #
+  # The base branch is what tells the two apart. On a push, the merged file is the
+  # source of truth, so the plan is a gate: `--detailed-exit-code` exits 2 when the
+  # platform differs from it and the step fails. On a pull request the head usually
+  # edits the file on purpose, so the gate plans the **base** branch's file — drift
+  # that predates the pull request — and the head's intended plan is *reported*,
+  # never gated.
+  #
+  # `RAILWAY_TOKEN_STAGING` is a Railway project token, and project tokens are
+  # deploy-capable, not read-only: it can apply as well as plan, so it must be
+  # rotated if it leaks. Fork pull requests receive no secret, which is why the job
+  # skips them; their IaC change is still judged by the base gate of the pull
+  # request that eventually carries it into `dev`.
+  iac-drift:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The pull request gate reads `origin/<base>:…`, so the base commit has to
+          # be in the clone; the default single-commit fetch does not have it.
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # The authoring file is TypeScript evaluated against the root `railway` SDK
+      # devDependency, so the plan is run from an installed workspace.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Pinned on purpose: the plan's output and its exit codes are CLI behaviour,
+      # and a silently newer CLI would be a silently moved gate.
+      - name: Install Railway CLI 5.64.0
+        run: npm install -g @railway/cli@5.64.0
+
+      # Do not add a `railway link` step. `railway link` enumerates workspaces
+      # before it consults RAILWAY_TOKEN, and a project token cannot enumerate
+      # workspaces, so the step fails with Unauthorized even for a valid token.
+      # `railway config plan` resolves the project and environment from the
+      # token itself (see src/commands/config/runner.rs).
+
+      # The gate. Source and platform must agree on the merged commit; exit 2 means
+      # the platform carries something source does not, and that fails the job.
+      #
+      # Only the two long-lived branches are gated. A push to a topic branch is a
+      # pull request's own head, where planning the head's file would fail every
+      # intended IaC change — that is what the pull request path below reports.
+      - name: Plan the merged configuration (push gate)
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main')
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
+        run: railway config plan --detailed-exit-code
+
+      # The base branch's authoring file, lifted out of git. It stays inside
+      # `.railway/` because the plan evaluates it from the repository root.
+      - name: Extract the base branch's authoring file
+        id: baseline
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if git cat-file -e "origin/${BASE_REF}:.railway/railway.ts" 2>/dev/null; then
+            git show "origin/${BASE_REF}:.railway/railway.ts" > .railway/base-railway.ts
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Drift that this pull request did not introduce. Exit 2 here is a failure:
+      # the platform disagrees with what the base branch already declares.
+      - name: Plan the base branch's configuration (pull request gate)
+        if: github.event_name == 'pull_request' && steps.baseline.outputs.present == 'true'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
+        run: railway config plan --file .railway/base-railway.ts --detailed-exit-code
+
+      # A pull request that predates the authoring file (#74) has no baseline, so
+      # there is nothing this gate could judge. Pass with a message instead of a
+      # silent green: the first pull request that puts the file on the base branch
+      # is gated from then on.
+      - name: No baseline to compare (pull request gate)
+        if: github.event_name == 'pull_request' && steps.baseline.outputs.present == 'false'
+        run: |
+          echo "::notice title=iac-drift::The base branch has no .railway/railway.ts, so there is no drift baseline to compare against. Passing."
+
+      # What the pull request intends to change, as a report. Non-gating by design:
+      # the reviewer is the gate for an IaC edit, and a red check here would fail
+      # every pull request that legitimately changes the file.
+      - name: Report the intended plan (non-gating)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
+        run: |
+          # The gate above used this file; the report must read the head's own.
+          rm -f .railway/base-railway.ts
+          {
+            echo "### Railway configuration plan for this pull request"
+            echo
+            echo "What this branch intends to change in the staging project. Reported, not gated:"
+            echo "the base-branch drift gate above is the failure condition."
+            echo
+            echo '```'
+            railway config plan --verbose 2>&1 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Production drift (ticket #82). The production service is declared in the
+  # authoring file but does not exist until #75 provisions its data plane, so
+  # this job stays skipped until the repository variable is set. After #75/#82:
+  # set `RAILWAY_PRODUCTION_READY=true`, add `RAILWAY_TOKEN_PRODUCTION`, and
+  # add `iac-drift-production` to the required checks on `main`.
+  #
+  # The gate mirrors the staging job: a pull request into `main` plans the base
+  # branch's file (drift that predates the pull request), while a push to `main`
+  # plans the merged file and fails when the platform differs.
+  iac-drift-production:
+    runs-on: ubuntu-latest
+    if: >-
+      vars.RAILWAY_PRODUCTION_READY == 'true' &&
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' ||
+       github.event_name == 'pull_request' && github.base_ref == 'main')
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Railway CLI 5.64.0
+        run: npm install -g @railway/cli@5.64.0
+
+      # See the staging job: `railway link` cannot be used with a project token.
+      # `railway config plan` resolves the project and environment from the
+      # token itself, so there is no link step here.
+
+      - name: Plan the merged configuration (push gate)
+        if: github.event_name == 'push'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PRODUCTION }}
+        run: railway config plan --environment production --detailed-exit-code
+
+      - name: Extract the base branch's authoring file
+        id: baseline
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if git cat-file -e "origin/${BASE_REF}:.railway/railway.ts" 2>/dev/null; then
+            git show "origin/${BASE_REF}:.railway/railway.ts" > .railway/base-railway.ts
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Plan the base branch's configuration (pull request gate)
+        if: github.event_name == 'pull_request' && steps.baseline.outputs.present == 'true'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PRODUCTION }}
+        run: >-
+          railway config plan
+          --file .railway/base-railway.ts
+          --environment production
+          --detailed-exit-code
+
+      - name: No baseline to compare (pull request gate)
+        if: github.event_name == 'pull_request' && steps.baseline.outputs.present == 'false'
+        run: |
+          echo "::notice title=iac-drift-production::The base branch has no .railway/railway.ts, so there is no production drift baseline. Passing."
