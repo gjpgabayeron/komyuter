@@ -58,11 +58,14 @@ and handed to M4. M1's exit criterion is **met**: a second person signed in as t
 a route end to end, and the staging dataset holds the result — 1 route, 2 directions, 22 stops, none of
 which this project's own checks created.
 
-**M4 status (2026-11-08).** The pipeline is code-complete on `feat/m4-cicd`: `.railway/railway.ts`
+**M4 status (2026-11-09).** The pipeline is code-complete on `feat/m4-cicd`: `.railway/railway.ts`
 describes both environments with `ctx.isEnvironment`, the guarded pre-deploy runner is in the image and
 wired into the service, the CI drift job distinguishes base-branch drift from a pull request's intended
 plan, and the dataset import/export scripts and rollback runbook are in place. The **production data
-plane is not provisioned** (ticket #75), so the production service, the seed (#80), the first production
+plane now exists** — project `nhqprycfpafwvspzeehh` in `ap-southeast-1`, with an active Super Admin owner,
+the documented auth policy (signups off, confirm email on, minimum 12) and a migration list matching all
+18 local files (0000–0017) (§3.12). Outbound 5432 is blocked on the current network, so the list was
+compared through the dashboard SQL result; the production service, the seed (#80), the first production
 deploy (#82) and both staging drills (#81) remain live steps. No release tag is cut in M4.
 
 ## What the image contains
@@ -220,6 +223,22 @@ There is no API route to **set** these: GoTrue exposes no settings endpoint on t
 `mailer_autoconfirm: false` (email confirmation on ✓), `disable_signup: false` (signups permitted ✗),
 minimum length **6** per GoTrue's own error text ✗, and leaked-password protection **off** — a breached
 13-character password was accepted ✗.
+
+The manual probes above are implemented in `deploy/check-data-plane.mjs`, so the operator runs one
+command and records one result instead of four separate curls:
+
+```bash
+SUPABASE_URL="https://<ref>.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="<service-role key>" \
+ADMIN_EMAIL="<owner email>" \
+pnpm check:data-plane
+```
+
+Add `DATABASE_URL="<session-pooler URL>"` to compare `supabase migration list` with
+`supabase/migrations/`, or `--migration-list <file>` with a saved table / dashboard result, and append
+`-- --json` for a machine-readable record. The script performs the same admin `createUser` probes,
+deletes the throwaway accounts, prints no key or connection string, and exits non-zero while any check
+fails. The dashboard remains the only **writer**; this is the read side.
 
 ## 2. Bootstrap the owner Account
 
@@ -579,15 +598,17 @@ The authoring file is the same for both environments. `ctx.isEnvironment("produc
 - `EXPECTED_ENVIRONMENT=production` (staging: `staging`);
 - App Sleeping off (staging: on).
 
-`EXPECTED_SUPABASE_PROJECT_REF` is `preserve()`d on production, so no fake project ref enters source. The
-operator sets it, along with the other production variables, before the first deploy. The production
-service is declared but not applied until #75 creates the Supabase project. Run
+`EXPECTED_SUPABASE_PROJECT_REF` is the literal production ref
+(`nhqprycfpafwvspzeehh`), not `preserve()`: the ref is not a secret and was created by #75, so writing it
+makes the pre-deploy guard explicit instead of leaving an operator to remember a preserved variable. The
+operator still supplies `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and
+`MAPBOX_SECRET_TOKEN`. The production service is declared but not applied until #82. Run
 `railway config plan --environment production` first and treat a create-only plan as the reviewed change.
 
 CI has two drift jobs. `iac-drift` covers staging on every push and pull request. `iac-drift-production`
 is gated on the repository variable `RAILWAY_PRODUCTION_READY == 'true'`, uses the
 `RAILWAY_TOKEN_PRODUCTION` secret, and plans production on pushes to `main` (and on pull requests into
-`main`, against the base branch's file). Until #75/#82 the production job is skipped. After go-live, set
+`main`, against the base branch's file). Until #82 the production job is skipped. After go-live, set
 the variable and add `iac-drift-production` to the required checks on `main`.
 
 **The jobs do not run `railway link`.** A Railway project token cannot enumerate workspaces, which
@@ -627,6 +648,78 @@ checkout that has the repository (the scripts need `tsx`, which is deliberately 
 
 4. **Verify.** Compare the import's per-table counts with `/api/status` after the first production
    deploy. Record the export timestamp, the owner email and the counts in the milestone record.
+
+## 3.12 Production data plane (ticket #75)
+
+The production Supabase project exists: `komyuter-production`, ref `nhqprycfpafwvspzeehh`, organization
+`lkytnwldwnfjrlxwsbgf`, region **`ap-southeast-1` (Singapore)**, created 2026-11-08. It is a second
+project, not a schema in the staging one (ADR-0018 §4, ADR-0021). The owner Account is
+`admin@komyuter.ph` — the documented dev **email**, not the dev **password** — is email-confirmed, and
+holds `is_super_admin = true` on an active row. The seeded fixed identity
+`00000000-0000-0000-0000-000000000001` is absent, so `seed.sql` was not applied.
+
+The chain's latest artifacts are present: `stops.derived_from_stop_id` (`0013`),
+`admin_users.must_change_password` (`0009`), `restrictions.kind` (`0015`), `restrictions.detour_id`
+(`0017`) and `routes.version` (`0012`); the columns `0016` drops (`detours.active_timeframes`,
+`detours.condition`) and `0015` drops (`restrictions.reason`, `restrictions.affects`) are gone. Exact
+parity is **verified** (2026-11-09): the dashboard query
+`select version from supabase_migrations.schema_migrations order by version;` returned `0000`–`0017`,
+and `pnpm check:data-plane -- --migration-list production-migrations.txt` matched all 18 local files.
+Outbound TCP 5432 is blocked from the operator's network, so the
+`supabase migration list --db-url "<production session-pooler URL>"` form times out there; the saved
+dashboard result is the evidence. Run that command when 5432 is reachable — it reads the same history.
+
+The auth policy is dashboard-only (§1). The dashboard change was made on 2026-11-09, and the probe now
+passes every documented setting:
+
+| Setting                    | Required | Measured                                     | State      |
+| -------------------------- | -------- | -------------------------------------------- | ---------- |
+| Confirm email              | on       | `mailer_autoconfirm: false`                  | pass       |
+| Allow new users to sign up | off      | `disable_signup: true`                       | pass       |
+| Minimum password length    | 12       | 11-character rejected; 12-character accepted | pass       |
+| Leaked-password protection | deferred | not probed                                   | plan-gated |
+
+Re-run the probe:
+
+```bash
+SUPABASE_URL="https://nhqprycfpafwvspzeehh.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="<service-role key>" \
+ADMIN_EMAIL="admin@komyuter.ph" \
+pnpm check:data-plane
+```
+
+`-- --json` records the evidence. `SUPABASE_SERVICE_ROLE_KEY` must be the **secret** key
+(`sb_secret_…` or the legacy `service_role` JWT), never the publishable key: the admin `createUser` and
+`admin_users` probes need the service role. The script deletes any probe account it created; it never
+prints the service key or the connection string, and it exits non-zero while any check fails.
+
+**Migration parity when 5432 is unreachable.** The preferred form is
+`DATABASE_URL="<production session-pooler URL>" pnpm check:data-plane`, which runs
+`supabase migration list`. On 2026-11-09 outbound TCP 5432 to both
+`aws-0-ap-southeast-1.pooler.supabase.com` and `aws-1-ap-southeast-1.pooler.supabase.com` timed out from
+the operator's network, and the direct host did not resolve, so that form cannot run there. Get the same
+list in the dashboard SQL Editor:
+
+```sql
+select version from supabase_migrations.schema_migrations order by version;
+```
+
+Save the result as `production-migrations.txt` (one version per line), then:
+
+```bash
+SUPABASE_URL="https://nhqprycfpafwvspzeehh.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="<service-role key>" \
+ADMIN_EMAIL="admin@komyuter.ph" \
+pnpm check:data-plane -- --migration-list production-migrations.txt
+```
+
+The checker compares the saved list with `supabase/migrations/` and fails on a missing or extra version.
+`--migration-list` also accepts a saved `supabase migration list` table.
+
+**Residual risk.** The owner's email is the documented dev email. The password is not the dev credential
+— the script's dev-credential probe refuses it — and `ALLOW_DEV_CREDENTIAL=false` is the second line of
+defence, but a production Account should not reuse the dev identity's email. Renaming it is an Auth
+operation with no repository step; do it before the first release if that address is not the owner's.
 
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 

@@ -77,6 +77,14 @@ jobs:
       - name: Test (pre-deploy runner)
         run: node --test deploy/pre-deploy.test.mjs
 
+      # The data-plane preflight (ticket #75). Hermetic like the others: a fake
+      # Auth/PostgREST server and a stub Supabase CLI, so no project and no
+      # database are needed. It is in CI because the two dashboard-only auth
+      # settings (signups, the password floor) are otherwise invisible to every
+      # test in the repository.
+      - name: Test (data-plane check)
+        run: node --test deploy/check-data-plane.test.mjs
+
       - name: Build
         run: pnpm build
 
