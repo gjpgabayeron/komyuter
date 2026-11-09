@@ -23,7 +23,8 @@ import {
  * why only that one variable is required (`loadDatabaseUrl`). The owner is
  * resolved in that same database, so the attribution matches the environment
  * being seeded. Nothing here logs the connection string: the run reports the
- * target as host/port/database (`describeDatabaseTarget`), then the counts.
+ * target as host/port/database (`describeDatabaseTarget`), then the source
+ * export's `exported_at`, the owner mapping, the import time and the counts.
  *
  * Refusals (a payload that is not a v1.2 export, a broken reference graph, a
  * missing or deactivated owner, a target that already holds routes) exit 1 with
@@ -45,6 +46,7 @@ async function main(): Promise<void> {
     console.log(
       `Owner: ${result.owner.email} (user_id ${result.owner.userId})`,
     );
+    console.log(`Source export: ${result.exportedAt}`);
     console.log(`Imported at ${result.importedAt}`);
     for (const [table, count] of Object.entries(result.counts)) {
       console.log(`  ${table}: ${count}`);

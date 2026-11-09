@@ -458,6 +458,7 @@ describe("dataset import round-trip (ticket #78)", () => {
 
     // --- the owner mapping --------------------------------------------------
     expect(result.owner.email).toBe(OWNER_EMAIL);
+    expect(result.exportedAt).toBe(EXPORTED_AT);
     expect(result.importedAt).toBe(IMPORTED_AT.toISOString());
     expectStamped(rows.fareRows, result.owner.userId, "fare_configs");
     expectStamped(rows.routeRows, result.owner.userId, "routes");
