@@ -1,8 +1,10 @@
-import { and, eq, inArray, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { createDirectionSchema, updateDirectionSchema } from "@komyuter/shared";
+import type { GeoLineString } from "@komyuter/shared";
 import type { AppDeps, AppInstance } from "./app";
 import {
   directions as directionsTable,
+  restrictions as restrictionsTable,
   routes as routesTable,
   stops as stopsTable,
 } from "../db/schema";
@@ -17,6 +19,7 @@ import { uuidId } from "../domain/ids";
 import type { Db } from "../config/db";
 import type { DirectionEntity } from "../domain/entities";
 import { loadDirectionFull, loadDirectionSummary } from "../domain/entities";
+import { findStaleRestrictionWarnings } from "../domain/validation";
 import {
   buildDerivedReturn,
   normalizeStopOrder,
@@ -239,7 +242,11 @@ async function persistPlottedPair(
      *  touched: editing a direction is not an edit of the Route entity. */
     actorId: string;
   },
-): Promise<{ baseId: string; returnId: string }> {
+): Promise<{
+  baseId: string;
+  returnId: string;
+  restrictionWarnings: string[];
+}> {
   return db.transaction(async (tx) => {
     if (input.createMode) {
       const active = await tx
@@ -263,6 +270,91 @@ async function persistPlottedPair(
     const baseGeometry = asLineStringFromGeoJSON(
       input.base.polyline,
     ) as unknown as string;
+
+    // Restriction ranges are positional. Surface a warning when this save
+    // changes the polyline under an active main-route restriction; the save
+    // still lands so the operator can re-range against the new polyline.
+    let restrictionWarnings: string[] = [];
+    let existingBasePolyline: GeoLineString | null = null;
+    if (input.baseId) {
+      const [baseRow] = await tx
+        .select({ base_polyline: asGeoJSON(directionsTable.base_polyline) })
+        .from(directionsTable)
+        .where(eq(directionsTable.direction_id, input.baseId))
+        .limit(1);
+      existingBasePolyline =
+        (baseRow?.base_polyline as unknown as GeoLineString) ?? null;
+    }
+
+    // The return is re-derived by this save, so its restrictions need the same
+    // warning. Load the sibling before the writes; the re-derivation later
+    // reuses this row.
+    const [sibling] = await tx
+      .select({
+        direction_id: directionsTable.direction_id,
+        base_polyline: asGeoJSON(directionsTable.base_polyline),
+      })
+      .from(directionsTable)
+      .where(
+        and(
+          eq(directionsTable.route_id, input.routeId),
+          eq(directionsTable.is_active, true),
+          ne(directionsTable.direction_id, baseId),
+        ),
+      )
+      .limit(1);
+
+    if (input.baseId && existingBasePolyline) {
+      const baseRestrictions = await tx
+        .select({
+          restriction_id: restrictionsTable.restriction_id,
+          from_coord_index: restrictionsTable.from_coord_index,
+          to_coord_index: restrictionsTable.to_coord_index,
+        })
+        .from(restrictionsTable)
+        .where(
+          and(
+            eq(restrictionsTable.direction_id, input.baseId),
+            eq(restrictionsTable.is_active, true),
+            isNull(restrictionsTable.detour_id),
+          ),
+        );
+      restrictionWarnings = findStaleRestrictionWarnings(
+        input.baseId,
+        existingBasePolyline,
+        input.base.polyline,
+        baseRestrictions,
+      );
+    }
+
+    if (sibling) {
+      const guardDerived = buildDerivedReturn({
+        ...input.base,
+        stops: normalized,
+      });
+      const returnRestrictions = await tx
+        .select({
+          restriction_id: restrictionsTable.restriction_id,
+          from_coord_index: restrictionsTable.from_coord_index,
+          to_coord_index: restrictionsTable.to_coord_index,
+        })
+        .from(restrictionsTable)
+        .where(
+          and(
+            eq(restrictionsTable.direction_id, sibling.direction_id),
+            eq(restrictionsTable.is_active, true),
+            isNull(restrictionsTable.detour_id),
+          ),
+        );
+      restrictionWarnings.push(
+        ...findStaleRestrictionWarnings(
+          sibling.direction_id,
+          sibling.base_polyline as unknown as GeoLineString,
+          guardDerived.polyline,
+          returnRestrictions,
+        ),
+      );
+    }
 
     if (input.baseId) {
       if (input.baseVersion === undefined) {
@@ -339,17 +431,6 @@ async function persistPlottedPair(
         stop_id: baseStopIds[index],
       })),
     });
-    const [sibling] = await tx
-      .select({ direction_id: directionsTable.direction_id })
-      .from(directionsTable)
-      .where(
-        and(
-          eq(directionsTable.route_id, input.routeId),
-          eq(directionsTable.is_active, true),
-          ne(directionsTable.direction_id, baseId),
-        ),
-      )
-      .limit(1);
     const returnId = sibling?.direction_id ?? uuidId("dir");
     const returnGeometry = asLineStringFromGeoJSON(
       derived.polyline,
@@ -401,7 +482,7 @@ async function persistPlottedPair(
       })
       .where(eq(directionsTable.direction_id, returnId));
 
-    return { baseId, returnId };
+    return { baseId, returnId, restrictionWarnings };
   });
 }
 
@@ -482,17 +563,18 @@ export async function registerDirections(
 
       if (body.stops !== undefined && body.stops.length > 0) {
         validatePlottedPayload(body.stops, body.base_polyline);
-        const { baseId, returnId } = await persistPlottedPair(db, {
-          routeId,
-          baseId: null,
-          base: {
-            label: body.label,
-            polyline: body.base_polyline,
-            stops: body.stops,
-          },
-          createMode: true,
-          actorId: actor,
-        });
+        const { baseId, returnId, restrictionWarnings } =
+          await persistPlottedPair(db, {
+            routeId,
+            baseId: null,
+            base: {
+              label: body.label,
+              polyline: body.base_polyline,
+              stops: body.stops,
+            },
+            createMode: true,
+            actorId: actor,
+          });
         const attribution = await loadAttributionResolver(supabase);
         const [baseFull, returnFull] = await Promise.all([
           loadDirectionFull(db, baseId, attribution),
@@ -503,6 +585,7 @@ export async function registerDirections(
           data: {
             ...toDirectionPayload(baseFull!),
             return_direction: toDirectionPayload(returnFull!),
+            restriction_warnings: restrictionWarnings,
           },
         });
       }
@@ -580,6 +663,7 @@ export async function registerDirections(
           route_id: directionsTable.route_id,
           label: directionsTable.label,
           direction_kind: directionsTable.direction_kind,
+          base_polyline: asGeoJSON(directionsTable.base_polyline),
         })
         .from(directionsTable)
         .where(eq(directionsTable.direction_id, directionId))
@@ -608,18 +692,19 @@ export async function registerDirections(
           );
         }
         validatePlottedPayload(body.stops, body.base_polyline);
-        const { baseId, returnId } = await persistPlottedPair(db, {
-          routeId: existing.route_id,
-          baseId: directionId,
-          baseVersion: body.base_version,
-          base: {
-            label: body.label ?? existing.label,
-            polyline: body.base_polyline,
-            stops: body.stops,
-          },
-          createMode: false,
-          actorId: actor,
-        });
+        const { baseId, returnId, restrictionWarnings } =
+          await persistPlottedPair(db, {
+            routeId: existing.route_id,
+            baseId: directionId,
+            baseVersion: body.base_version,
+            base: {
+              label: body.label ?? existing.label,
+              polyline: body.base_polyline,
+              stops: body.stops,
+            },
+            createMode: false,
+            actorId: actor,
+          });
         const attribution = await loadAttributionResolver(supabase);
         const [baseFull, returnFull] = await Promise.all([
           loadDirectionFull(db, baseId, attribution),
@@ -630,6 +715,7 @@ export async function registerDirections(
           data: {
             ...toDirectionPayload(baseFull!),
             return_direction: toDirectionPayload(returnFull!),
+            restriction_warnings: restrictionWarnings,
           },
         };
       }
@@ -645,6 +731,30 @@ export async function registerDirections(
       if (body.destination_stop_id !== undefined)
         patch.destination_stop_id = body.destination_stop_id;
       if (body.is_active !== undefined) patch.is_active = body.is_active;
+
+      let restrictionWarnings: string[] = [];
+      if (body.base_polyline !== undefined) {
+        const activeRestrictions = await db
+          .select({
+            restriction_id: restrictionsTable.restriction_id,
+            from_coord_index: restrictionsTable.from_coord_index,
+            to_coord_index: restrictionsTable.to_coord_index,
+          })
+          .from(restrictionsTable)
+          .where(
+            and(
+              eq(restrictionsTable.direction_id, directionId),
+              eq(restrictionsTable.is_active, true),
+              isNull(restrictionsTable.detour_id),
+            ),
+          );
+        restrictionWarnings = findStaleRestrictionWarnings(
+          directionId,
+          existing.base_polyline as unknown as GeoLineString,
+          body.base_polyline,
+          activeRestrictions,
+        );
+      }
 
       await versionedWrite(
         await db
@@ -678,7 +788,12 @@ export async function registerDirections(
         directionId,
         await loadAttributionResolver(supabase),
       );
-      return { success: true, data: updated };
+      return {
+        success: true,
+        data: updated
+          ? { ...updated, restriction_warnings: restrictionWarnings }
+          : updated,
+      };
     },
   );
 

@@ -11,6 +11,23 @@ const POLYLINE = {
   ],
 } as const;
 
+const SHORT_POLYLINE = {
+  type: "LineString",
+  coordinates: [
+    [122.5, 10.6],
+    [122.52, 10.62],
+  ],
+} as const;
+
+const MOVED_POLYLINE = {
+  type: "LineString",
+  coordinates: [
+    [122.5, 10.6],
+    [122.515, 10.615],
+    [122.52, 10.62],
+  ],
+} as const;
+
 const POINT_A = { type: "Point", coordinates: [122.5, 10.6] } as const;
 const POINT_B = { type: "Point", coordinates: [122.52, 10.62] } as const;
 const POINT_OFF_PATH = { type: "Point", coordinates: [122.9, 10.9] } as const;
@@ -818,6 +835,149 @@ describe("CRUD reflection and validation (SC-002/SC-003)", () => {
     });
     expect(bad.statusCode).toBe(422);
     expect(bad.json().error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("warns when a save invalidates an active restriction range, then allows a re-range", async () => {
+    const routeId = uniqueRouteId("rest-stale");
+    await app.inject({
+      method: "POST",
+      url: "/api/admin/routes",
+      headers: auth(),
+      payload: {
+        route_id: routeId,
+        name: "Restriction Stale Route",
+        short_name: "RS",
+      },
+    });
+    const created = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${routeId}/directions`,
+      headers: auth(),
+      payload: { label: "Outbound", base_polyline: POLYLINE },
+    });
+    const direction = created.json().data;
+    const restriction = await app.inject({
+      method: "POST",
+      url: `/api/admin/directions/${direction.direction_id}/restrictions`,
+      headers: auth(),
+      payload: {
+        from_coord_index: 0,
+        to_coord_index: 2,
+        kind: "no_loading",
+      },
+    });
+    expect(restriction.statusCode).toBe(201);
+    const restrictionId = restriction.json().data.restriction_id;
+
+    const saved = await app.inject({
+      method: "PUT",
+      url: `/api/admin/directions/${direction.direction_id}`,
+      headers: auth(),
+      payload: {
+        label: "Outbound",
+        base_polyline: SHORT_POLYLINE,
+        base_version: 1,
+        stops: [
+          {
+            name: "Start",
+            type: "terminal",
+            location: POINT_A,
+            stop_order: 1,
+          },
+          { name: "End", type: "terminal", location: POINT_B, stop_order: 2 },
+        ],
+      },
+    });
+    expect(saved.statusCode).toBe(200);
+    const savedBody = saved.json().data;
+    expect(savedBody.base_polyline.coordinates).toHaveLength(2);
+    expect(savedBody.restriction_warnings).toHaveLength(1);
+    expect(savedBody.restriction_warnings[0]).toContain(restrictionId);
+
+    const reRange = await app.inject({
+      method: "PUT",
+      url: `/api/admin/restrictions/${restrictionId}`,
+      headers: auth(),
+      payload: { from_coord_index: 0, to_coord_index: 1 },
+    });
+    expect(reRange.statusCode).toBe(200);
+
+    const savedAgain = await app.inject({
+      method: "PUT",
+      url: `/api/admin/directions/${direction.direction_id}`,
+      headers: auth(),
+      payload: {
+        label: "Outbound",
+        base_polyline: SHORT_POLYLINE,
+        base_version: savedBody.version,
+        stops: [
+          {
+            name: "Start",
+            type: "terminal",
+            location: POINT_A,
+            stop_order: 1,
+          },
+          { name: "End", type: "terminal", location: POINT_B, stop_order: 2 },
+        ],
+      },
+    });
+    expect(savedAgain.statusCode).toBe(200);
+    expect(savedAgain.json().data.restriction_warnings).toEqual([]);
+  });
+
+  it("warns when a re-projection changes the covered restriction stretch", async () => {
+    const routeId = uniqueRouteId("rest-moved");
+    await app.inject({
+      method: "POST",
+      url: "/api/admin/routes",
+      headers: auth(),
+      payload: {
+        route_id: routeId,
+        name: "Restriction Moved Route",
+        short_name: "RM",
+      },
+    });
+    const created = await app.inject({
+      method: "POST",
+      url: `/api/admin/routes/${routeId}/directions`,
+      headers: auth(),
+      payload: { label: "Outbound", base_polyline: POLYLINE },
+    });
+    const direction = created.json().data;
+    await app.inject({
+      method: "POST",
+      url: `/api/admin/directions/${direction.direction_id}/restrictions`,
+      headers: auth(),
+      payload: {
+        from_coord_index: 0,
+        to_coord_index: 2,
+        kind: "no_unloading",
+      },
+    });
+
+    const saved = await app.inject({
+      method: "PUT",
+      url: `/api/admin/directions/${direction.direction_id}`,
+      headers: auth(),
+      payload: {
+        label: "Outbound",
+        base_polyline: MOVED_POLYLINE,
+        base_version: 1,
+        stops: [
+          {
+            name: "Start",
+            type: "terminal",
+            location: POINT_A,
+            stop_order: 1,
+          },
+          { name: "End", type: "terminal", location: POINT_B, stop_order: 2 },
+        ],
+      },
+    });
+    expect(saved.statusCode).toBe(200);
+    const warnings = saved.json().data.restriction_warnings;
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain("no longer covers the same stretch");
   });
 });
 
