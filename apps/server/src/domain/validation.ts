@@ -156,6 +156,67 @@ export function assertRestrictionIndexRange(
   }
 }
 
+/**
+ * Positional restriction ranges are tied to the saved polyline. A re-snap can
+ * move, shorten or reorder vertices without touching the restriction rows, so
+ * the same indices can silently cover a different stretch. This returns a
+ * warning for each active main-route restriction whose range no longer fits or
+ * no longer covers the same coordinates. The save is not blocked: the operator
+ * needs the new polyline persisted before they can re-range against it.
+ */
+export interface RestrictionRangeRow {
+  restriction_id: string;
+  from_coord_index: number;
+  to_coord_index: number;
+}
+
+export function findStaleRestrictionWarnings(
+  directionId: string,
+  oldPolyline: GeoLineString | null,
+  newPolyline: GeoLineString,
+  restrictions: RestrictionRangeRow[],
+): string[] {
+  const maxIndex = newPolyline.coordinates.length - 1;
+  const warnings: string[] = [];
+
+  for (const restriction of restrictions) {
+    const from = restriction.from_coord_index;
+    const to = restriction.to_coord_index;
+
+    if (from < 0 || to < 0 || from > maxIndex || to > maxIndex) {
+      warnings.push(
+        `Restriction ${restriction.restriction_id} on direction ${directionId} covers indices [${from}, ${to}], but the new polyline has indices [0, ${maxIndex}]. Re-range it.`,
+      );
+      continue;
+    }
+
+    if (!oldPolyline) continue;
+    const oldSlice = oldPolyline.coordinates.slice(from, to + 1);
+    const newSlice = newPolyline.coordinates.slice(from, to + 1);
+    if (!sameCoordinateSlice(oldSlice, newSlice)) {
+      warnings.push(
+        `Restriction ${restriction.restriction_id} on direction ${directionId} no longer covers the same stretch at indices [${from}, ${to}]. Re-range it.`,
+      );
+    }
+  }
+
+  return warnings;
+}
+
+function sameCoordinateSlice(
+  left: readonly (readonly number[])[],
+  right: readonly (readonly number[])[],
+): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index].length !== right[index].length) return false;
+    for (let axis = 0; axis < left[index].length; axis += 1) {
+      if (left[index][axis] !== right[index][axis]) return false;
+    }
+  }
+  return true;
+}
+
 export async function loadBasePolyline(
   db: Db,
   directionId: string,

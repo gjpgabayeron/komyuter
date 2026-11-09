@@ -27,5 +27,9 @@ navbench
 docs
 .impeccable
 
+# The pre-deploy runner ships; its unit tests do not. They stand a stub CLI in
+# for the real one and have no business in a runtime image.
+deploy/*.test.mjs
+
 *.log
 .DS_Store

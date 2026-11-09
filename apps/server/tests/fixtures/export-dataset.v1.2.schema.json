@@ -1,0 +1,408 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://komyuter.local/contracts/export-dataset.v1.2.schema.json",
+  "title": "Komyuter Export Dataset v1.2",
+  "description": "Complete plotted transit dataset as a single JSON file. All coordinates are GeoJSON [longitude, latitude] (WGS84 / SRID 4326). This fixture is the independent contract the export test validates against; it is deliberately not generated from the producer's types.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "coordinate_order",
+    "exported_at",
+    "fare_configs",
+    "routes"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.2"
+    },
+    "coordinate_order": {
+      "const": "lng_lat"
+    },
+    "exported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "fare_configs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/fare_config"
+      }
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/route"
+      }
+    }
+  },
+  "definitions": {
+    "point": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "const": "Point"
+        },
+        "coordinates": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          },
+          "description": "[longitude, latitude]"
+        }
+      },
+      "additionalProperties": false
+    },
+    "linestring": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "const": "LineString"
+        },
+        "coordinates": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
+            }
+          },
+          "description": "[[longitude, latitude], ...]"
+        }
+      },
+      "additionalProperties": false
+    },
+    "fare_config": {
+      "type": "object",
+      "required": [
+        "fare_config_id",
+        "label",
+        "base_fare",
+        "base_distance_km",
+        "rate_per_km",
+        "student_discount_pct",
+        "senior_discount_pct",
+        "is_default",
+        "is_active"
+      ],
+      "properties": {
+        "fare_config_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "base_fare": {
+          "type": "number"
+        },
+        "base_distance_km": {
+          "type": "number"
+        },
+        "rate_per_km": {
+          "type": "number"
+        },
+        "student_discount_pct": {
+          "type": "number"
+        },
+        "senior_discount_pct": {
+          "type": "number"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "is_active": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "route": {
+      "type": "object",
+      "required": [
+        "route_id",
+        "name",
+        "short_name",
+        "color",
+        "is_active",
+        "fare_config_id",
+        "directions"
+      ],
+      "properties": {
+        "route_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "short_name": {
+          "type": "string"
+        },
+        "color": {
+          "type": ["string", "null"]
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "fare_config_id": {
+          "type": ["string", "null"]
+        },
+        "directions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/direction"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "direction": {
+      "type": "object",
+      "required": [
+        "direction_id",
+        "label",
+        "direction_kind",
+        "is_active",
+        "terminals",
+        "base_polyline",
+        "stops",
+        "detours",
+        "restrictions"
+      ],
+      "properties": {
+        "direction_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "direction_kind": {
+          "enum": ["base", "return"]
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "terminals": {
+          "type": "object",
+          "required": ["origin", "destination"],
+          "properties": {
+            "origin": {
+              "type": ["string", "null"]
+            },
+            "destination": {
+              "type": ["string", "null"]
+            }
+          },
+          "additionalProperties": false
+        },
+        "base_polyline": {
+          "$ref": "#/definitions/linestring"
+        },
+        "stops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/stop"
+          }
+        },
+        "detours": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/detour"
+          }
+        },
+        "restrictions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/restriction"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "stop": {
+      "type": "object",
+      "required": [
+        "stop_id",
+        "name",
+        "type",
+        "stop_order",
+        "is_guaranteed_service",
+        "landmark_hint",
+        "derived_from_stop_id",
+        "notes",
+        "ar_marker_enabled",
+        "is_active",
+        "location"
+      ],
+      "properties": {
+        "stop_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "enum": ["terminal", "major_stop", "waiting_area"]
+        },
+        "stop_order": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "is_guaranteed_service": {
+          "type": "boolean"
+        },
+        "landmark_hint": {
+          "type": ["string", "null"]
+        },
+        "derived_from_stop_id": {
+          "type": ["string", "null"]
+        },
+        "notes": {
+          "type": ["string", "null"]
+        },
+        "ar_marker_enabled": {
+          "type": "boolean"
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "location": {
+          "$ref": "#/definitions/point"
+        }
+      },
+      "additionalProperties": false
+    },
+    "detour": {
+      "type": "object",
+      "required": [
+        "detour_id",
+        "label",
+        "entry",
+        "exit",
+        "detour_polyline",
+        "additional_distance_meters",
+        "commuter_instruction",
+        "driver_instruction",
+        "is_active",
+        "detour_stops"
+      ],
+      "properties": {
+        "detour_id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "entry": {
+          "$ref": "#/definitions/point"
+        },
+        "exit": {
+          "$ref": "#/definitions/point"
+        },
+        "detour_polyline": {
+          "$ref": "#/definitions/linestring"
+        },
+        "additional_distance_meters": {
+          "type": ["integer", "null"]
+        },
+        "commuter_instruction": {
+          "type": "string"
+        },
+        "driver_instruction": {
+          "type": ["string", "null"]
+        },
+        "is_active": {
+          "type": "boolean"
+        },
+        "detour_stops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "detour_stop_id",
+              "stop_order",
+              "name",
+              "location",
+              "type",
+              "is_guaranteed_service",
+              "landmark_hint",
+              "notes"
+            ],
+            "properties": {
+              "detour_stop_id": {
+                "type": "string"
+              },
+              "stop_order": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string"
+              },
+              "location": {
+                "$ref": "#/definitions/point"
+              },
+              "type": {
+                "enum": ["terminal", "major_stop", "waiting_area"]
+              },
+              "is_guaranteed_service": {
+                "type": "boolean"
+              },
+              "landmark_hint": {
+                "type": ["string", "null"]
+              },
+              "notes": {
+                "type": ["string", "null"]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "restriction": {
+      "type": "object",
+      "required": [
+        "restriction_id",
+        "detour_id",
+        "from_coord_index",
+        "to_coord_index",
+        "kind",
+        "note",
+        "is_active"
+      ],
+      "properties": {
+        "restriction_id": {
+          "type": "string"
+        },
+        "detour_id": {
+          "type": ["string", "null"]
+        },
+        "from_coord_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "to_coord_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "kind": {
+          "enum": ["no_loading", "no_unloading", "both"]
+        },
+        "note": {
+          "type": ["string", "null"]
+        },
+        "is_active": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

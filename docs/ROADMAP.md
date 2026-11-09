@@ -208,6 +208,15 @@ promoting `dev` → `main`, and tagging `v1.0.0` remain release actions.
 shell work, including the migration step; `railway config plan` reports no drift; a deliberately broken
 migration is rolled back using the runbook.
 
+**Code status (2026-11-09; M4 not closed).** Code complete on `feat/m4-cicd`: `.railway/railway.ts` covers both environments
+with `ctx.isEnvironment`, the guarded pre-deploy runner is in the image and wired into the service, the
+staging drift check is in CI with a gated production counterpart, and the import/export scripts, data-plane
+preflight, domain cutover procedure and rollback runbook are present. The production Supabase project
+exists (`nhqprycfpafwvspzeehh`, `ap-southeast-1`) with an active Super Admin owner, a passing auth policy
+and a migration list matching all 18 local files (0000–0017). The network blocks 5432, so the list was
+obtained through the dashboard SQL fallback recorded in `docs/DEPLOY.md` §3.12. The seed (#80), the first
+production deploy (#82) and both drills (#81) remain live steps; no tag is cut in M4.
+
 ## M5 — v1.1: plotting power and polish
 
 **Goal.** Close the documented planned items and add the editor power that makes bulk plotting fast for

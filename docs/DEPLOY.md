@@ -2,10 +2,15 @@
 
 This is the **manual** form of the deploy: milestone **M1** in `docs/ROADMAP.md`. M4 turns the same
 steps into a pipeline (merge to `dev` → staging, merge to `main` → production, migration gate, rollback
-runbook). The topology and its rationale are decided in `docs/adr/0018-deployment-topology.md`, the
+runbook). **When any of it goes wrong, stop here and read `docs/ROLLBACK.md`** — the recovery procedure,
+the verification checklist and the two drill designs live there, and they are not repeated below. The
+topology and its rationale are decided in `docs/adr/0018-deployment-topology.md`, the
 branch, environment and Supabase-project mapping in
 `docs/adr/0021-branching-and-environments.md`, and which platform primitives implement it in
 `docs/adr/0022-railway-platform-utilization.md`; this file is the procedure.
+
+The pipeline form implemented by M4 is §3.10; the manual sequence below remains the initial-provisioning
+procedure, and the seed procedure is §3.11.
 
 The shape of the deployment is **one service on one origin**: a single image runs the Fastify API,
 which also serves the built admin SPA from the same origin via `@fastify/static`. Nothing about the
@@ -52,6 +57,16 @@ records that the command this project documented cannot run there, so it is deli
 and handed to M4. M1's exit criterion is **met**: a second person signed in as the owner Account and plotted
 a route end to end, and the staging dataset holds the result — 1 route, 2 directions, 22 stops, none of
 which this project's own checks created.
+
+**M4 status (2026-11-09).** The pipeline is code-complete on `feat/m4-cicd`: `.railway/railway.ts`
+describes both environments with `ctx.isEnvironment`, the guarded pre-deploy runner is in the image and
+wired into the service, the CI drift job distinguishes base-branch drift from a pull request's intended
+plan, and the dataset import/export scripts and rollback runbook are in place. The **production data
+plane now exists** — project `nhqprycfpafwvspzeehh` in `ap-southeast-1`, with an active Super Admin owner,
+the documented auth policy (signups off, confirm email on, minimum 12) and a migration list matching all
+18 local files (0000–0017) (§3.12). Outbound 5432 is blocked on the current network, so the list was
+compared through the dashboard SQL result; the production service, the seed (#80), the first production
+deploy (#82) and both staging drills (#81) remain live steps. No release tag is cut in M4.
 
 ## What the image contains
 
@@ -209,6 +224,22 @@ There is no API route to **set** these: GoTrue exposes no settings endpoint on t
 minimum length **6** per GoTrue's own error text ✗, and leaked-password protection **off** — a breached
 13-character password was accepted ✗.
 
+The manual probes above are implemented in `deploy/check-data-plane.mjs`, so the operator runs one
+command and records one result instead of four separate curls:
+
+```bash
+SUPABASE_URL="https://<ref>.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="<service-role key>" \
+ADMIN_EMAIL="<owner email>" \
+pnpm check:data-plane
+```
+
+Add `DATABASE_URL="<session-pooler URL>"` to compare `supabase migration list` with
+`supabase/migrations/`, or `--migration-list <file>` with a saved table / dashboard result, and append
+`-- --json` for a machine-readable record. The script performs the same admin `createUser` probes,
+deletes the throwaway accounts, prints no key or connection string, and exits non-zero while any check
+fails. The dashboard remains the only **writer**; this is the read side.
+
 ## 2. Bootstrap the owner Account
 
 No dashboard surface can create the first Account: every admin route is behind the auth guard, which
@@ -353,10 +384,17 @@ at container boot. Railway's `deploy.preDeployCommand` is that step: it runs in 
 phase, it is not boot, and a failure fails the deployment instead of shipping a new container against an
 old schema (ADR-0022 §3).
 
-**Deferred to M4, with the mechanism now characterised.** The image side is in place: the runtime carries
-the Supabase CLI (`supabase` on `PATH`, pinned by `ARG SUPABASE_CLI_VERSION`) and the chain at
-`/app/supabase/migrations`, which is where the CLI looks by default from the image's working directory, so
-no `--workdir` is needed (ADR-0022 verification gap 3, answered).
+**Implemented in M4.** The runtime image carries `deploy/pre-deploy.mjs` (the guarded runner) and the
+chain at `/app/supabase/migrations`, and the IaC sets
+`preDeploy: ["/app/deploy/pre-deploy.mjs"]` with `preDeployTimeoutSeconds: 300`. The runner requires
+`DATABASE_URL`, `RAILWAY_ENVIRONMENT_NAME`, `EXPECTED_ENVIRONMENT` and `EXPECTED_SUPABASE_PROJECT_REF`,
+derives the Supabase project ref from a direct host or the session-pooler username, refuses a mismatch,
+and only then runs `supabase migration list` and `supabase db push`. It is unit-tested in CI; the live
+staging rehearsal is the remaining confirmation.
+
+For M1 it was left **empty** and the chain was applied by hand, which is what §1 already does. The table
+below records why the earlier command form could not be used and why the image-owned executable is the
+replacement.
 
 What does **not** work is the command this section previously documented. Each row below was measured
 against the platform rather than assumed:
@@ -368,12 +406,8 @@ against the platform rather than assumed:
 | `… --db-url ${{DATABASE_URL}}`                    | Accepted by validation; substitution unconfirmed                                                                                                                    |
 | `SUPABASE_DB_URL` instead of `--db-url`           | **Dead end** — the CLI ignores it (`Cannot find project ref. Have you run supabase link?`)                                                                          |
 
-So `deploy.preDeployCommand` is left **empty** for M1 and the chain is applied by hand, which is what §1
-already does. M4 owns this step in any case, and it should choose between confirming that
-`${{DATABASE_URL}}` is substituted by making one deployment and wrapping the command in a script shipped
-in the image (`sh /app/deploy/pre-deploy.sh`), whose shell semantics do not depend on platform
-interpolation. Leaving the step empty keeps the service deployable rather than failing every deployment at
-a step that cannot yet work.
+So `deploy.preDeployCommand` was left **empty** for M1 and the chain was applied by hand, which is what §1
+already does. M4 replaced that with the image-owned executable above.
 
 Two properties of the eventual step are settled, and are worth carrying forward:
 
@@ -394,6 +428,13 @@ supabase db push --db-url "<this environment's DATABASE_URL>"
 
 A _local_ URL needs `?sslmode=disable` while a Cloud URL needs TLS; see
 [Local rehearsal](#local-rehearsal).
+
+#### The expand/contract rule
+
+See `docs/ROLLBACK.md` §The expand/contract rule. It is mandatory because the pre-deploy step may move
+the schema before the matching image is released, and a failed deployment never undoes an applied
+migration. The canonical statement of the four phases lives in the runbook; this section does not restate
+it.
 
 ### 3.5 Cost and notification
 
@@ -503,6 +544,186 @@ address got an ordinary failure.
   is still limited to five attempts per window. Whether to key on a prefix, lengthen the window, or move the
   state to a shared store is ADR-0005's decision, not this document's.
 
+### 3.9 Domain cutover — staging moves to `komyuter-dev`, production takes the bare domain
+
+This is a **procedure, not a record**: it has not been performed. Staging is currently on
+`komyuter.gjpgabayeron.dev`, and M4 (ticket #79) moves it to `komyuter-dev.gjpgabayeron.dev` so the
+**bare** `komyuter.gjpgabayeron.dev` is free for **production** at go-live. The IaC file already carries
+the destination (`domains: ["komyuter-dev.gjpgabayeron.dev"]`, with `ADMIN_ORIGINS` a literal matching it),
+but the platform and DNS are only correct once this sequence has been run.
+
+The order is load-bearing: a sign-in on the new hostname must be verified **before** the old origin is
+removed from `ADMIN_ORIGINS`, or there is a window in which no origin works and the site is down.
+
+1. **Add the new domain and its DNS record first.** Attach `komyuter-dev.gjpgabayeron.dev` to the staging
+   service **in the dashboard**, then at the DNS provider add the `CNAME` Railway shows for it. The
+   dashboard is required here rather than optional: Railway cannot _register_ a new custom domain from
+   configuration — `railway config plan` against a domain that is not yet attached refuses with
+   `Custom-domain registration is not supported by Railway configuration … Add … in the dashboard, then
+run railway config pull`. So attach it in the dashboard (or via `railway domain`), and only then does
+   the authoring file's `domains: ["komyuter-dev.gjpgabayeron.dev"]` line describe a domain that exists.
+   **Do not** detach the old domain yet — both stay attached during the cutover so the old hostname
+   keeps serving.
+
+2. **Wait for the certificate.** Railway only issues the TLS certificate once the `CNAME` resolves to the
+   service. Poll until the new hostname answers over HTTPS without a certificate warning; this wait is
+   the human-only step the ticket records, and nothing in this repository can shorten it.
+
+3. **Temporarily allow both origins.** While both hostnames are live, `ADMIN_ORIGINS` must name **both**
+   so a sign-in works from either: `https://komyuter.gjpgabayeron.dev,https://komyuter-dev.gjpgabayeron.dev`.
+   Set this as a Railway variable for the duration of the cutover, ahead of step 4.
+
+4. **Verify sign-in on the new hostname.** A **second person**, not only the operator, opens
+   `https://komyuter-dev.gjpgabayeron.dev`, signs in as the owner Account, and plots a route end to end
+   (the M1 exit-criterion check, §4). This is the gate: if it fails, stop and fix the origin or the
+   certificate before going further.
+
+5. **Remove the old origin, then the old domain.** Only once step 4 has passed: set `ADMIN_ORIGINS` to the
+   single value `https://komyuter-dev.gjpgabayeron.dev` (the literal the IaC file now carries), detach
+   `komyuter.gjpgabayeron.dev` from the staging service, and confirm `railway config plan` against staging
+   is clean. The bare domain is now free and stays unattached until production claims it at go-live.
+
+**Production takes the bare domain at go-live.** When the production service is created (ticket #75), it
+attaches `komyuter.gjpgabayeron.dev` — the same hostname staging is leaving here — and sets
+`ADMIN_ORIGINS` to `https://komyuter.gjpgabayeron.dev`. Running this cutover first is what makes that
+hostname available with no overlap between the two environments.
+
+### 3.10 Production IaC and the production drift job
+
+The authoring file is the same for both environments. `ctx.isEnvironment("production")` selects:
+
+- `source.branch = main` (staging: `dev`), with `checkSuites` on in both;
+- the bare `komyuter.gjpgabayeron.dev` custom domain (staging: `komyuter-dev.gjpgabayeron.dev`);
+- `ADMIN_ORIGINS` matching that domain;
+- `EXPECTED_ENVIRONMENT=production` (staging: `staging`);
+- App Sleeping off (staging: on).
+
+`EXPECTED_SUPABASE_PROJECT_REF` is the literal production ref
+(`nhqprycfpafwvspzeehh`), not `preserve()`: the ref is not a secret and was created by #75, so writing it
+makes the pre-deploy guard explicit instead of leaving an operator to remember a preserved variable. The
+operator still supplies `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` and
+`MAPBOX_SECRET_TOKEN`. The production service is declared but not applied until #82. Run
+`railway config plan --environment production` first and treat a create-only plan as the reviewed change.
+
+CI has two drift jobs. `iac-drift` covers staging on every push and pull request. `iac-drift-production`
+is gated on the repository variable `RAILWAY_PRODUCTION_READY == 'true'`, uses the
+`RAILWAY_TOKEN_PRODUCTION` secret, and plans production on pushes to `main` (and on pull requests into
+`main`, against the base branch's file). Until #82 the production job is skipped. After go-live, set
+the variable and add `iac-drift-production` to the required checks on `main`.
+
+**The jobs do not run `railway link`.** A Railway project token cannot enumerate workspaces, which
+`railway link` does before it consults the token, so a link step fails with `Unauthorized` even for a
+valid token. `railway config plan` resolves the project and environment from `RAILWAY_TOKEN` itself; that
+is the supported CI path.
+
+Neither token is read-only: a Railway project token can apply as well as plan. Rotate it like a deploy
+credential.
+
+### 3.11 Seed production from staging (ticket #80)
+
+The seed is one-way and refuses a non-empty target. Run it before the first production deploy, from a
+checkout that has the repository (the scripts need `tsx`, which is deliberately absent from the image).
+
+1. **Export staging.** Either call `GET /api/admin/export/dataset` with an `EXPORT_DATASET` token, or run
+   the operator script against the staging `DATABASE_URL`:
+
+   ```bash
+   DATABASE_URL="<staging session-pooler URL>" \
+     pnpm --filter server export:dataset -- --out staging.json
+   ```
+
+2. **Import into production.** Point `DATABASE_URL` at the production session pooler and name the
+   production owner Account. The importer resolves that Account in the target database, refuses if the
+   target already holds routes, and writes in one transaction:
+
+   ```bash
+   DATABASE_URL="<production session-pooler URL>" \
+     pnpm --filter server import:dataset -- \
+       --file staging.json --owner-email owner@example.com
+   ```
+
+3. **What survives.** Entity ids, `direction_kind`, `derived_from_stop_id`, `is_active` on every
+   soft-deletable entity, `ar_marker_enabled`, and notes. Attribution is recorded against the named
+   owner; no staging auth identity or Account is copied.
+
+4. **Verify.** Compare the import's per-table counts with `/api/status` after the first production
+   deploy. The import prints `Source export: <exported_at>`, `Owner: <email> (user_id …)`,
+   `Imported at …` and the per-table counts; record those in the milestone record — they are the owner
+   mapping and the export timestamp the seed is required to carry. Verify the counts in SQL first, then
+   through `/api/status` after the first production deploy.
+
+## 3.12 Production data plane (ticket #75)
+
+The production Supabase project exists: `komyuter-production`, ref `nhqprycfpafwvspzeehh`, organization
+`lkytnwldwnfjrlxwsbgf`, region **`ap-southeast-1` (Singapore)**, created 2026-11-08. It is a second
+project, not a schema in the staging one (ADR-0018 §4, ADR-0021). The owner Account is
+`admin@komyuter.ph` — the documented dev **email**, not the dev **password** — is email-confirmed, and
+holds `is_super_admin = true` on an active row. The seeded fixed identity
+`00000000-0000-0000-0000-000000000001` is absent, so `seed.sql` was not applied.
+
+The chain's latest artifacts are present: `stops.derived_from_stop_id` (`0013`),
+`admin_users.must_change_password` (`0009`), `restrictions.kind` (`0015`), `restrictions.detour_id`
+(`0017`) and `routes.version` (`0012`); the columns `0016` drops (`detours.active_timeframes`,
+`detours.condition`) and `0015` drops (`restrictions.reason`, `restrictions.affects`) are gone. Exact
+parity is **verified** (2026-11-09): the dashboard query
+`select version from supabase_migrations.schema_migrations order by version;` returned `0000`–`0017`,
+and `pnpm check:data-plane -- --migration-list production-migrations.txt` matched all 18 local files.
+Outbound TCP 5432 is blocked from the operator's network, so the
+`supabase migration list --db-url "<production session-pooler URL>"` form times out there; the saved
+dashboard result is the evidence. Run that command when 5432 is reachable — it reads the same history.
+
+The auth policy is dashboard-only (§1). The dashboard change was made on 2026-11-09, and the probe now
+passes every documented setting:
+
+| Setting                    | Required | Measured                                     | State      |
+| -------------------------- | -------- | -------------------------------------------- | ---------- |
+| Confirm email              | on       | `mailer_autoconfirm: false`                  | pass       |
+| Allow new users to sign up | off      | `disable_signup: true`                       | pass       |
+| Minimum password length    | 12       | 11-character rejected; 12-character accepted | pass       |
+| Leaked-password protection | deferred | not probed                                   | plan-gated |
+
+Re-run the probe:
+
+```bash
+SUPABASE_URL="https://nhqprycfpafwvspzeehh.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="<service-role key>" \
+ADMIN_EMAIL="admin@komyuter.ph" \
+pnpm check:data-plane
+```
+
+`-- --json` records the evidence. `SUPABASE_SERVICE_ROLE_KEY` must be the **secret** key
+(`sb_secret_…` or the legacy `service_role` JWT), never the publishable key: the admin `createUser` and
+`admin_users` probes need the service role. The script deletes any probe account it created; it never
+prints the service key or the connection string, and it exits non-zero while any check fails.
+
+**Migration parity when 5432 is unreachable.** The preferred form is
+`DATABASE_URL="<production session-pooler URL>" pnpm check:data-plane`, which runs
+`supabase migration list`. On 2026-11-09 outbound TCP 5432 to both
+`aws-0-ap-southeast-1.pooler.supabase.com` and `aws-1-ap-southeast-1.pooler.supabase.com` timed out from
+the operator's network, and the direct host did not resolve, so that form cannot run there. Get the same
+list in the dashboard SQL Editor:
+
+```sql
+select version from supabase_migrations.schema_migrations order by version;
+```
+
+Save the result as `production-migrations.txt` (one version per line), then:
+
+```bash
+SUPABASE_URL="https://nhqprycfpafwvspzeehh.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="<service-role key>" \
+ADMIN_EMAIL="admin@komyuter.ph" \
+pnpm check:data-plane -- --migration-list production-migrations.txt
+```
+
+The checker compares the saved list with `supabase/migrations/` and fails on a missing or extra version.
+`--migration-list` also accepts a saved `supabase migration list` table.
+
+**Residual risk.** The owner's email is the documented dev email. The password is not the dev credential
+— the script's dev-credential probe refuses it — and `ALLOW_DEV_CREDENTIAL=false` is the second line of
+defence, but a production Account should not reuse the dev identity's email. Renaming it is an Auth
+operation with no repository step; do it before the first release if that address is not the owner's.
+
 ## 4. Exit criterion (M1 is closed by this, not by the merge)
 
 A second person opens the deployed URL, signs in as the owner Account, and plots a route end to end; the
@@ -511,10 +732,15 @@ refused.
 
 ## Deliberately not here
 
-- **Rollback** and **IaC adoption** are M4's, along with the pipeline form of merge→staging.
-  `docs/adr/0022-railway-platform-utilization.md` §2 decides _when_ configuration moves into source, and
-  refuses `railway.json`/`railway.toml` outright — the format cannot be adopted by a new service and
-  stops being read on 2026-12-01.
+- **Rollback automation.** The procedure is `docs/ROLLBACK.md`, deliberately operator-driven: the
+  three recovery paths are chosen on evidence (the boot provenance line, the deployment list, the
+  migration history) that the platform does not hold in a form a button could read. **IaC adoption**
+  (`.railway/railway.ts`) and the pipeline form of merge→staging are implemented on `feat/m4-cicd`; the
+  live production service, the seed and both drills remain M4's closing steps.
+  `docs/adr/0022-railway-platform-utilization.md` §2 refuses `railway.json`/`railway.toml` outright —
+  the format cannot be adopted by a new service and stops being read on 2026-12-01.
+- **A claim that either rollback drill has been performed.** `docs/ROLLBACK.md` designs two staging
+  drills and dates neither: its exercise log is empty until someone runs them.
 - **CDN caching.** One origin serves the SPA and `/api/*`, so edge caching would cache API responses.
   This is the one platform feature that is actively unsafe in this topology (ADR-0022, non-goals).
 - **Buckets, volumes, WAF Under Attack Mode, static outbound IP and shared variables** are each refused,

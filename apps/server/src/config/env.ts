@@ -103,3 +103,34 @@ export function loadAdminCredentials(
   }
   return result.data;
 }
+
+/** The one variable a data-only one-off needs: where to write. */
+const databaseUrlSchema = z.object({ DATABASE_URL: z.string().min(1) });
+
+/**
+ * Require `DATABASE_URL`, and nothing else.
+ *
+ * The sibling of `loadAdminCredentials` for the same reason: a one-off must not
+ * inherit the service's boot contract. `import:dataset` writes to exactly ONE
+ * database — resolved owner included, because `admin_users` and `auth.users` are
+ * read from the target itself — so demanding `SUPABASE_URL` and a service-role
+ * key would tie an operator's shell to whichever Supabase project the local
+ * `.env` happens to name. That is precisely the mix-up a cross-environment seed
+ * must not have. The `.env` auto-load at the top of this module still applies
+ * exactly as it does for the other scripts.
+ */
+export function loadDatabaseUrl(
+  source: Record<string, string | undefined> = process.env,
+): string {
+  const result = databaseUrlSchema.safeParse(source);
+  if (!result.success) {
+    const issues = result.error.issues
+      .map((i) => `${i.path.join(".")}: ${i.message}`)
+      .join("; ");
+    throw new Error(
+      `Invalid import environment: ${issues}. The dataset importer writes to the ` +
+        `database DATABASE_URL names and reads nothing else from the environment.`,
+    );
+  }
+  return result.data.DATABASE_URL;
+}

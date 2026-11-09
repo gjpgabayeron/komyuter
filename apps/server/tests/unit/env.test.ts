@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { loadAdminCredentials, loadEnv } from "../../src/config/env";
+import {
+  loadAdminCredentials,
+  loadDatabaseUrl,
+  loadEnv,
+} from "../../src/config/env";
 
 const BASE_ENV: Record<string, string> = {
   DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:54322/postgres",
@@ -121,5 +125,21 @@ describe("loadAdminCredentials", () => {
         ADMIN_PASSWORD: "twelve-chars",
       }),
     ).not.toThrow();
+  });
+});
+
+describe("loadDatabaseUrl", () => {
+  // The importer writes to ONE database and resolves the owner from it, so it must
+  // run with a shell that names only that target — no Supabase service credential,
+  // which is exactly the pairing a cross-environment seed must not have.
+  it("loads from a shell that names only DATABASE_URL", () => {
+    expect(loadDatabaseUrl({ DATABASE_URL: BASE_ENV.DATABASE_URL })).toBe(
+      BASE_ENV.DATABASE_URL,
+    );
+  });
+
+  it("names the missing variable rather than failing later at connect time", () => {
+    expect(() => loadDatabaseUrl({})).toThrow(/DATABASE_URL/);
+    expect(() => loadDatabaseUrl({ DATABASE_URL: "" })).toThrow(/DATABASE_URL/);
   });
 });

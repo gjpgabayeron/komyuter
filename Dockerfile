@@ -83,6 +83,19 @@ COPY --from=build /app/apps/admin/dist ./apps/admin/dist
 # (ADR-0022 §3.4).
 COPY supabase/migrations ./supabase/migrations
 
+# The guarded runner the pre-deploy step executes (ADR-0022 §3, and
+# docs/DEPLOY.md §3.4 for why the command has to be a script rather than a
+# `--db-url "$DATABASE_URL"` array element: the platform word-splits the array
+# with no shell, so the variable never expands there).
+#
+# `chmod` is load-bearing, not tidiness. The mode bit in the build context comes
+# from the checkout, and this repository is developed on Windows with
+# `core.filemode` off, so an executable script arrives without its executable
+# bit. The platform's preferred form is the bare absolute path
+# `["/app/deploy/pre-deploy.mjs"]`, which can only work if this bit is set here.
+COPY deploy ./deploy
+RUN chmod 0755 ./deploy/pre-deploy.mjs
+
 # ADR-0018 §1: the API serves the SPA from its own origin, so the container has
 # to say where the build landed. Unset, the server still starts and still
 # answers /api/*, but every page 404s — the walk-up fallback finds no workspace

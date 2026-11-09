@@ -83,3 +83,11 @@ Constraints:
 - No attribution on Roles or Accounts.
 - No attribution in the commuter export dataset or the navigation contract.
 - No backfill of rows that predate the columns.
+
+## Out-of-band dataset import (2026-11-08)
+
+The one-off `import:dataset` script is **not** a request handler. It has no request identity, so the
+operator names the owner Account with `--owner-email`; the script resolves it in `admin_users` and stamps
+every imported row with that Account. This is the only place attribution is taken from an argument, and
+it is deliberately outside the HTTP path: no handler reads an actor from request input. The owner is
+validated rather than trusted, and a missing or inactive owner is refused before any write.

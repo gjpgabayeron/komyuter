@@ -1,28 +1,29 @@
-import Ajv from "ajv";
-import addFormats from "ajv-formats";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { resolve, dirname } from "node:path";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 
-const currentDir = dirname(fileURLToPath(import.meta.url));
-const schemaPath = resolve(
-  currentDir,
-  "../../../../specs/001-local-supabase-backend/contracts/export-dataset.schema.json",
+/**
+ * Validates the export against the checked-in **v1.2 contract fixture**, not the
+ * producer's own zod schema. That independence is the point: a contract test
+ * that compiled the same schema the server builds the document from would only
+ * prove the producer agrees with itself. The frozen `specs/001` JSON document
+ * stays untouched as the v1.1 record; this fixture is the current contract.
+ */
+const contractPath = fileURLToPath(
+  new URL("../fixtures/export-dataset.v1.2.schema.json", import.meta.url),
 );
 
-let cachedValidate: ReturnType<Ajv["compile"]> | undefined;
+const ajv = new Ajv({ allErrors: true, strict: false });
+addFormats(ajv);
+const validate = ajv.compile(JSON.parse(readFileSync(contractPath, "utf8")));
 
 export function validateDatasetAgainstSchema(dataset: unknown): string[] {
-  if (!cachedValidate) {
-    const ajv = new Ajv({ allErrors: true });
-    addFormats(ajv);
-    const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
-    cachedValidate = ajv.compile(schema);
-  }
-  cachedValidate(dataset);
-  return (
-    cachedValidate.errors?.map((e) => `${e.instancePath} ${e.message}`) ?? []
-  );
+  if (validate(dataset)) return [];
+  return (validate.errors ?? []).map((error) => {
+    const path = error.instancePath.length > 0 ? error.instancePath : "(root)";
+    return `${path} ${error.message ?? "is invalid"}`;
+  });
 }
 
 export function assertDatasetValid(dataset: unknown): void {

@@ -46,10 +46,12 @@ export interface ExportRows {
     student_discount_pct: unknown;
     senior_discount_pct: unknown;
     is_default: boolean;
+    is_active: boolean;
   }>;
   directionRows: Array<{
     direction_id: string;
     route_id: string;
+    direction_kind: ExportDirection["direction_kind"];
     label: string;
     is_active: boolean;
     origin_stop_id: string | null;
@@ -63,7 +65,11 @@ export interface ExportRows {
     type: ExportStop["type"];
     stop_order: number;
     is_guaranteed_service: boolean;
+    derived_from_stop_id: string | null;
+    ar_marker_enabled: boolean;
     landmark_hint: string | null;
+    notes: string | null;
+    is_active: boolean;
     location: unknown;
   }>;
   detourRows: Array<{
@@ -76,6 +82,7 @@ export interface ExportRows {
     additional_distance_meters: number | null;
     commuter_instruction: string;
     driver_instruction: string | null;
+    is_active: boolean;
   }>;
   detourStopRows: Array<{
     detour_stop_id: string;
@@ -96,6 +103,7 @@ export interface ExportRows {
     to_coord_index: number;
     kind: ExportRestriction["kind"];
     note: string | null;
+    is_active: boolean;
   }>;
 }
 
@@ -122,6 +130,7 @@ export function buildExportDataset(
     student_discount_pct: num(row.student_discount_pct),
     senior_discount_pct: num(row.senior_discount_pct),
     is_default: row.is_default,
+    is_active: row.is_active,
   }));
 
   const stopsByDirection = new Map<string, ExportStop[]>();
@@ -133,7 +142,11 @@ export function buildExportDataset(
       type: stop.type,
       stop_order: stop.stop_order,
       is_guaranteed_service: stop.is_guaranteed_service,
+      derived_from_stop_id: stop.derived_from_stop_id,
+      ar_marker_enabled: stop.ar_marker_enabled,
       landmark_hint: stop.landmark_hint,
+      notes: stop.notes,
+      is_active: stop.is_active,
       location: stop.location as unknown as ExportStop["location"],
     });
     stopsByDirection.set(stop.direction_id, list);
@@ -170,6 +183,7 @@ export function buildExportDataset(
       additional_distance_meters: detour.additional_distance_meters,
       commuter_instruction: detour.commuter_instruction,
       driver_instruction: detour.driver_instruction,
+      is_active: detour.is_active,
       detour_stops: detourStopsByDetour.get(detour.detour_id) ?? [],
     });
     detoursByDirection.set(detour.direction_id, list);
@@ -185,6 +199,7 @@ export function buildExportDataset(
       to_coord_index: restriction.to_coord_index,
       kind: restriction.kind,
       note: restriction.note,
+      is_active: restriction.is_active,
     });
     restrictionsByDirection.set(restriction.direction_id, list);
   }
@@ -194,6 +209,7 @@ export function buildExportDataset(
     const list = directionsByRoute.get(direction.route_id) ?? [];
     list.push({
       direction_id: direction.direction_id,
+      direction_kind: direction.direction_kind,
       label: direction.label,
       is_active: direction.is_active,
       terminals: {
@@ -263,12 +279,14 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
         student_discount_pct: fareConfigsTable.student_discount_pct,
         senior_discount_pct: fareConfigsTable.senior_discount_pct,
         is_default: fareConfigsTable.is_default,
+        is_active: fareConfigsTable.is_active,
       })
       .from(fareConfigsTable),
     db
       .select({
         direction_id: directionsTable.direction_id,
         route_id: directionsTable.route_id,
+        direction_kind: directionsTable.direction_kind,
         label: directionsTable.label,
         is_active: directionsTable.is_active,
         origin_stop_id: directionsTable.origin_stop_id,
@@ -284,7 +302,11 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
         type: stopsTable.type,
         stop_order: stopsTable.stop_order,
         is_guaranteed_service: stopsTable.is_guaranteed_service,
+        derived_from_stop_id: stopsTable.derived_from_stop_id,
+        ar_marker_enabled: stopsTable.ar_marker_enabled,
         landmark_hint: stopsTable.landmark_hint,
+        notes: stopsTable.notes,
+        is_active: stopsTable.is_active,
         location: asGeoJSON(stopsTable.location),
       })
       .from(stopsTable),
@@ -299,6 +321,7 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
         additional_distance_meters: detoursTable.additional_distance_meters,
         commuter_instruction: detoursTable.commuter_instruction,
         driver_instruction: detoursTable.driver_instruction,
+        is_active: detoursTable.is_active,
       })
       .from(detoursTable),
     db
@@ -323,6 +346,7 @@ export async function readExportRows(db: Db): Promise<ExportRows> {
         to_coord_index: restrictionsTable.to_coord_index,
         kind: restrictionsTable.kind,
         note: restrictionsTable.note,
+        is_active: restrictionsTable.is_active,
       })
       .from(restrictionsTable),
   ]);
