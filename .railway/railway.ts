@@ -16,8 +16,10 @@ import { defineRailway, github, preserve, project, service } from "railway/iac";
  * cannot be adopted by a new service and stops being read on 2026-12-01
  * (ADR-0022 §2.2).
  *
- * Staging already exists. Production is declared here but is not provisioned
- * until ticket #75 creates its data plane; `railway config plan --environment
+ * Staging already exists. Production's data plane also exists (project
+ * `nhqprycfpafwvspzeehh`, created 2026-11-08 in `ap-southeast-1`); the
+ * production *service* is declared here but is not applied until its variables
+ * and template are reviewed (ticket #82). `railway config plan --environment
  * production` is the reviewed create, and `railway config apply` is not run
  * until that plan is approved.
  */
@@ -138,11 +140,12 @@ export default defineRailway((ctx) => {
       ALLOW_DEV_CREDENTIAL: "false",
       DATABASE_URL: preserve(),
       EXPECTED_ENVIRONMENT: production ? "production" : "staging",
-      // The production project ref arrives with #75, before the first deploy.
-      // It is preserved rather than written so no fake ref can be planned into
-      // the service; the pre-deploy runner refuses to run without it.
+      // Both project refs are known and neither is a secret. The production
+      // ref was created by #75; writing it here makes the pre-deploy guard
+      // explicit instead of leaving an operator to remember a preserved
+      // variable before the first deploy.
       EXPECTED_SUPABASE_PROJECT_REF: production
-        ? preserve()
+        ? "nhqprycfpafwvspzeehh"
         : "prmccdmsqtywprmfaluf",
       MAPBOX_SECRET_TOKEN: preserve(),
       NODE_ENV: "production",
