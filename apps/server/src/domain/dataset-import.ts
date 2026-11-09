@@ -108,6 +108,8 @@ export interface DatasetImportPlan {
 export interface DatasetImportResult {
   owner: DatasetOwner;
   counts: DatasetImportCounts;
+  /** The source document's `exported_at`, recorded with the import. */
+  exportedAt: string;
   importedAt: string;
 }
 
@@ -559,5 +561,10 @@ export async function runDatasetImport({
     insertDataset(tx, dataset, owner, importedAt),
   );
 
-  return { owner, counts, importedAt: importedAt.toISOString() };
+  return {
+    owner,
+    counts,
+    exportedAt: dataset.exported_at,
+    importedAt: importedAt.toISOString(),
+  };
 }

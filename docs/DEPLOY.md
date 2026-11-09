@@ -647,7 +647,10 @@ checkout that has the repository (the scripts need `tsx`, which is deliberately 
    owner; no staging auth identity or Account is copied.
 
 4. **Verify.** Compare the import's per-table counts with `/api/status` after the first production
-   deploy. Record the export timestamp, the owner email and the counts in the milestone record.
+   deploy. The import prints `Source export: <exported_at>`, `Owner: <email> (user_id …)`,
+   `Imported at …` and the per-table counts; record those in the milestone record — they are the owner
+   mapping and the export timestamp the seed is required to carry. Verify the counts in SQL first, then
+   through `/api/status` after the first production deploy.
 
 ## 3.12 Production data plane (ticket #75)
 
