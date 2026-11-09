@@ -127,6 +127,10 @@ export interface DirectionSaveResult {
   created_by: Attribution;
   updated_by: Attribution;
   stops: StopEntity[];
+  /** Warnings for active main-route restrictions whose positional range no
+   *  longer matches the polyline this save persisted. The save succeeds; the
+   *  operator can re-range them against the saved path. */
+  restriction_warnings?: string[];
   return_direction: Omit<DirectionSaveResult, "return_direction">;
 }
 

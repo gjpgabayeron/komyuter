@@ -689,6 +689,15 @@ export function RouteWorkspaceProvider({ children }: { children: ReactNode }) {
           })
         : await createSave.mutateAsync(payload);
       toast.success("Route plotted and saved.");
+      const restrictionWarnings = result.restriction_warnings ?? [];
+      if (restrictionWarnings.length > 0) {
+        toast.warning(
+          `Saved, but ${restrictionWarnings.length} restriction${
+            restrictionWarnings.length === 1 ? "" : "s"
+          } no longer match the new path. Re-range them: ${restrictionWarnings.join(" ")}`,
+          { duration: 12000 },
+        );
+      }
       // Reflect the persisted state in the draft and clear any pending edits
       // (FR-027: one atomic save persisted base + stops + derived return).
       const store = usePlottingStore.getState();
