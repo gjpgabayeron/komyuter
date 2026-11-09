@@ -100,8 +100,13 @@ export default defineRailway((ctx) => {
       // the chain takes well under that (ADR-0022 §3.1).
       preDeployTimeoutSeconds: 300,
       // Staging only. Production must not sleep: a cold start adds seconds to
-      // the first request (ADR-0022 §8.2).
-      sleepApplication: !production,
+      // the first request (ADR-0022 §8.2). Production *omits* the key rather
+      // than writing `false`: Railway stores an unset/sleeping-off value as
+      // `null` and plans an explicit `false` as permanent drift (the same
+      // stored-default asymmetry as `restartPolicyType` above). The platform
+      // default is no sleeping, so omission expresses the same policy and
+      // keeps `railway config plan` clean.
+      ...(production ? {} : { sleepApplication: true }),
     },
 
     // The custom domain per environment. No generated domain is recorded:
