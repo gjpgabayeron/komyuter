@@ -367,8 +367,15 @@ not a rounding error.
    it writes is truthful. Then confirm the next deployment applies nothing and the write path still
    passes.
 
-If a `db push` after cleanup turns out to ignore remote-only history rows, `repair` is unnecessary —
-record which happened in the exercise log, since it decides whether the cleanup steps stay.
+**Measured on 2026-11-10: the repair is required, not optional.** The deployment carrying only the two
+deletions failed at `supabase db push` with `Remote migration versions not found in local migrations
+directory`, and the CLI printed the repair command itself. The previous container kept serving
+throughout, and the same commit deployed green after the repair, reporting `Remote database is up to
+date.` So `repair` stays in this procedure.
+
+A machine that cannot reach `db.<ref>` (IPv6-only, with port 5432 blocked) runs the repair through the
+IPv4 **session pooler** instead — `postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler
+.supabase.com:5432/postgres` — because `railway run` executes locally and inherits the same network.
 
 ## What this runbook deliberately does not do
 
