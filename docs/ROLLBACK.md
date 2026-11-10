@@ -7,9 +7,9 @@ fails, and the migration step succeeds at something harmful. It is the operating
 provenance line this runbook reads). The topology beneath it is `docs/adr/0018-deployment-topology.md`
 §5 — migrations are an explicit step before the new container goes live, never container boot.
 
-**Status: the runbook is written; neither drill has been executed.** The two procedures in
-[Drills](#drills-not-yet-executed) are design, not record. The exercise log carries the dates when
-they are run, and `docs/ROADMAP.md` M4's exit criterion is not met until it does.
+**Status: the runbook is written and both drills were executed on staging on 2026-11-10.** The
+[exercise log](#exercise-log) is the record of what was observed; the [drills](#drills) section is the
+procedure that was followed. `docs/ROADMAP.md` M4's exit criterion is met by that record.
 
 ## Rule zero: establish what is actually running
 
@@ -270,22 +270,27 @@ mismatch as damage.
 
 ## Exercise log
 
-No drill has been run yet. Fill a row when one is, and put the evidence beside it — a deployment id, a
-log excerpt, a screenshot path — because a date with no artifact is a claim, not a record.
+Both drills were run on 2026-11-10. Each row carries the artifact that makes it a record rather than a
+claim: a deployment id, a log excerpt, the API responses that bracket the change.
 
-| Date      | Environment | Failure mode                  | Drill file(s)                     | Observed                                                          | Evidence                                   | Restored |
-| --------- | ----------- | ----------------------------- | --------------------------------- | ----------------------------------------------------------------- | ------------------------------------------ | -------- |
-| _pending_ | staging     | Failed pre-deploy (Drill 1)   | `9999_drill_broken_migration.sql` | _deploy failed, previous container kept serving, drill unapplied_ | _deployment id + `railway logs` excerpt_   | _n/a_    |
-| _pending_ | staging     | Applied-but-harmful (Drill 2) | `9998_…`, compensating `9999_…`   | _write path broke, recovered after the compensating migration_    | _deployment id + before/after write check_ | _yes_    |
+| Date       | Environment | Failure mode                  | Drill file(s)                     | Observed                                                                                                                                                                                                 | Evidence                                                               | Restored |
+| ---------- | ----------- | ----------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------- |
+| 2026-11-10 | staging     | Failed pre-deploy (Drill 1)   | `9999_drill_broken_migration.sql` | Deployment `c9c74522` **FAILED**; `supabase db push` → `SQLSTATE 42601`; `9999` stayed local-only in the history; `0181ad21` (`3114144`) kept serving; counts unchanged                                  | deployment ids, pre-deploy log excerpt, `/api/status` before/after     | n/a      |
+| 2026-11-10 | staging     | Applied-but-harmful (Drill 2) | `9998_…`, compensating `9999_…`   | `9998` applied by `411f2140` (SUCCESS); probe create → `500` (`violates check constraint "m4_drill_no_insert"`); `9999` applied by `d14ef19e` (SUCCESS); probe create → `201`; counts 6/12/194 unchanged | deployment ids, both API responses, server log excerpts, `/api/status` | yes      |
 
-## Drills (not yet executed)
+## Drills (executed 2026-11-10 on staging)
 
-Both travel through **staging only**. Neither file may reach `main`: a drill migration on `main` is a
-production deployment that either fails the pre-deploy (Path A, noisy) or applies a deliberate
-constraint to production data (Path B, unacceptable). Since `dev` is what staging tracks, pushing the
-drill to `dev` and removing it before the next `dev → main` promotion is what keeps it contained —
-check `git log --all --oneline -- supabase/migrations/` before any promotion, and again at release
-time.
+Both travelled through **staging only**, as pull requests merged to `dev` — which is PR-only now
+(required `check` and `iac-drift`, enforced for admins too), and is what staging tracks. Neither drill
+file reached `main`. A drill migration on `main` would be a production deployment that either fails the
+pre-deploy (Path A, noisy) or applies a deliberate constraint to production data (Path B, unacceptable).
+Check `git log --all --oneline -- supabase/migrations/` before any promotion, and again at release time.
+
+**One coupling was found by running this.** The drill versions `9998`/`9999` collided with fixtures in
+`deploy/check-data-plane.test.mjs`, which pinned those numbers as "a remote version with no local file".
+A transient drill file then made the fixture exist locally, inverted two parity cases, and failed CI on
+the first drill PR. The fixture now derives the version from the files actually present
+(`ABSENT_VERSION`), so a drill migration cannot break that suite again.
 
 The migrations directory is in `build.watchPatterns`, so a drill file alone triggers the rebuild and
 deploy the drill needs.
