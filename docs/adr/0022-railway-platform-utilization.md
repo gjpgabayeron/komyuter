@@ -285,13 +285,16 @@ None of them is a reason to revisit the decisions above; each has a prepared fal
 These record what the M4 pipeline implemented and what remains a live measurement. They refine, and do
 not reverse, the decisions above.
 
-- **Verification gap 1 — approval vs pre-deploy ordering — is still open.** The first production
-  deployment is the measurement: compare the pre-deploy step's timestamp with the approval in
-  `railway deployment list`. The accepted policy is to **let the schema move before the container is
-  released**, because `preDeployCommand` is the platform's native lifecycle step, and to require
-  expand/contract migrations: add and backfill first, enforce later, drop only after the old image is
-  gone. Approval gates the container, not the schema. If the measurement shows the opposite ordering,
-  that is the safer outcome and needs no code change; record it here.
+- **Verification gap 1 — approval vs pre-deploy ordering — is answered: the pre-deploy runs before the
+  container is released, and does not wait for approval.** Measured 2026-11-10 from the first
+  production deployments (2026-11-09): `5fa25c76` (13:53:31Z) executed the pre-deploy step and failed
+  there — `pre-deploy: missing required environment variable(s): DATABASE_URL` — without ever releasing
+  a container, and the deployment that went live afterwards (`4ebace41`, 14:00:00Z) served the same
+  commit. The CLI exposes no approval timestamp (`railway deployment list` reports status and
+  `createdAt` only), so the ordering is established from a deployment whose pre-deploy ran while it
+  never released, not from a timestamp comparison. The policy therefore stands as written: **the
+  schema may move before the container is released**, so expand/contract migrations are mandatory
+  (`docs/ROLLBACK.md` §The expand/contract rule). Approval gates the container, not the schema.
 - **Verification gap 2 — per-environment `source.branch` — is answered: one authoring file can express
   it.** `defineRailway`'s program receives a `RailwayContext` with `isEnvironment(name)` and
   `environment`, so `.railway/railway.ts` branches on `ctx.isEnvironment("production")` for the branch
