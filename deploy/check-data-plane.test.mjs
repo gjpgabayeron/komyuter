@@ -43,6 +43,22 @@ const LOCAL_VERSIONS = readdirSync(MIGRATIONS_DIR)
   .filter((version) => version !== undefined)
   .sort();
 
+// The parity fixtures stand in for a **remote-only** row, so the version they use
+// must not exist in `supabase/migrations/` — otherwise the checker correctly finds
+// a local file and the case stops being the case. It is derived rather than
+// hardcoded because a transient drill migration (`docs/ROLLBACK.md`) is a real
+// local file: when `9999_drill_…` is present, a fixture that pinned `9999` would
+// silently invert this suite.
+const ABSENT_VERSION = (() => {
+  for (let candidate = 9999; candidate >= 0; candidate -= 1) {
+    const version = String(candidate).padStart(4, "0");
+    if (!LOCAL_VERSIONS.includes(version)) {
+      return version;
+    }
+  }
+  throw new Error("every four-digit migration version exists locally");
+})();
+
 const STUB_SOURCE = `#!/usr/bin/env node
 const { appendFileSync } = require("node:fs");
 const argv = process.argv.slice(2);
@@ -451,23 +467,23 @@ test("fails when a migration is not applied remotely", async (t) => {
 test("fails when the remote history has a version with no local file", async (t) => {
   const server = await startFakeSupabase(t);
   const result = await runChecker(t, server, {
-    migrationTable: migrationTable({ extra: ["9999"] }),
+    migrationTable: migrationTable({ extra: [ABSENT_VERSION] }),
   });
   assert.equal(result.status, 1);
   const migrations = check(parseJson(result), "migrations");
   assert.equal(migrations.ok, false);
-  assert.match(migrations.detail, /9999/);
+  assert.match(migrations.detail, new RegExp(ABSENT_VERSION));
 });
 
 test("fails when a remote-only version has no local file", async (t) => {
   const server = await startFakeSupabase(t);
   const result = await runChecker(t, server, {
-    migrationTable: migrationTable({ remoteOnly: ["9998"] }),
+    migrationTable: migrationTable({ remoteOnly: [ABSENT_VERSION] }),
   });
   assert.equal(result.status, 1);
   const migrations = check(parseJson(result), "migrations");
   assert.equal(migrations.ok, false);
-  assert.match(migrations.detail, /9998/);
+  assert.match(migrations.detail, new RegExp(ABSENT_VERSION));
 });
 
 test("accepts a copied migration list when DATABASE_URL is unavailable", async (t) => {
@@ -507,12 +523,12 @@ test("fails when a copied list has a version with no local file", async (t) => {
   const server = await startFakeSupabase(t);
   const result = await runChecker(t, server, {
     migrations: false,
-    migrationList: `${LOCAL_VERSIONS.join("\n")}\n9999`,
+    migrationList: `${LOCAL_VERSIONS.join("\n")}\n${ABSENT_VERSION}`,
   });
   assert.equal(result.status, 1);
   const migrations = check(parseJson(result), "migrations");
   assert.equal(migrations.ok, false);
-  assert.match(migrations.detail, /9999/);
+  assert.match(migrations.detail, new RegExp(ABSENT_VERSION));
 });
 
 test("skips migration parity when DATABASE_URL is absent", async (t) => {
